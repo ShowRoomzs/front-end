@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "showroomzs",
-    "slug": "showroomzs",
+    "name": "showroomz",
+    "slug": "showroomz",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.showroomzs.app"
+      "bundleIdentifier": "com.showroomz.app"
     },
     "android": {
       "adaptiveIcon": {
@@ -23,7 +23,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.showroomzs.app"
+      "package": "com.showroomz.app"
     },
     "web": {
       "favicon": "./assets/favicon.png"

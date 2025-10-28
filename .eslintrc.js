@@ -1,5 +1,5 @@
 module.exports = {
-  ignorePatterns: [".eslintrc.js"],
+  ignorePatterns: [".eslintrc.js", "metro.config.js"],
   env: {
     node: true,
     "react-native/react-native": true,
@@ -21,13 +21,7 @@ module.exports = {
     "plugin:react-native/all",
     "prettier",
   ],
-  plugins: [
-    "unused-imports",
-    "import",
-    "@typescript-eslint",
-    "prettier",
-    "react-native",
-  ],
+  plugins: ["unused-imports", "import", "@typescript-eslint", "prettier", "react-native"],
   parser: "@typescript-eslint/parser",
   parserOptions: {
     ecmaFeatures: {
@@ -77,12 +71,7 @@ module.exports = {
     "import/order": [
       "error",
       {
-        groups: [
-          "builtin",
-          "external",
-          "internal",
-          ["parent", "sibling", "index", "object", "type"],
-        ],
+        groups: ["builtin", "external", "internal", ["parent", "sibling", "index", "object", "type"]],
 
         alphabetize: {
           order: "asc",

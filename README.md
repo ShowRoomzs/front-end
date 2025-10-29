@@ -63,8 +63,14 @@
 ### 가이드
 
 - **`assets/`**: 앱 아이콘, 스플래시 (`app.json` 참조)
-- **`src/assets/`**: 비즈니스 이미지 (import 사용)
-- **`common/`**: 전역 재사용 코드
-- **`features/{domain}/`**: 도메인별 기능
+- **`providers/`**: 전역 Provider (QueryClient, Theme 등)
+- **`common/assets/`**: 공통 정적 파일
 - **`common/components/`**: 범용 UI 컴포넌트
-- **`features/{domain}/components/`**: 특정 도메인 전용
+- **`features/{domain}/assets/`**: 도메인 특화 정적 파일
+- **`features/{domain}/components/`**: 도메인 특화 컴포넌트
+
+## 📖 개발 컨벤션
+
+코드 스타일, 네이밍 규칙 등 상세한 개발 컨벤션은 아래 문서를 참고해 주세요.
+
+**[👉 개발 컨벤션 문서 보기](https://candied-surfboard-06c.notion.site/Development-Conventions-FrontEnd-263c1ade4f0380a4b4f6fab1b5220be0)**

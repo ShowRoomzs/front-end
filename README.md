@@ -24,39 +24,45 @@
 ## 📁 디렉토리 구조
 
 ```
-├── assets
-├── common
-│   ├── components
-│   │   ├── base
-│   │   └── composite
-│   ├── constants
-│   ├── hooks
-│   ├── services
-│   ├── stores
-│   ├── types
-│   └── utils
-├── features
-│   └── {domain}
-│       ├── components
-│       │   ├── base
-│       │   └── composite
-│       ├── hooks
-│       ├── views
-│       ├── services
-│       ├── stores
-│       ├── types
-│       └── utils
-└── App.tsx
+├── assets/                         # 앱 레벨 정적 파일 (스플래시, 아이콘 등)
+├── src/
+│   ├── assets/                     # 비지니스 레벨 정적 파일 (컨텐츠, UI이미지)
+│   │── providers/                  # 앱 전역 Provider 관리
+│   ├── common/                     # 공통 영역 (도메인 독립적)
+│   │   ├── components/             # 공통 UI 컴포넌트
+│   │   ├── constants/              # 공통 상수
+│   │   ├── hooks/                  # 공통 커스텀 훅
+│   │   ├── services/               # 공통 API 서비스
+│   │   ├── stores/                 # 공통 전역 상태
+│   │   ├── types/                  # 공통 타입 정의
+│   │   └── utils/                  # 공통 유틸 함수
+│   ├── features/
+│   │   └── {domain}/               # 도메인별 기능
+│   │       ├── components/         # 도메인 특화 컴포넌트
+│   │       ├── views/              # 화면(페이지) 컴포넌트
+│   │       ├── hooks/              # 도메인 특화 훅
+│   │       ├── services/           # 도메인 API 서비스
+│   │       ├── stores/             # 도메인 상태 관리
+│   │       ├── types/              # 도메인 타입 정의
+│   │       └── utils/              # 도메인 유틸 함수
+│   └── App.tsx                     # 앱 진입점
 ```
 
-- `features/{domain}/components/base` : 기본 단일 컴포넌트
-- `features/{domain}/components/composite` : base를 조합해서 만든 컴포넌트
-- `features/{domain}/constants` : 상수
-- `features/{domain}/views` : components를 조합해서 만든 View단
-- `features/{domain}/services` : api 및 데이터 조작 관련 코드(restapi)
-- `features/{domain}/hooks` : hook
-- `features/{domain}/utils` : 유틸함수
-- `features/{domain}/stores` : zustand store
-- `features/{domain}/types` : 타입 및 인터페이스 정의
-- `common` : 공통 영역. 하위 디렉토리는 위와 동일함 (components, services, hooks, stores, utils, types ...)
-- `assets` : image, svg 등 정적파일
+### 컴포넌트 구조
+
+```
+├── components/
+│   └── SomeComponent/
+│       ├── SomeComponent.tsx       # 컨테이너 + 로직 + 타입 정의
+│       ├── SomeHeader.tsx          # UI
+│       └── SomeBody.tsx            # UI
+```
+
+### 가이드
+
+- **`assets/`**: 앱 아이콘, 스플래시 (`app.json` 참조)
+- **`src/assets/`**: 비즈니스 이미지 (import 사용)
+- **`common/`**: 전역 재사용 코드
+- **`features/{domain}/`**: 도메인별 기능
+- **`common/components/`**: 범용 UI 컴포넌트
+- **`features/{domain}/components/`**: 특정 도메인 전용

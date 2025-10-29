@@ -26,9 +26,9 @@
 ```
 ├── assets/                         # 앱 레벨 정적 파일 (스플래시, 아이콘 등)
 ├── src/
-│   ├── assets/                     # 비지니스 레벨 정적 파일 (컨텐츠, UI이미지)
 │   │── providers/                  # 앱 전역 Provider 관리
 │   ├── common/                     # 공통 영역 (도메인 독립적)
+│   │   ├── assets/                 # 공통 정적 파일
 │   │   ├── components/             # 공통 UI 컴포넌트
 │   │   ├── constants/              # 공통 상수
 │   │   ├── hooks/                  # 공통 커스텀 훅
@@ -38,8 +38,10 @@
 │   │   └── utils/                  # 공통 유틸 함수
 │   ├── features/
 │   │   └── {domain}/               # 도메인별 기능
-│   │       ├── components/         # 도메인 특화 컴포넌트
 │   │       ├── views/              # 화면(페이지) 컴포넌트
+│   │       ├── assets/             # 도메인 특화 정적파일
+│   │       ├── components/         # 도메인 특화 컴포넌트
+│   │       ├── constants/          # 도메인 특화 상수
 │   │       ├── hooks/              # 도메인 특화 훅
 │   │       ├── services/           # 도메인 API 서비스
 │   │       ├── stores/             # 도메인 상태 관리

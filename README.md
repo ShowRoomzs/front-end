@@ -63,7 +63,7 @@
 ### 가이드
 
 - **`assets/`**: 앱 아이콘, 스플래시 (`app.json` 참조)
-- **`providers/`**: 전역 Provider (QueryClient, Theme 등)
+- **`providers/`**: 커스텀 Provider
 - **`common/assets/`**: 공통 정적 파일
 - **`common/components/`**: 범용 UI 컴포넌트
 - **`features/{domain}/assets/`**: 도메인 특화 정적 파일

@@ -1,10 +1,8 @@
 import { ReactElement, useCallback, useRef, useState } from "react";
-import { FlatList, ListRenderItem, Pressable, Text, View } from "react-native";
+import { FlatList, ListRenderItem, View } from "react-native";
 
 import TabBody from "./TabBody";
 import TabHeader from "./TabHeader";
-
-import { cn } from "@/common/utils/cn";
 
 export interface TabItemType {
   id: string;
@@ -14,6 +12,7 @@ export interface TabItemType {
 
 interface TabProps {
   items: Array<TabItemType>;
+  renderItem: ListRenderItem<TabItemType>;
   headerClassName?: string;
   bodyClassName?: string;
   selectedIndex?: number;
@@ -27,6 +26,7 @@ export default function Tabs(props: TabProps) {
     bodyClassName,
     headerClassName,
     onSelect,
+    renderItem,
     selectedIndex: originSelectedIndex,
     skipIntermediateTabs = false,
   } = props;
@@ -58,23 +58,6 @@ export default function Tabs(props: TabProps) {
       handlePressTab(index, items[index].id);
     },
     [handlePressTab, items]
-  );
-
-  const renderItem: ListRenderItem<TabItemType> = useCallback(
-    data => {
-      const { item, index } = data;
-      const isActive = index === selectedIndex;
-
-      return (
-        <View className="flex flex-col">
-          <Pressable onPress={() => handlePressTab(index, item.id)} className="px-2 py-2 items-center">
-            <Text className={cn(isActive ? "font-bold" : "", "text-base")}>{item.label}</Text>
-          </Pressable>
-          {isActive && <View className="w-full h-0.5 bg-black" />}
-        </View>
-      );
-    },
-    [handlePressTab, selectedIndex]
   );
 
   const keyExtractor = useCallback((item: TabItemType) => item.id, []);

@@ -32,6 +32,8 @@
 │   │   ├── components/             # 공통 UI 컴포넌트
 │   │   ├── constants/              # 공통 상수
 │   │   ├── hooks/                  # 공통 커스텀 훅
+│   │   ├── lib/                    # 외부 라이브러리 설정
+│   │   ├── router/                 # 라우팅 설정 및 타입
 │   │   ├── services/               # 공통 API 서비스
 │   │   ├── stores/                 # 공통 전역 상태
 │   │   ├── types/                  # 공통 타입 정의
@@ -47,6 +49,7 @@
 │   │       ├── stores/             # 도메인 상태 관리
 │   │       ├── types/              # 도메인 타입 정의
 │   │       └── utils/              # 도메인 유틸 함수
+│   ├── navigators/                 # 네비게이터 컴포넌트
 │   └── App.tsx                     # 앱 진입점
 ```
 
@@ -66,6 +69,9 @@
 - **`providers/`**: 커스텀 Provider
 - **`common/assets/`**: 공통 정적 파일
 - **`common/components/`**: 범용 UI 컴포넌트
+- **`common/lib/`**: TanStack Query 등 외부 라이브러리 설정
+- **`common/router/`**: 라우팅 경로, 타입 정의
+- **`navigators/`**: React Navigation 네비게이터 컴포넌트
 - **`features/{domain}/assets/`**: 도메인 특화 정적 파일
 - **`features/{domain}/components/`**: 도메인 특화 컴포넌트
 

@@ -1,6 +1,8 @@
 import { ReactNode, useEffect, useState } from "react";
 import { View } from "react-native";
 
+import { cn } from "@/common/utils/cn";
+
 interface TabContentProps {
   isMounted: boolean;
   children: ReactNode;
@@ -22,5 +24,5 @@ export default function TabContent(props: TabContentProps) {
     return null; // TODO 스켈레톤
   }
 
-  return <View className={className}>{children}</View>;
+  return <View className={cn("flex-1", className)}>{children}</View>;
 }

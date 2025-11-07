@@ -102,15 +102,13 @@ export default function TabItem(props: TabItemProps) {
 
     return {
       transform: [{ translateX: translationX.value }],
-      borderWidth: 1,
-      borderColor: "red",
-      zIndex,
       opacity: isVisible || !skipIntermediateTabs ? 1 : 0,
+      zIndex,
     };
   });
 
   return (
-    <Animated.View className="flex-1 absolute" style={[{ width: SCREEN_WIDTH }, animatedStyle]}>
+    <Animated.View className="h-full absolute" style={[{ width: SCREEN_WIDTH }, animatedStyle]}>
       {children}
     </Animated.View>
   );

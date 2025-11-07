@@ -1,5 +1,5 @@
 module.exports = {
-  ignorePatterns: [".eslintrc.js", "metro.config.js"],
+  ignorePatterns: [".eslintrc.js", "metro.config.js", "tailwind.config.js"],
   env: {
     node: true,
     "react-native/react-native": true,

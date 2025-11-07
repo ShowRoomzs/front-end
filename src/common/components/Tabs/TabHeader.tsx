@@ -25,7 +25,6 @@ export default function TabHeader(props: TabHeaderProps) {
         data={items}
         renderItem={renderItem}
         keyExtractor={keyExtractor}
-        contentContainerStyle={{ paddingHorizontal: 8 }}
       />
     </View>
   );

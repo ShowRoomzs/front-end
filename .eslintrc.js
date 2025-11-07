@@ -49,7 +49,7 @@ module.exports = {
     curly: "error",
 
     "react-native/no-unused-styles": "warn",
-
+    "react-native/no-inline-styles": "off",
     "no-nested-ternary": "warn",
     "react/destructuring-assignment": "off",
     "@typescript-eslint/no-explicit-any": "warn",

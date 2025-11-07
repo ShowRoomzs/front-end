@@ -150,7 +150,7 @@ export default function TabBody(props: TabBodyProps) {
   return (
     <View className="flex-1">
       <GestureDetector gesture={pan}>
-        <View className="flex-1 flex flex-row">
+        <View className="flex-1 flex flex-row relative">
           {items.map((item, ix) => (
             <TabItem
               key={item.id}

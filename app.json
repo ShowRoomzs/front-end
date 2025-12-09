@@ -27,6 +27,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "e809e38e-16f5-44c4-9609-17d230a58e6e"
+      }
+    },
+    "owner": "showroomz"
   }
 }

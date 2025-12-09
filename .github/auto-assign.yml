@@ -5,7 +5,7 @@ addAssignees: author
 reviewers:
   - daeseopk
 
-numberOfReviewers: 0
+numberOfReviewers: 1
 
 skipKeywords:
   - wip

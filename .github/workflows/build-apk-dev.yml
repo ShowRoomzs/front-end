@@ -24,7 +24,7 @@ jobs:
       - name: Authenticate with EAS
         run: eas whoami
         env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN_DEV }}
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
       - name: Install dependencies
         run: npm ci
@@ -32,7 +32,7 @@ jobs:
       - name: Start EAS build (APK)
         run: eas build --platform android --non-interactive --profile development
         env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN_DEV }}
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
       - name: Get latest build info
         id: build_info
@@ -52,7 +52,7 @@ jobs:
           echo "commit_hash=$COMMIT_HASH" >> $GITHUB_OUTPUT
           echo "commit_msg=$COMMIT_MSG" >> $GITHUB_OUTPUT
         env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN_DEV }}
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
       - name: Send to Discord
         run: |

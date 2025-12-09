@@ -10,6 +10,43 @@
 
 ## 🔧 개발 가이드
 
+### Git Flow
+
+이 프로젝트는 다음과 같은 Git Flow를 따릅니다:
+
+```
+→ 작업 브랜치
+→ develop PR
+→ develop merge
+→ develop > main PR 자동 생성
+→ main merge
+→ APK 빌드
+→ Discord 업로드
+```
+
+#### 상세 프로세스
+
+1. **작업 브랜치 생성 및 작업**
+   - 기능 개발을 위한 작업 브랜치를 생성합니다
+   - 작업 완료 후 커밋 및 푸시
+
+2. **develop 브랜치로 PR 생성 및 머지**
+   - 작업 브랜치에서 `develop` 브랜치로 Pull Request를 생성합니다
+   - 리뷰 완료 후 `develop` 브랜치로 머지합니다
+
+3. **main 브랜치로 PR 자동 생성**
+   - `develop` 브랜치에 머지되면 자동으로 `main` 브랜치로 향하는 PR이 생성됩니다
+   - GitHub Actions 워크플로우(`.github/workflows/gitflow.yml`)가 자동으로 처리합니다
+   - **중요**: develop > main PR이 이미 생성된 상태에서 `develop` 브랜치에 추가로 머지가 발생하면, 새로운 PR이 생성되는 것이 아니라 기존 PR에 커밋 히스토리가 자동으로 업데이트됩니다
+
+4. **main 브랜치 머지**
+   - 리뷰 완료 후 `main` 브랜치로 머지합니다
+
+5. **APK 빌드 및 Discord 업로드**
+   - `main` 브랜치에 머지되면 자동으로 Android APK가 빌드됩니다
+   - 빌드 완료 후 Discord 웹훅을 통해 빌드 정보가 자동으로 업로드됩니다
+   - GitHub Actions 워크플로우(`.github/workflows/build-apk-dev.yml`)가 자동으로 처리합니다
+
 ### Git Hooks (Husky)
 
 이 프로젝트는 **Husky**를 사용하여 커밋 전 자동으로 코드 품질 검사를 실행합니다.

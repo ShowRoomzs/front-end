@@ -8,7 +8,7 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "prepare": "husky install",
-    "lint": "eslint .",
+    "lint": "eslint . --ext .ts,.tsx",
     "tsc": "tsc"
   },
   "dependencies": {

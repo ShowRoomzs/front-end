@@ -28,7 +28,7 @@
 ├── src/
 │   │── providers/                  # 앱 전역 Provider 관리
 │   ├── common/                     # 공통 영역 (도메인 독립적)
-│   │   ├── assets/                 # 공통 정적 파일
+│   │   ├── assets/                 # 정적 파일
 │   │   ├── components/             # 공통 UI 컴포넌트
 │   │   ├── constants/              # 공통 상수
 │   │   ├── hooks/                  # 공통 커스텀 훅
@@ -41,7 +41,6 @@
 │   ├── features/
 │   │   └── {domain}/               # 도메인별 기능
 │   │       ├── views/              # 화면(페이지) 컴포넌트
-│   │       ├── assets/             # 도메인 특화 정적파일
 │   │       ├── components/         # 도메인 특화 컴포넌트
 │   │       ├── constants/          # 도메인 특화 상수
 │   │       ├── hooks/              # 도메인 특화 훅

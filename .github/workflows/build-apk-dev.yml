@@ -59,6 +59,6 @@ jobs:
           TIMESTAMP=$(TZ='Asia/Seoul' date +'%Y-%m-%d %H:%M:%S KST')
           curl -X POST -H "Content-Type: application/json" \
           -d "{
-            \"content\": \"🌿 **Branch**\n\`${{ github.ref_name }}\`\n\n🔗 **Download**\n[Click here to download the APK](${{ steps.build_info.outputs.url }})\n\n📱 **App Version**\n\`${{ steps.build_info.outputs.version }}\`\n\n📝 **Last Commit**\n[\`${{ steps.build_info.outputs.commit_msg }}\`](https://github.com/diningBuddy/fe/commit/${{ steps.build_info.outputs.commit_hash }})\n\n🕒 **Build Timestamp**\n${TIMESTAMP}\"
+            \"content\": \"🌿 **Branch**\n\`${{ github.ref_name }}\`\n\n🔗 **Download**\n[Click here to download the APK](${{ steps.build_info.outputs.url }})\n\n📱 **App Version**\n\`${{ steps.build_info.outputs.version }}\`\n\n📝 **Last Commit**\n[\`${{ steps.build_info.outputs.commit_msg }}\`](https://github.com/ShowRoomzs/front-end/commit/${{ steps.build_info.outputs.commit_hash }})\n\n🕒 **Build Timestamp**\n${TIMESTAMP}\"
           }" \
           ${{ secrets.DISCORD_WEBHOOK_URL }}

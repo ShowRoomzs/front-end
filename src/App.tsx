@@ -7,7 +7,6 @@ import { queryClient } from "./common/lib/queryClient";
 import MainNavigator from "./navigators/MainNavigator";
 
 export default function App() {
-  // console.log()
   return (
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView className="flex-1">

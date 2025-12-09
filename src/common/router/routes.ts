@@ -1,22 +1,22 @@
 // 하단 탭 네비게이션
 export const HOME_ROUTES = {
-  CATEGORY: "Category",
-  FEED: "Feed",
-  WISH_LIST: "WishList",
-  HOME: "Home",
-  PROFILE: "Profile",
+  CATEGORY: "category",
+  FEED: "feed",
+  WISH_LIST: "wishList",
+  HOME: "home",
+  PROFILE: "profile",
 } as const;
 
 // 인증 관련
 export const AUTH_ROUTES = {
-  HOME: "Home",
-  SIGN_UP: "SignUp",
+  HOME: "home",
+  SIGN_UP: "signUp",
 } as const;
 
 // 메인 라우터 (최상위)
 export const MAIN_ROUTES = {
-  AUTH: "Auth",
-  MAIN: "Main",
+  AUTH: "auth",
+  MAIN: "main",
 } as const;
 
 export const ROUTES = {

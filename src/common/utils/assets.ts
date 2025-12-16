@@ -9,6 +9,7 @@ import HomeActiveIcon from "@/common/assets/common/home-active.svg";
 import HomeDefaultIcon from "@/common/assets/common/home-default.svg";
 import ProfileActiveIcon from "@/common/assets/common/profile-active.svg";
 import ProfileDefaultIcon from "@/common/assets/common/profile-default.svg";
+import TooltipArrowIcon from "@/common/assets/common/tooltip-arrow.svg";
 import WishListActiveIcon from "@/common/assets/common/wish-active.svg";
 import WishListDefaultIcon from "@/common/assets/common/wish-default.svg";
 
@@ -42,5 +43,8 @@ export const COMMON_ASSETS: Assets = {
   profile: {
     default: ProfileDefaultIcon,
     active: ProfileActiveIcon,
+  },
+  tooltipArrow: {
+    default: TooltipArrowIcon,
   },
 };

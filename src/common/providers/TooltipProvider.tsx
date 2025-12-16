@@ -16,7 +16,7 @@ type TooltipContextValue = {
   hide: (tooltipId: string) => void;
   hideAll: () => void;
   getInstance: (tooltipId: string) => TooltipInstance | undefined;
-  instances: Map<string, TooltipInstance>;
+  getActiveInstances: () => Map<string, TooltipInstance>;
 };
 
 export const TooltipContext = createContext<TooltipContextValue | undefined>(undefined);
@@ -86,12 +86,23 @@ export function TooltipProvider(props: TooltipProviderProps) {
     [tooltipInstances]
   );
 
+  const getActiveInstances = useCallback(() => {
+    const activeInstances = new Map<string, TooltipInstance>();
+
+    tooltipInstances.forEach((instance, id) => {
+      if (instance.isOpen) {
+        activeInstances.set(id, instance);
+      }
+    });
+    return activeInstances;
+  }, [tooltipInstances]);
+
   const contextValue: TooltipContextValue = {
     show,
     hide,
     hideAll,
     getInstance,
-    instances: tooltipInstances,
+    getActiveInstances,
   };
 
   return <TooltipContext.Provider value={contextValue}>{children}</TooltipContext.Provider>;

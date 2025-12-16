@@ -2,7 +2,12 @@ import { Fragment, ReactNode, useCallback, useEffect, useMemo, useState } from "
 import { LayoutChangeEvent, Text, View } from "react-native";
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 
-import { calculateArrowPosition, calculateTooltipFromArrow } from "./config";
+import {
+  ARROW_ROTATION,
+  calculateArrowPosition,
+  calculateTooltipFromArrow,
+  getBasePlacement,
+} from "./config";
 
 import Icon from "@/common/components/Icon/Icon";
 import { TooltipInstance } from "@/common/providers/TooltipProvider";
@@ -13,20 +18,18 @@ export interface TooltipPosition {
   left: number;
   top: number;
 }
+type TooltipHorizontalPlacement = "left" | "right";
+type TooltipVerticalPlacement = "top" | "bottom";
+type TooltipSecondHorizontalPlacement = "Left" | "Right";
+type TooltipSecondVerticalPlacement = "Top" | "Bottom";
+
+export type TooltipBasePlacement = TooltipHorizontalPlacement | TooltipVerticalPlacement;
+export type TooltipSecondPlacement = TooltipSecondHorizontalPlacement | TooltipSecondVerticalPlacement;
 
 export type TooltipPlacement =
-  | "topLeft"
-  | "top"
-  | "topRight"
-  | "bottomLeft"
-  | "bottom"
-  | "bottomRight"
-  | "leftTop"
-  | "left"
-  | "leftBottom"
-  | "rightTop"
-  | "right"
-  | "rightBottom";
+  | TooltipBasePlacement
+  | `${TooltipHorizontalPlacement}${TooltipSecondVerticalPlacement}`
+  | `${TooltipVerticalPlacement}${TooltipSecondHorizontalPlacement}`;
 
 export interface TooltipProps {
   renderContent: ReactNode | string;
@@ -92,19 +95,7 @@ export default function Tooltip(instance: TooltipInstance) {
   );
 
   const getArrowRotate = useCallback(() => {
-    if (placement.startsWith("top")) {
-      return 180;
-    }
-    if (placement.startsWith("bottom")) {
-      return 0;
-    }
-    if (placement.startsWith("left")) {
-      return 90;
-    }
-    if (placement.startsWith("right")) {
-      return 270;
-    }
-    return 0;
+    return ARROW_ROTATION[getBasePlacement(placement)];
   }, [placement]);
 
   const animatedStyle = useAnimatedStyle(() => ({

@@ -2,6 +2,7 @@ import { createContext, createRef, ReactNode, RefObject, useCallback, useState }
 import { View } from "react-native";
 
 import { TooltipProps } from "../components/Tooltip/Tooltip";
+import TooltipRenderer from "../components/Tooltip/TooltipRenderer";
 
 export type TooltipConfig = TooltipProps;
 
@@ -17,6 +18,7 @@ type TooltipContextValue = {
   hideAll: () => void;
   getInstance: (tooltipId: string) => TooltipInstance | undefined;
   getActiveInstances: () => Map<string, TooltipInstance>;
+  registerInstance: (tooltipId: string, ref: RefObject<View | null>) => void;
 };
 
 export const TooltipContext = createContext<TooltipContextValue | undefined>(undefined);
@@ -97,13 +99,36 @@ export function TooltipProvider(props: TooltipProviderProps) {
     return activeInstances;
   }, [tooltipInstances]);
 
+  const registerInstance = useCallback((id: string, ref: RefObject<View | null>) => {
+    setTooltipInstances(prev => {
+      if (prev.has(id)) {
+        return prev;
+      }
+
+      const newMap = new Map(prev);
+
+      newMap.set(id, {
+        config: { renderContent: "" },
+        isOpen: false,
+        tooltipRef: ref,
+      });
+      return newMap;
+    });
+  }, []);
+
   const contextValue: TooltipContextValue = {
     show,
     hide,
     hideAll,
     getInstance,
     getActiveInstances,
+    registerInstance,
   };
 
-  return <TooltipContext.Provider value={contextValue}>{children}</TooltipContext.Provider>;
+  return (
+    <TooltipContext.Provider value={contextValue}>
+      {children}
+      <TooltipRenderer />
+    </TooltipContext.Provider>
+  );
 }

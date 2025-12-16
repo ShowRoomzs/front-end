@@ -30,7 +30,7 @@ export function useTooltip(tooltipId: string) {
   }
 
   return {
-    tooltipRef,
+    ref: tooltipRef,
     show: (config: TooltipConfig) => show(tooltipId, config),
     hide: () => hide(tooltipId),
   };

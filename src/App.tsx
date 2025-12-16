@@ -4,6 +4,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { queryClient } from "./common/lib/queryClient";
+import { TooltipProvider } from "./common/providers/TooltipProvider";
 import MainNavigator from "./navigators/MainNavigator";
 
 export default function App() {
@@ -12,7 +13,9 @@ export default function App() {
       <GestureHandlerRootView className="flex-1">
         <SafeAreaProvider className="flex-1">
           <NavigationContainer>
-            <MainNavigator />
+            <TooltipProvider>
+              <MainNavigator />
+            </TooltipProvider>
           </NavigationContainer>
         </SafeAreaProvider>
       </GestureHandlerRootView>

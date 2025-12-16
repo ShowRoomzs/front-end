@@ -1,17 +1,11 @@
-import { Fragment, useContext } from "react";
+import { Fragment } from "react";
 
 import Tooltip from "./Tooltip";
 
-import { TooltipContext } from "@/common/providers/TooltipProvider";
+import { useTooltipContext } from "@/common/hooks/useTooltipContext";
 
 export default function TooltipRenderer() {
-  const context = useContext(TooltipContext);
-
-  if (!context) {
-    throw new Error("TooltipRenderer must be used within a TooltipProvider");
-  }
-
-  const { getActiveInstances } = context;
+  const { getActiveInstances } = useTooltipContext();
 
   const activeInstances = getActiveInstances();
 

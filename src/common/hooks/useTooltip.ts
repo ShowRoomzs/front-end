@@ -1,4 +1,4 @@
-import { useContext, useRef } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { View } from "react-native";
 
 import { TooltipConfig, TooltipContext } from "../providers/TooltipProvider";
@@ -15,19 +15,23 @@ export function useTooltip(tooltipId: string) {
     throw new Error("useTooltip must be provided tooltipId");
   }
 
-  const { getInstance, show, hide } = context;
+  const { getInstance, show, hide, registerInstance } = context;
 
-  const existingInstance = getInstance(tooltipId);
+  useEffect(() => {
+    const existingInstance = getInstance(tooltipId);
 
-  if (!existingInstance) {
-    show(tooltipId, { renderContent: "" });
-    hide(tooltipId);
-  }
-  const instance = getInstance(tooltipId);
+    if (!existingInstance) {
+      registerInstance(tooltipId, tooltipRef);
+    }
+  }, [tooltipId, getInstance, registerInstance]);
 
-  if (instance && instance.tooltipRef !== tooltipRef) {
-    instance.tooltipRef = tooltipRef;
-  }
+  useEffect(() => {
+    const instance = getInstance(tooltipId);
+
+    if (instance && instance.tooltipRef !== tooltipRef) {
+      instance.tooltipRef = tooltipRef;
+    }
+  }, [tooltipId, getInstance]);
 
   return {
     ref: tooltipRef,

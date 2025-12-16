@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 
-import Tooltip from "./Tooltip";
+import TooltipContainer from "./TooltipContainer";
 
 import { useTooltipContext } from "@/common/hooks/useTooltipContext";
 
@@ -16,7 +16,7 @@ export default function TooltipRenderer() {
   return (
     <Fragment>
       {Array.from(activeInstances).map(([id, instance]) => {
-        return <Tooltip key={id} {...instance.config} />;
+        return <TooltipContainer key={id} {...instance} />;
       })}
     </Fragment>
   );

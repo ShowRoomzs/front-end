@@ -119,56 +119,66 @@ export function calculateTooltipFromArrow(
 ): TooltipPosition {
   let left = 0;
   let top = 0;
+  const basePlacement = getBasePlacement(placement);
 
-  if (placement.startsWith("top")) {
-    const secondPlacement = getSecondPlacement(placement, "top");
+  switch (basePlacement) {
+    case "top": {
+      const secondPlacement = getSecondPlacement(placement, basePlacement);
 
-    left = arrow.left + ARROW_WIDTH / 2 - tooltipWidth / 2;
-    top = arrow.top - tooltipHeight + ARROW_HEIGHT / 2;
+      left = arrow.left + ARROW_WIDTH / 2 - tooltipWidth / 2;
+      top = arrow.top - tooltipHeight + ARROW_HEIGHT / 2;
 
-    if (secondPlacement === "Left") {
-      left = arrow.left;
+      if (secondPlacement === "Left") {
+        left = arrow.left;
+      }
+      if (secondPlacement === "Right") {
+        left = arrow.left - tooltipWidth + ARROW_WIDTH;
+      }
+      left += tooltipOffset;
+      break;
     }
-    if (secondPlacement === "Right") {
-      left = arrow.left - tooltipWidth + ARROW_WIDTH;
-    }
-    left += tooltipOffset;
-  } else if (placement.startsWith("bottom")) {
-    const secondPlacement = getSecondPlacement(placement, "bottom");
+    case "bottom": {
+      const secondPlacement = getSecondPlacement(placement, basePlacement);
 
-    left = arrow.left + ARROW_WIDTH / 2 - tooltipWidth / 2;
-    top = arrow.top + ARROW_HEIGHT / 2;
-    if (secondPlacement === "Left") {
-      left = arrow.left;
+      left = arrow.left + ARROW_WIDTH / 2 - tooltipWidth / 2;
+      top = arrow.top + ARROW_HEIGHT / 2;
+      if (secondPlacement === "Left") {
+        left = arrow.left;
+      }
+      if (secondPlacement === "Right") {
+        left = arrow.left - tooltipWidth + ARROW_WIDTH;
+      }
+      left += tooltipOffset;
+      break;
     }
-    if (secondPlacement === "Right") {
-      left = arrow.left - tooltipWidth + ARROW_WIDTH;
-    }
-    left += tooltipOffset;
-  } else if (placement.startsWith("left")) {
-    const secondPlacement = getSecondPlacement(placement, "left");
+    case "left": {
+      const secondPlacement = getSecondPlacement(placement, basePlacement);
 
-    left = arrow.left - tooltipWidth + ARROW_HEIGHT;
-    top = arrow.top - tooltipHeight / 2 + ARROW_WIDTH / 2 - ARROW_HEIGHT / 2;
-    if (secondPlacement === "Top") {
-      top = arrow.top - ARROW_HEIGHT / 2;
+      left = arrow.left - tooltipWidth + ARROW_HEIGHT;
+      top = arrow.top - tooltipHeight / 2 + ARROW_WIDTH / 2 - ARROW_HEIGHT / 2;
+      if (secondPlacement === "Top") {
+        top = arrow.top - ARROW_HEIGHT / 2;
+      }
+      if (secondPlacement === "Bottom") {
+        top = arrow.top - tooltipHeight + ARROW_WIDTH / 2;
+      }
+      top += tooltipOffset;
+      break;
     }
-    if (secondPlacement === "Bottom") {
-      top = arrow.top - tooltipHeight + ARROW_WIDTH / 2;
-    }
-    top += tooltipOffset;
-  } else if (placement.startsWith("right")) {
-    const secondPlacement = getSecondPlacement(placement, "right");
+    case "right": {
+      const secondPlacement = getSecondPlacement(placement, basePlacement);
 
-    left = arrow.left + ARROW_HEIGHT;
-    top = arrow.top - tooltipHeight / 2 + ARROW_WIDTH / 2 - ARROW_HEIGHT / 2;
-    if (secondPlacement === "Top") {
-      top = arrow.top - ARROW_WIDTH / 2;
+      left = arrow.left + ARROW_HEIGHT;
+      top = arrow.top - tooltipHeight / 2 + ARROW_WIDTH / 2 - ARROW_HEIGHT / 2;
+      if (secondPlacement === "Top") {
+        top = arrow.top - ARROW_WIDTH / 2;
+      }
+      if (secondPlacement === "Bottom") {
+        top = arrow.top - tooltipHeight + ARROW_WIDTH / 2;
+      }
+      top += tooltipOffset;
+      break;
     }
-    if (secondPlacement === "Bottom") {
-      top = arrow.top - tooltipHeight + ARROW_WIDTH / 2;
-    }
-    top += tooltipOffset;
   }
 
   return { left, top };

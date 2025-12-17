@@ -1,8 +1,7 @@
-import { createContext, createRef, ReactNode, RefObject, useCallback, useState } from "react";
+import { createContext, createRef, ReactNode, RefObject, useCallback, useContext, useState } from "react";
 import { View } from "react-native";
 
 import { TooltipProps } from "../components/Tooltip/Tooltip";
-import TooltipRenderer from "../components/Tooltip/TooltipRenderer";
 
 export type TooltipConfig = TooltipProps;
 
@@ -125,10 +124,15 @@ export function TooltipProvider(props: TooltipProviderProps) {
     registerInstance,
   };
 
-  return (
-    <TooltipContext.Provider value={contextValue}>
-      {children}
-      <TooltipRenderer />
-    </TooltipContext.Provider>
-  );
+  return <TooltipContext.Provider value={contextValue}>{children}</TooltipContext.Provider>;
+}
+
+export function useTooltipContext() {
+  const context = useContext(TooltipContext);
+
+  if (!context) {
+    throw new Error("useTooltipContext must be used within a TooltipProvider");
+  }
+
+  return context;
 }

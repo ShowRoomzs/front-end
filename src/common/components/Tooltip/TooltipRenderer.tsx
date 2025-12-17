@@ -2,7 +2,7 @@ import { Fragment } from "react";
 
 import Tooltip from "./Tooltip";
 
-import { useTooltipContext } from "@/common/hooks/useTooltipContext";
+import { useTooltipContext } from "@/common/providers/TooltipProvider";
 
 export default function TooltipRenderer() {
   const { getActiveInstances } = useTooltipContext();

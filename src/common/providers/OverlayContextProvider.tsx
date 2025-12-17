@@ -1,6 +1,8 @@
 import { ReactNode } from "react";
 
+import { BottomSheetProvider } from "./BottomSheetProvider";
 import { TooltipProvider } from "./TooltipProvider";
+import BottomSheetRenderer from "../components/BottomSheet/BottomSheetRenderer";
 import TooltipRenderer from "../components/Tooltip/TooltipRenderer";
 
 interface OverlayContextProviderProps {
@@ -11,6 +13,7 @@ function OverlayHost() {
   return (
     <>
       <TooltipRenderer />
+      <BottomSheetRenderer />
       {/* TODO : Modal, BottomSheet, Toast renderer 추가 */}
     </>
   );
@@ -21,8 +24,10 @@ export default function OverlayContextProvider(props: OverlayContextProviderProp
 
   return (
     <TooltipProvider>
-      {children}
-      <OverlayHost />
+      <BottomSheetProvider>
+        {children}
+        <OverlayHost />
+      </BottomSheetProvider>
     </TooltipProvider>
   );
 }

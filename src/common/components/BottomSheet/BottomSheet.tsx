@@ -4,15 +4,15 @@ import {
   BottomSheetModal,
   BottomSheetModalProps,
   BottomSheetView,
-  useBottomSheetModalInternal,
 } from "@gorhom/bottom-sheet";
 import { forwardRef, ReactNode, useMemo } from "react";
+import { useWindowDimensions } from "react-native";
 import { useAnimatedReaction, useSharedValue } from "react-native-reanimated";
 
 import { getMinHeight } from "./config";
 import type { BottomSheetModalMethods } from "@gorhom/bottom-sheet/src/types";
 
-import { useOverlay } from "@/common/providers/OverlayProvider";
+import { useOverlay } from "@/common/hooks/useOverlay";
 
 export type SnapPoint = string | number;
 export interface BottomSheetProps extends Omit<BottomSheetModalProps, "snapPoints"> {
@@ -47,10 +47,11 @@ const BottomSheet = forwardRef<BottomSheetModalMethods, BottomSheetProps>((props
   }, [originBottomSheetProps]);
 
   const { scale: overlayScale } = useOverlay();
-  const { containerLayoutState } = useBottomSheetModalInternal();
+
+  const { height: maxHeight } = useWindowDimensions();
+
   const animatedPosition = useSharedValue(0);
 
-  const maxHeight = useMemo(() => containerLayoutState.value.height, [containerLayoutState.value.height]);
   const minHeight = useMemo(
     () => getMinHeight(bottomSheetProps.snapPoints[0], maxHeight),
     [bottomSheetProps.snapPoints, maxHeight]

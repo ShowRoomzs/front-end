@@ -1,42 +1,12 @@
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import {
-  createContext,
-  ReactElement,
-  ReactNode,
-  RefObject,
-  useCallback,
-  useContext,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { ReactNode, useCallback, useMemo, useRef, useState } from "react";
 
-import { BottomSheetProps } from "../components/BottomSheet/BottomSheet";
+import { BottomSheetContext, SheetId, SheetRegistryItem } from "./context";
 import type { BottomSheetModalMethods } from "@gorhom/bottom-sheet/src/types";
-
-type SheetId = string;
-
-interface SheetRegistryItem {
-  render: ReactElement;
-  sheetProps?: Partial<BottomSheetProps>;
-}
-
-interface BottomSheetContextValue {
-  register: (id: SheetId, item: SheetRegistryItem) => void;
-  unregister: (id: SheetId) => void;
-  open: (id: SheetId) => void;
-  close: () => void;
-
-  activeSheetId: SheetId | null;
-  sheetRef: RefObject<BottomSheetModalMethods | null>;
-  registry: Map<SheetId, SheetRegistryItem>;
-}
 
 interface BottomSheetProviderProps {
   children: ReactNode;
 }
-
-const BottomSheetContext = createContext<BottomSheetContextValue | null>(null);
 
 export function BottomSheetProvider(props: BottomSheetProviderProps) {
   const { children } = props;
@@ -96,13 +66,4 @@ export function BottomSheetProvider(props: BottomSheetProviderProps) {
       <BottomSheetModalProvider>{children}</BottomSheetModalProvider>
     </BottomSheetContext.Provider>
   );
-}
-
-export function useBottomSheetContext() {
-  const ctx = useContext(BottomSheetContext);
-
-  if (!ctx) {
-    throw new Error("useBottomSheetContext must be used within BottomSheetProvider");
-  }
-  return ctx;
 }

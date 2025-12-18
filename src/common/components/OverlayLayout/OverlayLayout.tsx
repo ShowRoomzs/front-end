@@ -3,11 +3,11 @@ import Animated, { useAnimatedStyle } from "react-native-reanimated";
 
 import { useOverlay } from "@/common/providers/OverlayProvider";
 
-interface SceneLayoutProps {
+interface OverlayLayoutProps {
   children: ReactNode;
 }
 
-export default function OverlayLayout(props: SceneLayoutProps) {
+export default function OverlayLayout(props: OverlayLayoutProps) {
   const { children } = props;
   const { scale } = useOverlay();
 

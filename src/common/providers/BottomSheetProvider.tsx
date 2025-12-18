@@ -1,6 +1,7 @@
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import {
   createContext,
+  ReactElement,
   ReactNode,
   RefObject,
   useCallback,
@@ -16,7 +17,7 @@ import type { BottomSheetModalMethods } from "@gorhom/bottom-sheet/src/types";
 type SheetId = string;
 
 interface SheetRegistryItem {
-  render: () => ReactNode;
+  render: ReactElement;
   sheetProps?: Partial<BottomSheetProps>;
 }
 
@@ -41,15 +42,28 @@ export function BottomSheetProvider(props: BottomSheetProviderProps) {
   const { children } = props;
   const sheetRef = useRef<BottomSheetModalMethods | null>(null);
 
-  const registry = useRef<Map<SheetId, SheetRegistryItem>>(new Map());
+  const [registry, setRegistry] = useState<Map<SheetId, SheetRegistryItem>>(new Map());
   const [activeSheetId, setActiveSheetId] = useState<SheetId | null>(null);
 
   const register = useCallback((id: SheetId, item: SheetRegistryItem) => {
-    registry.current.set(id, item);
+    setRegistry(prev => {
+      const next = new Map(prev);
+
+      next.set(id, item);
+      return next;
+    });
   }, []);
 
   const unregister = useCallback((id: SheetId) => {
-    registry.current.delete(id);
+    setRegistry(prev => {
+      if (!prev.has(id)) {
+        return prev;
+      }
+      const next = new Map(prev);
+
+      next.delete(id);
+      return next;
+    });
   }, []);
 
   const open = useCallback((id: SheetId) => {
@@ -72,7 +86,7 @@ export function BottomSheetProvider(props: BottomSheetProviderProps) {
       close,
       activeSheetId,
       sheetRef,
-      registry: registry.current,
+      registry,
     }),
     [register, unregister, open, close, activeSheetId, registry]
   );

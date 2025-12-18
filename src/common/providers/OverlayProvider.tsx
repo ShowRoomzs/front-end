@@ -4,7 +4,7 @@ import { SharedValue, useSharedValue } from "react-native-reanimated";
 import { BottomSheetProvider } from "./BottomSheetProvider";
 import { TooltipProvider } from "./TooltipProvider";
 import BottomSheetRenderer from "../components/BottomSheet/BottomSheetRenderer";
-import SceneLayout from "../components/OverlayLayout/OverlayLayout";
+import OverlayLayout from "../components/OverlayLayout/OverlayLayout";
 import TooltipRenderer from "../components/Tooltip/TooltipRenderer";
 
 interface OverlayContextValue {
@@ -27,19 +27,20 @@ function OverlayHost() {
   );
 }
 
-export default function OverlayProvider({ children }: OverlayProviderProps) {
+export default function OverlayProvider(props: OverlayProviderProps) {
+  const { children } = props;
   const scale = useSharedValue(1);
 
   return (
     <OverlayContext.Provider value={{ scale }}>
-      <SceneLayout>
+      <OverlayLayout>
         <TooltipProvider>
           <BottomSheetProvider>
             {children}
             <OverlayHost />
           </BottomSheetProvider>
         </TooltipProvider>
-      </SceneLayout>
+      </OverlayLayout>
     </OverlayContext.Provider>
   );
 }

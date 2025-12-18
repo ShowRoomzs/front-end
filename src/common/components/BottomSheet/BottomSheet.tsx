@@ -56,7 +56,9 @@ const BottomSheet = forwardRef<BottomSheetModalMethods, BottomSheetProps>((props
 
       const scale = 1 - progress * 0.1;
 
-      overlayScale.value = scale;
+      if (overlayScale) {
+        overlayScale.value = scale;
+      }
     }
   );
 

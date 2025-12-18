@@ -19,7 +19,7 @@ export default function OverlayProvider(props: OverlayProviderProps) {
     <OverlayContext.Provider value={{ scale }}>
       <TooltipProvider>
         <BottomSheetProvider>
-          <OverlayLayout scale={scale}>{children}</OverlayLayout>
+          <OverlayLayout>{children}</OverlayLayout>
           <OverlayHost />
         </BottomSheetProvider>
       </TooltipProvider>

@@ -1,7 +1,7 @@
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import { shallowEqual } from "fast-equals";
 import {
   createContext,
+  ReactElement,
   ReactNode,
   RefObject,
   useCallback,
@@ -17,7 +17,7 @@ import type { BottomSheetModalMethods } from "@gorhom/bottom-sheet/src/types";
 type SheetId = string;
 
 interface SheetRegistryItem {
-  render: () => ReactNode;
+  render: ReactElement;
   sheetProps?: Partial<BottomSheetProps>;
 }
 
@@ -47,12 +47,6 @@ export function BottomSheetProvider(props: BottomSheetProviderProps) {
 
   const register = useCallback((id: SheetId, item: SheetRegistryItem) => {
     setRegistry(prev => {
-      const prevItem = prev.get(id);
-      const isSame = prevItem?.render === item.render && shallowEqual(prevItem?.sheetProps, item.sheetProps);
-
-      if (isSame) {
-        return prev;
-      }
       const next = new Map(prev);
 
       next.set(id, item);

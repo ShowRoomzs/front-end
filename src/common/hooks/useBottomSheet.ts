@@ -1,36 +1,38 @@
-import { DependencyList, ReactNode, useEffect, useMemo, useRef } from "react";
+import { deepEqual } from "fast-equals";
+import { ReactElement, useEffect, useMemo, useRef } from "react";
 
+import { usePrevious } from "./usePrevious";
 import { useBottomSheetContext } from "../providers/BottomSheetProvider";
 
 import { BottomSheetProps } from "@/common/components/BottomSheet/BottomSheet";
 
 interface UseBottomSheetProps {
   id: string;
-  render: () => ReactNode;
+  render: ReactElement;
   sheetProps?: Partial<BottomSheetProps>;
-  /**
-   * 값이 바뀔 때만 registry를 갱신하고 싶다면 의존성을 여기에 넣어주세요.
-   * 지정하지 않으면 최초 1회만 등록합니다.
-   */
-  deps?: DependencyList;
 }
 
 export function useBottomSheet(props: UseBottomSheetProps) {
-  const { id, render, sheetProps, deps = [] } = props;
+  const { id, render, sheetProps } = props;
 
   const { register, unregister, open, close } = useBottomSheetContext();
-  const renderRef = useRef(render);
-
-  renderRef.current = render;
-
-  const stableRender = useRef(() => renderRef.current());
-  const stableSheetProps = useRef(sheetProps);
+  const prevRender = usePrevious(render);
+  const isMounted = useRef(false);
 
   useEffect(() => {
-    register(id, { render: stableRender.current, sheetProps: stableSheetProps.current });
+    const isSameRenderProps = deepEqual(prevRender?.props, render.props);
+
+    if (isSameRenderProps && isMounted.current) {
+      return;
+    }
+
+    register(id, { render, sheetProps });
+    isMounted.current = true;
+  }, [id, prevRender?.props, register, render, render.props, sheetProps]);
+
+  useEffect(() => {
     return () => unregister(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, register, unregister, ...deps]);
+  }, [id, unregister]);
 
   return useMemo(
     () => ({

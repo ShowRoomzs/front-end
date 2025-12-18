@@ -33,14 +33,12 @@ export default function OverlayProvider(props: OverlayProviderProps) {
 
   return (
     <OverlayContext.Provider value={{ scale }}>
-      <OverlayLayout>
-        <TooltipProvider>
-          <BottomSheetProvider>
-            {children}
-            <OverlayHost />
-          </BottomSheetProvider>
-        </TooltipProvider>
-      </OverlayLayout>
+      <TooltipProvider>
+        <BottomSheetProvider>
+          <OverlayLayout>{children}</OverlayLayout>
+          <OverlayHost />
+        </BottomSheetProvider>
+      </TooltipProvider>
     </OverlayContext.Provider>
   );
 }

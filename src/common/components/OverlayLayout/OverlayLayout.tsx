@@ -1,14 +1,15 @@
 import { ReactNode } from "react";
-import Animated, { SharedValue, useAnimatedStyle } from "react-native-reanimated";
+import Animated, { useAnimatedStyle } from "react-native-reanimated";
+
+import { useOverlay } from "@/common/hooks/useOverlay";
 
 interface OverlayLayoutProps {
   children: ReactNode;
-  scale: SharedValue<number>;
 }
 
 export default function OverlayLayout(props: OverlayLayoutProps) {
-  const { children, scale } = props;
-
+  const { children } = props;
+  const { scale } = useOverlay();
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));

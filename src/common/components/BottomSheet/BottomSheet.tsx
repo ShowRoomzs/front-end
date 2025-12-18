@@ -1,4 +1,6 @@
 import {
+  BottomSheetBackdrop,
+  BottomSheetBackdropProps,
   BottomSheetModal,
   BottomSheetModalProps,
   BottomSheetView,
@@ -24,6 +26,15 @@ export interface BottomSheetProps extends Omit<BottomSheetModalProps, "snapPoint
 const DEFAULT_BOTTOM_SHEET_PROPS = {
   enableDynamicSizing: false,
   snapPoints: ["100%"],
+  backdropComponent: (props: BottomSheetBackdropProps) => (
+    <BottomSheetBackdrop
+      {...props}
+      opacity={0.5}
+      disappearsOnIndex={-1}
+      appearsOnIndex={0}
+      pressBehavior="close"
+    />
+  ),
 } satisfies Partial<BottomSheetModalProps>;
 
 const BottomSheet = forwardRef<BottomSheetModalMethods, BottomSheetProps>((props, ref) => {
@@ -56,7 +67,9 @@ const BottomSheet = forwardRef<BottomSheetModalMethods, BottomSheetProps>((props
 
       const scale = 1 - progress * 0.1;
 
-      overlayScale.value = scale;
+      if (overlayScale) {
+        overlayScale.value = scale;
+      }
     }
   );
 

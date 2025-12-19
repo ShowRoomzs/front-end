@@ -1,6 +1,7 @@
-import { Text, TouchableOpacity } from "react-native";
+import { TouchableOpacity } from "react-native";
 
 import Icon from "@/common/components/Icon/Icon";
+import Typography from "@/common/components/Typography/Typography";
 import { COMMON_ASSETS } from "@/common/utils/assets";
 import { cn } from "@/common/utils/cn";
 
@@ -33,7 +34,7 @@ export default function SocialButton(props: SocialButtonProps) {
 
   // ---- text ----
   const getDefaultTextClassName = () => {
-    return "flex-1 font-semibold text-center text-[16px]";
+    return "flex-1 font-[600] text-center text-[16px]";
   };
 
   const getTextClassNameByVariant = () => {
@@ -77,9 +78,9 @@ export default function SocialButton(props: SocialButtonProps) {
       className={cn(getDefaultWrapperClassName(), getWrapperClassNameByVariant())}
     >
       {getIcon()}
-      <Text className={cn(getDefaultTextClassName(), getTextClassNameByVariant())} style={{ fontSize: 16 }}>
+      <Typography className={cn(getDefaultTextClassName(), getTextClassNameByVariant())}>
         {getLabel()}
-      </Text>
+      </Typography>
     </TouchableOpacity>
   );
 }

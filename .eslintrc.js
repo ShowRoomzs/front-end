@@ -50,6 +50,12 @@ module.exports = {
 
     "react-native/no-unused-styles": "warn",
     "react-native/no-inline-styles": "off",
+    "react-native/no-raw-text": [
+      "error",
+      {
+        skip: ["Typography"],
+      },
+    ],
     "no-nested-ternary": "warn",
     "react/destructuring-assignment": "off",
     "@typescript-eslint/no-explicit-any": "warn",

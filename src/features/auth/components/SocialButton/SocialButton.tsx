@@ -4,14 +4,15 @@ import Icon from "@/common/components/Icon/Icon";
 import { COMMON_ASSETS } from "@/common/utils/assets";
 import { cn } from "@/common/utils/cn";
 
-export type SocialType = "naver" | "google" | "apple";
+type SocialType = "naver" | "google" | "apple";
 
-interface SocialButtonProps {
+export interface SocialButtonProps {
   socialType: SocialType;
+  onPress: () => void;
 }
 
 export default function SocialButton(props: SocialButtonProps) {
-  const { socialType } = props;
+  const { socialType, onPress } = props;
 
   // ---- wrapper ----
   const getDefaultWrapperClassName = () => {
@@ -69,14 +70,10 @@ export default function SocialButton(props: SocialButtonProps) {
     }
   };
 
-  const handlePress = () => {
-    // TODO
-  };
-
   return (
     <TouchableOpacity
       activeOpacity={0.8}
-      onPress={handlePress}
+      onPress={onPress}
       className={cn(getDefaultWrapperClassName(), getWrapperClassNameByVariant())}
     >
       {getIcon()}

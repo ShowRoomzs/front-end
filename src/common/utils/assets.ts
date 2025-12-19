@@ -1,14 +1,19 @@
 import { FC } from "react";
 import { SvgProps } from "react-native-svg";
 
+import AppleIcon from "@/common/assets/common/apple-icon.svg";
 import CategoryActiveIcon from "@/common/assets/common/category-active.svg";
 import CategoryDefaultIcon from "@/common/assets/common/category-default.svg";
 import FeedActiveIcon from "@/common/assets/common/feed-active.svg";
 import FeedDefaultIcon from "@/common/assets/common/feed-default.svg";
+import GoogleIcon from "@/common/assets/common/google-icon.svg";
 import HomeActiveIcon from "@/common/assets/common/home-active.svg";
 import HomeDefaultIcon from "@/common/assets/common/home-default.svg";
+import LogoIcon from "@/common/assets/common/logo.svg";
+import NaverIcon from "@/common/assets/common/naver-icon.svg";
 import ProfileActiveIcon from "@/common/assets/common/profile-active.svg";
 import ProfileDefaultIcon from "@/common/assets/common/profile-default.svg";
+import TooltipArrowIcon from "@/common/assets/common/tooltip-arrow.svg";
 import WishListActiveIcon from "@/common/assets/common/wish-active.svg";
 import WishListDefaultIcon from "@/common/assets/common/wish-default.svg";
 
@@ -42,5 +47,20 @@ export const COMMON_ASSETS: Assets = {
   profile: {
     default: ProfileDefaultIcon,
     active: ProfileActiveIcon,
+  },
+  tooltipArrow: {
+    default: TooltipArrowIcon,
+  },
+  logo: {
+    default: LogoIcon,
+  },
+  naver: {
+    default: NaverIcon,
+  },
+  google: {
+    default: GoogleIcon,
+  },
+  apple: {
+    default: AppleIcon,
   },
 };

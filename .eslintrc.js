@@ -1,5 +1,5 @@
 module.exports = {
-  ignorePatterns: [".eslintrc.js", "metro.config.js", "tailwind.config.js"],
+  ignorePatterns: [".eslintrc.js", "metro.config.js", "tailwind.config.js", "babel.config.js"],
   env: {
     node: true,
     "react-native/react-native": true,
@@ -50,6 +50,12 @@ module.exports = {
 
     "react-native/no-unused-styles": "warn",
     "react-native/no-inline-styles": "off",
+    "react-native/no-raw-text": [
+      "error",
+      {
+        skip: ["Typography"],
+      },
+    ],
     "no-nested-ternary": "warn",
     "react/destructuring-assignment": "off",
     "@typescript-eslint/no-explicit-any": "warn",

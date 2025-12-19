@@ -1,5 +1,5 @@
 import { Fragment, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
-import { LayoutChangeEvent, Text, View } from "react-native";
+import { LayoutChangeEvent, View } from "react-native";
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 
 import {
@@ -10,6 +10,7 @@ import {
 } from "./config";
 
 import Icon from "@/common/components/Icon/Icon";
+import Typography from "@/common/components/Typography/Typography";
 import { TooltipInstance } from "@/common/providers/TooltipProvider";
 import { COMMON_ASSETS } from "@/common/utils/assets";
 import { cn } from "@/common/utils/cn";
@@ -109,8 +110,7 @@ export default function Tooltip(instance: TooltipInstance) {
 
   const content = useMemo(() => {
     if (typeof renderContent === "string") {
-      // TODO : Typography로 변경
-      return <Text>{renderContent}</Text>;
+      return <Typography>{renderContent}</Typography>;
     }
     return renderContent;
   }, [renderContent]);

@@ -1,7 +1,8 @@
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, View } from "react-native";
 
 import Icon from "@/common/components/Icon/Icon";
+import Typography from "@/common/components/Typography/Typography";
 import { COMMON_ASSETS, IconVariant } from "@/common/utils/assets";
 
 export default function BottomTabs(props: BottomTabBarProps) {
@@ -27,7 +28,7 @@ export default function BottomTabs(props: BottomTabBarProps) {
             key={route.key}
           >
             <Icon icon={COMMON_ASSETS[route.name]} variant={variant} />
-            <Text>{route.name}</Text>
+            <Typography>{route.name}</Typography>
           </Pressable>
         );
       })}

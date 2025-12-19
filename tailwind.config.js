@@ -4,9 +4,16 @@ module.exports = {
   theme: {
     // 기본 spacing을 1px 단위로 오버라이드
     spacing: generatePixelSpacing(),
+    // 기본 폰트를 Pretendard로 설정
+    fontFamily: {
+      sans: ["Pretendard"],
+    },
     extend: {
       // 폰트 사이즈도 픽셀로 직접 매핑 (text-12 -> 12px)
       fontSize: generatePixelFontSize(),
+      fontFamily: {
+        pretendard: ["Pretendard"],
+      },
       colors: {
         white: "#FFFFFF",
         black: "#0D0C11",

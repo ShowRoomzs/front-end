@@ -1,5 +1,5 @@
-import BottomSheetRenderer from "../BottomSheet/BottomSheetRenderer";
-import TooltipRenderer from "../Tooltip/TooltipRenderer";
+import BottomSheetRenderer from "@/common/components/BottomSheet/BottomSheetRenderer";
+import TooltipRenderer from "@/common/components/Tooltip/TooltipRenderer";
 
 export default function OverlayHost() {
   return (

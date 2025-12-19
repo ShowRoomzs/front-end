@@ -2,9 +2,9 @@ import { deepEqual } from "fast-equals";
 import { ReactElement, useEffect, useMemo, useRef } from "react";
 
 import { usePrevious } from "./usePrevious";
-import { useBottomSheetContext } from "../providers/BottomSheetProvider";
 
 import { BottomSheetProps } from "@/common/components/BottomSheet/BottomSheet";
+import { useBottomSheetContext } from "@/common/providers/BottomSheetProvider";
 
 interface UseBottomSheetProps {
   id: string;

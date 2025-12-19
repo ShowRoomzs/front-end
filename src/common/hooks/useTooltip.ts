@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef } from "react";
 import { View } from "react-native";
 
-import { TooltipConfig, TooltipContext } from "../providers/TooltipProvider";
+import { TooltipConfig, TooltipContext } from "@/common/providers/TooltipProvider/context";
 
 export function useTooltip(tooltipId: string) {
   const context = useContext(TooltipContext);

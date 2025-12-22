@@ -11,11 +11,19 @@ export type HomeTabParamList = {
 
 // 인증 스택 파라미터
 export type AuthStackParamList = {
-  [AUTH_ROUTES.AUTH_HOME]: undefined;
-  [AUTH_ROUTES.SIGN_UP]: undefined;
+  [AUTH_ROUTES.AUTH_HOME]: {
+    onSuccessLogin?: () => void;
+  };
+  [AUTH_ROUTES.SIGN_UP]: {
+    onSuccessLogin?: () => void;
+  };
 };
 
 export type RootStackParamList = {
   [ROOT_ROUTES.HOME]: undefined;
-  [ROOT_ROUTES.AUTH]: undefined;
+  [ROOT_ROUTES.AUTH]: {
+    params?: {
+      onSuccessLogin?: () => void;
+    };
+  };
 };

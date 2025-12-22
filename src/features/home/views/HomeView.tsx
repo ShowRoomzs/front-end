@@ -8,6 +8,7 @@ import HomeTabs from "../components/HomeTabs/HomeTabs";
 import Search from "@/common/components/Search/Search";
 import { TabItemType } from "@/common/components/Tabs/Tabs";
 import VStack from "@/common/components/VStack/VStack";
+import { usePermissionPress } from "@/common/hooks/usePermissionPress";
 
 export default function HomeView() {
   const tabItems = useMemo(
@@ -34,10 +35,14 @@ export default function HomeView() {
     []
   );
 
+  const handlePressNotification = usePermissionPress(() => {
+    // TODO : 알림 페이지로 이동
+  });
+
   return (
     <SafeAreaView className="flex-1 bg-white">
       <VStack gap={10} className="mt-3 px-20">
-        <Header onPressCart={() => {}} onPressNotification={() => {}} />
+        <Header onPressCart={() => {}} onPressNotification={handlePressNotification} />
         <Search onPressSearch={() => {}} placeholder="원하는 제품을 빠르게 찾아 보세요" size="medium" />
       </VStack>
       <View className="flex-1">

@@ -35,7 +35,10 @@ export default function AuthHomeView() {
             <SocialButton onPress={handlePressSocialButton} key={socialType} socialType={socialType} />
           ))}
         </VStack>
-        <Pressable className="bg-white w-100 h-50" onPress={() => navigation.navigate(AUTH_ROUTES.SIGN_UP)}>
+        <Pressable
+          className="bg-white w-100 h-50"
+          onPress={() => navigation.navigate(AUTH_ROUTES.SIGN_UP, {})}
+        >
           <Text>회원가입 라우팅</Text>
         </Pressable>
       </VStack>

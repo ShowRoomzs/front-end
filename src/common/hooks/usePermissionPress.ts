@@ -7,10 +7,14 @@ import { useUserStore } from "../stores/useUserStore";
 export function usePermissionPress(callback: () => void | Promise<void>) {
   const { user } = useUserStore();
   const navigation = useMainNavigation();
+
   const handlePress = useCallback(async () => {
     if (!user) {
-      // TODO : 권한 팝업 표출 후 로그인 화면으로 라우팅
-      navigation.navigate(ROOT_ROUTES.AUTH);
+      navigation.navigate(ROOT_ROUTES.AUTH, {
+        params: {
+          onSuccessLogin: callback,
+        },
+      });
       return;
     }
     await callback();

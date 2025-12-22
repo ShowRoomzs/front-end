@@ -10,7 +10,7 @@ export interface TabItemType {
   render: ReactElement;
 }
 
-interface TabProps {
+export interface TabProps {
   items: Array<TabItemType>;
   renderItem: ListRenderItem<TabItemType>;
   headerClassName?: string;
@@ -18,6 +18,9 @@ interface TabProps {
   selectedIndex?: number;
   onSelect?: (index: number, id: string) => void;
   skipIntermediateTabs?: boolean; // 탭 전환 시 중간 탭 건너뛰기
+  showUnderline?: boolean;
+  enableHeaderScroll?: boolean;
+  underlineClassName?: string;
 }
 
 export default function Tabs(props: TabProps) {
@@ -29,6 +32,9 @@ export default function Tabs(props: TabProps) {
     renderItem,
     selectedIndex: originSelectedIndex,
     skipIntermediateTabs = false,
+    showUnderline = true,
+    underlineClassName,
+    enableHeaderScroll = true,
   } = props;
 
   const [selectedIndex, setSelectedIndex] = useState<number>(originSelectedIndex || 0);
@@ -44,6 +50,7 @@ export default function Tabs(props: TabProps) {
 
       onSelect?.(index, id);
       setSelectedIndex(index);
+
       listScrollRef.current?.scrollToIndex({
         index,
         viewPosition: 0.5,
@@ -69,10 +76,15 @@ export default function Tabs(props: TabProps) {
         renderItem={renderItem}
         keyExtractor={keyExtractor}
         listScrollRef={listScrollRef}
-        className={headerClassName}
+        wrapperClassName={headerClassName}
+        enableHeaderScroll={enableHeaderScroll}
+        showUnderline={showUnderline}
+        underlineClassName={underlineClassName}
+        selectedIndex={selectedIndex}
+        onPressTab={handlePressTab}
       />
       <TabBody
-        className={bodyClassName}
+        wrapperClassName={bodyClassName}
         items={items}
         selectedIndex={selectedIndex}
         onChangeIndex={handleChangeIndex}

@@ -4,18 +4,18 @@ import { SvgProps } from "react-native-svg";
 import AppleIcon from "@/common/assets/common/apple-icon.svg";
 import CategoryActiveIcon from "@/common/assets/common/category-active.svg";
 import CategoryDefaultIcon from "@/common/assets/common/category-default.svg";
-import FeedActiveIcon from "@/common/assets/common/feed-active.svg";
-import FeedDefaultIcon from "@/common/assets/common/feed-default.svg";
+import FollowingActiveIcon from "@/common/assets/common/following-active.svg";
+import FollowingDefaultIcon from "@/common/assets/common/following-default.svg";
 import GoogleIcon from "@/common/assets/common/google-icon.svg";
 import HomeActiveIcon from "@/common/assets/common/home-active.svg";
 import HomeDefaultIcon from "@/common/assets/common/home-default.svg";
+import LikeActiveIcon from "@/common/assets/common/like-active.svg";
+import LikeDefaultIcon from "@/common/assets/common/like-default.svg";
 import LogoIcon from "@/common/assets/common/logo.svg";
+import MypageActiveIcon from "@/common/assets/common/mypage-active.svg";
+import MypageDefaultIcon from "@/common/assets/common/mypage-default.svg";
 import NaverIcon from "@/common/assets/common/naver-icon.svg";
-import ProfileActiveIcon from "@/common/assets/common/profile-active.svg";
-import ProfileDefaultIcon from "@/common/assets/common/profile-default.svg";
 import TooltipArrowIcon from "@/common/assets/common/tooltip-arrow.svg";
-import WishListActiveIcon from "@/common/assets/common/wish-active.svg";
-import WishListDefaultIcon from "@/common/assets/common/wish-default.svg";
 
 export interface Asset {
   default: FC<SvgProps>;
@@ -32,22 +32,23 @@ export const COMMON_ASSETS: Assets = {
     default: CategoryDefaultIcon,
     active: CategoryActiveIcon,
   },
-  feed: {
-    default: FeedDefaultIcon,
-    active: FeedActiveIcon,
+  following: {
+    default: FollowingDefaultIcon,
+    active: FollowingActiveIcon,
   },
-  wishList: {
-    default: WishListDefaultIcon,
-    active: WishListActiveIcon,
+  like: {
+    default: LikeDefaultIcon,
+    active: LikeActiveIcon,
+  },
+  mypage: {
+    default: MypageDefaultIcon,
+    active: MypageActiveIcon,
   },
   home: {
     default: HomeDefaultIcon,
     active: HomeActiveIcon,
   },
-  profile: {
-    default: ProfileDefaultIcon,
-    active: ProfileActiveIcon,
-  },
+
   tooltipArrow: {
     default: TooltipArrowIcon,
   },

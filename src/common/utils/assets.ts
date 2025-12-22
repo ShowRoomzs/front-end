@@ -2,6 +2,7 @@ import { FC } from "react";
 import { SvgProps } from "react-native-svg";
 
 import AppleIcon from "@/common/assets/common/apple-icon.svg";
+import CartIcon from "@/common/assets/common/cart.svg";
 import CategoryActiveIcon from "@/common/assets/common/category-active.svg";
 import CategoryDefaultIcon from "@/common/assets/common/category-default.svg";
 import FollowingActiveIcon from "@/common/assets/common/following-active.svg";
@@ -11,10 +12,12 @@ import HomeActiveIcon from "@/common/assets/common/home-active.svg";
 import HomeDefaultIcon from "@/common/assets/common/home-default.svg";
 import LikeActiveIcon from "@/common/assets/common/like-active.svg";
 import LikeDefaultIcon from "@/common/assets/common/like-default.svg";
+import LogoBlackIcon from "@/common/assets/common/logo-black.svg";
 import LogoIcon from "@/common/assets/common/logo.svg";
 import MypageActiveIcon from "@/common/assets/common/mypage-active.svg";
 import MypageDefaultIcon from "@/common/assets/common/mypage-default.svg";
 import NaverIcon from "@/common/assets/common/naver-icon.svg";
+import NotificationIcon from "@/common/assets/common/notification.svg";
 import TooltipArrowIcon from "@/common/assets/common/tooltip-arrow.svg";
 
 export interface Asset {
@@ -55,6 +58,9 @@ export const COMMON_ASSETS: Assets = {
   logo: {
     default: LogoIcon,
   },
+  logoBlack: {
+    default: LogoBlackIcon,
+  },
   naver: {
     default: NaverIcon,
   },
@@ -63,5 +69,11 @@ export const COMMON_ASSETS: Assets = {
   },
   apple: {
     default: AppleIcon,
+  },
+  notification: {
+    default: NotificationIcon,
+  },
+  cart: {
+    default: CartIcon,
   },
 };

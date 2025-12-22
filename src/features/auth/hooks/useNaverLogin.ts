@@ -11,18 +11,7 @@ export function useNaverLogin() {
     });
   }, []);
 
-  const login = async (): Promise<void> => {
-    try {
-      const res = await NaverLogin.login();
-
-      console.log(res);
-      // TODO : 서버 요청
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
   return {
-    login,
+    login: NaverLogin.login,
   };
 }

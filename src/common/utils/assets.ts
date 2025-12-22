@@ -18,6 +18,7 @@ import MypageActiveIcon from "@/common/assets/common/mypage-active.svg";
 import MypageDefaultIcon from "@/common/assets/common/mypage-default.svg";
 import NaverIcon from "@/common/assets/common/naver-icon.svg";
 import NotificationIcon from "@/common/assets/common/notification.svg";
+import SearchIcon from "@/common/assets/common/search.svg";
 import TooltipArrowIcon from "@/common/assets/common/tooltip-arrow.svg";
 
 export interface Asset {
@@ -75,5 +76,8 @@ export const COMMON_ASSETS: Assets = {
   },
   cart: {
     default: CartIcon,
+  },
+  search: {
+    default: SearchIcon,
   },
 };

@@ -19,7 +19,11 @@ export default function MainNavigator() {
   return (
     <Stack.Navigator initialRouteName={ROOT_ROUTES.HOME} screenOptions={{ headerShown: false }}>
       <Stack.Screen name={ROOT_ROUTES.HOME} component={HomeNavigator} />
-      <Stack.Screen name={ROOT_ROUTES.AUTH} component={AuthNavigator} />
+      <Stack.Screen
+        name={ROOT_ROUTES.AUTH}
+        component={AuthNavigator}
+        options={{ presentation: "fullScreenModal" }}
+      />
     </Stack.Navigator>
   );
 }

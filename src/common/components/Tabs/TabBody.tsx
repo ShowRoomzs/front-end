@@ -18,16 +18,18 @@ import TabContent from "./TabContent";
 import TabItem from "./TabItem";
 import { TabItemType } from "./Tabs";
 
+import { cn } from "@/common/utils/cn";
+
 interface TabBodyProps {
   items: Array<TabItemType>;
   selectedIndex: number;
   onChangeIndex: (index: number) => void;
-  className?: string;
+  wrapperClassName?: string;
   skipIntermediateTabs: boolean;
 }
 
 export default function TabBody(props: TabBodyProps) {
-  const { items, onChangeIndex, selectedIndex, className, skipIntermediateTabs } = props;
+  const { items, onChangeIndex, selectedIndex, wrapperClassName, skipIntermediateTabs } = props;
   const { width: SCREEN_WIDTH } = useWindowDimensions();
   const dragTranslation = useSharedValue(0);
   const memorizedDragTranslation = useSharedValue(0);
@@ -148,7 +150,7 @@ export default function TabBody(props: TabBodyProps) {
   );
 
   return (
-    <View className="flex-1">
+    <View className={cn("flex-1", wrapperClassName)}>
       <GestureDetector gesture={pan}>
         <View className="flex-1 flex flex-row relative">
           {items.map((item, ix) => (
@@ -160,9 +162,7 @@ export default function TabBody(props: TabBodyProps) {
               translationX={dragTranslation}
               skipIntermediateTabs={skipIntermediateTabs}
             >
-              <TabContent className={className} isMounted={checkIsMounted(ix)}>
-                {item.render}
-              </TabContent>
+              <TabContent isMounted={checkIsMounted(ix)}>{item.render}</TabContent>
             </TabItem>
           ))}
         </View>

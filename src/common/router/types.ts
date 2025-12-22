@@ -11,7 +11,7 @@ export type HomeTabParamList = {
 
 // 인증 스택 파라미터
 export type AuthStackParamList = {
-  [AUTH_ROUTES.HOME]: undefined;
+  [AUTH_ROUTES.AUTH_HOME]: undefined;
   [AUTH_ROUTES.SIGN_UP]: undefined;
 };
 

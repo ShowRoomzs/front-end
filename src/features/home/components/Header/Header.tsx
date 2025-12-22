@@ -13,7 +13,7 @@ export default function Header(props: HeaderProps) {
   const { onPressCart, onPressNotification } = props;
 
   return (
-    <View className="flex flex-row px-20 justify-between items-center py-5">
+    <View className="flex flex-row justify-between items-center py-5">
       <Icon icon={COMMON_ASSETS.logoBlack} width={136} height={14} />
       <HStack gap={16}>
         {/* TODO : TouchableOpacity 버튼 공통화 필요 */}

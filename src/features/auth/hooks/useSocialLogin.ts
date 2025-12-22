@@ -14,6 +14,7 @@ import { SocialType } from "../components/SocialButton/SocialButton";
 
 export type SocialLoginResponse = {
   token: string;
+  socialType: SocialType;
 };
 
 interface UseSocialLoginResult {
@@ -32,7 +33,7 @@ export function useSocialLogin(socialType: SocialType): UseSocialLoginResult {
         case "naver": {
           const res = await loginWithNaver();
 
-          token = res.successResponse?.accessToken ?? "";
+          token = res.accessToken;
           break;
         }
         case "google": {
@@ -52,7 +53,7 @@ export function useSocialLogin(socialType: SocialType): UseSocialLoginResult {
         throw new Error(`${socialType} login failed: token is missing`);
       }
 
-      return { token };
+      return { token, socialType };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
 

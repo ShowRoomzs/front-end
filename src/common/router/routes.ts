@@ -7,9 +7,9 @@ export const HOME_ROUTES = {
   MYPAGE: "mypage",
 } as const;
 
-// 인증 관련
+// 인증 스택 네비게이션
 export const AUTH_ROUTES = {
-  HOME: "home",
+  AUTH_HOME: "authHome",
   SIGN_UP: "signUp",
 } as const;
 

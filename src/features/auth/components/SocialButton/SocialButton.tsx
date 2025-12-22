@@ -1,19 +1,23 @@
+import { useCallback } from "react";
 import { TouchableOpacity } from "react-native";
+
+import { SocialLoginResponse, useSocialLogin } from "../../hooks/useSocialLogin";
 
 import Icon from "@/common/components/Icon/Icon";
 import Typography from "@/common/components/Typography/Typography";
 import { COMMON_ASSETS } from "@/common/utils/assets";
 import { cn } from "@/common/utils/cn";
 
-type SocialType = "naver" | "google" | "apple";
+export type SocialType = "naver" | "google" | "apple";
 
 export interface SocialButtonProps {
   socialType: SocialType;
-  onPress: () => void;
+  onPress: (response: SocialLoginResponse) => void;
 }
 
 export default function SocialButton(props: SocialButtonProps) {
   const { socialType, onPress } = props;
+  const { login } = useSocialLogin(socialType);
 
   // ---- wrapper ----
   const getDefaultWrapperClassName = () => {
@@ -71,10 +75,19 @@ export default function SocialButton(props: SocialButtonProps) {
     }
   };
 
+  const handlePress = useCallback(async () => {
+    const res = await login();
+
+    if (!res) {
+      return;
+    }
+    onPress(res);
+  }, [login, onPress]);
+
   return (
     <TouchableOpacity
       activeOpacity={0.8}
-      onPress={onPress}
+      onPress={handlePress}
       className={cn(getDefaultWrapperClassName(), getWrapperClassNameByVariant())}
     >
       {getIcon()}

@@ -1,4 +1,5 @@
 import { AUTH_ROUTES, HOME_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
+import { TermsType } from "@/features/auth/views/TermsView";
 
 // 홈 하단 탭 파라미터
 export type HomeTabParamList = {
@@ -16,6 +17,9 @@ export type AuthStackParamList = {
   };
   [AUTH_ROUTES.SIGN_UP]: {
     onSuccessLogin?: () => void;
+  };
+  [AUTH_ROUTES.TERMS]: {
+    termsType: TermsType;
   };
 };
 

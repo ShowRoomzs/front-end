@@ -13,11 +13,10 @@ import {
   DEFAULT_ANIMATION_DURATION,
   DEFAULT_MOUNTED_COUNT,
   SCROLL_ENABLE_VELOCITY,
-} from "./config";
-import TabContent from "./TabContent";
-import TabItem from "./TabItem";
-import { TabItemType } from "./Tabs";
-
+} from "@/common/components/Tabs/config";
+import TabContent from "@/common/components/Tabs/TabContent";
+import TabItem from "@/common/components/Tabs/TabItem";
+import { TabItemType } from "@/common/components/Tabs/Tabs";
 import { cn } from "@/common/utils/cn";
 
 interface TabBodyProps {

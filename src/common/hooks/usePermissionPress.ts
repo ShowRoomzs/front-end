@@ -1,8 +1,8 @@
 import { useCallback } from "react";
 
-import { useMainNavigation } from "../router";
-import { ROOT_ROUTES } from "../router/routes";
-import { useUserStore } from "../stores/useUserStore";
+import { useMainNavigation } from "@/common/router";
+import { ROOT_ROUTES } from "@/common/router/routes";
+import { useUserStore } from "@/common/stores/useUserStore";
 
 export function usePermissionPress(callback: () => void | Promise<void>) {
   const { user } = useUserStore();

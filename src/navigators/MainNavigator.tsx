@@ -1,11 +1,10 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import AuthNavigator from "./AuthNavigator";
-import HomeNavigator from "./HomeNavigator";
-
 import { useInit } from "@/common/hooks/useInit";
 import { ROOT_ROUTES } from "@/common/router/routes";
 import { RootStackParamList } from "@/common/router/types";
+import AuthNavigator from "@/navigators/AuthNavigator";
+import HomeNavigator from "@/navigators/HomeNavigator";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 

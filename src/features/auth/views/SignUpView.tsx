@@ -2,8 +2,6 @@ import { RouteProp, useRoute } from "@react-navigation/native";
 import { useMemo, useState } from "react";
 import { View } from "react-native";
 
-import { formatBirthdate } from "../utils/formatBirthdate";
-
 import LabeledComponent from "@/common/components/LabeledComponent/LabeledComponent";
 import LabeledInput from "@/common/components/LabeledInput/LabeledInput";
 import SelectableButtonGroup, {
@@ -13,6 +11,7 @@ import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
 import { AUTH_ROUTES } from "@/common/router/routes";
 import { AuthStackParamList } from "@/common/router/types";
+import { formatBirthdate } from "@/features/auth/utils/formatBirthdate";
 
 export default function SignUpView() {
   const route = useRoute<RouteProp<AuthStackParamList, typeof AUTH_ROUTES.SIGN_UP>>();

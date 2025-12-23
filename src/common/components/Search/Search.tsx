@@ -1,7 +1,6 @@
 import { View } from "react-native";
 
-import Icon from "../Icon/Icon";
-
+import Icon from "@/common/components/Icon/Icon";
 import Input, { InputProps } from "@/common/components/Input/Input";
 import { COMMON_ASSETS } from "@/common/utils/assets";
 import { cn } from "@/common/utils/cn";

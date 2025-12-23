@@ -1,8 +1,7 @@
 import { ReactNode, useCallback, useMemo } from "react";
 import { Pressable, StyleProp, ViewStyle } from "react-native";
 
-import Typography from "../Typography/Typography";
-
+import Typography from "@/common/components/Typography/Typography";
 import { cn } from "@/common/utils/cn";
 /**
  * height 기준 size 정의

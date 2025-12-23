@@ -1,13 +1,12 @@
 import { useMemo } from "react";
 import { Text, View } from "react-native";
 
-import HomeHeader from "../components/HomeHeader/HomeHeader";
-import HomeTabs from "../components/HomeTabs/HomeTabs";
-
 import Search from "@/common/components/Search/Search";
 import { TabItemType } from "@/common/components/Tabs/Tabs";
 import VStack from "@/common/components/VStack/VStack";
 import { usePermissionPress } from "@/common/hooks/usePermissionPress";
+import HomeHeader from "@/features/home/components/HomeHeader/HomeHeader";
+import HomeTabs from "@/features/home/components/HomeTabs/HomeTabs";
 
 export default function HomeView() {
   const tabItems = useMemo(

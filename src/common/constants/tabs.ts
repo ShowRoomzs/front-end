@@ -1,4 +1,4 @@
-import { HomeRouteName } from "../router";
+import { HomeRouteName } from "@/common/router";
 
 export const HOME_ROUTES_LABEL_MAP: Record<HomeRouteName, string> = {
   category: "카테고리",

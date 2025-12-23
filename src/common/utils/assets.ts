@@ -2,6 +2,7 @@ import { FC } from "react";
 import { SvgProps } from "react-native-svg";
 
 import AppleIcon from "@/common/assets/common/apple-icon.svg";
+import BackIcon from "@/common/assets/common/back.svg";
 import CartIcon from "@/common/assets/common/cart.svg";
 import CategoryActiveIcon from "@/common/assets/common/category-active.svg";
 import CategoryDefaultIcon from "@/common/assets/common/category-default.svg";
@@ -79,5 +80,8 @@ export const COMMON_ASSETS: Assets = {
   },
   search: {
     default: SearchIcon,
+  },
+  back: {
+    default: BackIcon,
   },
 };

@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 import Divider from "@/common/components/Divider/Divider";
 import LabeledCheckbox from "@/common/components/LabeledCheckbox/LabeledCheckbox";
 import TermsCheckbox from "@/common/components/TermsCheckbox/TermsCheckbox";
@@ -12,15 +14,20 @@ export interface TermsItem {
 }
 
 interface TermsCheckboxGroupProps {
-  items: TermsItem[];
+  items: Array<TermsItem>;
   allCheckLabel?: string;
+  onChange: (isAllChecked: boolean) => void;
 }
 
 export default function TermsCheckboxGroup(props: TermsCheckboxGroupProps) {
-  const { items, allCheckLabel = "전체 동의" } = props;
+  const { items, allCheckLabel = "전체 동의", onChange } = props;
   const { toggleItem, toggleAll, isAllChecked, isChecked } = useCheckbox();
 
   const allIds = items.map(item => item.id);
+
+  useEffect(() => {
+    onChange(isAllChecked(allIds));
+  }, [allIds, isAllChecked, onChange]);
 
   return (
     <VStack gap={15}>
@@ -28,9 +35,9 @@ export default function TermsCheckboxGroup(props: TermsCheckboxGroupProps) {
         isChecked={isAllChecked(allIds)}
         onChange={() => toggleAll(allIds)}
         label={allCheckLabel}
-        labelClassName="font-semibold"
+        labelClassName="font-semibold text-14"
       />
-      <Divider height={1} wrapperClassName="bg-gray3" />
+      <Divider height={1} wrapperClassName="bg-gray2" />
       <VStack gap={15}>
         {items.map(item => (
           <TermsCheckbox

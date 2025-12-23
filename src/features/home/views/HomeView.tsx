@@ -1,8 +1,7 @@
 import { useMemo } from "react";
 import { Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
-import Header from "../components/Header/Header";
+import HomeHeader from "../components/HomeHeader/HomeHeader";
 import HomeTabs from "../components/HomeTabs/HomeTabs";
 
 import Search from "@/common/components/Search/Search";
@@ -40,14 +39,14 @@ export default function HomeView() {
   });
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <View className="flex-1 bg-white">
       <VStack gap={10} className="mt-3 px-20">
-        <Header onPressCart={() => {}} onPressNotification={handlePressNotification} />
+        <HomeHeader onPressCart={() => {}} onPressNotification={handlePressNotification} />
         <Search onPressSearch={() => {}} placeholder="원하는 제품을 빠르게 찾아 보세요" size="medium" />
       </VStack>
       <View className="flex-1">
         <HomeTabs items={tabItems} />
       </View>
-    </SafeAreaView>
+    </View>
   );
 }

@@ -8,8 +8,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-import { DEFAULT_ANIMATION_DURATION } from "./config";
-
+import { DEFAULT_ANIMATION_DURATION } from "@/common/components/Tabs/config";
 import { usePrevious } from "@/common/hooks/usePrevious";
 
 interface TabItemProps extends PropsWithChildren {

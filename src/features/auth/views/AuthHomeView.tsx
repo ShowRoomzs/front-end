@@ -1,14 +1,16 @@
 import { useCallback, useMemo } from "react";
-import { Platform, View } from "react-native";
-
-import SocialButton, { SocialType } from "../components/SocialButton/SocialButton";
-import { SocialLoginResponse } from "../hooks/useSocialLogin";
+import { Platform, Pressable, Text, View } from "react-native";
 
 import Icon from "@/common/components/Icon/Icon";
 import VStack from "@/common/components/VStack/VStack";
+import { useAuthNavigation } from "@/common/router";
+import { AUTH_ROUTES } from "@/common/router/routes";
 import { COMMON_ASSETS } from "@/common/utils/assets";
+import SocialButton, { SocialType } from "@/features/auth/components/SocialButton/SocialButton";
+import { SocialLoginResponse } from "@/features/auth/hooks/useSocialLogin";
 
 export default function AuthHomeView() {
+  const navigation = useAuthNavigation();
   const socialButtons = useMemo((): Array<SocialType> => {
     const buttons: Array<SocialType> = ["naver", "google"];
 
@@ -32,6 +34,12 @@ export default function AuthHomeView() {
             <SocialButton onPress={handlePressSocialButton} key={socialType} socialType={socialType} />
           ))}
         </VStack>
+        <Pressable
+          className="bg-white w-100 h-50"
+          onPress={() => navigation.navigate(AUTH_ROUTES.SIGN_UP, {})}
+        >
+          <Text>회원가입 라우팅</Text>
+        </Pressable>
       </VStack>
     </View>
   );

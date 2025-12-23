@@ -1,7 +1,6 @@
 import { Fragment } from "react";
 
-import Tooltip from "./Tooltip";
-
+import Tooltip from "@/common/components/Tooltip/Tooltip";
 import { useTooltipContext } from "@/common/providers/TooltipProvider";
 
 export default function TooltipRenderer() {

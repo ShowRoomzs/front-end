@@ -1,9 +1,8 @@
 import { deepEqual } from "fast-equals";
 import { ReactElement, useEffect, useMemo, useRef } from "react";
 
-import { usePrevious } from "./usePrevious";
-
 import { BottomSheetProps } from "@/common/components/BottomSheet/BottomSheet";
+import { usePrevious } from "@/common/hooks/usePrevious";
 import { useBottomSheetContext } from "@/common/providers/BottomSheetProvider";
 
 interface UseBottomSheetProps {

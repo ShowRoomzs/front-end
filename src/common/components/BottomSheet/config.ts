@@ -1,4 +1,4 @@
-import { SnapPoint } from "./BottomSheet";
+import { SnapPoint } from "@/common/components/BottomSheet/BottomSheet";
 
 export function getMinHeight(snapPoint: SnapPoint, maxHeight: number): number {
   if (typeof snapPoint === "number") {

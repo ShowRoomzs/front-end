@@ -1,6 +1,7 @@
 import { ReactNode, useCallback, useMemo } from "react";
 import { Pressable, StyleProp, ViewStyle } from "react-native";
 
+import { extractTextClassName } from "@/common/components/Button/config";
 import Typography from "@/common/components/Typography/Typography";
 import { cn } from "@/common/utils/cn";
 /**
@@ -93,14 +94,28 @@ export default function Button(props: ButtonProps) {
 
   const content = useMemo(() => {
     if (typeof children === "string") {
-      return <Typography style={{ fontSize: getTextSize() }}>{children}</Typography>;
+      return (
+        <Typography
+          className={extractTextClassName(`${getClassNameByVariant()} ${getClassNameBySize()}`)}
+          style={{ fontSize: getTextSize() }}
+        >
+          {children}
+        </Typography>
+      );
     }
     return children;
-  }, [children, getTextSize]);
+  }, [children, getClassNameBySize, getClassNameByVariant, getTextSize]);
+
+  const handlePress = useCallback(() => {
+    if (disabled || !onPress) {
+      return;
+    }
+    onPress();
+  }, [disabled, onPress]);
 
   return (
     <Pressable
-      onPress={onPress}
+      onPress={handlePress}
       className={cn(getDefaultClassName(), getClassNameBySize(), getClassNameByVariant(), className)}
       style={style}
     >

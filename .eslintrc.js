@@ -53,7 +53,7 @@ module.exports = {
     "react-native/no-raw-text": [
       "error",
       {
-        skip: ["Typography"],
+        skip: ["Typography", "Button"],
       },
     ],
     "no-nested-ternary": "warn",

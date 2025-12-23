@@ -1,4 +1,4 @@
-import { ValidateOption } from "@/common/components/Input/Input";
+import { ValidateOption } from "@/common/hooks/useInputValidation";
 
 export const NICKNAME_VALIDATION_RULES: Array<ValidateOption> = [
   {

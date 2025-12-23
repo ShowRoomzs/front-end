@@ -1,11 +1,11 @@
 import { ReactNode } from "react";
 import { useSharedValue } from "react-native-reanimated";
 
-import OverlayHost from "../../components/OverlayHost/OverlayHost";
-import OverlayLayout from "../../components/OverlayLayout/OverlayLayout";
-import { BottomSheetProvider } from "../BottomSheetProvider";
-import { TooltipProvider } from "../TooltipProvider";
-import { OverlayContext } from "./context";
+import OverlayHost from "@/common/components/OverlayHost/OverlayHost";
+import OverlayLayout from "@/common/components/OverlayLayout/OverlayLayout";
+import { BottomSheetProvider } from "@/common/providers/BottomSheetProvider";
+import { OverlayContext } from "@/common/providers/OverlayProvider/context";
+import { TooltipProvider } from "@/common/providers/TooltipProvider";
 
 interface OverlayProviderProps {
   children: ReactNode;

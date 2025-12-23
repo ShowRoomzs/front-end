@@ -1,5 +1,5 @@
 import * as Crypto from "expo-crypto";
-import { ReactNode } from "react";
+import { ReactNode, useMemo } from "react";
 import { View, ViewProps } from "react-native";
 
 import { cn } from "@/common/utils/cn";
@@ -13,6 +13,7 @@ export default function HStack(props: HStackProps) {
   const { gap, className, children, ...restProps } = props;
 
   const childrenArr = Array.isArray(children) ? children : [children];
+  const stackId = useMemo(() => Crypto.randomUUID(), []);
 
   return (
     <View className={cn("flex flex-row", className)} {...restProps}>
@@ -20,7 +21,7 @@ export default function HStack(props: HStackProps) {
         const isLast = ix === childrenArr.length - 1;
 
         return (
-          <View key={Crypto.randomUUID()} style={{ marginRight: isLast ? 0 : gap }}>
+          <View key={`${stackId}-${ix}`} style={{ marginRight: isLast ? 0 : gap }}>
             {child}
           </View>
         );

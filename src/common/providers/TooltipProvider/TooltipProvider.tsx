@@ -1,7 +1,7 @@
 import { createRef, ReactNode, RefObject, useCallback, useState } from "react";
 import { View } from "react-native";
 
-import { TooltipContext, TooltipConfig, TooltipInstance } from "./context";
+import { TooltipContext, TooltipConfig, TooltipInstance } from "@/common/providers/TooltipProvider/context";
 
 interface TooltipProviderProps {
   children: ReactNode;

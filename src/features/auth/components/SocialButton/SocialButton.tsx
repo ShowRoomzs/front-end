@@ -1,12 +1,11 @@
 import { useCallback } from "react";
 import { TouchableOpacity } from "react-native";
 
-import { SocialLoginResponse, useSocialLogin } from "../../hooks/useSocialLogin";
-
 import Icon from "@/common/components/Icon/Icon";
 import Typography from "@/common/components/Typography/Typography";
 import { COMMON_ASSETS } from "@/common/utils/assets";
 import { cn } from "@/common/utils/cn";
+import { SocialLoginResponse, useSocialLogin } from "@/features/auth/hooks/useSocialLogin";
 
 export type SocialType = "naver" | "google" | "apple";
 

@@ -1,8 +1,8 @@
 import { useCallback } from "react";
 
-import { useGoogleLogin } from "./useGoogleLogin";
-import { useNaverLogin } from "./useNaverLogin";
-import { SocialType } from "../components/SocialButton/SocialButton";
+import { SocialType } from "@/features/auth/components/SocialButton/SocialButton";
+import { useGoogleLogin } from "@/features/auth/hooks/useGoogleLogin";
+import { useNaverLogin } from "@/features/auth/hooks/useNaverLogin";
 
 /**
  * @description 소셜 로그인 응답 타입

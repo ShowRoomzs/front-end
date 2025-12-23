@@ -37,15 +37,17 @@ export default function LabeledCheckbox(props: LabeledCheckboxProps) {
   };
 
   return (
-    <HStack gap={10} className={cn("items-center", wrapperClassName)}>
-      <Checkbox isChecked={isChecked} onChange={onChange} />
-      <Pressable onPress={handlePressLabel} className="flex-1">
-        <HStack gap={4} className="items-center">
-          <Typography className={cn("text-14", labelClassName)}>{label}</Typography>
-          {required && <Typography className="text-14 text-pointColor">(필수)</Typography>}
-        </HStack>
-      </Pressable>
+    <View className={cn("flex flex-row justify-between items-center", wrapperClassName)}>
+      <HStack className="flex-1 items-center" gap={10}>
+        <Checkbox isChecked={isChecked} onChange={onChange} />
+        <Pressable onPress={handlePressLabel}>
+          <HStack gap={6} className="items-center">
+            <Typography className={cn("text-13", labelClassName)}>{label}</Typography>
+            {required && <Typography className="text-13 text-gray9">(필수)</Typography>}
+          </HStack>
+        </Pressable>
+      </HStack>
       {renderRight && <View>{renderRight}</View>}
-    </HStack>
+    </View>
   );
 }

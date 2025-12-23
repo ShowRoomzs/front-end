@@ -43,7 +43,7 @@ export default function HomeView() {
         <HomeHeader onPressCart={() => {}} onPressNotification={handlePressNotification} />
         <Search onPressSearch={() => {}} placeholder="원하는 제품을 빠르게 찾아 보세요" size="medium" />
       </VStack>
-      <View className="flex-1">
+      <View className="flex-1 mt-5">
         <HomeTabs items={tabItems} />
       </View>
     </View>

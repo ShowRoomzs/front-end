@@ -6,6 +6,8 @@ import BackIcon from "@/common/assets/common/back.svg";
 import CartIcon from "@/common/assets/common/cart.svg";
 import CategoryActiveIcon from "@/common/assets/common/category-active.svg";
 import CategoryDefaultIcon from "@/common/assets/common/category-default.svg";
+import CheckIcon from "@/common/assets/common/check.svg";
+import CloseBlackIcon from "@/common/assets/common/close.svg";
 import FollowingActiveIcon from "@/common/assets/common/following-active.svg";
 import FollowingDefaultIcon from "@/common/assets/common/following-default.svg";
 import GoogleIcon from "@/common/assets/common/google-icon.svg";
@@ -83,5 +85,11 @@ export const COMMON_ASSETS: Assets = {
   },
   back: {
     default: BackIcon,
+  },
+  check: {
+    default: CheckIcon,
+  },
+  closeBlack: {
+    default: CloseBlackIcon,
   },
 };

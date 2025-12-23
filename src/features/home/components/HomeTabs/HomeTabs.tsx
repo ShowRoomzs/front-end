@@ -22,7 +22,7 @@ export default function HomeTabs(props: HomeTabsProps) {
 
   return (
     <Tabs
-      headerClassName="min-h-[43px]"
+      headerClassName="min-h-[48px]"
       bodyClassName="min-h-screen"
       items={items}
       renderItem={renderItem}

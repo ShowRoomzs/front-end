@@ -32,8 +32,7 @@ export default function AuthNavigator() {
       <Stack.Screen
         name={AUTH_ROUTES.TERMS}
         component={TermsView}
-        initialParams={{ termsType: "privacy" }}
-        options={{ header: TermsHeader }}
+        options={{ header: TermsHeader, presentation: "modal", animation: "slide_from_bottom" }}
       />
     </Stack.Navigator>
   );

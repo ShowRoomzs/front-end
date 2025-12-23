@@ -1,9 +1,8 @@
 import { useCallback, useState } from "react";
 import { ListRenderItemInfo } from "react-native";
 
-import HomeTabItem from "./HomeTabItem";
-
 import Tabs, { TabItemType, TabProps } from "@/common/components/Tabs/Tabs";
+import HomeTabItem from "@/features/home/components/HomeTabs/HomeTabItem";
 
 type HomeTabsProps = Pick<TabProps, "items">;
 

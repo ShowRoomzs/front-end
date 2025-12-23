@@ -1,4 +1,4 @@
-import { AUTH_ROUTES, HOME_ROUTES, ROOT_ROUTES } from "./routes";
+import { AUTH_ROUTES, HOME_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 
 // 홈 하단 탭 파라미터
 export type HomeTabParamList = {

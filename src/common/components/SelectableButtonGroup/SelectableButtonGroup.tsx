@@ -1,7 +1,6 @@
 import { View } from "react-native";
 
-import Button from "../Button/Button";
-
+import Button from "@/common/components/Button/Button";
 import { cn } from "@/common/utils/cn";
 
 type SelectableButtonGroupMode = "single" | "multiple";

@@ -1,8 +1,8 @@
 import { ReactElement, useCallback, useRef, useState } from "react";
 import { FlatList, ListRenderItem, View } from "react-native";
 
-import TabBody from "./TabBody";
-import TabHeader from "./TabHeader";
+import TabBody from "@/common/components/Tabs/TabBody";
+import TabHeader from "@/common/components/Tabs/TabHeader";
 
 export interface TabItemType {
   id: string;

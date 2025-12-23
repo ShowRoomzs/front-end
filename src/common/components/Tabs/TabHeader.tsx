@@ -8,9 +8,8 @@ import {
   View,
 } from "react-native";
 
-import { TabItemType } from "./Tabs";
-import TabUnderline from "./TabUnderline";
-
+import { TabItemType } from "@/common/components/Tabs/Tabs";
+import TabUnderline from "@/common/components/Tabs/TabUnderline";
 import { cn } from "@/common/utils/cn";
 
 interface TabHeaderProps {

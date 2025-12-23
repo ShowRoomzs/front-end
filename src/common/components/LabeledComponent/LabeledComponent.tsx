@@ -1,8 +1,7 @@
 import { ReactNode } from "react";
 import { View } from "react-native";
 
-import Typography from "../Typography/Typography";
-
+import Typography from "@/common/components/Typography/Typography";
 import { cn } from "@/common/utils/cn";
 
 interface LabeledComponentProps {

@@ -1,14 +1,13 @@
 import { useCallback, useMemo } from "react";
 import { Platform, Pressable, Text, View } from "react-native";
 
-import SocialButton, { SocialType } from "../components/SocialButton/SocialButton";
-import { SocialLoginResponse } from "../hooks/useSocialLogin";
-
 import Icon from "@/common/components/Icon/Icon";
 import VStack from "@/common/components/VStack/VStack";
 import { useAuthNavigation } from "@/common/router";
 import { AUTH_ROUTES } from "@/common/router/routes";
 import { COMMON_ASSETS } from "@/common/utils/assets";
+import SocialButton, { SocialType } from "@/features/auth/components/SocialButton/SocialButton";
+import { SocialLoginResponse } from "@/features/auth/hooks/useSocialLogin";
 
 export default function AuthHomeView() {
   const navigation = useAuthNavigation();

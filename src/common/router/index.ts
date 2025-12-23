@@ -1,6 +1,6 @@
 import { NavigationProp, useNavigation } from "@react-navigation/native";
 
-import { AuthStackParamList, HomeTabParamList, RootStackParamList } from "./types";
+import { AuthStackParamList, HomeTabParamList, RootStackParamList } from "@/common/router/types";
 
 export { ROUTES, HOME_ROUTES, AUTH_ROUTES } from "./routes";
 export type { RouteName, HomeRouteName, AuthRouteName } from "./routes";

@@ -1,9 +1,8 @@
 import { ReactNode } from "react";
 import { TextInput, TextInputProps, View } from "react-native";
 
-import Typography from "../Typography/Typography";
-import VStack from "../VStack/VStack";
-
+import Typography from "@/common/components/Typography/Typography";
+import VStack from "@/common/components/VStack/VStack";
 import { cn } from "@/common/utils/cn";
 
 type InputSize = "small" | "medium";

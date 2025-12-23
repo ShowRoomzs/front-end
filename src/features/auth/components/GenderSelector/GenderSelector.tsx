@@ -4,12 +4,15 @@ import SelectableButtonGroup, {
   SelectableButtonGroupItem,
 } from "@/common/components/SelectableButtonGroup/SelectableButtonGroup";
 
+// TODO : 성별 관련 타입 지정
 interface GenderSelectorProps {
   value: string;
   onChange: (value: string) => void;
 }
 
-export default function GenderSelector({ value, onChange }: GenderSelectorProps) {
+export default function GenderSelector(props: GenderSelectorProps) {
+  const { value, onChange } = props;
+
   const genderItems = useMemo<Array<SelectableButtonGroupItem>>(
     () => [
       {

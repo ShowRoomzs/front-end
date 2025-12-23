@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 import Divider from "@/common/components/Divider/Divider";
 import LabeledCheckbox from "@/common/components/LabeledCheckbox/LabeledCheckbox";
@@ -23,7 +23,7 @@ export default function TermsCheckboxGroup(props: TermsCheckboxGroupProps) {
   const { items, allCheckLabel = "전체 동의", onChange } = props;
   const { toggleItem, toggleAll, isAllChecked, isChecked } = useCheckbox();
 
-  const allIds = items.map(item => item.id);
+  const allIds = useMemo(() => items.map(item => item.id), [items]);
 
   useEffect(() => {
     onChange(isAllChecked(allIds));

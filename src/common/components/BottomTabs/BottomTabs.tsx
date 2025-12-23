@@ -8,7 +8,7 @@ import { HomeRouteName } from "@/common/router";
 import { COMMON_ASSETS, IconVariant } from "@/common/utils/assets";
 
 export default function BottomTabs(props: BottomTabBarProps) {
-  const { state, insets, navigation } = props;
+  const { state, navigation } = props;
   const handlePress = (routeName: string) => {
     navigation.navigate(routeName);
   };
@@ -24,10 +24,7 @@ export default function BottomTabs(props: BottomTabBarProps) {
   };
 
   return (
-    <View
-      style={{ paddingBottom: insets.bottom, height: 55 + insets.bottom }}
-      className="flex flex-row w-full border-t-[1px] border-gray1 bg-white"
-    >
+    <View className="flex flex-row w-full border-t-[1px] border-gray1 bg-white">
       {state.routes.map((route, ix) => {
         const isActive = state.index === ix;
         const variant: IconVariant = isActive ? "active" : "default";

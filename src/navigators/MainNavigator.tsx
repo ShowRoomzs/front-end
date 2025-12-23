@@ -21,7 +21,7 @@ export default function MainNavigator() {
       <Stack.Screen
         name={ROOT_ROUTES.AUTH}
         component={AuthNavigator}
-        options={{ presentation: "fullScreenModal" }}
+        options={{ presentation: "containedModal" }}
       />
     </Stack.Navigator>
   );

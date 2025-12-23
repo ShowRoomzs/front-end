@@ -1,6 +1,6 @@
 import { RouteProp, useRoute } from "@react-navigation/native";
-import { useMemo, useState } from "react";
-import { View } from "react-native";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Button from "@/common/components/Button/Button";
@@ -9,11 +9,13 @@ import LabeledComponent from "@/common/components/LabeledComponent/LabeledCompon
 import LabeledInput from "@/common/components/LabeledInput/LabeledInput";
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
+import { useInputValidation } from "@/common/hooks/useInputValidation";
 import { CheckboxProvider } from "@/common/providers/CheckboxProvider";
 import { AUTH_ROUTES } from "@/common/router/routes";
 import { AuthStackParamList } from "@/common/router/types";
 import AuthTermsCheckboxGroup from "@/features/auth/components/AuthTermsCheckboxGroup/AuthTermsCheckboxGroup";
 import GenderSelector from "@/features/auth/components/GenderSelector/GenderSelector";
+import { NICKNAME_VALIDATION_RULES } from "@/features/auth/constants/validation";
 import { formatBirthdate } from "@/features/auth/utils/formatBirthdate";
 
 export default function SignUpView() {
@@ -23,6 +25,8 @@ export default function SignUpView() {
   const [nickname, setNickname] = useState("");
   const [gender, setGender] = useState("male"); // TODO : 타입 지정
   const [birthday, setBirthday] = useState("");
+  const birthInputRef = useRef<TextInput>(null);
+  const nicknameValidation = useInputValidation(nickname, NICKNAME_VALIDATION_RULES);
 
   console.log("onSuccessLogin", onSuccessLogin);
   // 회원가입 성공 시 onSuccessLogin 콜백 호출(테스트 필요)
@@ -34,12 +38,18 @@ export default function SignUpView() {
     setGender(newGender);
   };
   const handleChangeBirthday = (newBirthday: string) => {
-    setBirthday(formatBirthdate(newBirthday));
+    const formattedBirthday = formatBirthdate(newBirthday);
+
+    if (formattedBirthday.length === 10) {
+      birthInputRef.current?.blur();
+    }
+
+    setBirthday(formattedBirthday);
   };
 
-  const handleChangeTerms = (isAllChecked: boolean) => {
+  const handleChangeTerms = useCallback((isAllChecked: boolean) => {
     console.log("isAllChecked", isAllChecked);
-  };
+  }, []);
 
   const isEnabled = useMemo(() => {
     // TODO : validation 정의되면 작업
@@ -60,16 +70,20 @@ export default function SignUpView() {
               value={nickname}
               onChangeText={handleChangeNickname}
               placeholder="닉네임을 입력해 주세요 (최대 8글자)"
+              {...nicknameValidation}
             />
             <LabeledComponent label="성별">
               <GenderSelector value={gender} onChange={handleChangeGender} />
             </LabeledComponent>
             <LabeledInput
+              ref={birthInputRef}
               label="생년월일"
               value={birthday}
               onChangeText={handleChangeBirthday}
               placeholder="생년월일을 입력해 주세요"
               helperText="예제. yyyy.mm.dd"
+              maxLength={10}
+              keyboardType="numeric"
             />
           </VStack>
         </View>

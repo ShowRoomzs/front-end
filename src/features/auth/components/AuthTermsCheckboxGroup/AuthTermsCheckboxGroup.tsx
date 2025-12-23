@@ -1,18 +1,16 @@
-import { useNavigation } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useMemo } from "react";
 
 import TermsCheckboxGroup, { TermsItem } from "@/common/components/TermsCheckboxGroup/TermsCheckboxGroup";
-import { AUTH_ROUTES } from "@/common/router/routes";
-import { AuthStackParamList } from "@/common/router/types";
+import { AUTH_ROUTES, useAuthNavigation } from "@/common/router";
 
 interface AuthTermsCheckboxGroupProps {
   allCheckLabel?: string;
+  onChange: (isAllChecked: boolean) => void;
 }
 
 export default function AuthTermsCheckboxGroup(props: AuthTermsCheckboxGroupProps) {
-  const { allCheckLabel = "전체 동의" } = props;
-  const navigation = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
+  const { allCheckLabel = "전체 동의", onChange } = props;
+  const navigation = useAuthNavigation();
 
   const termsItems: Array<TermsItem> = useMemo(
     () => [
@@ -32,5 +30,5 @@ export default function AuthTermsCheckboxGroup(props: AuthTermsCheckboxGroupProp
     [navigation]
   );
 
-  return <TermsCheckboxGroup items={termsItems} allCheckLabel={allCheckLabel} />;
+  return <TermsCheckboxGroup items={termsItems} allCheckLabel={allCheckLabel} onChange={onChange} />;
 }

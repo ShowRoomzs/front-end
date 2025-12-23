@@ -1,23 +1,24 @@
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { useMemo, useState } from "react";
 import { View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import Button from "@/common/components/Button/Button";
 import Divider from "@/common/components/Divider/Divider";
 import LabeledComponent from "@/common/components/LabeledComponent/LabeledComponent";
 import LabeledInput from "@/common/components/LabeledInput/LabeledInput";
-import SelectableButtonGroup, {
-  SelectableButtonGroupItem,
-} from "@/common/components/SelectableButtonGroup/SelectableButtonGroup";
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
 import { CheckboxProvider } from "@/common/providers/CheckboxProvider";
 import { AUTH_ROUTES } from "@/common/router/routes";
 import { AuthStackParamList } from "@/common/router/types";
 import AuthTermsCheckboxGroup from "@/features/auth/components/AuthTermsCheckboxGroup/AuthTermsCheckboxGroup";
+import GenderSelector from "@/features/auth/components/GenderSelector/GenderSelector";
 import { formatBirthdate } from "@/features/auth/utils/formatBirthdate";
 
 export default function SignUpView() {
   const route = useRoute<RouteProp<AuthStackParamList, typeof AUTH_ROUTES.SIGN_UP>>();
+  const { bottom } = useSafeAreaInsets();
   const { onSuccessLogin } = route.params || {};
   const [nickname, setNickname] = useState("");
   const [gender, setGender] = useState("male"); // TODO : 타입 지정
@@ -25,20 +26,6 @@ export default function SignUpView() {
 
   console.log("onSuccessLogin", onSuccessLogin);
   // 회원가입 성공 시 onSuccessLogin 콜백 호출(테스트 필요)
-
-  const genderItems = useMemo<Array<SelectableButtonGroupItem>>(
-    () => [
-      {
-        label: "남자",
-        value: "male",
-      },
-      {
-        label: "여자",
-        value: "female",
-      },
-    ],
-    []
-  );
 
   const handleChangeNickname = (newNickname: string) => {
     setNickname(newNickname);
@@ -50,6 +37,15 @@ export default function SignUpView() {
     setBirthday(formatBirthdate(newBirthday));
   };
 
+  const handleChangeTerms = (isAllChecked: boolean) => {
+    console.log("isAllChecked", isAllChecked);
+  };
+
+  const isEnabled = useMemo(() => {
+    // TODO : validation 정의되면 작업
+    return false;
+  }, []);
+
   return (
     <CheckboxProvider>
       <View className="flex-1 mt-25">
@@ -59,14 +55,14 @@ export default function SignUpView() {
             <Typography className="text-13 text-gray9">하단 항목들을 입력해 주세요</Typography>
           </VStack>
           <VStack gap={20} className="mt-35">
-            <LabeledInput label="닉네임" value={nickname} onChangeText={handleChangeNickname} />
+            <LabeledInput
+              label="닉네임"
+              value={nickname}
+              onChangeText={handleChangeNickname}
+              placeholder="닉네임을 입력해 주세요 (최대 8글자)"
+            />
             <LabeledComponent label="성별">
-              <SelectableButtonGroup
-                items={genderItems}
-                value={gender}
-                onChange={value => handleChangeGender(value as string)}
-                wrapperClassName="flex flex-row"
-              />
+              <GenderSelector value={gender} onChange={handleChangeGender} />
             </LabeledComponent>
             <LabeledInput
               label="생년월일"
@@ -80,9 +76,16 @@ export default function SignUpView() {
         <Divider height={10} wrapperClassName="bg-gray1 my-30" />
         <View className="px-20">
           <VStack gap={20}>
-            <Typography className="text-16 font-semibold">전체 동의</Typography>
-            <AuthTermsCheckboxGroup />
+            <AuthTermsCheckboxGroup onChange={handleChangeTerms} />
           </VStack>
+        </View>
+        <View
+          style={{ paddingBottom: bottom }}
+          className="absolute bottom-0 w-full px-20 border-t-[1px] border-gray2 py-10"
+        >
+          <Button disabled={!isEnabled} variant="primary" size="xxl">
+            다음
+          </Button>
         </View>
       </View>
     </CheckboxProvider>

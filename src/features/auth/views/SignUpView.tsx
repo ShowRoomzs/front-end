@@ -1,6 +1,6 @@
 import { RouteProp, useRoute } from "@react-navigation/native";
-import { useCallback, useMemo, useRef, useState } from "react";
-import { TextInput, View } from "react-native";
+import { useCallback, useMemo, useState } from "react";
+import { Keyboard, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Button from "@/common/components/Button/Button";
@@ -25,7 +25,6 @@ export default function SignUpView() {
   const [nickname, setNickname] = useState("");
   const [gender, setGender] = useState("male"); // TODO : 타입 지정
   const [birthday, setBirthday] = useState("");
-  const birthInputRef = useRef<TextInput>(null);
   const nicknameValidation = useInputValidation(nickname, NICKNAME_VALIDATION_RULES);
 
   console.log("onSuccessLogin", onSuccessLogin);
@@ -41,7 +40,7 @@ export default function SignUpView() {
     const formattedBirthday = formatBirthdate(newBirthday);
 
     if (formattedBirthday.length === 10) {
-      birthInputRef.current?.blur();
+      Keyboard.dismiss();
     }
 
     setBirthday(formattedBirthday);
@@ -76,7 +75,6 @@ export default function SignUpView() {
               <GenderSelector value={gender} onChange={handleChangeGender} />
             </LabeledComponent>
             <LabeledInput
-              ref={birthInputRef}
               label="생년월일"
               value={birthday}
               onChangeText={handleChangeBirthday}

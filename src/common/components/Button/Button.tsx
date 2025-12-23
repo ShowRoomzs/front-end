@@ -1,5 +1,5 @@
 import { ReactNode, useCallback, useMemo } from "react";
-import { Pressable } from "react-native";
+import { Pressable, StyleProp, ViewStyle } from "react-native";
 
 import Typography from "../Typography/Typography";
 
@@ -26,10 +26,11 @@ interface ButtonProps {
   variant?: ButtonVariant;
   children?: ReactNode;
   className?: string;
+  style?: StyleProp<ViewStyle>;
 }
 
 export default function Button(props: ButtonProps) {
-  const { children, className, disabled = false, onPress, size = "md", variant = "primary" } = props;
+  const { children, className, disabled = false, onPress, size = "md", variant = "primary", style } = props;
 
   const getDefaultClassName = () => {
     return "flex flex-row items-center justify-center";
@@ -60,17 +61,17 @@ export default function Button(props: ButtonProps) {
       case "primary":
         return "bg-black text-white";
       case "secondary":
-        return "bg-white border-[1px] border-gray5 text-gray10";
+        return "bg-transparent border-[1px] border-gray5 text-gray10";
       case "secondary-black":
-        return "bg-white border-[1px] border-gray5 text-black";
+        return "bg-transparent border-[1px] border-gray5 text-black";
       case "outline":
-        return "bg-white border-[1px] border-black text-black";
+        return "bg-transparent border-[1px] border-black text-black";
       case "ghost":
         return "bg-transparent text-gray9";
       case "primary-point":
         return "bg-pointColor text-white";
       case "outline-point":
-        return "bg-white border-[1px] border-pointColor text-pointColor";
+        return "bg-transparent border-[1px] border-pointColor text-pointColor";
     }
   }, [disabled, variant]);
 
@@ -102,6 +103,7 @@ export default function Button(props: ButtonProps) {
     <Pressable
       onPress={onPress}
       className={cn(getDefaultClassName(), getClassNameBySize(), getClassNameByVariant(), className)}
+      style={style}
     >
       {content}
     </Pressable>

@@ -11,6 +11,7 @@ export const HOME_ROUTES = {
 export const AUTH_ROUTES = {
   AUTH_HOME: "authHome",
   SIGN_UP: "signUp",
+  TERMS: "terms",
 } as const;
 
 export const ROOT_ROUTES = {

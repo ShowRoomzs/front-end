@@ -103,7 +103,12 @@ const Input = forwardRef<TextInput, InputProps>((props, ref) => {
     <View>
       <View className={cn(getDefaultClassName(), getClassNameBySize(), wrapperClassName)}>
         {renderPreFix && <View className="mr-10">{renderPreFix}</View>}
-        <TextInput ref={ref} className={cn("flex-1", inputClassName)} {...inputProps} />
+        <TextInput
+          ref={ref}
+          className={cn("flex-1", inputClassName)}
+          placeholderTextColor="#8D8D91"
+          {...inputProps}
+        />
       </View>
       {(helperText || displayHelperText) && (
         <Animated.View style={animatedHelperStyle}>

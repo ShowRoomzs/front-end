@@ -7,6 +7,7 @@ import VStack from "@/common/components/VStack/VStack";
 import { usePermissionPress } from "@/common/hooks/usePermissionPress";
 import HomeHeader from "@/features/home/components/HomeHeader/HomeHeader";
 import HomeTabs from "@/features/home/components/HomeTabs/HomeTabs";
+import ShowroomView from "@/features/home/views/ShowroomView";
 
 export default function HomeView() {
   const tabItems = useMemo(
@@ -14,18 +15,14 @@ export default function HomeView() {
       {
         id: "showroom",
         label: "쇼룸",
-        render: (
-          <View className="flex-1">
-            <Text>쇼룸</Text>
-          </View>
-        ),
+        render: <ShowroomView />,
       },
       {
-        id: "brand",
-        label: "브랜드",
+        id: "ranking",
+        label: "랭킹",
         render: (
           <View className="flex-1">
-            <Text>브랜드</Text>
+            <Text>랭킹</Text>
           </View>
         ),
       },

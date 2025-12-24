@@ -15,7 +15,7 @@ import { AUTH_ROUTES } from "@/common/router/routes";
 import { AuthStackParamList } from "@/common/router/types";
 import AuthTermsCheckboxGroup from "@/features/auth/components/AuthTermsCheckboxGroup/AuthTermsCheckboxGroup";
 import GenderSelector from "@/features/auth/components/GenderSelector/GenderSelector";
-import { NICKNAME_VALIDATION_RULES } from "@/features/auth/constants/validation";
+import { NICKNAME_MAX_LENGTH, NICKNAME_VALIDATION_RULES } from "@/features/auth/constants/validation";
 import { formatBirthdate } from "@/features/auth/utils/formatBirthdate";
 
 export default function SignUpView() {
@@ -68,7 +68,8 @@ export default function SignUpView() {
               label="닉네임"
               value={nickname}
               onChangeText={handleChangeNickname}
-              placeholder="닉네임을 입력해 주세요 (최대 8글자)"
+              placeholder="닉네임을 입력해 주세요 (최대 10글자)"
+              maxLength={NICKNAME_MAX_LENGTH}
               {...nicknameValidation}
             />
             <LabeledComponent label="성별">

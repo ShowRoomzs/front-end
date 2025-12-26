@@ -9,9 +9,9 @@ import { forwardRef, ReactNode, useMemo } from "react";
 import { useWindowDimensions } from "react-native";
 import { useAnimatedReaction, useSharedValue } from "react-native-reanimated";
 
-import { getMinHeight } from "./config";
 import type { BottomSheetModalMethods } from "@gorhom/bottom-sheet/src/types";
 
+import { getMinHeight } from "@/common/components/BottomSheet/config";
 import { useOverlay } from "@/common/hooks/useOverlay";
 
 export type SnapPoint = string | number;

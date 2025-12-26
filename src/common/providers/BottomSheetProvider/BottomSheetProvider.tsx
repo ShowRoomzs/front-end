@@ -1,8 +1,13 @@
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { ReactNode, useCallback, useMemo, useRef, useState } from "react";
 
-import { BottomSheetContext, SheetId, SheetRegistryItem } from "./context";
 import type { BottomSheetModalMethods } from "@gorhom/bottom-sheet/src/types";
+
+import {
+  BottomSheetContext,
+  SheetId,
+  SheetRegistryItem,
+} from "@/common/providers/BottomSheetProvider/context";
 
 interface BottomSheetProviderProps {
   children: ReactNode;

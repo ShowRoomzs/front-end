@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 
-import BottomSheet from "./BottomSheet";
-
+import BottomSheet from "@/common/components/BottomSheet/BottomSheet";
 import { useBottomSheetContext } from "@/common/providers/BottomSheetProvider";
 
 export default function BottomSheetRenderer() {

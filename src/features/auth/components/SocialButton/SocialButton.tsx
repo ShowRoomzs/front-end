@@ -1,19 +1,22 @@
+import { useCallback } from "react";
 import { TouchableOpacity } from "react-native";
 
 import Icon from "@/common/components/Icon/Icon";
 import Typography from "@/common/components/Typography/Typography";
 import { COMMON_ASSETS } from "@/common/utils/assets";
 import { cn } from "@/common/utils/cn";
+import { SocialLoginResponse, useSocialLogin } from "@/features/auth/hooks/useSocialLogin";
 
-type SocialType = "naver" | "google" | "apple";
+export type SocialType = "kakao" | "naver" | "apple" | "google";
 
 export interface SocialButtonProps {
   socialType: SocialType;
-  onPress: () => void;
+  onPress: (response: SocialLoginResponse) => void;
 }
 
 export default function SocialButton(props: SocialButtonProps) {
   const { socialType, onPress } = props;
+  const { login } = useSocialLogin(socialType);
 
   // ---- wrapper ----
   const getDefaultWrapperClassName = () => {
@@ -24,6 +27,8 @@ export default function SocialButton(props: SocialButtonProps) {
     switch (socialType) {
       case "naver":
         return "bg-[#47BA1B]";
+      case "kakao":
+        return "bg-[#FAE100]";
       case "google":
         return "bg-white";
       case "apple":
@@ -41,6 +46,8 @@ export default function SocialButton(props: SocialButtonProps) {
     switch (socialType) {
       case "naver":
         return "text-white";
+      case "kakao":
+        return "text-black";
       case "google":
         return "text-black";
       case "apple":
@@ -53,6 +60,8 @@ export default function SocialButton(props: SocialButtonProps) {
     switch (socialType) {
       case "naver":
         return "네이버로 시작하기";
+      case "kakao":
+        return "카카오로 시작하기";
       case "google":
         return "구글로 시작하기";
       case "apple":
@@ -64,6 +73,8 @@ export default function SocialButton(props: SocialButtonProps) {
     switch (socialType) {
       case "naver":
         return <Icon icon={COMMON_ASSETS.naver} />;
+      case "kakao":
+        return <Icon icon={COMMON_ASSETS.kakao} />;
       case "google":
         return <Icon icon={COMMON_ASSETS.google} />;
       case "apple":
@@ -71,10 +82,19 @@ export default function SocialButton(props: SocialButtonProps) {
     }
   };
 
+  const handlePress = useCallback(async () => {
+    const res = await login();
+
+    if (!res) {
+      return;
+    }
+    onPress(res);
+  }, [login, onPress]);
+
   return (
     <TouchableOpacity
       activeOpacity={0.8}
-      onPress={onPress}
+      onPress={handlePress}
       className={cn(getDefaultWrapperClassName(), getWrapperClassNameByVariant())}
     >
       {getIcon()}

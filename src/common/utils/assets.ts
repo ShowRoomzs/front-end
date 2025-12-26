@@ -10,6 +10,7 @@ import CheckIcon from "@/common/assets/common/check.svg";
 import CloseBlackIcon from "@/common/assets/common/close.svg";
 import FollowingActiveIcon from "@/common/assets/common/following-active.svg";
 import FollowingDefaultIcon from "@/common/assets/common/following-default.svg";
+import GoogleIcon from "@/common/assets/common/google-icon.svg";
 import HomeActiveIcon from "@/common/assets/common/home-active.svg";
 import HomeDefaultIcon from "@/common/assets/common/home-default.svg";
 import KakaoIcon from "@/common/assets/common/kakao-icon.svg";
@@ -70,6 +71,9 @@ export const COMMON_ASSETS: Assets = {
   },
   kakao: {
     default: KakaoIcon,
+  },
+  google: {
+    default: GoogleIcon,
   },
   apple: {
     default: AppleIcon,

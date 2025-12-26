@@ -7,7 +7,7 @@ import { COMMON_ASSETS } from "@/common/utils/assets";
 import { cn } from "@/common/utils/cn";
 import { SocialLoginResponse, useSocialLogin } from "@/features/auth/hooks/useSocialLogin";
 
-export type SocialType = "kakao" | "naver" | "apple";
+export type SocialType = "kakao" | "naver" | "apple" | "google";
 
 export interface SocialButtonProps {
   socialType: SocialType;
@@ -29,6 +29,8 @@ export default function SocialButton(props: SocialButtonProps) {
         return "bg-[#47BA1B]";
       case "kakao":
         return "bg-[#FAE100]";
+      case "google":
+        return "bg-white";
       case "apple":
         return "bg-black border-[1px] border-[#FFFFFF33]";
     }
@@ -46,6 +48,8 @@ export default function SocialButton(props: SocialButtonProps) {
         return "text-white";
       case "kakao":
         return "text-black";
+      case "google":
+        return "text-black";
       case "apple":
         return "text-white";
     }
@@ -58,6 +62,8 @@ export default function SocialButton(props: SocialButtonProps) {
         return "네이버로 시작하기";
       case "kakao":
         return "카카오로 시작하기";
+      case "google":
+        return "구글로 시작하기";
       case "apple":
         return "애플로 시작하기";
     }
@@ -69,6 +75,8 @@ export default function SocialButton(props: SocialButtonProps) {
         return <Icon icon={COMMON_ASSETS.naver} />;
       case "kakao":
         return <Icon icon={COMMON_ASSETS.kakao} />;
+      case "google":
+        return <Icon icon={COMMON_ASSETS.google} />;
       case "apple":
         return <Icon icon={COMMON_ASSETS.apple} />;
     }

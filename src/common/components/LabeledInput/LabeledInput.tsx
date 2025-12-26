@@ -13,7 +13,7 @@ const LabeledInput = forwardRef<TextInput, LabeledInputProps>((props, ref) => {
 
   return (
     <LabeledComponent label={label}>
-      <Input ref={ref} {...inputProps} wrapperClassName="border-[1px] border-gray3 rounded-[5px]" />
+      <Input ref={ref} {...inputProps} />
     </LabeledComponent>
   );
 });

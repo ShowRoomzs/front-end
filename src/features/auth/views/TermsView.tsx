@@ -5,7 +5,7 @@ import Typography from "@/common/components/Typography/Typography";
 import { AUTH_ROUTES } from "@/common/router/routes";
 import { AuthStackParamList } from "@/common/router/types";
 
-export type TermsType = "privacy" | "service";
+export type TermsType = "privacy" | "service" | "marketing";
 
 export default function TermsView(
   props: NativeStackScreenProps<AuthStackParamList, typeof AUTH_ROUTES.TERMS>

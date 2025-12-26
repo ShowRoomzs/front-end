@@ -1,5 +1,5 @@
 import * as Crypto from "expo-crypto";
-import { ReactNode, useMemo } from "react";
+import { Children, ReactNode, isValidElement, useMemo } from "react";
 import { View, ViewProps } from "react-native";
 
 import { cn } from "@/common/utils/cn";
@@ -12,7 +12,7 @@ interface HStackProps extends ViewProps {
 export default function HStack(props: HStackProps) {
   const { gap, className, children, ...restProps } = props;
 
-  const childrenArr = Array.isArray(children) ? children : [children];
+  const childrenArr = Children.toArray(children);
   const stackId = useMemo(() => Crypto.randomUUID(), []);
 
   return (
@@ -20,8 +20,17 @@ export default function HStack(props: HStackProps) {
       {childrenArr.map((child, ix) => {
         const isLast = ix === childrenArr.length - 1;
 
+        const hasFlex =
+          isValidElement(child) && (child.props as { className?: string }).className?.includes("flex-1");
+
         return (
-          <View key={`${stackId}-${ix}`} style={{ marginRight: isLast ? 0 : gap }}>
+          <View
+            key={`${stackId}-${ix}`}
+            style={{
+              marginRight: isLast ? 0 : gap,
+              ...(hasFlex && { flex: 1 }),
+            }}
+          >
             {child}
           </View>
         );

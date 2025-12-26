@@ -2,12 +2,13 @@ import dayjs from "dayjs";
 
 import { ValidateOption } from "@/common/hooks/useInputValidation";
 
-export const NICKNAME_MAX_LENGTH = 10;
+export const NICKNAME_MAX_LENGTH = 10; // max length는 컴포넌트 자체적으로 제한
+export const NICKNAME_MIN_LENGTH = 2;
 
 export const NICKNAME_VALIDATION_RULES: Array<ValidateOption> = [
   {
-    rule: (str: string) => str.length <= NICKNAME_MAX_LENGTH && str.length > 1,
-    helperText: `최대 ${NICKNAME_MAX_LENGTH}글자(한, 영만 입력 가능)`,
+    rule: (str: string) => str.length >= NICKNAME_MIN_LENGTH,
+    helperText: `${NICKNAME_MIN_LENGTH}글자 이상 입력해 주세요.`,
   },
   {
     rule: undefined,
@@ -26,6 +27,10 @@ export const BIRTHDATE_VALIDATION_RULES: Array<ValidateOption> = [
 
       return parsed.format("YYYY.MM.DD") === date;
     },
-    helperText: "올바른 생년월일을 입력해 주세요",
+    helperText: "올바른 생년월일을 입력해 주세요.",
+  },
+  {
+    rule: undefined,
+    helperText: "",
   },
 ];

@@ -1,4 +1,9 @@
-import { TooltipBasePlacement, TooltipPlacement, TooltipPosition, TooltipSecondPlacement } from "./Tooltip";
+import {
+  TooltipBasePlacement,
+  TooltipPlacement,
+  TooltipPosition,
+  TooltipSecondPlacement,
+} from "@/common/components/Tooltip/Tooltip";
 
 const ARROW_WIDTH = 10;
 const ARROW_HEIGHT = 5;

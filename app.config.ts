@@ -1,7 +1,7 @@
 import { ExpoConfig, ConfigContext } from "expo/config";
 
 export default ({ config }: ConfigContext): ExpoConfig => {
-  const { EXPO_PUBLIC_NAVER_CLIENT_ID } = process.env;
+  const { EXPO_PUBLIC_NAVER_CLIENT_ID, EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY } = process.env;
 
   return {
     ...config,
@@ -21,10 +21,18 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       supportsTablet: true,
       bundleIdentifier: "com.showroomz.app",
       infoPlist: {
-        LSApplicationQueriesSchemes: ["naversearchapp", "naversearchthirdlogin"],
+        LSApplicationQueriesSchemes: [
+          "naversearchapp",
+          "naversearchthirdlogin",
+          "kakaokompassauth",
+          "kakaolink",
+        ],
         CFBundleURLTypes: [
           {
             CFBundleURLSchemes: [`naver${EXPO_PUBLIC_NAVER_CLIENT_ID}`],
+          },
+          {
+            CFBundleURLSchemes: [`kakao${EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY}`],
           },
         ],
       },
@@ -53,6 +61,23 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         "@react-native-seoul/naver-login",
         {
           urlScheme: `naver${EXPO_PUBLIC_NAVER_CLIENT_ID}`,
+        },
+      ],
+      [
+        "expo-build-properties",
+        {
+          android: {
+            extraMavenRepos: ["https://devrepo.kakao.com/nexus/content/groups/public/"],
+          },
+        },
+      ],
+      [
+        "@react-native-kakao/core",
+        {
+          nativeAppKey: process.env.EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY,
+          android: {
+            authCodeHandlerActivity: true,
+          },
         },
       ],
     ],

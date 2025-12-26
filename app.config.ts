@@ -1,7 +1,10 @@
+import "dotenv/config";
 import { ExpoConfig, ConfigContext } from "expo/config";
 
 export default ({ config }: ConfigContext): ExpoConfig => {
   const { EXPO_PUBLIC_NAVER_CLIENT_ID, EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY } = process.env;
+
+  console.log(EXPO_PUBLIC_NAVER_CLIENT_ID);
 
   return {
     ...config,

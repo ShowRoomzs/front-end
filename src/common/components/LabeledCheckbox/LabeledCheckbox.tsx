@@ -1,32 +1,21 @@
+import { ReactNode } from "react";
 import { Pressable, View } from "react-native";
 
 import Checkbox from "@/common/components/Checkbox/Checkbox";
 import HStack from "@/common/components/HStack/HStack";
-import Typography from "@/common/components/Typography/Typography";
 import { cn } from "@/common/utils/cn";
 
 interface LabeledCheckboxProps {
   isChecked: boolean;
   onChange: (newChecked: boolean) => void;
-  label: string;
-  required?: boolean;
+  label: ReactNode;
   onPressLabel?: () => void;
-  labelClassName?: string;
   wrapperClassName?: string;
-  renderRight?: React.ReactNode;
+  renderRight?: ReactNode;
 }
 
 export default function LabeledCheckbox(props: LabeledCheckboxProps) {
-  const {
-    isChecked,
-    onChange,
-    label,
-    required,
-    onPressLabel,
-    labelClassName,
-    wrapperClassName,
-    renderRight,
-  } = props;
+  const { isChecked, onChange, label, onPressLabel, wrapperClassName, renderRight } = props;
 
   const handlePressLabel = () => {
     if (onPressLabel) {
@@ -42,8 +31,7 @@ export default function LabeledCheckbox(props: LabeledCheckboxProps) {
         <Checkbox isChecked={isChecked} onChange={onChange} />
         <Pressable onPress={handlePressLabel}>
           <HStack gap={6} className="items-center">
-            <Typography className={cn("text-13", labelClassName)}>{label}</Typography>
-            <Typography className="text-13 text-gray9">({required ? "필수" : "선택"})</Typography>
+            {label}
           </HStack>
         </Pressable>
       </HStack>

@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import { Pressable } from "react-native";
 
 import LabeledCheckbox from "@/common/components/LabeledCheckbox/LabeledCheckbox";
@@ -7,20 +8,18 @@ interface TermsCheckboxProps {
   id: string;
   isChecked: boolean;
   onChange: (newChecked: boolean) => void;
-  label: string;
-  required?: boolean;
+  label: ReactNode;
   onPressView?: () => void;
 }
 
 export default function TermsCheckbox(props: TermsCheckboxProps) {
-  const { isChecked, onChange, label, required, onPressView } = props;
+  const { isChecked, onChange, label, onPressView } = props;
 
   return (
     <LabeledCheckbox
       isChecked={isChecked}
       onChange={onChange}
       label={label}
-      required={required}
       renderRight={
         onPressView && (
           <Pressable onPress={onPressView}>

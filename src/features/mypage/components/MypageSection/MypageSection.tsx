@@ -16,7 +16,7 @@ export interface MypageSectionItem {
 export interface MypageSectionProps {
   title: string;
   items: Array<MypageSectionItem>;
-  onPressItem: (item: MypageSectionItem) => void;
+  onPressItem?: (item: MypageSectionItem) => void;
   appVersion?: string;
 }
 
@@ -31,7 +31,7 @@ export default function MypageSection(props: MypageSectionProps) {
 
         return (
           <Pressable
-            onPress={() => onPressItem(item)}
+            onPress={() => onPressItem?.(item)}
             key={index}
             className={cn(
               "flex flex-row justify-between items-center py-15",

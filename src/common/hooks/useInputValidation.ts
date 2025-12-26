@@ -63,6 +63,6 @@ export function useInputValidation(
   return {
     status: validationResult?.status,
     helperText: validationResult?.helperText,
-    isValid: !validationResult || validationResult.status !== "error",
+    isValid: validationResult?.status === "success",
   };
 }

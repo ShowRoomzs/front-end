@@ -2,6 +2,7 @@ import { FC } from "react";
 import { SvgProps } from "react-native-svg";
 
 import AppleIcon from "@/common/assets/common/apple-icon.svg";
+import ArrowRightIcon from "@/common/assets/common/arrow-right.svg";
 import BackIcon from "@/common/assets/common/back.svg";
 import CartIcon from "@/common/assets/common/cart.svg";
 import CategoryActiveIcon from "@/common/assets/common/category-active.svg";
@@ -23,6 +24,7 @@ import MypageDefaultIcon from "@/common/assets/common/mypage-default.svg";
 import NaverIcon from "@/common/assets/common/naver-icon.svg";
 import NotificationIcon from "@/common/assets/common/notification.svg";
 import SearchIcon from "@/common/assets/common/search.svg";
+import SettingIcon from "@/common/assets/common/setting.svg";
 import TooltipArrowIcon from "@/common/assets/common/tooltip-arrow.svg";
 
 export interface Asset {
@@ -95,5 +97,11 @@ export const COMMON_ASSETS: Assets = {
   },
   closeBlack: {
     default: CloseBlackIcon,
+  },
+  setting: {
+    default: SettingIcon,
+  },
+  arrowRight: {
+    default: ArrowRightIcon,
   },
 };

@@ -14,6 +14,15 @@ export const AUTH_ROUTES = {
   TERMS: "terms",
 } as const;
 
+export const MYPAGE_ROUTES = {
+  ORDER_AND_DELIVERY_SEARCH: "orderAndDeliverySearch",
+  CANCEL_AND_REFUND: "cancelAndRefund",
+  ADDRESS_MANAGEMENT: "addressManagement",
+  INQUIRY_HISTORY: "inquiryHistory",
+  CUSTOMER_CENTER: "customerCenter",
+  NOTICE: "notice",
+} as const;
+
 export const ROOT_ROUTES = {
   HOME: "home",
   AUTH: "auth",
@@ -27,4 +36,5 @@ export const ROUTES = {
 
 export type HomeRouteName = (typeof HOME_ROUTES)[keyof typeof HOME_ROUTES];
 export type AuthRouteName = (typeof AUTH_ROUTES)[keyof typeof AUTH_ROUTES];
+export type MyPageRouteName = (typeof MYPAGE_ROUTES)[keyof typeof MYPAGE_ROUTES];
 export type RouteName = (typeof ROUTES)[keyof typeof ROUTES];

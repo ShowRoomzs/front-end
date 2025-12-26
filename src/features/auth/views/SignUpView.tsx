@@ -32,6 +32,7 @@ export default function SignUpView() {
   const [birthday, setBirthday] = useState("");
   const nicknameValidation = useInputValidation(nickname, NICKNAME_VALIDATION_RULES);
   const birthdayValidation = useInputValidation(birthday, BIRTHDATE_VALIDATION_RULES);
+  const [isValidTerms, setIsValidTerms] = useState(false);
 
   console.log("onSuccessLogin", onSuccessLogin);
   // 회원가입 성공 시 onSuccessLogin 콜백 호출(테스트 필요)
@@ -50,8 +51,8 @@ export default function SignUpView() {
     setBirthday(formattedBirthday);
   };
 
-  const handleChangeTerms = useCallback((isAllChecked: boolean) => {
-    console.log("isAllChecked", isAllChecked);
+  const handleChangeTerms = useCallback((isValid: boolean) => {
+    setIsValidTerms(isValid);
   }, []);
 
   useEffect(() => {
@@ -62,9 +63,14 @@ export default function SignUpView() {
   }, [birthdayValidation.isValid]);
 
   const isEnabled = useMemo(() => {
-    // TODO : validation 정의되면 작업
-    return false;
-  }, []);
+    const isValidNickname = nicknameValidation.isValid;
+    const isValidBirthday = birthdayValidation.isValid;
+    const isValidGender = !!gender;
+
+    return isValidNickname && isValidBirthday && isValidTerms && isValidGender;
+  }, [birthdayValidation.isValid, gender, isValidTerms, nicknameValidation.isValid]);
+
+  console.log("isEnabled", isEnabled);
 
   return (
     <CheckboxProvider>

@@ -4,8 +4,13 @@ import { debounce } from "remeda";
 import { InputProps } from "@/common/components/Input/Input";
 import { validateInput } from "@/common/utils/validateInput";
 
+export type ValidateRule =
+  | RegExp
+  | ((value: string) => Promise<boolean>)
+  | ((value: string) => boolean)
+  | undefined; // rule undefined로 전달 시 성공 케이스로 간주
 export interface ValidateOption {
-  rule: RegExp | ((value: string) => Promise<boolean>);
+  rule: ValidateRule;
   helperText: string;
 }
 
@@ -17,7 +22,7 @@ export interface UseInputValidationResult extends ValidationResult {
 
 export function useInputValidation(
   value: string,
-  validationOptions?: Array<ValidateOption>
+  validationOptions: Array<ValidateOption>
 ): UseInputValidationResult {
   const [validationResult, setValidationResult] = useState<ValidationResult | undefined>();
 
@@ -26,6 +31,10 @@ export function useInputValidation(
     () =>
       debounce(
         async (text: string) => {
+          if (!text.length) {
+            setValidationResult(undefined);
+            return;
+          }
           if (validationOptions) {
             const result = await validateInput(validationOptions, text);
 
@@ -54,6 +63,6 @@ export function useInputValidation(
   return {
     status: validationResult?.status,
     helperText: validationResult?.helperText,
-    isValid: !validationResult || validationResult.status !== "error",
+    isValid: validationResult?.status === "success",
   };
 }

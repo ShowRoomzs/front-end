@@ -71,7 +71,7 @@ const Input = forwardRef<TextInput, InputProps>((props, ref) => {
   });
 
   const getDefaultClassName = () => {
-    return "flex flex-row items-center w-full";
+    return "flex flex-row items-center w-full border-[1px] border-gray3 rounded-[5px]";
   };
 
   const getClassNameBySize = () => {
@@ -83,6 +83,16 @@ const Input = forwardRef<TextInput, InputProps>((props, ref) => {
     }
   };
 
+  const getClassNameByStatus = () => {
+    switch (status) {
+      case "error":
+        return "border-negativeColor border-[1px]";
+      case "success":
+      case "default":
+        return "";
+    }
+  };
+
   const getHelperTextClassName = () => {
     let className = "text-[12px] font-[400]";
     switch (status) {
@@ -90,7 +100,7 @@ const Input = forwardRef<TextInput, InputProps>((props, ref) => {
         className += " text-negativeColor";
         break;
       case "success":
-        // TODO
+        className += " text-positiveColor";
         break;
       case "default":
         className += " text-gray8";
@@ -101,7 +111,9 @@ const Input = forwardRef<TextInput, InputProps>((props, ref) => {
 
   return (
     <View>
-      <View className={cn(getDefaultClassName(), getClassNameBySize(), wrapperClassName)}>
+      <View
+        className={cn(getDefaultClassName(), getClassNameBySize(), getClassNameByStatus(), wrapperClassName)}
+      >
         {renderPreFix && <View className="mr-10">{renderPreFix}</View>}
         <TextInput
           ref={ref}

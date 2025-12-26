@@ -19,6 +19,11 @@ export default function AuthHomeView() {
     if (Platform.OS === "ios") {
       buttons.push("apple");
     }
+
+    if (Platform.OS === "android") {
+      buttons.push("google");
+    }
+
     return buttons;
   }, []);
 

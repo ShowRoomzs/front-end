@@ -43,7 +43,7 @@ export default function LabeledCheckbox(props: LabeledCheckboxProps) {
         <Pressable onPress={handlePressLabel}>
           <HStack gap={6} className="items-center">
             <Typography className={cn("text-13", labelClassName)}>{label}</Typography>
-            {required && <Typography className="text-13 text-gray9">(필수)</Typography>}
+            <Typography className="text-13 text-gray9">({required ? "필수" : "선택"})</Typography>
           </HStack>
         </Pressable>
       </HStack>

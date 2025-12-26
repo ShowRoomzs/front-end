@@ -26,6 +26,12 @@ export default function AuthTermsCheckboxGroup(props: AuthTermsCheckboxGroupProp
         required: true,
         onPressView: () => navigation.navigate(AUTH_ROUTES.TERMS, { termsType: "service" }),
       },
+      {
+        id: "marketing",
+        label: "마케팅 활용 동의",
+        required: false,
+        onPressView: () => navigation.navigate(AUTH_ROUTES.TERMS, { termsType: "marketing" }),
+      },
     ],
     [navigation]
   );

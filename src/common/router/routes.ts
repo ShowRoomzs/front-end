@@ -21,6 +21,10 @@ export const MYPAGE_ROUTES = {
   INQUIRY_HISTORY: "inquiryHistory",
   CUSTOMER_CENTER: "customerCenter",
   NOTICE: "notice",
+  OPEN_LICENSE: "openLicense",
+  VERSION_INFO: "versionInfo",
+  PRIVACY_POLICY: "privacyPolicy",
+  SERVICE_AGREEMENT: "serviceAgreement",
 } as const;
 
 export const ROOT_ROUTES = {

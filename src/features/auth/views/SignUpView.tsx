@@ -1,5 +1,5 @@
 import { RouteProp, useRoute } from "@react-navigation/native";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Keyboard, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -15,7 +15,12 @@ import { AUTH_ROUTES } from "@/common/router/routes";
 import { AuthStackParamList } from "@/common/router/types";
 import AuthTermsCheckboxGroup from "@/features/auth/components/AuthTermsCheckboxGroup/AuthTermsCheckboxGroup";
 import GenderSelector from "@/features/auth/components/GenderSelector/GenderSelector";
-import { NICKNAME_MAX_LENGTH, NICKNAME_VALIDATION_RULES } from "@/features/auth/constants/validation";
+import {
+  BIRTHDATE_VALIDATION_RULES,
+  NICKNAME_MAX_LENGTH,
+  NICKNAME_VALIDATION_RULES,
+} from "@/features/auth/constants/validation";
+import { filterSpecialCharacters } from "@/features/auth/utils/filterSpecialCharacters";
 import { formatBirthdate } from "@/features/auth/utils/formatBirthdate";
 
 export default function SignUpView() {
@@ -26,22 +31,21 @@ export default function SignUpView() {
   const [gender, setGender] = useState("male"); // TODO : 타입 지정
   const [birthday, setBirthday] = useState("");
   const nicknameValidation = useInputValidation(nickname, NICKNAME_VALIDATION_RULES);
+  const birthdayValidation = useInputValidation(birthday, BIRTHDATE_VALIDATION_RULES);
 
   console.log("onSuccessLogin", onSuccessLogin);
   // 회원가입 성공 시 onSuccessLogin 콜백 호출(테스트 필요)
 
   const handleChangeNickname = (newNickname: string) => {
-    setNickname(newNickname);
+    setNickname(filterSpecialCharacters(newNickname));
   };
+
   const handleChangeGender = (newGender: string) => {
     setGender(newGender);
   };
+
   const handleChangeBirthday = (newBirthday: string) => {
     const formattedBirthday = formatBirthdate(newBirthday);
-
-    if (formattedBirthday.length === 10) {
-      Keyboard.dismiss();
-    }
 
     setBirthday(formattedBirthday);
   };
@@ -49,6 +53,13 @@ export default function SignUpView() {
   const handleChangeTerms = useCallback((isAllChecked: boolean) => {
     console.log("isAllChecked", isAllChecked);
   }, []);
+
+  useEffect(() => {
+    if (!birthdayValidation.isValid) {
+      return;
+    }
+    Keyboard.dismiss();
+  }, [birthdayValidation.isValid]);
 
   const isEnabled = useMemo(() => {
     // TODO : validation 정의되면 작업
@@ -68,7 +79,7 @@ export default function SignUpView() {
               label="닉네임"
               value={nickname}
               onChangeText={handleChangeNickname}
-              placeholder="닉네임을 입력해 주세요 (최대 10글자)"
+              placeholder={`최대 ${NICKNAME_MAX_LENGTH}글자(한, 영만 입력 가능)`}
               maxLength={NICKNAME_MAX_LENGTH}
               {...nicknameValidation}
             />
@@ -79,10 +90,10 @@ export default function SignUpView() {
               label="생년월일"
               value={birthday}
               onChangeText={handleChangeBirthday}
-              placeholder="생년월일을 입력해 주세요"
-              helperText="예제. yyyy.mm.dd"
+              placeholder="생년월일을 입력해 주세요 (예제. yyyy.mm.dd)"
               maxLength={10}
               keyboardType="numeric"
+              {...birthdayValidation}
             />
           </VStack>
         </View>
@@ -97,7 +108,7 @@ export default function SignUpView() {
           className="absolute bottom-0 w-full px-20 border-t-[1px] border-gray2 py-10"
         >
           <Button disabled={!isEnabled} variant="primary" size="xxl">
-            다음
+            가입하기
           </Button>
         </View>
       </View>

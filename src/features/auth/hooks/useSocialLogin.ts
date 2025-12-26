@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 
 import { SocialType } from "@/features/auth/components/SocialButton/SocialButton";
+import { useGoogleLogin } from "@/features/auth/hooks/useGoogleLogin";
 import { useKakaoLogin } from "@/features/auth/hooks/useKakaoLogin";
 import { useNaverLogin } from "@/features/auth/hooks/useNaverLogin";
 
@@ -9,6 +10,7 @@ import { useNaverLogin } from "@/features/auth/hooks/useNaverLogin";
  * @property {string} token - 소셜 로그인 토큰
  * - naver : accessToken
  * - kakao : accessToken
+ * - google : accessToken
  * - apple : identityToken
  */
 
@@ -24,6 +26,7 @@ interface UseSocialLoginResult {
 export function useSocialLogin(socialType: SocialType): UseSocialLoginResult {
   const { login: loginWithNaver } = useNaverLogin();
   const { login: loginWithKakao } = useKakaoLogin();
+  const { login: loginWithGoogle } = useGoogleLogin();
 
   const login = useCallback(async (): Promise<SocialLoginResponse> => {
     try {
@@ -38,6 +41,12 @@ export function useSocialLogin(socialType: SocialType): UseSocialLoginResult {
         }
         case "kakao": {
           const res = await loginWithKakao();
+
+          token = res.accessToken;
+          break;
+        }
+        case "google": {
+          const res = await loginWithGoogle();
 
           token = res.accessToken;
           break;
@@ -59,7 +68,7 @@ export function useSocialLogin(socialType: SocialType): UseSocialLoginResult {
 
       throw new Error(`${socialType} login failed: ${errorMessage}`);
     }
-  }, [loginWithKakao, loginWithNaver, socialType]);
+  }, [loginWithGoogle, loginWithKakao, loginWithNaver, socialType]);
 
   return { login };
 }

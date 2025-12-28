@@ -10,9 +10,11 @@ import { AUTH_ROUTES } from "@/common/router/routes";
 import { COMMON_ASSETS } from "@/common/utils/assets";
 import SocialButton, { SocialType } from "@/features/auth/components/SocialButton/SocialButton";
 import { SocialLoginResponse } from "@/features/auth/hooks/useSocialLogin";
+import { useSocialLoginMutation } from "@/features/auth/hooks/useSocialLoginMutation";
 
 export default function AuthHomeView() {
   const navigation = useAuthNavigation();
+  const { mutateAsync: socialLoginAsync } = useSocialLoginMutation();
   const socialButtons = useMemo((): Array<SocialType> => {
     const buttons: Array<SocialType> = ["KAKAO", "NAVER"];
 
@@ -27,10 +29,19 @@ export default function AuthHomeView() {
     return buttons;
   }, []);
 
-  const handlePressSocialButton = useCallback((response: SocialLoginResponse) => {
-    console.log(response);
-    // TODO : 서버 요청
-  }, []);
+  const handlePressSocialButton = useCallback(
+    async (response: SocialLoginResponse) => {
+      const { providerType, token } = response;
+
+      const res = await socialLoginAsync({
+        token,
+        providerType,
+      });
+
+      console.log("res", res);
+    },
+    [socialLoginAsync]
+  );
 
   const pan = useMemo(
     () =>

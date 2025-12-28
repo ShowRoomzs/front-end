@@ -16,7 +16,7 @@ import { useNaverLogin } from "@/features/auth/hooks/useNaverLogin";
 
 export type SocialLoginResponse = {
   token: string;
-  socialType: SocialType;
+  providerType: SocialType;
 };
 
 interface UseSocialLoginResult {
@@ -62,7 +62,7 @@ export function useSocialLogin(socialType: SocialType): UseSocialLoginResult {
         throw new Error(`${socialType} login failed: token is missing`);
       }
 
-      return { token, socialType };
+      return { token, providerType: socialType };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
 

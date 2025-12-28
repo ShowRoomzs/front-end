@@ -2,9 +2,9 @@ import "dotenv/config";
 import { ExpoConfig, ConfigContext } from "expo/config";
 
 export default ({ config }: ConfigContext): ExpoConfig => {
-  const { EXPO_PUBLIC_NAVER_CLIENT_ID, EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY } = process.env;
+  const { EXPO_PUBLIC_NAVER_CLIENT_ID, EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY, EXPO_PUBLIC_API_HOST } = process.env;
 
-  console.log(EXPO_PUBLIC_NAVER_CLIENT_ID);
+  const apiHost = EXPO_PUBLIC_API_HOST.split(":")[0];
 
   return {
     ...config,
@@ -38,6 +38,16 @@ export default ({ config }: ConfigContext): ExpoConfig => {
             CFBundleURLSchemes: [`kakao${EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY}`],
           },
         ],
+        NSAppTransportSecurity: {
+          NSAllowsArbitraryLoads: false,
+          NSAllowsLocalNetworking: true,
+          NSExceptionDomains: {
+            [apiHost]: {
+              NSExceptionAllowsInsecureHTTPLoads: true,
+              NSIncludesSubdomains: true,
+            },
+          },
+        },
       },
     },
     android: {
@@ -71,13 +81,15 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         {
           android: {
             extraMavenRepos: ["https://devrepo.kakao.com/nexus/content/groups/public/"],
+            // http 요청 허용 TODO : 제거
+            usesCleartextTraffic: true,
           },
         },
       ],
       [
         "@react-native-kakao/core",
         {
-          nativeAppKey: process.env.EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY,
+          nativeAppKey: EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY,
           android: {
             authCodeHandlerActivity: true,
           },

@@ -33,25 +33,25 @@ export function useSocialLogin(socialType: SocialType): UseSocialLoginResult {
       let token: string;
 
       switch (socialType) {
-        case "naver": {
+        case "NAVER": {
           const res = await loginWithNaver();
 
           token = res.accessToken;
           break;
         }
-        case "kakao": {
+        case "KAKAO": {
           const res = await loginWithKakao();
 
           token = res.accessToken;
           break;
         }
-        case "google": {
+        case "GOOGLE": {
           const res = await loginWithGoogle();
 
           token = res.accessToken;
           break;
         }
-        case "apple":
+        case "APPLE":
           throw new Error("Apple login is not implemented yet");
 
         default:

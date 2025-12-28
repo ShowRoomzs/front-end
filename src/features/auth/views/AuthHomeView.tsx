@@ -14,14 +14,14 @@ import { SocialLoginResponse } from "@/features/auth/hooks/useSocialLogin";
 export default function AuthHomeView() {
   const navigation = useAuthNavigation();
   const socialButtons = useMemo((): Array<SocialType> => {
-    const buttons: Array<SocialType> = ["kakao", "naver"];
+    const buttons: Array<SocialType> = ["KAKAO", "NAVER"];
 
     if (Platform.OS === "ios") {
-      buttons.push("apple");
+      buttons.push("APPLE");
     }
 
     if (Platform.OS === "android") {
-      buttons.push("google");
+      buttons.push("GOOGLE");
     }
 
     return buttons;

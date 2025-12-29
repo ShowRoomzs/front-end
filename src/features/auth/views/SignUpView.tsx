@@ -35,14 +35,12 @@ export default function SignUpView() {
   const { registerMutation } = useAuth();
   const { mutateAsync: registerAsync } = registerMutation;
   const [nickname, setNickname] = useState("");
-  const [gender, setGender] = useState<Gender>("MALE"); // TODO : 타입 지정
+  const [gender, setGender] = useState<Gender>("MALE");
   const [birthday, setBirthday] = useState("");
   const nicknameValidation = useInputValidation(nickname, NICKNAME_VALIDATION_RULES);
   const birthdayValidation = useInputValidation(birthday, BIRTHDATE_VALIDATION_RULES);
   const [isValidTerms, setIsValidTerms] = useState(false);
   const { handleLogin } = useLogin();
-
-  // 회원가입 성공 시 onSuccessLogin 콜백 호출(테스트 필요)
 
   const handleChangeNickname = (newNickname: string) => {
     setNickname(filterSpecialCharacters(newNickname));

@@ -1,4 +1,4 @@
-import { RouteProp, useRoute } from "@react-navigation/native";
+import { CommonActions, RouteProp, useRoute } from "@react-navigation/native";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Keyboard, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -11,6 +11,7 @@ import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
 import { useInputValidation } from "@/common/hooks/useInputValidation";
 import { CheckboxProvider } from "@/common/providers/CheckboxProvider";
+import { useMainNavigation } from "@/common/router";
 import { AUTH_ROUTES } from "@/common/router/routes";
 import { AuthStackParamList } from "@/common/router/types";
 import { Gender } from "@/common/types/gender";
@@ -22,11 +23,13 @@ import {
   NICKNAME_VALIDATION_RULES,
 } from "@/features/auth/constants/validation";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useLogin } from "@/features/auth/hooks/useLogin";
 import { filterSpecialCharacters } from "@/features/auth/utils/filterSpecialCharacters";
 import { formatBirthdate } from "@/features/auth/utils/formatBirthdate";
 
 export default function SignUpView() {
   const route = useRoute<RouteProp<AuthStackParamList, typeof AUTH_ROUTES.SIGN_UP>>();
+  const navigation = useMainNavigation();
   const { bottom } = useSafeAreaInsets();
   const { onSuccessLogin, registerToken } = route.params || {};
   const { registerMutation } = useAuth();
@@ -37,9 +40,8 @@ export default function SignUpView() {
   const nicknameValidation = useInputValidation(nickname, NICKNAME_VALIDATION_RULES);
   const birthdayValidation = useInputValidation(birthday, BIRTHDATE_VALIDATION_RULES);
   const [isValidTerms, setIsValidTerms] = useState(false);
+  const { handleLogin } = useLogin();
 
-  console.log("registerToken", registerToken);
-  console.log("onSuccessLogin", onSuccessLogin);
   // 회원가입 성공 시 onSuccessLogin 콜백 호출(테스트 필요)
 
   const handleChangeNickname = (newNickname: string) => {
@@ -82,7 +84,7 @@ export default function SignUpView() {
     const body = {
       nickname,
       gender,
-      birthday,
+      birthday: birthday.replaceAll(".", "-"),
       serviceAgree: isValidTerms,
       privacyAgree: isValidTerms,
       marketingAgree: isValidTerms,
@@ -92,8 +94,27 @@ export default function SignUpView() {
       registerToken,
     });
 
-    console.log("res", res);
-  }, [birthday, gender, isValidTerms, nickname, registerAsync, registerToken]);
+    await handleLogin(res);
+
+    const parent = navigation.getParent();
+
+    if (parent) {
+      parent.dispatch(CommonActions.goBack());
+    }
+    setTimeout(() => {
+      onSuccessLogin?.();
+    }, 500);
+  }, [
+    birthday,
+    gender,
+    handleLogin,
+    isValidTerms,
+    navigation,
+    nickname,
+    onSuccessLogin,
+    registerAsync,
+    registerToken,
+  ]);
 
   return (
     <CheckboxProvider>

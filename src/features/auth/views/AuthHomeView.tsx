@@ -55,8 +55,12 @@ export default function AuthHomeView() {
         return;
       }
       await handleLogin(res);
+      navigation.goBack();
+      setTimeout(() => {
+        params.onSuccessLogin?.();
+      }, 500);
     },
-    [handleLogin, navigation, params.onSuccessLogin, socialLoginAsync]
+    [handleLogin, navigation, params, socialLoginAsync]
   );
 
   const pan = useMemo(

@@ -7,7 +7,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { useInit } from "@/common/hooks/useInit";
 import { queryClient } from "@/common/lib/queryClient";
-import OverlayProvider from "@/common/providers/OverlayProvider";
+import PortalProvider from "@/common/providers/PortalProvider/PortalProvider";
 import SplashProvider from "@/common/providers/SplashProvider/SplashProvider";
 import MainNavigator from "@/navigators/MainNavigator";
 
@@ -34,7 +34,7 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView className="flex-1">
-        <OverlayProvider>
+        <PortalProvider>
           <SafeAreaProvider className="flex-1">
             <SplashProvider isReady={isReady}>
               <NavigationContainer theme={THEME}>
@@ -42,7 +42,7 @@ export default function App() {
               </NavigationContainer>
             </SplashProvider>
           </SafeAreaProvider>
-        </OverlayProvider>
+        </PortalProvider>
       </GestureHandlerRootView>
     </QueryClientProvider>
   );

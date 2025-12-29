@@ -16,7 +16,7 @@ import { useNaverLogin } from "@/features/auth/hooks/useNaverLogin";
 
 export type SocialLoginResponse = {
   token: string;
-  socialType: SocialType;
+  providerType: SocialType;
 };
 
 interface UseSocialLoginResult {
@@ -33,25 +33,25 @@ export function useSocialLogin(socialType: SocialType): UseSocialLoginResult {
       let token: string;
 
       switch (socialType) {
-        case "naver": {
+        case "NAVER": {
           const res = await loginWithNaver();
 
           token = res.accessToken;
           break;
         }
-        case "kakao": {
+        case "KAKAO": {
           const res = await loginWithKakao();
 
           token = res.accessToken;
           break;
         }
-        case "google": {
+        case "GOOGLE": {
           const res = await loginWithGoogle();
 
           token = res.accessToken;
           break;
         }
-        case "apple":
+        case "APPLE":
           throw new Error("Apple login is not implemented yet");
 
         default:
@@ -62,7 +62,7 @@ export function useSocialLogin(socialType: SocialType): UseSocialLoginResult {
         throw new Error(`${socialType} login failed: token is missing`);
       }
 
-      return { token, socialType };
+      return { token, providerType: socialType };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
 

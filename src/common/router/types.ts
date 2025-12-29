@@ -16,6 +16,7 @@ export type AuthStackParamList = {
     onSuccessLogin?: () => void;
   };
   [AUTH_ROUTES.SIGN_UP]: {
+    registerToken: string;
     onSuccessLogin?: () => void;
   };
   [AUTH_ROUTES.TERMS]: {

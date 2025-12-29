@@ -5,11 +5,14 @@ import Search from "@/common/components/Search/Search";
 import { TabItemType } from "@/common/components/Tabs/Tabs";
 import VStack from "@/common/components/VStack/VStack";
 import { usePermissionPress } from "@/common/hooks/usePermissionPress";
+import { useMainNavigation } from "@/common/router";
+import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import HomeHeader from "@/features/home/components/HomeHeader/HomeHeader";
 import HomeTabs from "@/features/home/components/HomeTabs/HomeTabs";
 import ShowroomView from "@/features/home/views/ShowroomView";
 
 export default function HomeView() {
+  const navigation = useMainNavigation();
   const tabItems = useMemo(
     (): Array<TabItemType> => [
       {
@@ -31,7 +34,9 @@ export default function HomeView() {
   );
 
   const handlePressNotification = usePermissionPress(() => {
-    // TODO : 알림 페이지로 이동
+    navigation.navigate(ROOT_ROUTES.COMMON, {
+      screen: COMMON_ROUTES.NOTIFICATION,
+    });
   });
 
   return (

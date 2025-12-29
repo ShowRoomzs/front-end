@@ -71,7 +71,7 @@ export default function MypageProfile(props: MypageProfileProps) {
           <VStack
             gap={4}
             key={cardItem.id}
-            className="flex-1 flex h-75 rounded-4 gb-gray0 items-center justify-center"
+            className="flex-1 flex h-75 rounded-4 bg-gray0 items-center justify-center"
           >
             <HStack gap={4} className="items-center">
               <Typography className="text-14 font-semibold text-black">

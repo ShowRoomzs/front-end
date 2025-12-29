@@ -1,4 +1,5 @@
 import { authInstance } from "@/common/lib/authInstance";
+import { Gender } from "@/common/types/gender";
 
 export interface SocialLoginRequest {
   providerType: string;
@@ -6,21 +7,40 @@ export interface SocialLoginRequest {
   name?: string;
   fcmToken?: string;
 }
-
-export interface SocialLoginResponse {
+export interface SocialLoginResponse extends RegisterResponse {
   isNewMember: boolean;
   registerToken?: string;
+}
 
-  tokenType?: string;
-  accessToken?: string;
-  refreshToken?: string;
-  accessTokenExpiresIn?: number;
-  refreshTokenExpiresIn?: number;
+export interface RegisterRequest {
+  nickname: string;
+  gender: Gender;
+  birthday: string;
+  serviceAgree: boolean;
+  privacyAgree: boolean;
+  marketingAgree: boolean;
+}
+
+export interface RegisterResponse {
+  tokenType: string;
+  accessToken: string;
+  refreshToken: string;
+  accessTokenExpiresIn: number;
+  refreshTokenExpiresIn: number;
 }
 
 export const authService = {
   socialLogin: async (request: SocialLoginRequest): Promise<SocialLoginResponse> => {
-    const { data: response } = await authInstance.post<SocialLoginResponse>("/v1/auth/social/login", request);
+    const { data: response } = await authInstance.post<SocialLoginResponse>("/social/login", request);
+
+    return response;
+  },
+  register: async (request: RegisterRequest, registerToken: string): Promise<RegisterResponse> => {
+    const { data: response } = await authInstance.post<RegisterResponse>("/register", request, {
+      headers: {
+        Authorization: `Bearer ${registerToken}`,
+      },
+    });
 
     return response;
   },

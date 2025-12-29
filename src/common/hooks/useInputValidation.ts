@@ -4,13 +4,13 @@ import { debounce } from "remeda";
 import { InputProps } from "@/common/components/Input/Input";
 import { validateInput } from "@/common/utils/validateInput";
 
-export type ValidateRule =
+export type ValidateHurdle =
   | RegExp
   | ((value: string) => Promise<boolean>)
   | ((value: string) => boolean)
-  | undefined; // rule undefined로 전달 시 성공 케이스로 간주
+  | undefined; // hurdle undefined로 전달 시 성공 케이스로 간주
 export interface ValidateOption {
-  rule: ValidateRule;
+  hurdle: ValidateHurdle;
   helperText: string;
 }
 

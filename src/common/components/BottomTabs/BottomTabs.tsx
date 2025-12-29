@@ -1,14 +1,23 @@
 import { BottomTabBarProps } from "@react-navigation/bottom-tabs";
-import { Pressable, View } from "react-native";
+import { useEffect } from "react";
+import { Pressable } from "react-native";
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Icon from "@/common/components/Icon/Icon";
 import Typography from "@/common/components/Typography/Typography";
 import { HOME_ROUTES_LABEL_MAP } from "@/common/constants/tabs";
+import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { HomeRouteName } from "@/common/router";
 import { COMMON_ASSETS, IconVariant } from "@/common/utils/assets";
 
+const BOTTOM_TABS_HEIGHT = 46;
+
 export default function BottomTabs(props: BottomTabBarProps) {
   const { state, navigation } = props;
+  const { isVisible } = useBottomTab();
+  const inset = useSafeAreaInsets();
+  const translateY = useSharedValue(-inset.bottom);
   const handlePress = (routeName: string) => {
     navigation.navigate(routeName);
   };
@@ -23,8 +32,24 @@ export default function BottomTabs(props: BottomTabBarProps) {
     return className;
   };
 
+  useEffect(() => {
+    if (isVisible) {
+      translateY.value = withTiming(-inset.bottom, { duration: 200 });
+      return;
+    }
+    translateY.value = withTiming(BOTTOM_TABS_HEIGHT, { duration: 200 });
+  }, [inset.bottom, isVisible, translateY]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+    height: BOTTOM_TABS_HEIGHT,
+  }));
+
   return (
-    <View className="flex flex-row w-full border-t-[1px] border-gray1 bg-white">
+    <Animated.View
+      style={animatedStyle}
+      className="flex flex-row w-full border-t-[1px] border-gray1 bg-white"
+    >
       {state.routes.map((route, ix) => {
         const isActive = state.index === ix;
         const variant: IconVariant = isActive ? "active" : "default";
@@ -42,6 +67,6 @@ export default function BottomTabs(props: BottomTabBarProps) {
           </Pressable>
         );
       })}
-    </View>
+    </Animated.View>
   );
 }

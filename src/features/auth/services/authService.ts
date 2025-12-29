@@ -1,4 +1,5 @@
 import { authInstance } from "@/common/lib/authInstance";
+import { refreshInstance } from "@/common/lib/refreshInstance";
 import { Gender } from "@/common/types/gender";
 
 export interface SocialLoginRequest {
@@ -41,6 +42,11 @@ export const authService = {
         Authorization: `Bearer ${registerToken}`,
       },
     });
+
+    return response;
+  },
+  refresh: async (refreshToken: string): Promise<RegisterResponse> => {
+    const { data: response } = await refreshInstance.post<RegisterResponse>("/refresh", { refreshToken });
 
     return response;
   },

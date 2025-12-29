@@ -1,5 +1,5 @@
 import { createStore } from "@/common/stores/createStore";
-import { User } from "@/common/types/User";
+import { User } from "@/features/user/types/user";
 
 interface UserStore {
   user: User | null;

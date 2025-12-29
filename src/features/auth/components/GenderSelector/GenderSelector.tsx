@@ -3,11 +3,11 @@ import { useMemo } from "react";
 import SelectableButtonGroup, {
   SelectableButtonGroupItem,
 } from "@/common/components/SelectableButtonGroup/SelectableButtonGroup";
+import { Gender } from "@/common/types/gender";
 
-// TODO : 성별 관련 타입 지정
 interface GenderSelectorProps {
-  value: string;
-  onChange: (value: string) => void;
+  value: Gender;
+  onChange: (value: Gender) => void;
 }
 
 export default function GenderSelector(props: GenderSelectorProps) {
@@ -31,7 +31,7 @@ export default function GenderSelector(props: GenderSelectorProps) {
     <SelectableButtonGroup
       items={genderItems}
       value={value}
-      onChange={value => onChange(value as string)}
+      onChange={value => onChange(value as Gender)}
       wrapperClassName="flex flex-row"
     />
   );

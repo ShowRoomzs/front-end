@@ -6,20 +6,12 @@ import {
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import { forwardRef, ReactNode, useMemo } from "react";
-import { useWindowDimensions } from "react-native";
-import { useAnimatedReaction, useSharedValue } from "react-native-reanimated";
 
 import type { BottomSheetModalMethods } from "@gorhom/bottom-sheet/src/types";
-
-import { getMinHeight } from "@/common/components/BottomSheet/config";
-import { useOverlay } from "@/common/hooks/useOverlay";
 
 export type SnapPoint = string | number;
 export interface BottomSheetProps extends Omit<BottomSheetModalProps, "snapPoints"> {
   children: ReactNode;
-  // 해당 옵션 활성화 시 layout scale이 bottom sheet 높이에 따라 변경됩니다.
-  // bottom sheet range(0 ~ 1) -> layout scale range(1 ~ 0.9)
-  syncSceneScaleWithWindow?: boolean;
   snapPoints?: Array<SnapPoint>;
 }
 
@@ -38,7 +30,7 @@ const DEFAULT_BOTTOM_SHEET_PROPS = {
 } satisfies Partial<BottomSheetModalProps>;
 
 const BottomSheet = forwardRef<BottomSheetModalMethods, BottomSheetProps>((props, ref) => {
-  const { children, syncSceneScaleWithWindow, ...originBottomSheetProps } = props;
+  const { children, ...originBottomSheetProps } = props;
   const bottomSheetProps = useMemo(() => {
     return {
       ...DEFAULT_BOTTOM_SHEET_PROPS,
@@ -46,36 +38,8 @@ const BottomSheet = forwardRef<BottomSheetModalMethods, BottomSheetProps>((props
     };
   }, [originBottomSheetProps]);
 
-  const { scale: overlayScale } = useOverlay();
-
-  const { height: maxHeight } = useWindowDimensions();
-
-  const animatedPosition = useSharedValue(0);
-
-  const minHeight = useMemo(
-    () => getMinHeight(bottomSheetProps.snapPoints[0], maxHeight),
-    [bottomSheetProps.snapPoints, maxHeight]
-  );
-
-  useAnimatedReaction(
-    () => animatedPosition.value,
-    currentPosition => {
-      if (maxHeight === -999 || currentPosition === 0 || !syncSceneScaleWithWindow) {
-        return;
-      }
-
-      const progress = Math.min((maxHeight - currentPosition) / (maxHeight - minHeight), 1);
-
-      const scale = 1 - progress * 0.1;
-
-      if (overlayScale) {
-        overlayScale.value = scale;
-      }
-    }
-  );
-
   return (
-    <BottomSheetModal animatedPosition={animatedPosition} ref={ref} {...bottomSheetProps}>
+    <BottomSheetModal ref={ref} {...bottomSheetProps}>
       <BottomSheetView>{children}</BottomSheetView>
     </BottomSheetModal>
   );

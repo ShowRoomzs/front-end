@@ -13,6 +13,7 @@ import { useInputValidation } from "@/common/hooks/useInputValidation";
 import { CheckboxProvider } from "@/common/providers/CheckboxProvider";
 import { AUTH_ROUTES } from "@/common/router/routes";
 import { AuthStackParamList } from "@/common/router/types";
+import { Gender } from "@/common/types/gender";
 import AuthTermsCheckboxGroup from "@/features/auth/components/AuthTermsCheckboxGroup/AuthTermsCheckboxGroup";
 import GenderSelector from "@/features/auth/components/GenderSelector/GenderSelector";
 import {
@@ -20,20 +21,24 @@ import {
   NICKNAME_MAX_LENGTH,
   NICKNAME_VALIDATION_RULES,
 } from "@/features/auth/constants/validation";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 import { filterSpecialCharacters } from "@/features/auth/utils/filterSpecialCharacters";
 import { formatBirthdate } from "@/features/auth/utils/formatBirthdate";
 
 export default function SignUpView() {
   const route = useRoute<RouteProp<AuthStackParamList, typeof AUTH_ROUTES.SIGN_UP>>();
   const { bottom } = useSafeAreaInsets();
-  const { onSuccessLogin } = route.params || {};
+  const { onSuccessLogin, registerToken } = route.params || {};
+  const { registerMutation } = useAuth();
+  const { mutateAsync: registerAsync } = registerMutation;
   const [nickname, setNickname] = useState("");
-  const [gender, setGender] = useState("male"); // TODO : 타입 지정
+  const [gender, setGender] = useState<Gender>("MALE"); // TODO : 타입 지정
   const [birthday, setBirthday] = useState("");
   const nicknameValidation = useInputValidation(nickname, NICKNAME_VALIDATION_RULES);
   const birthdayValidation = useInputValidation(birthday, BIRTHDATE_VALIDATION_RULES);
   const [isValidTerms, setIsValidTerms] = useState(false);
 
+  console.log("registerToken", registerToken);
   console.log("onSuccessLogin", onSuccessLogin);
   // 회원가입 성공 시 onSuccessLogin 콜백 호출(테스트 필요)
 
@@ -41,7 +46,7 @@ export default function SignUpView() {
     setNickname(filterSpecialCharacters(newNickname));
   };
 
-  const handleChangeGender = (newGender: string) => {
+  const handleChangeGender = (newGender: Gender) => {
     setGender(newGender);
   };
 
@@ -70,7 +75,25 @@ export default function SignUpView() {
     return isValidNickname && isValidBirthday && isValidTerms && isValidGender;
   }, [birthdayValidation.isValid, gender, isValidTerms, nicknameValidation.isValid]);
 
-  console.log("isEnabled", isEnabled);
+  const handlePressRegister = useCallback(async () => {
+    if (!registerToken) {
+      return;
+    }
+    const body = {
+      nickname,
+      gender,
+      birthday,
+      serviceAgree: isValidTerms,
+      privacyAgree: isValidTerms,
+      marketingAgree: isValidTerms,
+    };
+    const res = await registerAsync({
+      request: body,
+      registerToken,
+    });
+
+    console.log("res", res);
+  }, [birthday, gender, isValidTerms, nickname, registerAsync, registerToken]);
 
   return (
     <CheckboxProvider>
@@ -113,7 +136,7 @@ export default function SignUpView() {
           style={{ paddingBottom: bottom }}
           className="absolute bottom-0 w-full px-20 border-t-[1px] border-gray2 py-10"
         >
-          <Button disabled={!isEnabled} variant="primary" size="xxl">
+          <Button onPress={handlePressRegister} disabled={!isEnabled} variant="primary" size="xxl">
             가입하기
           </Button>
         </View>

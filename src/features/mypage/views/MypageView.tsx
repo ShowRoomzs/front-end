@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { FlatList, ListRenderItemInfo, View } from "react-native";
 
+import { BOTTOM_TABS_HEIGHT } from "@/common/components/BottomTabs/config";
 import VStack from "@/common/components/VStack/VStack";
 import { useMainNavigation } from "@/common/router";
 import { ROOT_ROUTES } from "@/common/router/routes";
@@ -74,7 +75,7 @@ export default function MypageView() {
       />
       <FlatList
         className="flex-1"
-        contentContainerStyle={{ paddingHorizontal: 20 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: BOTTOM_TABS_HEIGHT }}
         ListHeaderComponentStyle={{ marginBottom: 40 }}
         ListHeaderComponent={renderListHeaderComponent}
         ItemSeparatorComponent={() => <View className="h-25" />}

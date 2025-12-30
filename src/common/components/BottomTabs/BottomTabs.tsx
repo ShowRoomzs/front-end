@@ -4,14 +4,13 @@ import { Pressable } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { BOTTOM_TABS_HEIGHT } from "@/common/components/BottomTabs/config";
 import Icon from "@/common/components/Icon/Icon";
 import Typography from "@/common/components/Typography/Typography";
 import { HOME_ROUTES_LABEL_MAP } from "@/common/constants/tabs";
 import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { HomeRouteName } from "@/common/router";
 import { COMMON_ASSETS, IconVariant } from "@/common/utils/assets";
-
-const BOTTOM_TABS_HEIGHT = 46;
 
 export default function BottomTabs(props: BottomTabBarProps) {
   const { state, navigation } = props;

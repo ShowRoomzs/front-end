@@ -41,10 +41,6 @@ jobs:
 
           BUILD_JSON=$(eas build:list --limit 1 --platform android --status finished --non-interactive --json)
 
-          echo "=== Formatted JSON ==="
-          echo "$BUILD_JSON" | jq '.'
-          echo "====================="
-
           # Extract values
           BUILD_URL=$(echo "$BUILD_JSON" | jq -r '.[0].artifacts.buildUrl')
           APP_VERSION=$(echo "$BUILD_JSON" | jq -r '.[0].appVersion')
@@ -58,11 +54,11 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-      # - name: Send to Discord
-      #   run: |
-      #     TIMESTAMP=$(TZ='Asia/Seoul' date +'%Y-%m-%d %H:%M:%S KST')
-      #     curl -X POST -H "Content-Type: application/json" \
-      #     -d "{
-      #       \"content\": \"🌿 **Branch**\n\`${{ github.ref_name }}\`\n\n🔗 **Download**\n[Click here to download the APK](${{ steps.build_info.outputs.url }})\n\n📱 **App Version**\n\`${{ steps.build_info.outputs.version }}\`\n\n📝 **Last Commit**\n[\`${{ steps.build_info.outputs.commit_msg }}\`](https://github.com/ShowRoomzs/front-end/commit/${{ steps.build_info.outputs.commit_hash }})\n\n🕒 **Build Timestamp**\n${TIMESTAMP}\"
-      #     }" \
-      #     ${{ secrets.DISCORD_WEBHOOK_URL }}
+      - name: Send to Discord
+        run: |
+          TIMESTAMP=$(TZ='Asia/Seoul' date +'%Y-%m-%d %H:%M:%S KST')
+          curl -X POST -H "Content-Type: application/json" \
+          -d "{
+            \"content\": \"🌿 **Branch**\n\`${{ github.ref_name }}\`\n\n🔗 **Download**\n[Click here to download the APK](${{ steps.build_info.outputs.url }})\n\n📱 **App Version**\n\`${{ steps.build_info.outputs.version }}\`\n\n📝 **Last Commit**\n[\`${{ steps.build_info.outputs.commit_msg }}\`](https://github.com/ShowRoomzs/front-end/commit/${{ steps.build_info.outputs.commit_hash }})\n\n🕒 **Build Timestamp**\n${TIMESTAMP}\"
+          }" \
+          ${{ secrets.DISCORD_WEBHOOK_URL }}

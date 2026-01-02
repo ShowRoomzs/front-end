@@ -26,8 +26,8 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-      - name: Install dependencies
-        run: npm ci
+      # - name: Install dependencies
+      #   run: npm ci
 
       # - name: Start EAS build (APK)
       #   run: eas build --platform android --non-interactive --profile development --wait
@@ -68,7 +68,7 @@ jobs:
           echo "project info exit code: $?"
 
           echo "== build list =="
-          eas build:list --limit 1 --platform android --status finished --json
+          eas build:list --limit 1 --platform android --status finished --non-interactive --json
           echo "build list exit code: $?"
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}

@@ -34,25 +34,42 @@ jobs:
       #   env:
       #     EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
+      # - name: Get latest build info
+      #   id: build_info
+      #   run: |
+      #     echo "Getting latest build info..."
+
+      #     BUILD_JSON=$(eas build:list --limit 1 --platform android --status finished --non-interactive --json)
+
+      #     eas whoami
+      #     eas project:info
+      #     # Extract values
+      #     BUILD_URL=$(echo "$BUILD_JSON" | jq -r '.[0].artifacts.buildUrl')
+      #     APP_VERSION=$(echo "$BUILD_JSON" | jq -r '.[0].appVersion')
+      #     COMMIT_HASH=$(echo "$BUILD_JSON" | jq -r '.[0].gitCommitHash')
+      #     COMMIT_MSG=$(echo "$BUILD_JSON" | jq -r '.[0].gitCommitMessage')
+
+      #     echo "url=$BUILD_URL" >> $GITHUB_OUTPUT
+      #     echo "version=$APP_VERSION" >> $GITHUB_OUTPUT
+      #     echo "commit_hash=$COMMIT_HASH" >> $GITHUB_OUTPUT
+      #     echo "commit_msg=$COMMIT_MSG" >> $GITHUB_OUTPUT
+      #   env:
+      #     EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
       - name: Get latest build info
         id: build_info
         run: |
-          echo "Getting latest build info..."
-
-          BUILD_JSON=$(eas build:list --limit 1 --platform android --status finished --non-interactive --json)
-
+          set +e
+          echo "== whoami =="
           eas whoami
-          eas project:info
-          # Extract values
-          BUILD_URL=$(echo "$BUILD_JSON" | jq -r '.[0].artifacts.buildUrl')
-          APP_VERSION=$(echo "$BUILD_JSON" | jq -r '.[0].appVersion')
-          COMMIT_HASH=$(echo "$BUILD_JSON" | jq -r '.[0].gitCommitHash')
-          COMMIT_MSG=$(echo "$BUILD_JSON" | jq -r '.[0].gitCommitMessage')
+          echo "whoami exit code: $?"
 
-          echo "url=$BUILD_URL" >> $GITHUB_OUTPUT
-          echo "version=$APP_VERSION" >> $GITHUB_OUTPUT
-          echo "commit_hash=$COMMIT_HASH" >> $GITHUB_OUTPUT
-          echo "commit_msg=$COMMIT_MSG" >> $GITHUB_OUTPUT
+          echo "== project info =="
+          eas project:info
+          echo "project info exit code: $?"
+
+          echo "== build list =="
+          eas build:list --limit 1 --platform android --status finished --json
+          echo "build list exit code: $?"
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 

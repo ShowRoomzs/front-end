@@ -30,7 +30,7 @@ jobs:
         run: npm ci
 
       - name: Start EAS build (APK)
-        run: eas build --platform android --non-interactive --profile development
+        run: eas build --platform android --non-interactive --profile development --wait
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 

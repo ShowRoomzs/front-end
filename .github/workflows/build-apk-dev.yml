@@ -29,55 +29,36 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # - name: Start EAS build (APK)
-      #   run: eas build --platform android --non-interactive --profile development --wait
-      #   env:
-      #     EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-
-      # - name: Get latest build info
-      #   id: build_info
-      #   run: |
-      #     echo "Getting latest build info..."
-
-      #     BUILD_JSON=$(eas build:list --limit 1 --platform android --status finished --non-interactive --json)
-
-      #     eas whoami
-      #     eas project:info
-      #     # Extract values
-      #     BUILD_URL=$(echo "$BUILD_JSON" | jq -r '.[0].artifacts.buildUrl')
-      #     APP_VERSION=$(echo "$BUILD_JSON" | jq -r '.[0].appVersion')
-      #     COMMIT_HASH=$(echo "$BUILD_JSON" | jq -r '.[0].gitCommitHash')
-      #     COMMIT_MSG=$(echo "$BUILD_JSON" | jq -r '.[0].gitCommitMessage')
-
-      #     echo "url=$BUILD_URL" >> $GITHUB_OUTPUT
-      #     echo "version=$APP_VERSION" >> $GITHUB_OUTPUT
-      #     echo "commit_hash=$COMMIT_HASH" >> $GITHUB_OUTPUT
-      #     echo "commit_msg=$COMMIT_MSG" >> $GITHUB_OUTPUT
-      #   env:
-      #     EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-      - name: Get latest build info
-        id: build_info
-        run: |
-          set +e
-          echo "== whoami =="
-          eas whoami
-          echo "whoami exit code: $?"
-
-          echo "== project info =="
-          eas project:info
-          echo "project info exit code: $?"
-
-          echo "== build list =="
-          eas build:list --limit 1 --platform android --status finished --non-interactive --json
-          echo "build list exit code: $?"
+      - name: Start EAS build (APK)
+        run: eas build --platform android --non-interactive --profile development --wait
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-      # - name: Send to Discord
-      #   run: |
-      #     TIMESTAMP=$(TZ='Asia/Seoul' date +'%Y-%m-%d %H:%M:%S KST')
-      #     curl -X POST -H "Content-Type: application/json" \
-      #     -d "{
-      #       \"content\": \"🌿 **Branch**\n\`${{ github.ref_name }}\`\n\n🔗 **Download**\n[Click here to download the APK](${{ steps.build_info.outputs.url }})\n\n📱 **App Version**\n\`${{ steps.build_info.outputs.version }}\`\n\n📝 **Last Commit**\n[\`${{ steps.build_info.outputs.commit_msg }}\`](https://github.com/ShowRoomzs/front-end/commit/${{ steps.build_info.outputs.commit_hash }})\n\n🕒 **Build Timestamp**\n${TIMESTAMP}\"
-      #     }" \
-      #     ${{ secrets.DISCORD_WEBHOOK_URL }}
+      - name: Get latest build info
+        id: build_info
+        run: |
+          echo "Getting latest build info..."
+
+          BUILD_JSON=$(eas build:list --limit 1 --platform android --status finished --non-interactive --json)
+
+          # Extract values
+          BUILD_URL=$(echo "$BUILD_JSON" | jq -r '.[0].artifacts.buildUrl')
+          APP_VERSION=$(echo "$BUILD_JSON" | jq -r '.[0].appVersion')
+          COMMIT_HASH=$(echo "$BUILD_JSON" | jq -r '.[0].gitCommitHash')
+          COMMIT_MSG=$(echo "$BUILD_JSON" | jq -r '.[0].gitCommitMessage')
+
+          echo "url=$BUILD_URL" >> $GITHUB_OUTPUT
+          echo "version=$APP_VERSION" >> $GITHUB_OUTPUT
+          echo "commit_hash=$COMMIT_HASH" >> $GITHUB_OUTPUT
+          echo "commit_msg=$COMMIT_MSG" >> $GITHUB_OUTPUT
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Send to Discord
+        run: |
+          TIMESTAMP=$(TZ='Asia/Seoul' date +'%Y-%m-%d %H:%M:%S KST')
+          curl -X POST -H "Content-Type: application/json" \
+          -d "{
+            \"content\": \"🌿 **Branch**\n\`${{ github.ref_name }}\`\n\n🔗 **Download**\n[Click here to download the APK](${{ steps.build_info.outputs.url }})\n\n📱 **App Version**\n\`${{ steps.build_info.outputs.version }}\`\n\n📝 **Last Commit**\n[\`${{ steps.build_info.outputs.commit_msg }}\`](https://github.com/ShowRoomzs/front-end/commit/${{ steps.build_info.outputs.commit_hash }})\n\n🕒 **Build Timestamp**\n${TIMESTAMP}\"
+          }" \
+          ${{ secrets.DISCORD_WEBHOOK_URL }}

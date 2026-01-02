@@ -13,7 +13,7 @@ const Tab = createBottomTabNavigator();
 
 export default function HomeNavigator() {
   return (
-    <SafeAreaView className="flex-1">
+    <SafeAreaView edges={["top"]} className="flex-1">
       <Tab.Navigator
         initialRouteName={HOME_ROUTES.HOME}
         screenOptions={{ headerShown: false }}

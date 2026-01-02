@@ -7,7 +7,7 @@ import { COMMON_ASSETS } from "@/common/utils/assets";
 import { cn } from "@/common/utils/cn";
 import { SocialLoginResponse, useSocialLogin } from "@/features/auth/hooks/useSocialLogin";
 
-export type SocialType = "kakao" | "naver" | "apple" | "google";
+export type SocialType = "KAKAO" | "NAVER" | "APPLE" | "GOOGLE";
 
 export interface SocialButtonProps {
   socialType: SocialType;
@@ -25,13 +25,13 @@ export default function SocialButton(props: SocialButtonProps) {
 
   const getWrapperClassNameByVariant = () => {
     switch (socialType) {
-      case "naver":
+      case "NAVER":
         return "bg-[#47BA1B]";
-      case "kakao":
+      case "KAKAO":
         return "bg-[#FAE100]";
-      case "google":
+      case "GOOGLE":
         return "bg-white";
-      case "apple":
+      case "APPLE":
         return "bg-black border-[1px] border-[#FFFFFF33]";
     }
   };
@@ -44,13 +44,13 @@ export default function SocialButton(props: SocialButtonProps) {
 
   const getTextClassNameByVariant = () => {
     switch (socialType) {
-      case "naver":
+      case "NAVER":
         return "text-white";
-      case "kakao":
+      case "KAKAO":
         return "text-black";
-      case "google":
+      case "GOOGLE":
         return "text-black";
-      case "apple":
+      case "APPLE":
         return "text-white";
     }
   };
@@ -58,26 +58,26 @@ export default function SocialButton(props: SocialButtonProps) {
 
   const getLabel = () => {
     switch (socialType) {
-      case "naver":
+      case "NAVER":
         return "네이버로 시작하기";
-      case "kakao":
+      case "KAKAO":
         return "카카오로 시작하기";
-      case "google":
+      case "GOOGLE":
         return "구글로 시작하기";
-      case "apple":
+      case "APPLE":
         return "애플로 시작하기";
     }
   };
 
   const getIcon = () => {
     switch (socialType) {
-      case "naver":
+      case "NAVER":
         return <Icon icon={COMMON_ASSETS.naver} />;
-      case "kakao":
+      case "KAKAO":
         return <Icon icon={COMMON_ASSETS.kakao} />;
-      case "google":
+      case "GOOGLE":
         return <Icon icon={COMMON_ASSETS.google} />;
-      case "apple":
+      case "APPLE":
         return <Icon icon={COMMON_ASSETS.apple} />;
     }
   };

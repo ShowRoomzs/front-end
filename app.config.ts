@@ -4,8 +4,6 @@ import { ExpoConfig, ConfigContext } from "expo/config";
 export default ({ config }: ConfigContext): ExpoConfig => {
   const { EXPO_PUBLIC_NAVER_CLIENT_ID, EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY } = process.env;
 
-  console.log(EXPO_PUBLIC_NAVER_CLIENT_ID);
-
   return {
     ...config,
     name: "showroomz",
@@ -16,9 +14,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     userInterfaceStyle: "light",
     newArchEnabled: true,
     splash: {
-      image: "./assets/splash-icon.png",
+      image: "./assets/logo.png",
       resizeMode: "contain",
-      backgroundColor: "#ffffff",
+      backgroundColor: "#0D0C11",
     },
     ios: {
       supportsTablet: true,
@@ -77,7 +75,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       [
         "@react-native-kakao/core",
         {
-          nativeAppKey: process.env.EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY,
+          nativeAppKey: EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY,
           android: {
             authCodeHandlerActivity: true,
           },

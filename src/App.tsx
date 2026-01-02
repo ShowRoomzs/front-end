@@ -1,11 +1,17 @@
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { QueryClientProvider } from "@tanstack/react-query";
+import * as SplashScreen from "expo-splash-screen";
+import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
+import { useInit } from "@/common/hooks/useInit";
 import { queryClient } from "@/common/lib/queryClient";
-import OverlayProvider from "@/common/providers/OverlayProvider";
+import PortalProvider from "@/common/providers/PortalProvider/PortalProvider";
+import SplashProvider from "@/common/providers/SplashProvider/SplashProvider";
 import MainNavigator from "@/navigators/MainNavigator";
+
+SplashScreen.preventAutoHideAsync();
 
 const THEME = {
   ...DefaultTheme,
@@ -16,16 +22,27 @@ const THEME = {
 };
 
 export default function App() {
+  const isReady = useInit();
+
+  useEffect(() => {
+    // native 스플래시 닫기
+    if (isReady) {
+      SplashScreen.hideAsync();
+    }
+  }, [isReady]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView className="flex-1">
-        <OverlayProvider>
+        <PortalProvider>
           <SafeAreaProvider className="flex-1">
-            <NavigationContainer theme={THEME}>
-              <MainNavigator />
-            </NavigationContainer>
+            <SplashProvider isReady={isReady}>
+              <NavigationContainer theme={THEME}>
+                <MainNavigator />
+              </NavigationContainer>
+            </SplashProvider>
           </SafeAreaProvider>
-        </OverlayProvider>
+        </PortalProvider>
       </GestureHandlerRootView>
     </QueryClientProvider>
   );

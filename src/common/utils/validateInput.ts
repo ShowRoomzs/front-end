@@ -1,29 +1,29 @@
 import { InputProps } from "@/common/components/Input/Input";
-import { ValidateOption, ValidateRule } from "@/common/hooks/useInputValidation";
+import { ValidateOption, ValidateHurdle } from "@/common/hooks/useInputValidation";
 
-async function checkRule(rule: NonNullable<ValidateRule>, value: string): Promise<boolean> {
-  if (typeof rule === "function") {
-    return await rule(value);
+async function checkHurdle(hurdle: NonNullable<ValidateHurdle>, value: string): Promise<boolean> {
+  if (typeof hurdle === "function") {
+    return await hurdle(value);
   }
 
-  return value.replace(rule, "") === value;
+  return value.replace(hurdle, "") !== value;
 }
 
 export async function validateInput(
   options: Array<ValidateOption>,
   value: string
 ): Promise<Pick<InputProps, "status" | "helperText"> | undefined> {
-  for (const { rule, helperText } of options) {
-    if (!rule) {
-      // 룰이 없으면 성공 처리
+  for (const { hurdle, helperText } of options) {
+    if (!hurdle) {
+      // hurdle이 없으면 성공 처리
       return {
         status: "success",
         helperText: helperText,
       };
     }
-    const isValid = await checkRule(rule, value);
+    const hasError = await checkHurdle(hurdle, value);
 
-    if (!isValid) {
+    if (hasError) {
       return {
         status: "error",
         helperText,

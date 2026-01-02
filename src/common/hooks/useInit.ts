@@ -1,12 +1,37 @@
 import { useFonts } from "expo-font";
+import * as SecureStore from "expo-secure-store";
+import { useCallback, useEffect, useState } from "react";
 
 import Pretendard from "@/common/assets/fonts/PretendardVariable.ttf";
+import { SECURE_STORE } from "@/common/constants/secureStore";
+import { useUserStore } from "@/common/stores/useUserStore";
+import { userService } from "@/features/user/services/userService";
 
-// TODO : 초기 로딩 상태 관련된 로직 추가
 export function useInit(): boolean {
-  const [fontLoaded] = useFonts({
-    Pretendard,
-  });
+  const [fontLoaded] = useFonts({ Pretendard });
+  const [isReady, setIsReady] = useState(false);
+  const { setUser } = useUserStore();
 
-  return fontLoaded;
+  const initializeApp = useCallback(async () => {
+    try {
+      const accessToken = await SecureStore.getItemAsync(SECURE_STORE.ACCESS_TOKEN);
+
+      if (accessToken) {
+        const userInfo = await userService.getUserInfo();
+
+        setUser(userInfo);
+      }
+    } catch (error) {
+      // 토큰 만료 > 토큰 삭제 처리는 apiInstance에서 처리
+      console.error(error);
+    } finally {
+      setIsReady(true);
+    }
+  }, [setUser]);
+
+  useEffect(() => {
+    initializeApp();
+  }, [initializeApp]);
+
+  return fontLoaded && isReady;
 }

@@ -1,4 +1,4 @@
-import { AUTH_ROUTES, HOME_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
+import { AUTH_ROUTES, COMMON_ROUTES, HOME_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { TermsType } from "@/features/auth/views/TermsView";
 
 // 홈 하단 탭 파라미터
@@ -16,11 +16,19 @@ export type AuthStackParamList = {
     onSuccessLogin?: () => void;
   };
   [AUTH_ROUTES.SIGN_UP]: {
+    registerToken: string;
     onSuccessLogin?: () => void;
   };
   [AUTH_ROUTES.TERMS]: {
     termsType: TermsType;
   };
+};
+
+export type CommonStackParamList = {
+  [COMMON_ROUTES.SEARCH]: undefined;
+  [COMMON_ROUTES.CART]: undefined;
+  [COMMON_ROUTES.NOTIFICATION]: undefined;
+  [COMMON_ROUTES.SETTING]: undefined;
 };
 
 export type RootStackParamList = {
@@ -29,5 +37,8 @@ export type RootStackParamList = {
     params?: {
       onSuccessLogin?: () => void;
     };
+  };
+  [ROOT_ROUTES.COMMON]: {
+    screen: keyof CommonStackParamList;
   };
 };

@@ -16,11 +16,11 @@ export default function BottomTabs(props: BottomTabBarProps) {
   const { state, navigation } = props;
   const { isVisible } = useBottomTab();
   const inset = useSafeAreaInsets();
-  const translateY = useSharedValue(-inset.bottom);
+  const visibleHeight = BOTTOM_TABS_HEIGHT + inset.bottom;
+  const progress = useSharedValue(isVisible ? 0 : 1);
   const handlePress = (routeName: string) => {
     navigation.navigate(routeName);
   };
-
   const getTextClassName = (isActive: boolean) => {
     let className = "text-10 font-medium";
     if (isActive) {
@@ -32,21 +32,18 @@ export default function BottomTabs(props: BottomTabBarProps) {
   };
 
   useEffect(() => {
-    if (isVisible) {
-      translateY.value = withTiming(-inset.bottom, { duration: 200 });
-      return;
-    }
-    translateY.value = withTiming(BOTTOM_TABS_HEIGHT, { duration: 200 });
-  }, [inset.bottom, isVisible, translateY]);
+    progress.value = withTiming(isVisible ? 0 : 1, { duration: 200 });
+  }, [isVisible, progress]);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
-    height: BOTTOM_TABS_HEIGHT,
+    transform: [{ translateY: visibleHeight * progress.value }],
+    height: visibleHeight * (1 - progress.value),
+    paddingBottom: inset.bottom * (1 - progress.value),
   }));
 
   return (
     <Animated.View
-      style={animatedStyle}
+      style={[animatedStyle, { overflow: "hidden" }]}
       className="flex flex-row w-full border-t-[1px] border-gray1 bg-white"
     >
       {state.routes.map((route, ix) => {

@@ -37,7 +37,7 @@ export const authService = {
     return response;
   },
   register: async (request: RegisterRequest, registerToken: string): Promise<RegisterResponse> => {
-    const { data: response } = await authInstance.post<RegisterResponse>("/register", request, {
+    const { data: response } = await authInstance.post<RegisterResponse>("/social/signup", request, {
       headers: {
         Authorization: `Bearer ${registerToken}`,
       },

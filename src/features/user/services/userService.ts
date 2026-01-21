@@ -10,13 +10,13 @@ export interface CheckNicknameResponse<C extends CheckNicknameCode> {
 
 export const userService = {
   getUserInfo: async (): Promise<User> => {
-    const { data: response } = await apiInstance.get<User>("/users/me");
+    const { data: response } = await apiInstance.get<User>("/user/me");
 
     return response;
   },
   checkNickname: async (nickname: string): Promise<CheckNicknameResponse<CheckNicknameCode>> => {
     const { data: response } = await apiInstance.get<CheckNicknameResponse<CheckNicknameCode>>(
-      "/users/check-nickname",
+      "/user/check-nickname",
       {
         params: {
           nickname,

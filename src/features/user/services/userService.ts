@@ -1,12 +1,5 @@
 import { apiInstance } from "@/common/lib/apiInstance";
-import { User } from "@/features/user/types/user";
-
-export type CheckNicknameCode = "AVAILABLE" | "DUPLICATE" | "PROFANITY" | "INVALID_FORMAT";
-export interface CheckNicknameResponse<C extends CheckNicknameCode> {
-  isAvailable: boolean;
-  code: C;
-  message: string;
-}
+import { CheckNicknameCode, CheckNicknameResponse, User } from "@/features/user/types/user";
 
 export const userService = {
   getUserInfo: async (): Promise<User> => {

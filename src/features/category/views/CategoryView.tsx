@@ -2,8 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import HStack from "@/common/components/HStack/HStack";
 import VStack from "@/common/components/VStack/VStack";
-import { useMainNavigation } from "@/common/router";
-import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
+import { useCategoryNavigation, useMainNavigation } from "@/common/router";
+import { CATEGORY_ROUTES, COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { useGetCategory } from "@/features/auth/hooks/useGetCategory";
 import CategoryHeader from "@/features/category/components/CategoryHeader/CategoryHeader";
 import CategorySidebar from "@/features/category/components/CategorySidebar/CategorySidebar";
@@ -11,7 +11,8 @@ import SubCategoryList, { SubCategory } from "@/features/category/components/Sub
 
 export default function CategoryView() {
   const { categoryMap } = useGetCategory();
-  const navigation = useMainNavigation();
+  const mainNavigation = useMainNavigation();
+  const categoryNavigation = useCategoryNavigation();
   const [mainCategory, setMainCategory] = useState<number | null>(null);
 
   useEffect(() => {
@@ -31,17 +32,18 @@ export default function CategoryView() {
   }, []);
 
   const handlePressSearch = useCallback(() => {
-    navigation.navigate(ROOT_ROUTES.COMMON, {
+    mainNavigation.navigate(ROOT_ROUTES.COMMON, {
       screen: COMMON_ROUTES.SEARCH,
     });
-  }, [navigation]);
+  }, [mainNavigation]);
 
   const handlePressCart = useCallback(() => {
-    navigation.navigate(ROOT_ROUTES.COMMON, {
+    mainNavigation.navigate(ROOT_ROUTES.COMMON, {
       screen: COMMON_ROUTES.CART,
     });
-  }, [navigation]);
+  }, [mainNavigation]);
 
+  // 선택한 main category 하위 뎁스만 표출 되도록
   const subCategories: Array<SubCategory> = useMemo(() => {
     if (!mainCategory || !categoryMap) {
       return [];
@@ -55,9 +57,12 @@ export default function CategoryView() {
     }));
   }, [mainCategory, categoryMap]);
 
-  const handlePressSubCategory = useCallback((categoryId: number) => {
-    void categoryId;
-  }, []);
+  const handlePressSubCategory = useCallback(
+    (categoryId: number) => {
+      categoryNavigation.navigate(CATEGORY_ROUTES.DETAIL, { categoryId });
+    },
+    [categoryNavigation]
+  );
 
   return (
     <VStack className="flex-1">

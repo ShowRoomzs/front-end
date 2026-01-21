@@ -18,12 +18,12 @@ export default function HomeView() {
       {
         id: "showroom",
         label: "쇼룸",
-        render: <ShowroomView />,
+        render: () => <ShowroomView />,
       },
       {
         id: "ranking",
         label: "랭킹",
-        render: (
+        render: () => (
           <View className="flex-1">
             <Text>랭킹</Text>
           </View>

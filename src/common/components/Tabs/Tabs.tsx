@@ -1,4 +1,4 @@
-import { ReactElement, useCallback, useRef, useState } from "react";
+import { ReactElement, useCallback, useEffect, useRef, useState } from "react";
 import { FlatList, ListRenderItem, View } from "react-native";
 
 import TabBody from "@/common/components/Tabs/TabBody";
@@ -7,7 +7,7 @@ import TabHeader from "@/common/components/Tabs/TabHeader";
 export interface TabItemType {
   id: string;
   label: string;
-  render: ReactElement;
+  render: (id: string) => ReactElement;
 }
 
 export interface TabProps {
@@ -39,6 +39,12 @@ export default function Tabs(props: TabProps) {
 
   const [selectedIndex, setSelectedIndex] = useState<number>(originSelectedIndex || 0);
   const listScrollRef = useRef<FlatList>(null);
+
+  useEffect(() => {
+    if (originSelectedIndex !== undefined && originSelectedIndex !== selectedIndex) {
+      setSelectedIndex(originSelectedIndex);
+    }
+  }, [originSelectedIndex, selectedIndex]);
 
   const handlePressTab = useCallback(
     (index: number, id: string) => {

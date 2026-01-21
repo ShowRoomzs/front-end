@@ -8,6 +8,8 @@ export interface CategoryMap {
   byId: Map<number, Category>;
   byParentId: Map<number, Array<Category>>;
   mainCategories: Array<Category>;
+  getSubCategory: (categoryId: number) => Category | null;
+  getChildCategories: (categoryId: number) => Array<Category>;
 }
 
 export function useGetCategory() {
@@ -43,10 +45,39 @@ export function useGetCategory() {
       categories.sort((a, b) => a.order - b.order);
     });
 
+    // 2뎁스 카테고리만 반환 (3뎁스 → 2뎁스, 2뎁스 → 2뎁스)
+    const getSubCategory = (categoryId: number): Category | null => {
+      const category = byId.get(categoryId);
+
+      if (!category || !category.parentId) {
+        return null;
+      }
+
+      const parent = byId.get(category.parentId);
+
+      if (!parent) {
+        return null;
+      }
+
+      // 부모의 parentId가 null이면 현재 카테고리가 2depth
+      if (!parent.parentId) {
+        return category;
+      }
+
+      // 부모의 parentId가 있으면 현재는 3depth, 부모가 2depth
+      return parent;
+    };
+
+    const getChildCategories = (categoryId: number): Array<Category> => {
+      return query.data.filter(category => category.parentId === categoryId);
+    };
+
     return {
       byId,
       byParentId,
       mainCategories,
+      getSubCategory,
+      getChildCategories,
     };
   }, [query.data]);
 

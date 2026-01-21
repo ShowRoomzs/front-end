@@ -1,7 +1,11 @@
 import { authInstance } from "@/common/lib/authInstance";
 import { refreshInstance } from "@/common/lib/refreshInstance";
-import { SocialLoginResponse } from "@/features/auth/hooks/useSocialLogin";
-import { RegisterRequest, RegisterResponse, SocialLoginRequest } from "@/features/auth/types/auth";
+import {
+  RegisterRequest,
+  RegisterResponse,
+  SocialLoginRequest,
+  SocialLoginResponse,
+} from "@/features/auth/types/auth";
 
 export const authService = {
   socialLogin: async (request: SocialLoginRequest): Promise<SocialLoginResponse> => {

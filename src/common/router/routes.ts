@@ -7,6 +7,12 @@ export const HOME_ROUTES = {
   MYPAGE: "mypage",
 } as const;
 
+// 카테고리 스택 네비게이션 (카테고리 탭 내부에서만 사용)
+export const CATEGORY_ROUTES = {
+  HOME: "categoryHome",
+  DETAIL: "categoryDetail",
+} as const;
+
 // 인증 스택 네비게이션
 export const AUTH_ROUTES = {
   AUTH_HOME: "authHome",
@@ -44,11 +50,13 @@ export const ROOT_ROUTES = {
 
 export const ROUTES = {
   ...HOME_ROUTES,
+  ...CATEGORY_ROUTES,
   ...AUTH_ROUTES,
   ...ROOT_ROUTES,
 } as const;
 
 export type HomeRouteName = (typeof HOME_ROUTES)[keyof typeof HOME_ROUTES];
+export type CategoryRouteName = (typeof CATEGORY_ROUTES)[keyof typeof CATEGORY_ROUTES];
 export type AuthRouteName = (typeof AUTH_ROUTES)[keyof typeof AUTH_ROUTES];
 export type MyPageRouteName = (typeof MYPAGE_ROUTES)[keyof typeof MYPAGE_ROUTES];
 export type RouteName = (typeof ROUTES)[keyof typeof ROUTES];

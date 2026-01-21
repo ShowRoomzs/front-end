@@ -20,6 +20,10 @@ export default function VStack(props: VStackProps) {
       {childrenArr.map((child, ix) => {
         const isLast = ix === childrenArr.length - 1;
 
+        if (!isValidElement(child)) {
+          return null;
+        }
+
         const hasFlex =
           isValidElement(child) && (child.props as { className?: string }).className?.includes("flex-1");
 

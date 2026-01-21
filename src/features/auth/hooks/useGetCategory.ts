@@ -5,8 +5,8 @@ import { categoryService } from "@/features/auth/services/categoryService";
 import { Category } from "@/features/auth/types/category";
 
 export interface CategoryMap {
-  byId: Map<number | string, Category>;
-  byParentId: Map<number | string, Array<Category>>;
+  byId: Map<number, Category>;
+  byParentId: Map<number, Array<Category>>;
   mainCategories: Array<Category>;
 }
 
@@ -20,8 +20,8 @@ export function useGetCategory() {
       return null;
     }
 
-    const byId = new Map<number | string, Category>();
-    const byParentId = new Map<number | string, Array<Category>>();
+    const byId = new Map<number, Category>();
+    const byParentId = new Map<number, Array<Category>>();
     const mainCategories: Category[] = [];
 
     query.data.forEach(category => {

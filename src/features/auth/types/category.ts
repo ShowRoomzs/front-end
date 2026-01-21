@@ -26,6 +26,6 @@ export interface Category {
   name: string;
   order: number;
   iconUrl: string;
-  parentId: string | null;
+  parentId: number | null;
   filters: Array<Filter>;
 }

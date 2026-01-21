@@ -1,5 +1,5 @@
 import axios from "axios";
 
 export const authInstance = axios.create({
-  baseURL: `${process.env.EXPO_PUBLIC_PROTOCOL}://${process.env.EXPO_PUBLIC_API_HOST}/v1/auth`,
+  baseURL: `${process.env.EXPO_PUBLIC_PROTOCOL}://${process.env.EXPO_PUBLIC_API_HOST}/v1/user/auth`,
 });

@@ -161,7 +161,7 @@ export default function TabBody(props: TabBodyProps) {
               translationX={dragTranslation}
               skipIntermediateTabs={skipIntermediateTabs}
             >
-              <TabContent isMounted={checkIsMounted(ix)}>{item.render}</TabContent>
+              <TabContent isMounted={checkIsMounted(ix)}>{item.render(item.id)}</TabContent>
             </TabItem>
           ))}
         </View>

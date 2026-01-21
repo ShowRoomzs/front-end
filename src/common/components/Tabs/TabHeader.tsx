@@ -1,15 +1,8 @@
-import { RefObject, useCallback, useMemo } from "react";
-import {
-  FlatList,
-  ListRenderItem,
-  ListRenderItemInfo,
-  Pressable,
-  useWindowDimensions,
-  View,
-} from "react-native";
+import { RefObject, useCallback } from "react";
+import { FlatList, ListRenderItem, ListRenderItemInfo, Pressable, View } from "react-native";
+import Animated, { FadeIn } from "react-native-reanimated";
 
 import { TabItemType } from "@/common/components/Tabs/Tabs";
-import TabUnderline from "@/common/components/Tabs/TabUnderline";
 import { cn } from "@/common/utils/cn";
 
 interface TabHeaderProps {
@@ -39,17 +32,23 @@ export default function TabHeader(props: TabHeaderProps) {
     onPressTab,
   } = props;
 
-  const { width: screenWidth } = useWindowDimensions();
-
-  const itemWidth = useMemo(() => {
-    return screenWidth / items.length;
-  }, [screenWidth, items.length]);
-
   const wrappedRenderItem = useCallback(
     (info: ListRenderItemInfo<TabItemType>) => {
-      return <Pressable onPress={() => onPressTab(info.index, info.item.id)}>{renderItem(info)}</Pressable>;
+      const isSelected = info.index === selectedIndex;
+
+      return (
+        <Pressable onPress={() => onPressTab(info.index, info.item.id)}>
+          {renderItem(info)}
+          {isSelected && showUnderline && (
+            <Animated.View
+              entering={FadeIn.duration(200)}
+              className={cn("absolute bottom-0 h-2 bg-black left-0 right-0", underlineClassName)}
+            />
+          )}
+        </Pressable>
+      );
     },
-    [renderItem, onPressTab]
+    [renderItem, onPressTab, selectedIndex, showUnderline, underlineClassName]
   );
 
   return (
@@ -62,14 +61,8 @@ export default function TabHeader(props: TabHeaderProps) {
         data={items}
         renderItem={wrappedRenderItem}
         keyExtractor={keyExtractor}
+        initialNumToRender={items.length}
       />
-      {showUnderline && (
-        <TabUnderline
-          selectedIndex={selectedIndex}
-          itemWidth={itemWidth}
-          underlineClassName={underlineClassName}
-        />
-      )}
     </View>
   );
 }

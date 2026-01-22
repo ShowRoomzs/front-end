@@ -25,10 +25,18 @@ interface TabBodyProps {
   onChangeIndex: (index: number) => void;
   wrapperClassName?: string;
   skipIntermediateTabs: boolean;
+  enableTabTransitionAnimation: boolean;
 }
 
 export default function TabBody(props: TabBodyProps) {
-  const { items, onChangeIndex, selectedIndex, wrapperClassName, skipIntermediateTabs } = props;
+  const {
+    items,
+    onChangeIndex,
+    selectedIndex,
+    wrapperClassName,
+    skipIntermediateTabs,
+    enableTabTransitionAnimation,
+  } = props;
   const { width: SCREEN_WIDTH } = useWindowDimensions();
   const dragTranslation = useSharedValue(0);
   const memorizedDragTranslation = useSharedValue(0);
@@ -69,6 +77,7 @@ export default function TabBody(props: TabBodyProps) {
   const updateDragTranslationWithAnimation = useCallback(
     (translationX: number) => {
       "worklet";
+
       dragTranslation.value = withTiming(
         translationX,
         {
@@ -160,6 +169,7 @@ export default function TabBody(props: TabBodyProps) {
               isSwiping={isSwiping}
               translationX={dragTranslation}
               skipIntermediateTabs={skipIntermediateTabs}
+              enableTabTransitionAnimation={enableTabTransitionAnimation}
             >
               <TabContent isMounted={checkIsMounted(ix)}>{item.render(item.id)}</TabContent>
             </TabItem>

@@ -21,6 +21,7 @@ export interface TabProps {
   showUnderline?: boolean;
   enableHeaderScroll?: boolean;
   underlineClassName?: string;
+  enableTabTransitionAnimation?: boolean;
 }
 
 export default function Tabs(props: TabProps) {
@@ -35,6 +36,7 @@ export default function Tabs(props: TabProps) {
     showUnderline = true,
     underlineClassName,
     enableHeaderScroll = true,
+    enableTabTransitionAnimation = true,
   } = props;
 
   const [selectedIndex, setSelectedIndex] = useState<number>(originSelectedIndex || 0);
@@ -95,6 +97,7 @@ export default function Tabs(props: TabProps) {
         selectedIndex={selectedIndex}
         onChangeIndex={handleChangeIndex}
         skipIntermediateTabs={skipIntermediateTabs}
+        enableTabTransitionAnimation={enableTabTransitionAnimation}
       />
     </View>
   );

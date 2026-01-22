@@ -12,7 +12,7 @@ export interface TabItemType {
 
 export interface TabProps {
   items: Array<TabItemType>;
-  renderItem: ListRenderItem<TabItemType>;
+  renderItem?: ListRenderItem<TabItemType>;
   headerClassName?: string;
   bodyClassName?: string;
   selectedIndex?: number;

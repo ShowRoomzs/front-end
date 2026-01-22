@@ -2,6 +2,7 @@ import { RefObject, useCallback } from "react";
 import { FlatList, ListRenderItem, ListRenderItemInfo, Pressable, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 
+import DefaultTabItem from "@/common/components/Tabs/DefaultTabItem";
 import { TabItemType } from "@/common/components/Tabs/Tabs";
 import { cn } from "@/common/utils/cn";
 
@@ -9,7 +10,7 @@ interface TabHeaderProps {
   wrapperClassName?: string;
   listScrollRef: RefObject<FlatList | null>;
   items: Array<TabItemType>;
-  renderItem: ListRenderItem<TabItemType>;
+  renderItem?: ListRenderItem<TabItemType>;
   keyExtractor: (item: TabItemType) => string;
   enableHeaderScroll?: boolean;
   showUnderline?: boolean;
@@ -23,7 +24,7 @@ export default function TabHeader(props: TabHeaderProps) {
     wrapperClassName,
     items,
     keyExtractor,
-    renderItem,
+    renderItem: originRenderItem,
     listScrollRef,
     enableHeaderScroll,
     showUnderline = true,
@@ -31,6 +32,16 @@ export default function TabHeader(props: TabHeaderProps) {
     selectedIndex,
     onPressTab,
   } = props;
+
+  const renderItem = useCallback(
+    (info: ListRenderItemInfo<TabItemType>) => {
+      if (originRenderItem) {
+        return originRenderItem(info);
+      }
+      return <DefaultTabItem item={info.item} isActive={info.index === selectedIndex} />;
+    },
+    [originRenderItem, selectedIndex]
+  );
 
   const wrappedRenderItem = useCallback(
     (info: ListRenderItemInfo<TabItemType>) => {

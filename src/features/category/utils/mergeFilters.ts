@@ -3,18 +3,17 @@ import { Filter, FilterValue } from "@/features/category/types/category";
 export function mergeFilters(categoryFilters: Array<Filter>, detailFilters: Array<Filter>): Array<Filter> {
   const filterMap = new Map<number, Filter>();
 
-  for (const filter of detailFilters) {
+  for (const filter of categoryFilters) {
     filterMap.set(filter.id, {
       ...filter,
       values: [...filter.values],
     });
   }
 
-  for (const filter of categoryFilters) {
+  for (const filter of detailFilters) {
     const existing = filterMap.get(filter.id);
 
     if (!existing) {
-      // 완전히 새로운 filter
       filterMap.set(filter.id, {
         ...filter,
         values: [...filter.values],

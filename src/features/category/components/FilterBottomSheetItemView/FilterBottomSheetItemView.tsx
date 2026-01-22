@@ -8,20 +8,32 @@ import { Filter } from "@/features/category/types/category";
 interface FilterBottomSheetItemViewProps {
   filter: Filter;
   className?: string;
+  selectedValues: Array<string>;
+  onChange: (filterId: number, value: string) => void;
 }
 export default function FilterBottomSheetItemView(props: FilterBottomSheetItemViewProps) {
-  const { filter, className } = props;
+  const { filter, className, selectedValues, onChange } = props;
 
-  const renderContent = useCallback((filter: Filter) => {
-    const { filterType } = filter;
+  const handleChange = useCallback(
+    (value: string) => {
+      onChange(filter.id, value);
+    },
+    [onChange, filter.id]
+  );
 
-    switch (filterType) {
-      case "SELECT":
-        return <FilterSelectView filter={filter} onChange={() => {}} />;
-      default:
-        return null;
-    }
-  }, []);
+  const renderContent = useCallback(
+    (filter: Filter) => {
+      const { filterType } = filter;
+
+      switch (filterType) {
+        case "SELECT":
+          return <FilterSelectView filter={filter} selectedValues={selectedValues} onChange={handleChange} />;
+        default:
+          return null;
+      }
+    },
+    [handleChange, selectedValues]
+  );
 
   return <View className={cn("p-20 h-full", className)}>{renderContent(filter)}</View>;
 }

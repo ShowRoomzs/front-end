@@ -1,29 +1,45 @@
-import { Pressable } from "react-native";
+import { Pressable, View } from "react-native";
 
+import Icon from "@/common/components/Icon/Icon";
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
+import { COMMON_ASSETS } from "@/common/utils/assets";
 import { Filter, FilterValue } from "@/features/category/types/category";
 
 interface FilterSelectViewProps {
   filter: Filter;
-  onChange: (value: number) => void;
+  selectedValues: Array<string>;
+  onChange: (value: string) => void;
 }
 export default function FilterSelectView(props: FilterSelectViewProps) {
-  const { filter, onChange } = props;
+  const { filter, onChange, selectedValues } = props;
 
   const handlePress = (value: FilterValue) => {
-    onChange(value.id);
+    onChange(value.value.toString());
   };
-
-  // TODO : active 상태 ui 분기처리
 
   return (
     <VStack className="h-full">
-      {filter.values.map(value => (
-        <Pressable onPress={() => handlePress(value)} className="py-15" key={value.id}>
-          <Typography className="text-13 text-gray10 font-normal">{value.label}</Typography>
-        </Pressable>
-      ))}
+      {filter.values.map(value => {
+        const isActive = selectedValues.includes(value.value);
+
+        return (
+          <Pressable
+            onPress={() => handlePress(value)}
+            className="py-15 flex flex-row justify-between items-center"
+            key={value.id}
+          >
+            <Typography
+              className={isActive ? "text-13 text-black font-medium" : "text-13 text-gray10 font-normal"}
+            >
+              {value.label}
+            </Typography>
+            <View style={{ width: 12, height: 12, opacity: isActive ? 1 : 0 }}>
+              <Icon icon={COMMON_ASSETS.checkBlack} />
+            </View>
+          </Pressable>
+        );
+      })}
     </VStack>
   );
 }

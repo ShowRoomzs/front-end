@@ -3,7 +3,6 @@ import {
   BottomSheetBackdropProps,
   BottomSheetModal,
   BottomSheetModalProps,
-  BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import { forwardRef, ReactNode, useMemo } from "react";
 
@@ -49,7 +48,7 @@ const BottomSheet = forwardRef<BottomSheetModalMethods, BottomSheetProps>((props
       ref={ref}
       {...bottomSheetProps}
     >
-      <BottomSheetView>{children}</BottomSheetView>
+      {children}
     </BottomSheetModal>
   );
 });

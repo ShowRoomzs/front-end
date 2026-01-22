@@ -1,5 +1,5 @@
 import { BottomSheetView } from "@gorhom/bottom-sheet";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { FlatList, Text, View } from "react-native";
 
 import Button from "@/common/components/Button/Button";
@@ -11,15 +11,18 @@ import VStack from "@/common/components/VStack/VStack";
 import { COMMON_ASSETS } from "@/common/utils/assets";
 import FilterBottomSheetItemView from "@/features/category/components/FilterBottomSheetItemView/FilterBottomSheetItemView";
 import { Filter } from "@/features/category/types/category";
+import { FilterParam } from "@/features/product/types/params";
 
 interface FilterBottomSheetViewProps {
   filters: Array<Filter>;
   selectedId: number | null;
+  selectedFilters: Array<FilterParam>;
+  onChange: (filters: Array<FilterParam>) => void;
 }
 export const FILTER_BOTTOM_SHEET_HEIGHT = 550;
 
 export default function FilterBottomSheetView(props: FilterBottomSheetViewProps) {
-  const { filters, selectedId } = props;
+  const { filters, selectedId, selectedFilters, onChange } = props;
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
 
   useEffect(() => {
@@ -31,13 +34,42 @@ export default function FilterBottomSheetView(props: FilterBottomSheetViewProps)
     setSelectedIndex(index);
   }, [filters, selectedId]);
 
+  const handleItemChange = useCallback(
+    (filterId: number, value: string) => {
+      const filter = filters.find(f => f.id === filterId);
+
+      if (!filter) {
+        return;
+      }
+
+      const filterParam: FilterParam = {
+        key: filter.filterKey,
+        values: [value],
+      };
+
+      onChange([filterParam]);
+    },
+    [filters, onChange]
+  );
+
   const tabItems: Array<TabItemType> = useMemo(() => {
-    return filters.map(filter => ({
-      id: filter.id.toString(),
-      label: filter.label,
-      render: () => <FilterBottomSheetItemView filter={filter} />,
-    }));
-  }, [filters]);
+    return filters.map(filter => {
+      const selectedFilter = selectedFilters.find(f => f.key === filter.filterKey);
+      const selectedValues = selectedFilter?.values || [];
+
+      return {
+        id: filter.id.toString(),
+        label: filter.label,
+        render: () => (
+          <FilterBottomSheetItemView
+            filter={filter}
+            selectedValues={selectedValues}
+            onChange={handleItemChange}
+          />
+        ),
+      };
+    });
+  }, [filters, selectedFilters, handleItemChange]);
 
   return (
     <BottomSheetView className="relative">
@@ -49,6 +81,7 @@ export default function FilterBottomSheetView(props: FilterBottomSheetViewProps)
           bodyClassName="min-h-[200px]"
           onSelect={setSelectedIndex}
           items={tabItems}
+          enableTabTransitionAnimation={false}
         />
       </View>
       <VStack gap={10}>

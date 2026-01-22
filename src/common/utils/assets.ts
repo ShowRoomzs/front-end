@@ -25,6 +25,7 @@ import MypageActiveIcon from "@/common/assets/common/mypage-active.svg";
 import MypageDefaultIcon from "@/common/assets/common/mypage-default.svg";
 import NaverIcon from "@/common/assets/common/naver-icon.svg";
 import NotificationIcon from "@/common/assets/common/notification.svg";
+import ResetIcon from "@/common/assets/common/reset-icon.svg";
 import SearchIcon from "@/common/assets/common/search.svg";
 import SettingIcon from "@/common/assets/common/setting.svg";
 import TooltipArrowIcon from "@/common/assets/common/tooltip-arrow.svg";
@@ -111,5 +112,8 @@ export const COMMON_ASSETS: Assets = {
   },
   arrowDown: {
     default: ArrowDownIcon,
+  },
+  reset: {
+    default: ResetIcon,
   },
 };

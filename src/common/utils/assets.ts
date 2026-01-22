@@ -2,6 +2,7 @@ import { FC } from "react";
 import { SvgProps } from "react-native-svg";
 
 import AppleIcon from "@/common/assets/common/apple-icon.svg";
+import ArrowDownIcon from "@/common/assets/common/arrow-down.svg";
 import ArrowRightIcon from "@/common/assets/common/arrow-right.svg";
 import BackIcon from "@/common/assets/common/back.svg";
 import CartIcon from "@/common/assets/common/cart.svg";
@@ -107,5 +108,8 @@ export const COMMON_ASSETS: Assets = {
   },
   followingIcon: {
     default: FollowingIcon,
+  },
+  arrowDown: {
+    default: ArrowDownIcon,
   },
 };

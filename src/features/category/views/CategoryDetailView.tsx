@@ -1,14 +1,12 @@
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ListRenderItemInfo, View } from "react-native";
+import { View } from "react-native";
 
 import Tabs, { TabItemType } from "@/common/components/Tabs/Tabs";
-import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
 import { CATEGORY_ROUTES, useCategoryNavigation, useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { CategoryStackParamList } from "@/common/router/types";
-import { cn } from "@/common/utils/cn";
 import CategoryDetailContent from "@/features/category/components/CategoryDetailContent/CategoryDetailContent";
 import CategoryDetailHeader from "@/features/category/components/CategoryDetailHeader/CategoryDetailHeader";
 import { useCategory } from "@/features/category/hooks/useCategory";
@@ -61,7 +59,7 @@ export default function CategoryDetailView() {
   }, [rootNavigation]);
 
   const tabItems = useMemo(() => {
-    if (!detailCategories?.length) {
+    if (!detailCategories?.length || !category?.categoryId) {
       return [];
     }
 
@@ -69,7 +67,7 @@ export default function CategoryDetailView() {
       {
         id: "all",
         label: "전체",
-        render: () => <CategoryDetailContent categoryId={categoryId} />,
+        render: () => <CategoryDetailContent categoryId={category?.categoryId} />,
       },
     ];
 
@@ -81,22 +79,7 @@ export default function CategoryDetailView() {
       }))
     );
     return items;
-  }, [categoryId, detailCategories]);
-
-  const renderItem = useCallback(
-    ({ item, index }: ListRenderItemInfo<TabItemType>) => {
-      const isActive = selectedIndex === index;
-
-      return (
-        <View className="flex-1 items-center justify-center px-15 py-15">
-          <Typography className={cn("text-13 font-normal text-center", isActive && "text-black font-medium")}>
-            {item.label}
-          </Typography>
-        </View>
-      );
-    },
-    [selectedIndex]
-  );
+  }, [category?.categoryId, detailCategories]);
 
   const handleChangeSelectedIndex = useCallback((index: number) => {
     setSelectedIndex(index);
@@ -118,10 +101,9 @@ export default function CategoryDetailView() {
         <Tabs
           selectedIndex={selectedIndex}
           onSelect={handleChangeSelectedIndex}
-          headerClassName="h-47"
+          headerClassName="h-47 border-b border-gray2"
           bodyClassName="flex-1"
           items={tabItems}
-          renderItem={renderItem}
           skipIntermediateTabs
         />
       </View>

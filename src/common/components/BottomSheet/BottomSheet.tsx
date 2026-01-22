@@ -39,7 +39,16 @@ const BottomSheet = forwardRef<BottomSheetModalMethods, BottomSheetProps>((props
   }, [originBottomSheetProps]);
 
   return (
-    <BottomSheetModal ref={ref} {...bottomSheetProps}>
+    <BottomSheetModal
+      // eslint-disable-next-line react-native/no-color-literals
+      handleIndicatorStyle={{
+        backgroundColor: "#E1E1E5",
+        width: 30,
+        height: 3,
+      }}
+      ref={ref}
+      {...bottomSheetProps}
+    >
       <BottomSheetView>{children}</BottomSheetView>
     </BottomSheetModal>
   );

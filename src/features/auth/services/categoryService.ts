@@ -1,5 +1,5 @@
 import { apiInstance } from "@/common/lib/apiInstance";
-import { Category } from "@/features/auth/types/category";
+import { Category } from "@/features/category/types/category";
 
 export const categoryService = {
   getCategories: async () => {

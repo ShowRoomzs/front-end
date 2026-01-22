@@ -21,7 +21,7 @@ const DEFAULT_BOTTOM_SHEET_PROPS = {
   backdropComponent: (props: BottomSheetBackdropProps) => (
     <BottomSheetBackdrop
       {...props}
-      opacity={0.5}
+      opacity={0.8}
       disappearsOnIndex={-1}
       appearsOnIndex={0}
       pressBehavior="close"

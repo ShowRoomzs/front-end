@@ -17,6 +17,7 @@ interface TabItemProps extends PropsWithChildren {
   translationX: SharedValue<number>;
   isSwiping: SharedValue<boolean>;
   skipIntermediateTabs: boolean;
+  enableTabTransitionAnimation: boolean;
 }
 
 export default function TabItem(props: TabItemProps) {
@@ -27,6 +28,7 @@ export default function TabItem(props: TabItemProps) {
     isSwiping,
     skipIntermediateTabs,
     children,
+    enableTabTransitionAnimation,
   } = props;
   const { width: SCREEN_WIDTH } = useWindowDimensions();
   const translationX = useSharedValue(0);
@@ -77,8 +79,8 @@ export default function TabItem(props: TabItemProps) {
 
   const updateTranslation = (targetValue: number, isSwiping: boolean): number => {
     "worklet";
-    if (isSwiping) {
-      // 스와이프 중에는 즉시 반영
+    if (isSwiping || !enableTabTransitionAnimation) {
+      // 스와이프 중에는 즉시 반영 또는 애니메이션 비활성화 시 즉시 반영
       return targetValue;
     } else {
       // 스와이프 끝나면 애니메이션

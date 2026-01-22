@@ -1,5 +1,5 @@
 type FilterCondition = "OR" | "AND";
-export type FilterType = "CHECKBOX" | "COLOR" | "RANGE" | "BRAND"; // TODO : 타입 추가
+export type FilterType = "SELECT" | "RADIO" | "COLOR" | "BRAND" | "PRICE_RANGE" | "CHECKBOX";
 
 export interface FilterValue {
   id: number;

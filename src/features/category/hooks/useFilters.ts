@@ -27,7 +27,6 @@ export function useFilters(categoryId: number): UseFiltersResult {
   const detailCategoryFilters = childCategories
     .filter(c => c.categoryId === categoryId || c.parentId === categoryId)
     .flatMap(c => c.filters);
-
   const filters = mergeFilters(subCategoryFilters, detailCategoryFilters);
 
   return { filters };

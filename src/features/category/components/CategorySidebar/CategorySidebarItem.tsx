@@ -1,7 +1,7 @@
 import { Pressable, Text } from "react-native";
 
 import { cn } from "@/common/utils/cn";
-import { Category } from "@/features/auth/types/category";
+import { Category } from "@/features/category/types/category";
 
 interface CategorySidebarItemProps {
   category: Category;

@@ -1,17 +1,18 @@
 import { View } from "react-native";
 
-import { Category } from "@/features/auth/types/category";
+import FilterView from "@/features/category/components/FilterView/FilterView";
+import { useFilters } from "@/features/category/hooks/useFilters";
 
 interface CategoryDetailContentProps {
-  category: Category | "all" | undefined;
+  categoryId: number;
 }
 export default function CategoryDetailContent(props: CategoryDetailContentProps) {
-  const { category } = props;
+  const { categoryId } = props;
+  const { filters } = useFilters(categoryId);
 
-  if (!category) {
-    return null;
-  }
-  console.log("category", category);
-
-  return <View>{/* <Text>{category}</Text> */}</View>;
+  return (
+    <View className="flex-1">
+      <FilterView filters={filters} />
+    </View>
+  );
 }

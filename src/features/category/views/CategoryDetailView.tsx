@@ -1,5 +1,5 @@
 import { RouteProp, useRoute } from "@react-navigation/native";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ListRenderItemInfo, View } from "react-native";
 
 import Tabs, { TabItemType } from "@/common/components/Tabs/Tabs";
@@ -9,9 +9,9 @@ import { CATEGORY_ROUTES, useCategoryNavigation, useMainNavigation } from "@/com
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { CategoryStackParamList } from "@/common/router/types";
 import { cn } from "@/common/utils/cn";
-import { useGetCategory } from "@/features/auth/hooks/useGetCategory";
 import CategoryDetailContent from "@/features/category/components/CategoryDetailContent/CategoryDetailContent";
 import CategoryDetailHeader from "@/features/category/components/CategoryDetailHeader/CategoryDetailHeader";
+import { useCategory } from "@/features/category/hooks/useCategory";
 
 export default function CategoryDetailView() {
   const route = useRoute<RouteProp<CategoryStackParamList, typeof CATEGORY_ROUTES.DETAIL>>();
@@ -19,14 +19,31 @@ export default function CategoryDetailView() {
   const rootNavigation = useMainNavigation();
 
   const { categoryId } = route.params;
-  const { categoryMap } = useGetCategory();
-  const [selectedIndex, setSelectedIndex] = useState<number>(0);
+  const { categoryMap } = useCategory();
+  const [selectedIndex, setSelectedIndex] = useState<number | undefined>(undefined);
   // 2뎁스 카테고리 추출
   const category = useMemo(() => categoryMap?.getSubCategory(categoryId), [categoryMap, categoryId]);
+  // 3뎁스 카테고리 추출
   const detailCategories = useMemo(
     () => (category?.categoryId ? categoryMap?.getChildCategories(category?.categoryId) : []),
     [categoryMap, category]
   );
+
+  useEffect(() => {
+    if (!categoryId || selectedIndex !== undefined) {
+      return;
+    }
+    const initialIndex = detailCategories?.findIndex(c => c.categoryId === categoryId);
+
+    if (initialIndex !== undefined) {
+      setTimeout(() => {
+        setSelectedIndex(initialIndex + 1);
+      }, 500);
+      return;
+    }
+    setSelectedIndex(0);
+  }, [categoryId, detailCategories, selectedIndex]);
+
   const handlePressBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
@@ -47,11 +64,12 @@ export default function CategoryDetailView() {
     if (!detailCategories?.length) {
       return [];
     }
+
     const items: Array<TabItemType> = [
       {
         id: "all",
         label: "전체",
-        render: () => <CategoryDetailContent category={"all"} />,
+        render: () => <CategoryDetailContent categoryId={categoryId} />,
       },
     ];
 
@@ -59,11 +77,11 @@ export default function CategoryDetailView() {
       ...detailCategories.map(category => ({
         id: category.categoryId.toString(),
         label: category.name,
-        render: () => <CategoryDetailContent category={category} />,
+        render: () => <CategoryDetailContent categoryId={category.categoryId} />,
       }))
     );
     return items;
-  }, [detailCategories]);
+  }, [categoryId, detailCategories]);
 
   const renderItem = useCallback(
     ({ item, index }: ListRenderItemInfo<TabItemType>) => {

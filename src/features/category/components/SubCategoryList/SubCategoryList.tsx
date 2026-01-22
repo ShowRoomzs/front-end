@@ -1,8 +1,8 @@
 import { useCallback } from "react";
 import { FlatList, View } from "react-native";
 
-import { Category } from "@/features/auth/types/category";
 import SubCategoryWrapper from "@/features/category/components/SubCategoryList/SubCategoryWrapper";
+import { Category } from "@/features/category/types/category";
 
 export interface SubCategory extends Category {
   children: Array<Category>;

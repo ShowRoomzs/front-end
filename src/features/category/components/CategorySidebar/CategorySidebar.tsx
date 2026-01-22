@@ -1,8 +1,8 @@
 import { useCallback } from "react";
 import { FlatList } from "react-native";
 
-import { Category } from "@/features/auth/types/category";
 import CategorySidebarItem from "@/features/category/components/CategorySidebar/CategorySidebarItem";
+import { Category } from "@/features/category/types/category";
 
 interface CategorySidebarProps {
   categories: Array<Category>;

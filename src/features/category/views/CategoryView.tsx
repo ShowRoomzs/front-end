@@ -4,13 +4,13 @@ import HStack from "@/common/components/HStack/HStack";
 import VStack from "@/common/components/VStack/VStack";
 import { useCategoryNavigation, useMainNavigation } from "@/common/router";
 import { CATEGORY_ROUTES, COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
-import { useGetCategory } from "@/features/auth/hooks/useGetCategory";
 import CategoryHeader from "@/features/category/components/CategoryHeader/CategoryHeader";
 import CategorySidebar from "@/features/category/components/CategorySidebar/CategorySidebar";
 import SubCategoryList, { SubCategory } from "@/features/category/components/SubCategoryList/SubCategoryList";
+import { useCategory } from "@/features/category/hooks/useCategory";
 
 export default function CategoryView() {
-  const { categoryMap } = useGetCategory();
+  const { categoryMap } = useCategory();
   const mainNavigation = useMainNavigation();
   const categoryNavigation = useCategoryNavigation();
   const [mainCategory, setMainCategory] = useState<number | null>(null);

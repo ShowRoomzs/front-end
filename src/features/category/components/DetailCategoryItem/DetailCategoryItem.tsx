@@ -5,7 +5,7 @@ import HStack from "@/common/components/HStack/HStack";
 import Icon from "@/common/components/Icon/Icon";
 import Typography from "@/common/components/Typography/Typography";
 import { COMMON_ASSETS } from "@/common/utils/assets";
-import { Category } from "@/features/auth/types/category";
+import { Category } from "@/features/category/types/category";
 
 interface DetailCategoryItemProps {
   item: Category;

@@ -17,7 +17,6 @@ import {
 import TabContent from "@/common/components/Tabs/TabContent";
 import TabItem from "@/common/components/Tabs/TabItem";
 import { TabItemType } from "@/common/components/Tabs/Tabs";
-import { cn } from "@/common/utils/cn";
 
 interface TabBodyProps {
   items: Array<TabItemType>;
@@ -158,7 +157,7 @@ export default function TabBody(props: TabBodyProps) {
   );
 
   return (
-    <View className={cn("flex-1", wrapperClassName)}>
+    <View className={wrapperClassName}>
       <GestureDetector gesture={pan}>
         <View className="flex-1 flex flex-row relative">
           {items.map((item, ix) => (

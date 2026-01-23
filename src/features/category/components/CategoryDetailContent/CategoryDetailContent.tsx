@@ -1,13 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useBottomSheet } from "@/common/hooks/useBottomSheet";
+import { useBottomTab } from "@/common/hooks/useBottomTab";
+import { useTabs } from "@/common/hooks/useTabs";
 import FilterBottomSheetView, {
   FILTER_BOTTOM_SHEET_HEIGHT,
 } from "@/features/category/components/FilterBottomSheetView/FilterBottomSheetView";
 import FilterListView from "@/features/category/components/FilterListView/FilterListView";
 import { useFilters } from "@/features/category/hooks/useFilters";
+import ProductListView from "@/features/product/components/ProductListView/ProductListView";
 import { useGetProducts } from "@/features/product/hooks/useGetProducts";
 import { useProductParams } from "@/features/product/hooks/useProductParams";
 import { FilterParam, ProductListParams } from "@/features/product/types/params";
@@ -28,12 +31,14 @@ const INITIAL_PARAMS: ProductListParams = {
 export default function CategoryDetailContent(props: CategoryDetailContentProps) {
   const { categoryId } = props;
   const { filters } = useFilters(categoryId);
-  const { params, updateLocalParams, localParams, updateParams } = useProductParams(INITIAL_PARAMS);
+  const { params, updateLocalParams, localParams, updateParams } = useProductParams({
+    ...INITIAL_PARAMS,
+    categoryId,
+  });
   const isMounted = useRef(false);
-  const { data: products } = useGetProducts(params);
-
-  console.log(products);
-
+  const { data: products, isLoading } = useGetProducts(params);
+  const { hide: hideBottomTab, show: showBottomTab } = useBottomTab();
+  const { hide: hideTabs, show: showTabs } = useTabs();
   const [selectedFilterId, setSelectedFilterId] = useState<number | null>(null);
   const { bottom } = useSafeAreaInsets();
 
@@ -100,11 +105,35 @@ export default function CategoryDetailContent(props: CategoryDetailContentProps)
     [open]
   );
 
+  const handleEndReached = useCallback(() => {
+    console.log("handleEndReached");
+  }, []);
+
+  const handleRefresh = useCallback(() => {
+    console.log("handleRefresh");
+  }, []);
+
+  const handleScrollDown = useCallback(() => {
+    hideBottomTab();
+    hideTabs();
+  }, [hideBottomTab, hideTabs]);
+
+  const handleScrollUp = useCallback(() => {
+    showBottomTab();
+    showTabs();
+  }, [showBottomTab, showTabs]);
+
   return (
     <View className="flex-1">
       <FilterListView filters={filters} onPressFilter={handlePressFilter} />
-      {/* 상품 리스트 */}
-      <Text>asdf</Text>
+      <ProductListView
+        products={products?.products || []}
+        onEndReached={handleEndReached}
+        onRefresh={handleRefresh}
+        isLoading={isLoading}
+        onScrollDown={handleScrollDown}
+        onScrollUp={handleScrollUp}
+      />
     </View>
   );
 }

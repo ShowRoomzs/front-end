@@ -29,7 +29,7 @@ export default function HomeNavigator() {
     <SafeAreaView edges={["top"]} className="flex-1">
       <Tab.Navigator
         initialRouteName={HOME_ROUTES.HOME}
-        screenOptions={{ headerShown: false }}
+        screenOptions={{ headerShown: false, tabBarStyle: { position: "absolute" } }}
         tabBar={props => <BottomTabs {...props} />}
       >
         <Tab.Screen name={HOME_ROUTES.CATEGORY} component={CategoryNavigator} />

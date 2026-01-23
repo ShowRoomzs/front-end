@@ -36,14 +36,18 @@ export default function BottomTabs(props: BottomTabBarProps) {
   }, [isVisible, progress]);
 
   const animatedStyle = useAnimatedStyle(() => ({
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
     transform: [{ translateY: visibleHeight * progress.value }],
-    height: visibleHeight * (1 - progress.value),
-    paddingBottom: inset.bottom * (1 - progress.value),
+    height: visibleHeight,
+    paddingBottom: inset.bottom,
   }));
 
   return (
     <Animated.View
-      style={[animatedStyle, { overflow: "hidden" }]}
+      style={animatedStyle}
       className="flex flex-row w-full border-t-[1px] border-gray1 bg-white"
     >
       {state.routes.map((route, ix) => {

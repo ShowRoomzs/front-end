@@ -6,19 +6,21 @@ import Icon from "@/common/components/Icon/Icon";
 import Typography from "@/common/components/Typography/Typography";
 import { COMMON_ASSETS } from "@/common/utils/assets";
 import { Category } from "@/features/category/types/category";
+import { cn } from "@/common/utils/cn";
 
 interface CategoryDetailHeaderProps {
   subCategory: Category; // 2뎁스 카테고리
   onPressBack: () => void;
   onPressSearch: () => void;
   onPressCart: () => void;
+  className?: string;
 }
 export default function CategoryDetailHeader(props: CategoryDetailHeaderProps) {
-  const { subCategory, onPressBack, onPressCart, onPressSearch } = props;
+  const { subCategory, onPressBack, onPressCart, onPressSearch, className } = props;
 
   return (
     <Header
-      className="px-20"
+      className={cn("px-20", className)}
       renderLeft={
         <HStack className="items-center" gap={8}>
           <TouchableOpacity onPress={onPressBack}>

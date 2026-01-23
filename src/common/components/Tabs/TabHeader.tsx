@@ -1,5 +1,12 @@
 import { RefObject, useCallback } from "react";
-import { FlatList, ListRenderItem, ListRenderItemInfo, Pressable, View } from "react-native";
+import {
+  FlatList,
+  LayoutChangeEvent,
+  ListRenderItem,
+  ListRenderItemInfo,
+  Pressable,
+  View,
+} from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 
 import DefaultTabItem from "@/common/components/Tabs/DefaultTabItem";
@@ -17,6 +24,7 @@ interface TabHeaderProps {
   underlineClassName?: string;
   selectedIndex: number;
   onPressTab: (index: number, id: string) => void;
+  onLayout: (e: LayoutChangeEvent) => void;
 }
 
 export default function TabHeader(props: TabHeaderProps) {
@@ -31,6 +39,7 @@ export default function TabHeader(props: TabHeaderProps) {
     underlineClassName,
     selectedIndex,
     onPressTab,
+    onLayout,
   } = props;
 
   const renderItem = useCallback(
@@ -63,7 +72,7 @@ export default function TabHeader(props: TabHeaderProps) {
   );
 
   return (
-    <View className={cn("w-full", wrapperClassName)}>
+    <View onLayout={onLayout} className={cn("w-full", wrapperClassName)}>
       <FlatList
         ref={listScrollRef}
         horizontal

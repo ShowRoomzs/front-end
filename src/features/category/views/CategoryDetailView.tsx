@@ -4,6 +4,8 @@ import { View } from "react-native";
 
 import Tabs, { TabItemType } from "@/common/components/Tabs/Tabs";
 import VStack from "@/common/components/VStack/VStack";
+import { useBottomTab } from "@/common/hooks/useBottomTab";
+import { useTabs } from "@/common/hooks/useTabs";
 import { CATEGORY_ROUTES, useCategoryNavigation, useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { CategoryStackParamList } from "@/common/router/types";
@@ -15,7 +17,8 @@ export default function CategoryDetailView() {
   const route = useRoute<RouteProp<CategoryStackParamList, typeof CATEGORY_ROUTES.DETAIL>>();
   const navigation = useCategoryNavigation();
   const rootNavigation = useMainNavigation();
-
+  const { show: showBottomTab } = useBottomTab();
+  const { show: showTabs } = useTabs();
   const { categoryId } = route.params;
   const { categoryMap } = useCategory();
   const [selectedIndex, setSelectedIndex] = useState<number | undefined>(undefined);
@@ -85,18 +88,28 @@ export default function CategoryDetailView() {
     setSelectedIndex(index);
   }, []);
 
+  // 카테고리 detail 페이지 나가면 하단 탭바와 탭 헤더 보이기
+  useEffect(() => {
+    return () => {
+      showBottomTab();
+      showTabs();
+    };
+  }, [showBottomTab, showTabs]);
+
   if (!category) {
     return null;
   }
 
   return (
     <VStack className="flex-1">
-      <CategoryDetailHeader
-        subCategory={category}
-        onPressBack={handlePressBack}
-        onPressCart={handlePressCart}
-        onPressSearch={handlePressSearch}
-      />
+      <View className="z-10 relative">
+        <CategoryDetailHeader
+          subCategory={category}
+          onPressBack={handlePressBack}
+          onPressCart={handlePressCart}
+          onPressSearch={handlePressSearch}
+        />
+      </View>
       <View className="flex-1">
         <Tabs
           selectedIndex={selectedIndex}

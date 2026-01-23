@@ -11,6 +11,7 @@ import CategoryDefaultIcon from "@/common/assets/common/category-default.svg";
 import CheckBlackIcon from "@/common/assets/common/check-black.svg";
 import CheckIcon from "@/common/assets/common/check.svg";
 import CloseBlackIcon from "@/common/assets/common/close.svg";
+import CommentIcon from "@/common/assets/common/comment-icon.svg";
 import FollowingActiveIcon from "@/common/assets/common/following-active.svg";
 import FollowingDefaultIcon from "@/common/assets/common/following-default.svg";
 import FollowingIcon from "@/common/assets/common/following.svg";
@@ -20,6 +21,7 @@ import HomeDefaultIcon from "@/common/assets/common/home-default.svg";
 import KakaoIcon from "@/common/assets/common/kakao-icon.svg";
 import LikeActiveIcon from "@/common/assets/common/like-active.svg";
 import LikeDefaultIcon from "@/common/assets/common/like-default.svg";
+import LikeIcon from "@/common/assets/common/like-icon.svg";
 import LogoBlackIcon from "@/common/assets/common/logo-black.svg";
 import LogoIcon from "@/common/assets/common/logo.svg";
 import MypageActiveIcon from "@/common/assets/common/mypage-active.svg";
@@ -116,6 +118,12 @@ export const COMMON_ASSETS: Assets = {
   },
   reset: {
     default: ResetIcon,
+  },
+  likeIcon: {
+    default: LikeIcon,
+  },
+  commentIcon: {
+    default: CommentIcon,
   },
   checkBlack: {
     default: CheckBlackIcon,

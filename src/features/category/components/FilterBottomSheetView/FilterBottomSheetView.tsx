@@ -23,16 +23,16 @@ export const FILTER_BOTTOM_SHEET_HEIGHT = 550;
 
 export default function FilterBottomSheetView(props: FilterBottomSheetViewProps) {
   const { filters, selectedId, selectedFilters, onChange } = props;
-  const [selectedIndex, setSelectedIndex] = useState<number>(0);
+  const [selectedIndex, setSelectedIndex] = useState<number | undefined>(undefined);
 
   useEffect(() => {
-    if (!selectedId) {
+    if (!selectedId || selectedIndex !== undefined) {
       return;
     }
     const index = filters.findIndex(f => f.id === selectedId);
 
     setSelectedIndex(index);
-  }, [filters, selectedId]);
+  }, [filters, selectedId, selectedIndex]);
 
   const handleItemChange = useCallback(
     (filterId: number, value: string) => {

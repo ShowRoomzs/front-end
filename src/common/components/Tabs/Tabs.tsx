@@ -67,21 +67,13 @@ export default function Tabs(props: TabProps) {
     };
   });
 
-  const changeTabWithAnimation = useCallback(
-    (index: number) => {
-      const diff = Math.abs(index - selectedIndex);
-
-      if (diff === 0) {
-        return;
-      }
-      listScrollRef.current?.scrollToIndex({
-        index,
-        viewPosition: 0.5,
-        animated: true,
-      });
-    },
-    [selectedIndex]
-  );
+  const changeTabWithAnimation = useCallback((index: number) => {
+    listScrollRef.current?.scrollToIndex({
+      index,
+      viewPosition: 0.5,
+      animated: true,
+    });
+  }, []);
 
   useEffect(() => {
     if (originSelectedIndex !== undefined && originSelectedIndex !== selectedIndex) {
@@ -92,11 +84,14 @@ export default function Tabs(props: TabProps) {
 
   const handlePressTab = useCallback(
     (index: number, id: string) => {
+      if (index === selectedIndex) {
+        return;
+      }
       changeTabWithAnimation(index);
       onSelect?.(index, id);
       setSelectedIndex(index);
     },
-    [changeTabWithAnimation, onSelect]
+    [changeTabWithAnimation, onSelect, selectedIndex]
   );
 
   const handleChangeIndex = useCallback(

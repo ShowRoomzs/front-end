@@ -9,6 +9,7 @@ interface UseProductParamsResult {
     key: keyof ProductListParams,
     value: ProductListParams[keyof ProductListParams]
   ) => void;
+  updateParams: (key: keyof ProductListParams, value: ProductListParams[keyof ProductListParams]) => void;
   update: () => void;
   reset: () => void;
 }
@@ -24,6 +25,14 @@ export function useProductParams(initialParams: ProductListParams): UseProductPa
     []
   );
 
+  const updateParams = useCallback(
+    (key: keyof ProductListParams, value: ProductListParams[keyof ProductListParams]) => {
+      setParams(prev => ({ ...prev, [key]: value }));
+      updateLocalParams(key, value);
+    },
+    [updateLocalParams]
+  );
+
   const update = useCallback(() => {
     setParams(localParams);
   }, [localParams]);
@@ -37,6 +46,7 @@ export function useProductParams(initialParams: ProductListParams): UseProductPa
     params,
     localParams,
     updateLocalParams,
+    updateParams,
     update,
     reset,
   };

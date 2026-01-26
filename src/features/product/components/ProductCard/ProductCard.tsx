@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { Image, TouchableOpacity } from "react-native";
 
 import HStack from "@/common/components/HStack/HStack";
@@ -9,7 +10,7 @@ import { Product } from "@/features/product/types/params";
 
 interface ProductCardProps {
   product: Product;
-  onPress: () => void;
+  onPress: (product: Product) => void;
   width: number;
 }
 
@@ -20,8 +21,12 @@ export default function ProductCard(props: ProductCardProps) {
 
   const height = width * SIZE_RATIO;
 
+  const handlePress = useCallback(() => {
+    onPress(product);
+  }, [onPress, product]);
+
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
+    <TouchableOpacity onPress={handlePress} activeOpacity={0.7}>
       <VStack style={{ width }}>
         <Image style={{ height: height }} source={{ uri: product.thumbnailUrl }} />
         <VStack className="mt-15">

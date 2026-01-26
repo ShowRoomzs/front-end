@@ -23,8 +23,9 @@ interface TabBodyProps {
   selectedIndex: number;
   onChangeIndex: (index: number) => void;
   wrapperClassName?: string;
-  skipIntermediateTabs: boolean;
-  enableTabTransitionAnimation: boolean;
+  skipIntermediateTabs?: boolean;
+  enableTabTransitionAnimation?: boolean;
+  enableGesture?: boolean;
 }
 
 export default function TabBody(props: TabBodyProps) {
@@ -35,6 +36,7 @@ export default function TabBody(props: TabBodyProps) {
     wrapperClassName,
     skipIntermediateTabs,
     enableTabTransitionAnimation,
+    enableGesture = true,
   } = props;
   const { width: SCREEN_WIDTH } = useWindowDimensions();
   const dragTranslation = useSharedValue(0);
@@ -96,6 +98,7 @@ export default function TabBody(props: TabBodyProps) {
   const pan = useMemo(
     () =>
       Gesture.Pan()
+        .enabled(enableGesture)
         .onStart(() => {
           isSwiping.value = true;
         })
@@ -134,6 +137,7 @@ export default function TabBody(props: TabBodyProps) {
           }
         }),
     [
+      enableGesture,
       SCREEN_WIDTH,
       dragTranslation,
       getClampedTranslation,

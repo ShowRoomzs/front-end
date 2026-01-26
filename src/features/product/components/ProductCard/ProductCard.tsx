@@ -6,7 +6,7 @@ import Icon from "@/common/components/Icon/Icon";
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
 import { COMMON_ASSETS } from "@/common/utils/assets";
-import { Product } from "@/features/product/types/params";
+import { Product } from "@/features/product/types/product";
 
 interface ProductCardProps {
   product: Product;

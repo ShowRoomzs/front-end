@@ -15,7 +15,7 @@ import {
   PADDING_HORIZONTAL,
   SCROLL_THRESHOLD,
 } from "@/features/product/components/ProductListView/config";
-import { Product } from "@/features/product/types/params";
+import { Product } from "@/features/product/types/product";
 
 interface ProductListViewProps {
   data: Array<Product> | undefined;

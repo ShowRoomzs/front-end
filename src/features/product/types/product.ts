@@ -23,6 +23,8 @@ interface ProductNotice {
   size: string;
   washingMethod: string;
 }
+export type DeliveryType = string; // TODO : 타입 정의
+
 export interface Product {
   categoryId: number;
   categoryName: string;
@@ -30,7 +32,7 @@ export interface Product {
   deliveryEstimatedDays: number;
   deliveryFee: number;
   deliveryFreeThreshold: number;
-  deliveryType: string; // TODO : 타입 정의
+  deliveryType: DeliveryType;
   description: string;
   gender: Gender; // ? 왜있지
   id: number;

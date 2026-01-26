@@ -26,6 +26,7 @@ export const COMMON_ROUTES = {
   CART: "cart",
   NOTIFICATION: "notification",
   SETTING: "setting",
+  PRODUCT_DETAIL: "productDetail",
 } as const;
 
 // 마이페이지 스택 네비게이션

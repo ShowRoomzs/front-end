@@ -27,9 +27,8 @@ apiInstance.interceptors.response.use(
         return Promise.reject(error);
       }
 
-      const { accessToken: newAccessToken, refreshToken: newRefreshToken } = await authService.refresh(
-        refreshToken
-      );
+      const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
+        await authService.refresh(refreshToken);
 
       await SecureStore.setItemAsync(SECURE_STORE.ACCESS_TOKEN, newAccessToken);
       await SecureStore.setItemAsync(SECURE_STORE.REFRESH_TOKEN, newRefreshToken);

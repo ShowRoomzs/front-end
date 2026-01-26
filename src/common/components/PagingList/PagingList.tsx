@@ -56,6 +56,7 @@ export default function PagingList<T>(props: PagingListProps<T>) {
       data={data || []}
       onEndReachedThreshold={onEndReachedThreshold}
       onEndReached={handleEndReached}
+      removeClippedSubviews
       ListEmptyComponent={<EmptyComponent isLoading={isLoading} hasItems={(data?.length || 0) > 0} />}
       ListFooterComponent={<FooterComponent isLoading={isLoading} hasItems={(data?.length || 0) > 0} />}
     />

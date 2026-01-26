@@ -11,7 +11,8 @@ import FilterListView from "@/features/category/components/FilterListView/Filter
 import { useFilters } from "@/features/category/hooks/useFilters";
 import ProductListView from "@/features/product/components/ProductListView/ProductListView";
 import { useGetProducts } from "@/features/product/hooks/useGetProducts";
-import { FilterParam, Product, ProductListParams } from "@/features/product/types/params";
+import { FilterParam, ProductListParams } from "@/features/product/types/params";
+import { Product } from "@/features/product/types/product";
 
 interface CategoryDetailContentProps {
   categoryId: number;

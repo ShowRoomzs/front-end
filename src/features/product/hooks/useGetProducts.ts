@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 
-import { QUERY_KEY } from "@/features/category/constants/queryKey";
+import { PRODUCT_QUERY_KEY } from "@/features/product/constants/queryKey";
 import { productService } from "@/features/product/services/productService";
 import { ProductListParams } from "@/features/product/types/params";
 
@@ -20,7 +20,7 @@ export function useGetProducts(params: ProductListParams) {
   }, [params]);
 
   return useQuery({
-    queryKey: [QUERY_KEY.PRODUCTS, params],
+    queryKey: [PRODUCT_QUERY_KEY.PRODUCTS, params],
     queryFn: queryFn,
   });
 }

@@ -1,4 +1,3 @@
-export const QUERY_KEY = {
+export const CATEGORY_QUERY_KEY = {
   CATEGORIES: "categories",
-  PRODUCTS: "products",
 };

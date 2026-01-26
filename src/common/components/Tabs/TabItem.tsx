@@ -16,8 +16,8 @@ interface TabItemProps extends PropsWithChildren {
   selectedIndex: number;
   translationX: SharedValue<number>;
   isSwiping: SharedValue<boolean>;
-  skipIntermediateTabs: boolean;
-  enableTabTransitionAnimation: boolean;
+  skipIntermediateTabs?: boolean;
+  enableTabTransitionAnimation?: boolean;
 }
 
 export default function TabItem(props: TabItemProps) {
@@ -28,7 +28,7 @@ export default function TabItem(props: TabItemProps) {
     isSwiping,
     skipIntermediateTabs,
     children,
-    enableTabTransitionAnimation,
+    enableTabTransitionAnimation = true,
   } = props;
   const { width: SCREEN_WIDTH } = useWindowDimensions();
   const translationX = useSharedValue(0);

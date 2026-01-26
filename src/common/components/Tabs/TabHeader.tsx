@@ -15,7 +15,7 @@ import { cn } from "@/common/utils/cn";
 
 interface TabHeaderProps {
   wrapperClassName?: string;
-  listScrollRef: RefObject<FlatList | null>;
+  listScrollRef?: RefObject<FlatList | null>;
   items: Array<TabItemType>;
   renderItem?: ListRenderItem<TabItemType>;
   keyExtractor: (item: TabItemType) => string;
@@ -24,7 +24,7 @@ interface TabHeaderProps {
   underlineClassName?: string;
   selectedIndex: number;
   onPressTab: (index: number, id: string) => void;
-  onLayout: (e: LayoutChangeEvent) => void;
+  onLayout?: (e: LayoutChangeEvent) => void;
 }
 
 export default function TabHeader(props: TabHeaderProps) {

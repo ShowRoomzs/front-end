@@ -12,12 +12,14 @@ import CheckBlackIcon from "@/common/assets/common/check-black.svg";
 import CheckIcon from "@/common/assets/common/check.svg";
 import CloseBlackIcon from "@/common/assets/common/close.svg";
 import CommentIcon from "@/common/assets/common/comment-icon.svg";
+import DownloadIcon from "@/common/assets/common/download-icon.svg";
 import FollowingActiveIcon from "@/common/assets/common/following-active.svg";
 import FollowingDefaultIcon from "@/common/assets/common/following-default.svg";
 import FollowingIcon from "@/common/assets/common/following.svg";
 import GoogleIcon from "@/common/assets/common/google-icon.svg";
 import HomeActiveIcon from "@/common/assets/common/home-active.svg";
 import HomeDefaultIcon from "@/common/assets/common/home-default.svg";
+import InfoIcon from "@/common/assets/common/info-icon.svg";
 import KakaoIcon from "@/common/assets/common/kakao-icon.svg";
 import LikeActiveIcon from "@/common/assets/common/like-active.svg";
 import LikeDefaultIcon from "@/common/assets/common/like-default.svg";
@@ -127,5 +129,11 @@ export const COMMON_ASSETS: Assets = {
   },
   checkBlack: {
     default: CheckBlackIcon,
+  },
+  downloadIcon: {
+    default: DownloadIcon,
+  },
+  infoIcon: {
+    default: InfoIcon,
   },
 };

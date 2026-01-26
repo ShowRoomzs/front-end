@@ -8,22 +8,34 @@ import Icon from "@/common/components/Icon/Icon";
 import Tabs, { TabItemType } from "@/common/components/Tabs/Tabs";
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
+import { SheetApi } from "@/common/providers/BottomSheetProvider/context";
 import { COMMON_ASSETS } from "@/common/utils/assets";
 import FilterBottomSheetItemView from "@/features/category/components/FilterBottomSheetItemView/FilterBottomSheetItemView";
 import { Filter } from "@/features/category/types/category";
-import { FilterParam } from "@/features/product/types/params";
+import { useGetProducts } from "@/features/product/hooks/useGetProducts";
+import { FilterParam, ProductListParams } from "@/features/product/types/params";
 
 interface FilterBottomSheetViewProps {
   filters: Array<Filter>;
   selectedId: number | null;
-  selectedFilters: Array<FilterParam>;
-  onChange: (filters: Array<FilterParam>) => void;
+  appliedFilters: Array<FilterParam>;
+  previewParams: ProductListParams;
+  onPressReset: () => void;
+  onPressApply: (filters: Array<FilterParam>) => void;
+  sheetApi?: SheetApi;
 }
 export const FILTER_BOTTOM_SHEET_HEIGHT = 550;
 
 export default function FilterBottomSheetView(props: FilterBottomSheetViewProps) {
-  const { filters, selectedId, selectedFilters, onChange } = props;
+  const { filters, selectedId, appliedFilters, previewParams, onPressReset, onPressApply, sheetApi } = props;
   const [selectedIndex, setSelectedIndex] = useState<number | undefined>(undefined);
+  const [tempFilters, setTempFilters] = useState<Array<FilterParam>>(appliedFilters);
+
+  const { data: previewData } = useGetProducts({ ...previewParams, filters: tempFilters });
+
+  useEffect(() => {
+    setTempFilters(appliedFilters);
+  }, [appliedFilters]);
 
   useEffect(() => {
     if (!selectedId || selectedIndex !== undefined) {
@@ -42,19 +54,35 @@ export default function FilterBottomSheetView(props: FilterBottomSheetViewProps)
         return;
       }
 
-      const filterParam: FilterParam = {
-        key: filter.filterKey,
-        values: [value],
-      };
+      setTempFilters(prev => {
+        const updated = [...prev];
+        const existingIndex = updated.findIndex(f => f.key === filter.filterKey);
 
-      onChange([filterParam]);
+        const newFilter: FilterParam = {
+          key: filter.filterKey,
+          values: [value],
+        };
+
+        if (existingIndex !== -1) {
+          updated[existingIndex] = newFilter;
+        } else {
+          updated.push(newFilter);
+        }
+
+        return updated;
+      });
     },
-    [filters, onChange]
+    [filters]
   );
+
+  const handlePressApply = useCallback(() => {
+    onPressApply(tempFilters);
+    sheetApi?.close();
+  }, [onPressApply, tempFilters, sheetApi]);
 
   const tabItems: Array<TabItemType> = useMemo(() => {
     return filters.map(filter => {
-      const selectedFilter = selectedFilters.find(f => f.key === filter.filterKey);
+      const selectedFilter = tempFilters.find(f => f.key === filter.filterKey);
       const selectedValues = selectedFilter?.values || [];
 
       return {
@@ -69,7 +97,7 @@ export default function FilterBottomSheetView(props: FilterBottomSheetViewProps)
         ),
       };
     });
-  }, [filters, selectedFilters, handleItemChange]);
+  }, [filters, tempFilters, handleItemChange]);
 
   return (
     <BottomSheetView className="relative">
@@ -94,14 +122,20 @@ export default function FilterBottomSheetView(props: FilterBottomSheetViewProps)
           renderItem={({ item }) => <Text>d</Text>}
         />
         <HStack gap={6} className="px-10 items-center w-full">
-          <Button activeOpacity={0.7} size="xl" variant="ghost">
+          <Button onPress={onPressReset} activeOpacity={0.7} size="xl" variant="ghost">
             <HStack className="items-center" gap={8}>
               <Icon icon={COMMON_ASSETS.reset} />
               <Typography className="text-black text-16 font-medium">재설정</Typography>
             </HStack>
           </Button>
-          <Button activeOpacity={0.7} className="flex-1" size="xl" variant="primary">
-            0개의 상품 보기
+          <Button
+            onPress={handlePressApply}
+            activeOpacity={0.7}
+            className="flex-1"
+            size="xl"
+            variant="primary"
+          >
+            {`${previewData?.products?.length || 0}개의 상품 보기`}
           </Button>
         </HStack>
       </VStack>

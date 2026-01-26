@@ -4,6 +4,9 @@ import { NativeScrollEvent, NativeSyntheticEvent } from "react-native";
 import PagingList from "@/common/components/PagingList/PagingList";
 import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { useTabs } from "@/common/hooks/useTabs";
+import { useMainNavigation } from "@/common/router";
+import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
+import { PageInfo } from "@/common/types/page";
 import ProductCard from "@/features/product/components/ProductCard/ProductCard";
 import {
   CARD_WIDTH,
@@ -12,16 +15,17 @@ import {
   PADDING_HORIZONTAL,
   SCROLL_THRESHOLD,
 } from "@/features/product/components/ProductListView/config";
-import { useGetProducts } from "@/features/product/hooks/useGetProducts";
-import { Product, ProductListParams } from "@/features/product/types/params";
+import { Product } from "@/features/product/types/params";
 
 interface ProductListViewProps {
-  params: ProductListParams;
-  updateParams: (key: keyof ProductListParams, value: ProductListParams[keyof ProductListParams]) => void;
+  data: Array<Product> | undefined;
+  pageInfo: PageInfo | undefined;
+  onPageChange: (page: number) => void;
+  isLoading: boolean;
 }
 export default function ProductListView(props: ProductListViewProps) {
-  const { params, updateParams } = props;
-
+  const { data, pageInfo, isLoading, onPageChange } = props;
+  const navigation = useMainNavigation();
   const scrollY = useRef(0);
   const accumulatedScrollDown = useRef(0);
   const accumulatedScrollUp = useRef(0);
@@ -44,7 +48,6 @@ export default function ProductListView(props: ProductListViewProps) {
       const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent;
       const currentY = contentOffset.y;
       const maxScrollY = contentSize.height - layoutMeasurement.height;
-      //   console.log(currentY);
 
       if (currentY < -SCROLL_THRESHOLD || currentY > maxScrollY) {
         return;
@@ -71,15 +74,33 @@ export default function ProductListView(props: ProductListViewProps) {
     [handleScrollDown, handleScrollUp]
   );
 
-  const renderItem = useCallback(({ item }: { item: Product }) => {
-    return <ProductCard product={item} onPress={() => {}} width={CARD_WIDTH} />;
-  }, []);
+  const handlePressProduct = useCallback(
+    (product: Product) => {
+      navigation.navigate(ROOT_ROUTES.COMMON, {
+        screen: COMMON_ROUTES.PRODUCT_DETAIL,
+        params: {
+          productId: product.id,
+        },
+      });
+    },
+    [navigation]
+  );
+
+  const renderItem = useCallback(
+    ({ item }: { item: Product }) => {
+      return (
+        <ProductCard product={item} onPress={product => handlePressProduct(product)} width={CARD_WIDTH} />
+      );
+    },
+    [handlePressProduct]
+  );
 
   return (
-    <PagingList<Product, ProductListParams>
-      params={params}
-      updateParams={updateParams}
-      query={useGetProducts}
+    <PagingList<Product>
+      data={data}
+      isLoading={isLoading}
+      onPageChange={onPageChange}
+      pageInfo={pageInfo}
       renderItem={renderItem}
       onScroll={handleScroll}
       numColumns={2}

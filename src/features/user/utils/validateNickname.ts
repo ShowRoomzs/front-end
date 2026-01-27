@@ -1,5 +1,6 @@
 import { queryClient } from "@/common/lib/queryClient";
-import { CheckNicknameCode, CheckNicknameResponse, userService } from "@/features/user/services/userService";
+import { userService } from "@/features/user/services/userService";
+import { CheckNicknameCode, CheckNicknameResponse } from "@/features/user/types/user";
 
 export async function validateNickname(nickname: string): Promise<CheckNicknameCode> {
   const cachedResponse = await queryClient.getQueryData<CheckNicknameResponse<CheckNicknameCode>>([

@@ -105,5 +105,15 @@ export function TooltipProvider(props: TooltipProviderProps) {
     registerInstance,
   };
 
-  return <TooltipContext.Provider value={contextValue}>{children}</TooltipContext.Provider>;
+  const handleTouchStart = useCallback(() => {
+    hideAll();
+  }, [hideAll]);
+
+  return (
+    <TooltipContext.Provider value={contextValue}>
+      <View className="flex-1" onTouchStart={handleTouchStart}>
+        {children}
+      </View>
+    </TooltipContext.Provider>
+  );
 }

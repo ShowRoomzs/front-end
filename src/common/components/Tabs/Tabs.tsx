@@ -1,18 +1,21 @@
-import { ReactElement, useCallback, useRef, useState } from "react";
-import { FlatList, ListRenderItem, View } from "react-native";
+import { ReactElement, useCallback, useEffect, useRef, useState } from "react";
+import { FlatList, LayoutChangeEvent, ListRenderItem, View } from "react-native";
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 
 import TabBody from "@/common/components/Tabs/TabBody";
 import TabHeader from "@/common/components/Tabs/TabHeader";
+import { useTabs } from "@/common/hooks/useTabs";
+import { cn } from "@/common/utils/cn";
 
 export interface TabItemType {
   id: string;
   label: string;
-  render: ReactElement;
+  render?: (id: string) => ReactElement;
 }
 
 export interface TabProps {
   items: Array<TabItemType>;
-  renderItem: ListRenderItem<TabItemType>;
+  renderItem?: ListRenderItem<TabItemType>;
   headerClassName?: string;
   bodyClassName?: string;
   selectedIndex?: number;
@@ -21,6 +24,10 @@ export interface TabProps {
   showUnderline?: boolean;
   enableHeaderScroll?: boolean;
   underlineClassName?: string;
+  enableTabTransitionAnimation?: boolean;
+  className?: string;
+  enableGesture?: boolean;
+  scrollable?: boolean;
 }
 
 export default function Tabs(props: TabProps) {
@@ -35,29 +42,60 @@ export default function Tabs(props: TabProps) {
     showUnderline = true,
     underlineClassName,
     enableHeaderScroll = true,
+    enableTabTransitionAnimation = true,
+    enableGesture = true,
+    className,
+    scrollable = true,
   } = props;
-
+  const [bodyHeight, setBodyHeight] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState<number>(originSelectedIndex || 0);
   const listScrollRef = useRef<FlatList>(null);
+  const { isVisible } = useTabs();
+  const translateY = useSharedValue(0);
+  const [headerHeight, setHeaderHeight] = useState(0);
+
+  useEffect(() => {
+    translateY.value = withTiming(isVisible ? 0 : -headerHeight, { duration: 200 });
+  }, [headerHeight, isVisible, translateY]);
+
+  const headerAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateY: translateY.value }],
+    };
+  });
+
+  const bodyAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      flex: 1,
+      marginTop: translateY.value,
+    };
+  });
+
+  const changeTabWithAnimation = useCallback((index: number) => {
+    listScrollRef.current?.scrollToIndex({
+      index,
+      viewPosition: 0.5,
+      animated: true,
+    });
+  }, []);
+
+  useEffect(() => {
+    if (originSelectedIndex !== undefined && originSelectedIndex !== selectedIndex) {
+      setSelectedIndex(originSelectedIndex);
+      changeTabWithAnimation(originSelectedIndex);
+    }
+  }, [changeTabWithAnimation, originSelectedIndex, selectedIndex]);
 
   const handlePressTab = useCallback(
     (index: number, id: string) => {
-      const diff = Math.abs(index - selectedIndex);
-
-      if (diff === 0) {
+      if (index === selectedIndex) {
         return;
       }
-
+      changeTabWithAnimation(index);
       onSelect?.(index, id);
       setSelectedIndex(index);
-
-      listScrollRef.current?.scrollToIndex({
-        index,
-        viewPosition: 0.5,
-        animated: true,
-      });
     },
-    [onSelect, selectedIndex]
+    [changeTabWithAnimation, onSelect, selectedIndex]
   );
 
   const handleChangeIndex = useCallback(
@@ -69,27 +107,51 @@ export default function Tabs(props: TabProps) {
 
   const keyExtractor = useCallback((item: TabItemType) => item.id, []);
 
+  const handleLayoutHeader = useCallback((e: LayoutChangeEvent) => {
+    setHeaderHeight(e.nativeEvent.layout.height);
+  }, []);
+
+  const handleLayoutBody = useCallback(
+    (e: LayoutChangeEvent) => {
+      if (scrollable) {
+        return;
+      }
+      setBodyHeight(e.nativeEvent.layout.height);
+    },
+    [scrollable]
+  );
+
   return (
-    <View className="flex-1">
-      <TabHeader
-        items={items}
-        renderItem={renderItem}
-        keyExtractor={keyExtractor}
-        listScrollRef={listScrollRef}
-        wrapperClassName={headerClassName}
-        enableHeaderScroll={enableHeaderScroll}
-        showUnderline={showUnderline}
-        underlineClassName={underlineClassName}
-        selectedIndex={selectedIndex}
-        onPressTab={handlePressTab}
-      />
-      <TabBody
-        wrapperClassName={bodyClassName}
-        items={items}
-        selectedIndex={selectedIndex}
-        onChangeIndex={handleChangeIndex}
-        skipIntermediateTabs={skipIntermediateTabs}
-      />
+    <View className={cn("flex-1", className)}>
+      <Animated.View style={headerAnimatedStyle}>
+        <TabHeader
+          items={items}
+          renderItem={renderItem}
+          keyExtractor={keyExtractor}
+          listScrollRef={listScrollRef}
+          wrapperClassName={headerClassName}
+          enableHeaderScroll={enableHeaderScroll}
+          showUnderline={showUnderline}
+          underlineClassName={underlineClassName}
+          selectedIndex={selectedIndex}
+          onPressTab={handlePressTab}
+          onLayout={handleLayoutHeader}
+        />
+      </Animated.View>
+      <Animated.View style={bodyAnimatedStyle}>
+        <TabBody
+          onLayout={(_, e) => handleLayoutBody(e)}
+          wrapperClassName={bodyClassName}
+          items={items}
+          selectedIndex={selectedIndex}
+          onChangeIndex={handleChangeIndex}
+          skipIntermediateTabs={skipIntermediateTabs}
+          enableTabTransitionAnimation={enableTabTransitionAnimation}
+          scrollable={scrollable}
+          style={{ height: bodyHeight }}
+          enableGesture={enableGesture}
+        />
+      </Animated.View>
     </View>
   );
 }

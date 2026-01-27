@@ -1,4 +1,10 @@
-import { AUTH_ROUTES, COMMON_ROUTES, HOME_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
+import {
+  AUTH_ROUTES,
+  CATEGORY_ROUTES,
+  COMMON_ROUTES,
+  HOME_ROUTES,
+  ROOT_ROUTES,
+} from "@/common/router/routes";
 import { TermsType } from "@/features/auth/views/TermsView";
 
 // 홈 하단 탭 파라미터
@@ -8,6 +14,14 @@ export type HomeTabParamList = {
   [HOME_ROUTES.HOME]: undefined;
   [HOME_ROUTES.LIKE]: undefined;
   [HOME_ROUTES.MYPAGE]: undefined;
+};
+
+// 카테고리(탭 내부) 스택 파라미터
+export type CategoryStackParamList = {
+  [CATEGORY_ROUTES.HOME]: undefined;
+  [CATEGORY_ROUTES.DETAIL]: {
+    categoryId: number;
+  };
 };
 
 // 인증 스택 파라미터
@@ -29,6 +43,9 @@ export type CommonStackParamList = {
   [COMMON_ROUTES.CART]: undefined;
   [COMMON_ROUTES.NOTIFICATION]: undefined;
   [COMMON_ROUTES.SETTING]: undefined;
+  [COMMON_ROUTES.PRODUCT_DETAIL]: {
+    productId: number;
+  };
 };
 
 export type RootStackParamList = {
@@ -40,5 +57,6 @@ export type RootStackParamList = {
   };
   [ROOT_ROUTES.COMMON]: {
     screen: keyof CommonStackParamList;
+    params?: Record<string, unknown>;
   };
 };

@@ -34,15 +34,15 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView className="flex-1">
-        <PortalProvider>
-          <SafeAreaProvider className="flex-1">
+        <SafeAreaProvider className="flex-1">
+          <PortalProvider>
             <SplashProvider isReady={isReady}>
               <NavigationContainer theme={THEME}>
                 <MainNavigator />
               </NavigationContainer>
             </SplashProvider>
-          </SafeAreaProvider>
-        </PortalProvider>
+          </PortalProvider>
+        </SafeAreaProvider>
       </GestureHandlerRootView>
     </QueryClientProvider>
   );

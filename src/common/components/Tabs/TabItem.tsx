@@ -10,13 +10,17 @@ import Animated, {
 
 import { DEFAULT_ANIMATION_DURATION } from "@/common/components/Tabs/config";
 import { usePrevious } from "@/common/hooks/usePrevious";
+import { cn } from "@/common/utils/cn";
 
 interface TabItemProps extends PropsWithChildren {
   index: number;
   selectedIndex: number;
   translationX: SharedValue<number>;
   isSwiping: SharedValue<boolean>;
-  skipIntermediateTabs: boolean;
+  skipIntermediateTabs?: boolean;
+  enableTabTransitionAnimation?: boolean;
+  wrapperClassName?: string;
+  scrollable?: boolean;
 }
 
 export default function TabItem(props: TabItemProps) {
@@ -27,6 +31,9 @@ export default function TabItem(props: TabItemProps) {
     isSwiping,
     skipIntermediateTabs,
     children,
+    enableTabTransitionAnimation = true,
+    wrapperClassName,
+    scrollable,
   } = props;
   const { width: SCREEN_WIDTH } = useWindowDimensions();
   const translationX = useSharedValue(0);
@@ -77,8 +84,8 @@ export default function TabItem(props: TabItemProps) {
 
   const updateTranslation = (targetValue: number, isSwiping: boolean): number => {
     "worklet";
-    if (isSwiping) {
-      // 스와이프 중에는 즉시 반영
+    if (isSwiping || !enableTabTransitionAnimation) {
+      // 스와이프 중에는 즉시 반영 또는 애니메이션 비활성화 시 즉시 반영
       return targetValue;
     } else {
       // 스와이프 끝나면 애니메이션
@@ -107,7 +114,10 @@ export default function TabItem(props: TabItemProps) {
   });
 
   return (
-    <Animated.View className="h-full absolute" style={[{ width: SCREEN_WIDTH }, animatedStyle]}>
+    <Animated.View
+      className={cn("absolute", scrollable && "h-full", wrapperClassName)}
+      style={[{ width: SCREEN_WIDTH }, animatedStyle]}
+    >
       {children}
     </Animated.View>
   );

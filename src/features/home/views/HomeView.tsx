@@ -18,12 +18,12 @@ export default function HomeView() {
       {
         id: "showroom",
         label: "쇼룸",
-        render: <ShowroomView />,
+        render: () => <ShowroomView />,
       },
       {
         id: "ranking",
         label: "랭킹",
-        render: (
+        render: () => (
           <View className="flex-1">
             <Text>랭킹</Text>
           </View>
@@ -41,7 +41,7 @@ export default function HomeView() {
 
   return (
     <View className="flex-1 bg-white">
-      <VStack gap={10} className="mt-3 px-20">
+      <VStack gap={10} className="px-20">
         <HomeHeader onPressCart={() => {}} onPressNotification={handlePressNotification} />
         <Search onPressSearch={() => {}} placeholder="원하는 제품을 빠르게 찾아 보세요" size="medium" />
       </VStack>

@@ -1,11 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
 
 import { ErrorResponse } from "@/common/types/error";
-import {
-  authService,
-  type RegisterRequest,
-  type RegisterResponse,
-} from "@/features/auth/services/authService";
+import { authService } from "@/features/auth/services/authService";
+import { RegisterRequest, RegisterResponse } from "@/features/auth/types/auth";
 
 export function useRegisterMutation() {
   const registerMutation = useMutation<

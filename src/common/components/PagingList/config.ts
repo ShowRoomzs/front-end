@@ -1,0 +1,1 @@
+export const DEFAULT_ON_END_REACHED_THRESHOLD = 0.5;

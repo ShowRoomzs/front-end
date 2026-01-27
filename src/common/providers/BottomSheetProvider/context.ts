@@ -6,6 +6,12 @@ import { BottomSheetProps } from "@/common/components/BottomSheet/BottomSheet";
 
 export type SheetId = string;
 
+export interface SheetApi {
+  open: (id: SheetId) => void;
+  close: () => void;
+  isOpen: boolean;
+}
+
 export interface SheetRegistryItem {
   render: ReactElement;
   sheetProps?: Partial<BottomSheetProps>;

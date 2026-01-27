@@ -1,9 +1,9 @@
-import { useState } from "react";
-import { Pressable, View } from "react-native";
+import { GestureResponderEvent, Pressable, View } from "react-native";
 
 import Icon from "@/common/components/Icon/Icon";
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
+import { useDropdown } from "@/common/hooks/useDropdown";
 import { COMMON_ASSETS } from "@/common/utils/assets";
 import { cn } from "@/common/utils/cn";
 
@@ -13,22 +13,34 @@ export interface DropdownItem {
   disabled?: boolean;
 }
 interface DropdownProps {
+  id: string;
   items: Array<DropdownItem>;
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
 }
 export default function Dropdown(props: DropdownProps) {
-  const { items, value, onChange, placeholder } = props;
-  const [isOpen, setIsOpen] = useState(false);
+  const { items, value, onChange, placeholder, id } = props;
 
-  const handlePress = () => {
-    setIsOpen(!isOpen);
+  const { openStatus, open, close } = useDropdown();
+
+  const isOpen = openStatus[id];
+
+  const handlePress = (e: GestureResponderEvent) => {
+    e.stopPropagation();
+    if (isOpen) {
+      close(id);
+      return;
+    }
+    open(id);
   };
 
   const handleChange = (item: DropdownItem) => {
+    if (item.disabled) {
+      return;
+    }
     onChange(item.value);
-    setIsOpen(false);
+    close(id);
   };
 
   const selectedItem = items.find(item => item.value === value);
@@ -55,7 +67,9 @@ export default function Dropdown(props: DropdownProps) {
                 key={item.value}
                 className="flex flex-row items-center justify-between p-15 border-t-[1px] border-gray2"
               >
-                <Typography className="text-13 text-black font-normal">{item.label}</Typography>
+                <Typography className={cn("text-13 text-black font-normal", item.disabled && "text-gray10")}>
+                  {item.label}
+                </Typography>
                 {isSelected && <Icon icon={COMMON_ASSETS.check} />}
               </Pressable>
             );

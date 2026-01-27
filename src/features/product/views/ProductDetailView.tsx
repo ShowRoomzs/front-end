@@ -9,6 +9,7 @@ import TabBody from "@/common/components/Tabs/TabBody";
 import TabHeader from "@/common/components/Tabs/TabHeader";
 import { TabItemType } from "@/common/components/Tabs/Tabs";
 import Typography from "@/common/components/Typography/Typography";
+import { useBottomSheet } from "@/common/hooks/useBottomSheet";
 import { useCommonNavigation, useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
@@ -22,6 +23,7 @@ import ProductDetailPriceSection from "@/features/product/components/ProductDeta
 import ProductDetailRelatedProducts from "@/features/product/components/ProductDetailRelatedProducts/ProductDetailRelatedProducts";
 import ProductDetailShowroomSection from "@/features/product/components/ProductDetailShowroomSection/ProductDetailShowroomSection";
 import ProductDetailTabHeader from "@/features/product/components/ProductDetailTabHeader/ProductDetailTabHeader";
+import ProductOptionBottomSheet from "@/features/product/components/ProductOptionBottomSheet/ProductOptionBottomSheet";
 import ProductThumbnailCarousel from "@/features/product/components/ProductThumbnailCarousel/ProductThumbnailCarousel";
 import { useGetProductDetail } from "@/features/product/hooks/useGetProductDetail";
 import { useGetRelatedProducts } from "@/features/product/hooks/useGetRelatedProducts";
@@ -36,6 +38,18 @@ export default function ProductDetailView() {
   const { data: relatedProducts } = useGetRelatedProducts(productId);
   const [tabHeaderY, setTabHeaderY] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
+  const { open: openProductOptionBottomSheet } = useBottomSheet({
+    id: "product-option",
+    render: (
+      <ProductOptionBottomSheet
+        optionGroups={productDetail?.optionGroups || []}
+        variants={productDetail?.variants || []}
+      />
+    ),
+    sheetProps: {
+      enableDynamicSizing: true,
+    },
+  });
   const [contentHeightMap, setContentHeightMap] = useState<Record<string, number>>({
     info: 0,
     review: 0,
@@ -183,6 +197,10 @@ export default function ProductDetailView() {
     [tabHeaderY]
   );
 
+  const handlePressPurchase = useCallback(() => {
+    openProductOptionBottomSheet();
+  }, [openProductOptionBottomSheet]);
+
   return (
     <View className="flex-1">
       <ProductDetailHeader
@@ -260,7 +278,7 @@ export default function ProductDetailView() {
           isWished={productDetail?.isWished || false}
           likeCount="7.2천"
           onPressLike={() => {}}
-          onPressPurchase={() => {}}
+          onPressPurchase={handlePressPurchase}
         />
       </View>
     </View>

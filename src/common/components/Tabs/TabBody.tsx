@@ -29,6 +29,7 @@ interface TabBodyProps {
   enableGesture?: boolean;
   onLayout?: (key: string, e: LayoutChangeEvent) => void;
   style?: StyleProp<ViewStyle>;
+  scrollable?: boolean;
 }
 
 export default function TabBody(props: TabBodyProps) {
@@ -42,6 +43,7 @@ export default function TabBody(props: TabBodyProps) {
     enableGesture = true,
     onLayout,
     style,
+    scrollable = true,
   } = props;
   const { width: SCREEN_WIDTH } = useWindowDimensions();
   const dragTranslation = useSharedValue(0);
@@ -181,6 +183,7 @@ export default function TabBody(props: TabBodyProps) {
         <View className="flex-1 flex flex-row relative">
           {items.map((item, ix) => (
             <TabItem
+              scrollable={scrollable}
               wrapperClassName="min-h-full"
               key={item.id}
               index={ix}
@@ -191,6 +194,7 @@ export default function TabBody(props: TabBodyProps) {
               enableTabTransitionAnimation={enableTabTransitionAnimation}
             >
               <TabContent
+                scrollable={scrollable}
                 onLayout={e => handleLayoutTabBodyContent(item.id, e)}
                 isMounted={checkIsMounted(ix)}
               >

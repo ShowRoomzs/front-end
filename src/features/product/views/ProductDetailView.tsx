@@ -252,6 +252,7 @@ export default function ProductDetailView() {
             />
           </View>
           <TabBody
+            scrollable={false}
             wrapperClassName="flex-1"
             items={tabItems}
             selectedIndex={selectedIndex}

@@ -27,6 +27,7 @@ export interface TabProps {
   enableTabTransitionAnimation?: boolean;
   className?: string;
   enableGesture?: boolean;
+  scrollable?: boolean;
 }
 
 export default function Tabs(props: TabProps) {
@@ -44,6 +45,7 @@ export default function Tabs(props: TabProps) {
     enableTabTransitionAnimation = true,
     enableGesture = true,
     className,
+    scrollable = true,
   } = props;
   const [bodyHeight, setBodyHeight] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState<number>(originSelectedIndex || 0);
@@ -109,9 +111,15 @@ export default function Tabs(props: TabProps) {
     setHeaderHeight(e.nativeEvent.layout.height);
   }, []);
 
-  const handleLayoutBody = useCallback((e: LayoutChangeEvent) => {
-    setBodyHeight(e.nativeEvent.layout.height);
-  }, []);
+  const handleLayoutBody = useCallback(
+    (e: LayoutChangeEvent) => {
+      if (scrollable) {
+        return;
+      }
+      setBodyHeight(e.nativeEvent.layout.height);
+    },
+    [scrollable]
+  );
 
   return (
     <View className={cn("flex-1", className)}>
@@ -139,7 +147,8 @@ export default function Tabs(props: TabProps) {
           onChangeIndex={handleChangeIndex}
           skipIntermediateTabs={skipIntermediateTabs}
           enableTabTransitionAnimation={enableTabTransitionAnimation}
-          // style={{ height: bodyHeight }}
+          scrollable={scrollable}
+          style={{ height: bodyHeight }}
           enableGesture={enableGesture}
         />
       </Animated.View>

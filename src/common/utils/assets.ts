@@ -22,6 +22,9 @@ import HomeDefaultIcon from "@/common/assets/common/home-default.svg";
 import InfoIcon from "@/common/assets/common/info-icon.svg";
 import KakaoIcon from "@/common/assets/common/kakao-icon.svg";
 import LikeActiveIcon from "@/common/assets/common/like-active.svg";
+import LikeBigFilledIcon from "@/common/assets/common/like-big-filled-icon.svg";
+import LikeBigIcon from "@/common/assets/common/like-big-icon.svg";
+import LikeBigOutlineIcon from "@/common/assets/common/like-big-outline-icon.svg";
 import LikeDefaultIcon from "@/common/assets/common/like-default.svg";
 import LikeIcon from "@/common/assets/common/like-icon.svg";
 import LogoBlackIcon from "@/common/assets/common/logo-black.svg";
@@ -135,5 +138,13 @@ export const COMMON_ASSETS: Assets = {
   },
   infoIcon: {
     default: InfoIcon,
+  },
+  bigLikeIcon: {
+    default: LikeBigIcon,
+    active: LikeBigFilledIcon,
+  },
+  bigLikeOutlineIcon: {
+    default: LikeBigOutlineIcon,
+    active: LikeBigFilledIcon,
   },
 };

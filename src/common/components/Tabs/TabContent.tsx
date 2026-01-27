@@ -8,9 +8,10 @@ interface TabContentProps {
   children: ReactNode;
   className?: string;
   onLayout?: (e: LayoutChangeEvent) => void;
+  scrollable?: boolean;
 }
 export default function TabContent(props: TabContentProps) {
-  const { isMounted: originMounted, children, className, onLayout } = props;
+  const { isMounted: originMounted, children, className, onLayout, scrollable = true } = props;
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -26,7 +27,7 @@ export default function TabContent(props: TabContentProps) {
   }
 
   return (
-    <View onLayout={onLayout} className={cn("flex-grow-1", className)}>
+    <View onLayout={onLayout} className={cn(scrollable ? "flex-1" : "flex-grow-1", className)}>
       {children}
     </View>
   );

@@ -20,6 +20,7 @@ interface TabItemProps extends PropsWithChildren {
   skipIntermediateTabs?: boolean;
   enableTabTransitionAnimation?: boolean;
   wrapperClassName?: string;
+  scrollable?: boolean;
 }
 
 export default function TabItem(props: TabItemProps) {
@@ -32,6 +33,7 @@ export default function TabItem(props: TabItemProps) {
     children,
     enableTabTransitionAnimation = true,
     wrapperClassName,
+    scrollable,
   } = props;
   const { width: SCREEN_WIDTH } = useWindowDimensions();
   const translationX = useSharedValue(0);
@@ -113,7 +115,7 @@ export default function TabItem(props: TabItemProps) {
 
   return (
     <Animated.View
-      className={cn("absolute", wrapperClassName)}
+      className={cn("absolute", scrollable && "h-full", wrapperClassName)}
       style={[{ width: SCREEN_WIDTH }, animatedStyle]}
     >
       {children}

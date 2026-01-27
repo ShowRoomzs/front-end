@@ -1,4 +1,4 @@
-import { GestureResponderEvent, Pressable, View } from "react-native";
+import { Pressable, View } from "react-native";
 
 import Icon from "@/common/components/Icon/Icon";
 import Typography from "@/common/components/Typography/Typography";
@@ -18,16 +18,19 @@ interface DropdownProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  disabled?: boolean;
 }
 export default function Dropdown(props: DropdownProps) {
-  const { items, value, onChange, placeholder, id } = props;
+  const { items, value, onChange, placeholder, disabled, id } = props;
 
   const { openStatus, open, close } = useDropdown();
 
   const isOpen = openStatus[id];
 
-  const handlePress = (e: GestureResponderEvent) => {
-    e.stopPropagation();
+  const handlePress = () => {
+    if (disabled) {
+      return;
+    }
     if (isOpen) {
       close(id);
       return;

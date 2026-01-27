@@ -29,10 +29,12 @@ import LikeDefaultIcon from "@/common/assets/common/like-default.svg";
 import LikeIcon from "@/common/assets/common/like-icon.svg";
 import LogoBlackIcon from "@/common/assets/common/logo-black.svg";
 import LogoIcon from "@/common/assets/common/logo.svg";
+import MinusIcon from "@/common/assets/common/minus-icon.svg";
 import MypageActiveIcon from "@/common/assets/common/mypage-active.svg";
 import MypageDefaultIcon from "@/common/assets/common/mypage-default.svg";
 import NaverIcon from "@/common/assets/common/naver-icon.svg";
 import NotificationIcon from "@/common/assets/common/notification.svg";
+import PlusIcon from "@/common/assets/common/plus-icon.svg";
 import ResetIcon from "@/common/assets/common/reset-icon.svg";
 import SearchIcon from "@/common/assets/common/search.svg";
 import SettingIcon from "@/common/assets/common/setting.svg";
@@ -146,5 +148,11 @@ export const COMMON_ASSETS: Assets = {
   bigLikeOutlineIcon: {
     default: LikeBigOutlineIcon,
     active: LikeBigFilledIcon,
+  },
+  minusIcon: {
+    default: MinusIcon,
+  },
+  plusIcon: {
+    default: PlusIcon,
   },
 };

@@ -1,32 +1,69 @@
-import { useCallback } from "react";
-import { Image, TouchableOpacity } from "react-native";
+import { useCallback, useState } from "react";
+import {
+  Image,
+  Pressable,
+  PressableStateCallbackType,
+  StyleProp,
+  TouchableOpacity,
+  ViewStyle,
+} from "react-native";
 
 import HStack from "@/common/components/HStack/HStack";
 import Icon from "@/common/components/Icon/Icon";
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
 import { COMMON_ASSETS } from "@/common/utils/assets";
+import { likeHaptic } from "@/common/utils/haptics";
 import { Product } from "@/features/product/types/product";
 
 interface ProductCardProps {
   product: Product;
   onPress: (product: Product) => void;
   width: number;
+  onPressLike?: (product: Product, newIsWished: boolean) => void;
+  showLike?: boolean;
 }
 
 const SIZE_RATIO = 0.923;
 
 export default function ProductCard(props: ProductCardProps) {
-  const { product, onPress, width } = props;
-
+  const { product, onPress, width, onPressLike, showLike = false } = props;
+  const [isWished, setIsWished] = useState(product.isWished);
   const height = width * SIZE_RATIO;
 
   const handlePress = useCallback(() => {
     onPress(product);
   }, [onPress, product]);
 
+  const handlePressLike = useCallback(() => {
+    likeHaptic();
+    setIsWished(!isWished);
+    onPressLike?.(product, !isWished);
+  }, [isWished, onPressLike, product]);
+
+  const pressableStyle = useCallback((info: PressableStateCallbackType) => {
+    const { pressed } = info;
+
+    return {
+      transform: [{ scale: pressed ? 0.9 : 1 }],
+      position: "absolute",
+      top: 4,
+      right: 4,
+      width: 30,
+      height: 30,
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 10,
+    } as StyleProp<ViewStyle>;
+  }, []);
+
   return (
-    <TouchableOpacity onPress={handlePress} activeOpacity={0.7}>
+    <TouchableOpacity className="relative" onPress={handlePress} activeOpacity={0.7}>
+      {showLike && (
+        <Pressable onPress={handlePressLike} style={pressableStyle}>
+          <Icon icon={COMMON_ASSETS.bigLikeIcon} variant={isWished ? "active" : "default"} />
+        </Pressable>
+      )}
       <VStack style={{ width }}>
         <Image style={{ height: height }} source={{ uri: product.thumbnailUrl }} />
         <VStack className="mt-15">

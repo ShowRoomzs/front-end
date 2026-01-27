@@ -1,8 +1,10 @@
 import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 
 import {
   AuthStackParamList,
   CategoryStackParamList,
+  CommonStackParamList,
   HomeTabParamList,
   RootStackParamList,
 } from "@/common/router/types";
@@ -15,3 +17,4 @@ export const useHomeNavigation = () => useNavigation<NavigationProp<HomeTabParam
 export const useCategoryNavigation = () => useNavigation<NavigationProp<CategoryStackParamList>>();
 export const useAuthNavigation = () => useNavigation<NavigationProp<AuthStackParamList>>();
 export const useMainNavigation = () => useNavigation<NavigationProp<RootStackParamList>>();
+export const useCommonNavigation = () => useNavigation<NativeStackNavigationProp<CommonStackParamList>>();

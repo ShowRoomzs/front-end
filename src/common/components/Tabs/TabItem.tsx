@@ -10,6 +10,7 @@ import Animated, {
 
 import { DEFAULT_ANIMATION_DURATION } from "@/common/components/Tabs/config";
 import { usePrevious } from "@/common/hooks/usePrevious";
+import { cn } from "@/common/utils/cn";
 
 interface TabItemProps extends PropsWithChildren {
   index: number;
@@ -18,6 +19,7 @@ interface TabItemProps extends PropsWithChildren {
   isSwiping: SharedValue<boolean>;
   skipIntermediateTabs?: boolean;
   enableTabTransitionAnimation?: boolean;
+  wrapperClassName?: string;
 }
 
 export default function TabItem(props: TabItemProps) {
@@ -29,6 +31,7 @@ export default function TabItem(props: TabItemProps) {
     skipIntermediateTabs,
     children,
     enableTabTransitionAnimation = true,
+    wrapperClassName,
   } = props;
   const { width: SCREEN_WIDTH } = useWindowDimensions();
   const translationX = useSharedValue(0);
@@ -109,7 +112,10 @@ export default function TabItem(props: TabItemProps) {
   });
 
   return (
-    <Animated.View className="h-full absolute" style={[{ width: SCREEN_WIDTH }, animatedStyle]}>
+    <Animated.View
+      className={cn("absolute", wrapperClassName)}
+      style={[{ width: SCREEN_WIDTH }, animatedStyle]}
+    >
       {children}
     </Animated.View>
   );

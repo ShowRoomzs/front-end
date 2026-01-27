@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { useWindowDimensions, View } from "react-native";
+import { LayoutChangeEvent, useWindowDimensions, View, ViewStyle } from "react-native";
+import { StyleProp } from "react-native";
 import {
   Gesture,
   GestureDetector,
@@ -26,6 +27,8 @@ interface TabBodyProps {
   skipIntermediateTabs?: boolean;
   enableTabTransitionAnimation?: boolean;
   enableGesture?: boolean;
+  onLayout?: (key: string, e: LayoutChangeEvent) => void;
+  style?: StyleProp<ViewStyle>;
 }
 
 export default function TabBody(props: TabBodyProps) {
@@ -37,6 +40,8 @@ export default function TabBody(props: TabBodyProps) {
     skipIntermediateTabs,
     enableTabTransitionAnimation,
     enableGesture = true,
+    onLayout,
+    style,
   } = props;
   const { width: SCREEN_WIDTH } = useWindowDimensions();
   const dragTranslation = useSharedValue(0);
@@ -160,12 +165,23 @@ export default function TabBody(props: TabBodyProps) {
     [initialMountedIndexes, selectedIndex]
   );
 
+  const handleLayoutTabBodyContent = useCallback(
+    (key: string, e: LayoutChangeEvent) => {
+      if (!onLayout) {
+        return;
+      }
+      onLayout(key, e);
+    },
+    [onLayout]
+  );
+
   return (
-    <View className={wrapperClassName}>
+    <View style={style} className={wrapperClassName}>
       <GestureDetector gesture={pan}>
         <View className="flex-1 flex flex-row relative">
           {items.map((item, ix) => (
             <TabItem
+              wrapperClassName="min-h-full"
               key={item.id}
               index={ix}
               selectedIndex={selectedIndex}
@@ -174,7 +190,12 @@ export default function TabBody(props: TabBodyProps) {
               skipIntermediateTabs={skipIntermediateTabs}
               enableTabTransitionAnimation={enableTabTransitionAnimation}
             >
-              <TabContent isMounted={checkIsMounted(ix)}>{item.render(item.id)}</TabContent>
+              <TabContent
+                onLayout={e => handleLayoutTabBodyContent(item.id, e)}
+                isMounted={checkIsMounted(ix)}
+              >
+                {item?.render?.(item.id) || null}
+              </TabContent>
             </TabItem>
           ))}
         </View>

@@ -10,7 +10,7 @@ import { cn } from "@/common/utils/cn";
 export interface TabItemType {
   id: string;
   label: string;
-  render: (id: string) => ReactElement;
+  render?: (id: string) => ReactElement;
 }
 
 export interface TabProps {
@@ -26,6 +26,7 @@ export interface TabProps {
   underlineClassName?: string;
   enableTabTransitionAnimation?: boolean;
   className?: string;
+  enableGesture?: boolean;
 }
 
 export default function Tabs(props: TabProps) {
@@ -41,9 +42,10 @@ export default function Tabs(props: TabProps) {
     underlineClassName,
     enableHeaderScroll = true,
     enableTabTransitionAnimation = true,
+    enableGesture = true,
     className,
   } = props;
-
+  const [bodyHeight, setBodyHeight] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState<number>(originSelectedIndex || 0);
   const listScrollRef = useRef<FlatList>(null);
   const { isVisible } = useTabs();
@@ -107,6 +109,10 @@ export default function Tabs(props: TabProps) {
     setHeaderHeight(e.nativeEvent.layout.height);
   }, []);
 
+  const handleLayoutBody = useCallback((e: LayoutChangeEvent) => {
+    setBodyHeight(e.nativeEvent.layout.height);
+  }, []);
+
   return (
     <View className={cn("flex-1", className)}>
       <Animated.View style={headerAnimatedStyle}>
@@ -126,12 +132,15 @@ export default function Tabs(props: TabProps) {
       </Animated.View>
       <Animated.View style={bodyAnimatedStyle}>
         <TabBody
+          onLayout={(_, e) => handleLayoutBody(e)}
           wrapperClassName={bodyClassName}
           items={items}
           selectedIndex={selectedIndex}
           onChangeIndex={handleChangeIndex}
           skipIntermediateTabs={skipIntermediateTabs}
           enableTabTransitionAnimation={enableTabTransitionAnimation}
+          style={{ height: bodyHeight }}
+          enableGesture={enableGesture}
         />
       </Animated.View>
     </View>

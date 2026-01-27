@@ -13,15 +13,13 @@ const WINDOW_WIDTH = Dimensions.get("window").width;
 
 interface ProductDetailInfoProps {
   description: string; // html 형태
-  onLayoutHeight: (height: number) => void;
   isExpand: boolean;
   onPressExpand: () => void;
 }
 
 export default function ProductDetailInfo(props: ProductDetailInfoProps) {
-  const { description, onLayoutHeight, isExpand, onPressExpand } = props;
+  const { description, isExpand, onPressExpand } = props;
   const [height, setHeight] = useState(0);
-  const [shouldRenderExpandButton, setShouldRenderExpandButton] = useState(false);
 
   const htmlContent = useMemo(
     () =>
@@ -52,20 +50,13 @@ export default function ProductDetailInfo(props: ProductDetailInfoProps) {
     true;
   `;
 
-  const handleMessage = useCallback(
-    (e: WebViewMessageEvent) => {
-      const height = Number(e.nativeEvent.data);
+  const handleMessage = useCallback((e: WebViewMessageEvent) => {
+    const height = Number(e.nativeEvent.data);
 
-      // webview의 height가 window width(초기 높이 정방형으로 window width 맞춤)
-      // 보다 큰 경우에만 확장 버튼 표시
-      if (height > WINDOW_WIDTH) {
-        setShouldRenderExpandButton(true);
-      }
-      onLayoutHeight(height);
-      setHeight(height);
-    },
-    [onLayoutHeight]
-  );
+    setHeight(height);
+  }, []);
+
+  const shouldDisplayExpandButton = useMemo(() => height > WINDOW_WIDTH, [height]);
 
   return (
     <View>
@@ -74,12 +65,12 @@ export default function ProductDetailInfo(props: ProductDetailInfoProps) {
           source={{ html: htmlContent }}
           injectedJavaScript={injectedJS}
           onMessage={handleMessage}
-          style={{ height }}
+          style={{ height: height || WINDOW_WIDTH }}
           scrollEnabled={false}
           pointerEvents="none"
           originWhitelist={["*"]}
         />
-        {shouldRenderExpandButton && !isExpand && (
+        {shouldDisplayExpandButton && !isExpand && (
           <LinearGradient
             pointerEvents="none"
             colors={["rgba(255,255,255,0)", "#FFFFFF"]}
@@ -95,7 +86,7 @@ export default function ProductDetailInfo(props: ProductDetailInfoProps) {
           />
         )}
       </View>
-      {shouldRenderExpandButton && (
+      {shouldDisplayExpandButton && (
         <View className="px-20">
           <Button size="md" variant="outline" className="mt-15" onPress={onPressExpand}>
             <HStack gap={8} className="items-center">

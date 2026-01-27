@@ -63,13 +63,13 @@ type Option = {
   price: number;
 };
 
-interface OptionGroup {
+export interface OptionGroup {
   optionGroupId: number;
   name: string;
   options: Array<Option>;
 }
 
-interface Variant {
+export interface Variant {
   variantId: number;
   name: string;
   regularPrice: number;

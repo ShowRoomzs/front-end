@@ -139,7 +139,7 @@ export default function Tabs(props: TabProps) {
           onChangeIndex={handleChangeIndex}
           skipIntermediateTabs={skipIntermediateTabs}
           enableTabTransitionAnimation={enableTabTransitionAnimation}
-          style={{ height: bodyHeight }}
+          // style={{ height: bodyHeight }}
           enableGesture={enableGesture}
         />
       </Animated.View>

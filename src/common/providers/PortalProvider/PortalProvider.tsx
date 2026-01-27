@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 import PortalHost from "@/common/components/PortalHost/PortalHost";
 import { BottomSheetProvider } from "@/common/providers/BottomSheetProvider";
 import BottomTabProvider from "@/common/providers/BottomTabProvider";
+import DropdownProvider from "@/common/providers/DropdownProvider/DropdownProvider";
 import TabsProvider from "@/common/providers/TabsProvider";
 import { TooltipProvider } from "@/common/providers/TooltipProvider";
 
@@ -15,14 +16,16 @@ export default function PortalProvider(props: PortalProviderProps) {
 
   return (
     <TabsProvider>
-      <BottomTabProvider>
-        <TooltipProvider>
-          <BottomSheetProvider>
-            {children}
-            <PortalHost />
-          </BottomSheetProvider>
-        </TooltipProvider>
-      </BottomTabProvider>
+      <DropdownProvider>
+        <BottomTabProvider>
+          <TooltipProvider>
+            <BottomSheetProvider>
+              {children}
+              <PortalHost />
+            </BottomSheetProvider>
+          </TooltipProvider>
+        </BottomTabProvider>
+      </DropdownProvider>
     </TabsProvider>
   );
 }

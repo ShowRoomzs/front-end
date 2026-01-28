@@ -11,7 +11,7 @@ import { likeHaptic } from "@/common/utils/haptics";
 interface ProductDetailActionsProps {
   isWished: boolean;
   likeCount: string;
-  onPressLike?: () => void;
+  onPressLike?: (newIsWished: boolean) => void;
   onPressPurchase?: () => void;
 }
 
@@ -20,8 +20,9 @@ export default function ProductDetailActions(props: ProductDetailActionsProps) {
 
   const handlePressLike = useCallback(() => {
     likeHaptic();
-    onPressLike?.();
-  }, [onPressLike]);
+
+    onPressLike?.(!isWished);
+  }, [isWished, onPressLike]);
 
   return (
     <HStack gap={6} className="px-10 items-center w-full">

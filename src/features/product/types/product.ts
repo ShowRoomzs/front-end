@@ -55,7 +55,14 @@ export interface Product {
   thumbnailUrl: string;
 }
 
-export type ProductListResponse = PageResponse<Product>;
+export interface WishlistProduct {
+  id: number;
+  productNumber: string;
+  name: string;
+  thumbnailUrl: string;
+  price: ProductPrice;
+  isWished: boolean;
+}
 
 type Option = {
   optionId: number;
@@ -91,3 +98,5 @@ export interface ProductDetail extends Omit<Product, "price"> {
 }
 
 export type ProductDetailResponse = ProductDetail;
+export type ProductListResponse = PageResponse<Product>;
+export type WishlistProductListResponse = PageResponse<WishlistProduct>;

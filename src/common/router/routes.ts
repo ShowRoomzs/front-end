@@ -3,7 +3,7 @@ export const HOME_ROUTES = {
   CATEGORY: "category",
   FOLLOWING: "following",
   HOME: "home",
-  LIKE: "like",
+  WISHLIST: "wishlist",
   MYPAGE: "mypage",
 } as const;
 

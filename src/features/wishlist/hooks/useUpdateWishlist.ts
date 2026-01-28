@@ -1,7 +1,7 @@
 import { useCallback, useRef } from "react";
 import { debounce } from "remeda";
 
-import { useWishlistMutation } from "@/features/product/hooks/useWishlistMutation";
+import { useWishlistMutation } from "@/features/wishlist/hooks/useWishlistMutation";
 
 const DEBOUNCED_WAIT_MS = 500;
 

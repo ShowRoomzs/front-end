@@ -29,8 +29,8 @@ import ProductOptionBottomSheet from "@/features/product/components/ProductOptio
 import ProductThumbnailCarousel from "@/features/product/components/ProductThumbnailCarousel/ProductThumbnailCarousel";
 import { useGetProductDetail } from "@/features/product/hooks/useGetProductDetail";
 import { useGetRelatedProducts } from "@/features/product/hooks/useGetRelatedProducts";
-import { useUpdateWishlist } from "@/features/product/hooks/useUpdateWishlist";
 import { Product, ProductDetail } from "@/features/product/types/product";
+import { useUpdateWishlist } from "@/features/wishlist/hooks/useUpdateWishlist";
 
 const BOTTOM_TAB_HEIGHT = 59;
 

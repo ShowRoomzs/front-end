@@ -4,7 +4,7 @@ import { useState } from "react";
 import { queryClient } from "@/common/lib/queryClient";
 import { CleanupFn } from "@/common/types/cleanup";
 import { PRODUCT_QUERY_KEY } from "@/features/product/constants/queryKey";
-import { productService } from "@/features/product/services/productService";
+import { wishlistService } from "@/features/wishlist/services/wishlistService";
 
 interface WishlistMutationParams {
   productId: number;
@@ -37,7 +37,7 @@ export function useWishlistMutation(shouldClearCache: boolean = false) {
         setCleanupFns(getCleanupFns(productId));
       }
 
-      return newIsWished ? productService.addWishlist(productId) : productService.removeWishlist(productId);
+      return newIsWished ? wishlistService.addWishlist(productId) : wishlistService.removeWishlist(productId);
     },
     onSuccess: (_data, variables) => {
       if (shouldClearCache) {

@@ -17,8 +17,8 @@ import {
   PADDING_HORIZONTAL,
   SCROLL_THRESHOLD,
 } from "@/features/product/components/ProductListView/config";
-import { useUpdateWishlist } from "@/features/product/hooks/useUpdateWishlist";
 import { Product } from "@/features/product/types/product";
+import { useUpdateWishlist } from "@/features/wishlist/hooks/useUpdateWishlist";
 
 interface ProductListViewProps {
   data: Array<Product> | undefined;

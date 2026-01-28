@@ -39,7 +39,7 @@ export default function Button(props: ButtonProps) {
     size = "md",
     variant = "primary",
     style,
-    activeOpacity = 1,
+    activeOpacity = 0.7,
   } = props;
 
   const getDefaultClassName = () => {

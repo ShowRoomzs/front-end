@@ -23,6 +23,7 @@ import ProductDetailPriceSection from "@/features/product/components/ProductDeta
 import ProductDetailRelatedProducts from "@/features/product/components/ProductDetailRelatedProducts/ProductDetailRelatedProducts";
 import ProductDetailShowroomSection from "@/features/product/components/ProductDetailShowroomSection/ProductDetailShowroomSection";
 import ProductDetailTabHeader from "@/features/product/components/ProductDetailTabHeader/ProductDetailTabHeader";
+import { PRODUCT_OPTION_BOTTOM_SHEET_MAX_HEIGHT } from "@/features/product/components/ProductOptionBottomSheet/config";
 import ProductOptionBottomSheet from "@/features/product/components/ProductOptionBottomSheet/ProductOptionBottomSheet";
 import ProductThumbnailCarousel from "@/features/product/components/ProductThumbnailCarousel/ProductThumbnailCarousel";
 import { useGetProductDetail } from "@/features/product/hooks/useGetProductDetail";
@@ -48,6 +49,10 @@ export default function ProductDetailView() {
     ),
     sheetProps: {
       enableDynamicSizing: true,
+      enableContentPanningGesture: false, // 내부 콘텐츠 패닝 금지
+      enableHandlePanningGesture: false, // 핸들 패닝 금지
+      snapPoints: ["80%"], // 최대 높이 화면 80%
+      maxDynamicContentSize: PRODUCT_OPTION_BOTTOM_SHEET_MAX_HEIGHT,
     },
   });
   const [contentHeightMap, setContentHeightMap] = useState<Record<string, number>>({

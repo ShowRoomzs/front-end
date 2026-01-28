@@ -1,6 +1,6 @@
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { produce } from "immer";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LayoutChangeEvent, ListRenderItemInfo, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -10,6 +10,7 @@ import TabHeader from "@/common/components/Tabs/TabHeader";
 import { TabItemType } from "@/common/components/Tabs/Tabs";
 import Typography from "@/common/components/Typography/Typography";
 import { useBottomSheet } from "@/common/hooks/useBottomSheet";
+import { usePermissionPress } from "@/common/hooks/usePermissionPress";
 import { useCommonNavigation, useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
@@ -28,6 +29,7 @@ import ProductOptionBottomSheet from "@/features/product/components/ProductOptio
 import ProductThumbnailCarousel from "@/features/product/components/ProductThumbnailCarousel/ProductThumbnailCarousel";
 import { useGetProductDetail } from "@/features/product/hooks/useGetProductDetail";
 import { useGetRelatedProducts } from "@/features/product/hooks/useGetRelatedProducts";
+import { useUpdateWishlist } from "@/features/product/hooks/useUpdateWishlist";
 import { Product } from "@/features/product/types/product";
 
 const BOTTOM_TAB_HEIGHT = 59;
@@ -35,10 +37,21 @@ const BOTTOM_TAB_HEIGHT = 59;
 export default function ProductDetailView() {
   const { params } = useRoute<RouteProp<CommonStackParamList, typeof COMMON_ROUTES.PRODUCT_DETAIL>>();
   const { productId } = params;
-  const { data: productDetail, isLoading: isProductDetailLoading } = useGetProductDetail(productId);
+  const { data: productDetail, isLoading, isStale } = useGetProductDetail(productId);
   const { data: relatedProducts } = useGetRelatedProducts(productId);
+  const { update: updateWishlist, cleanupFns } = useUpdateWishlist();
   const [tabHeaderY, setTabHeaderY] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
+
+  // 낙관적 업데이트를 위한 상태
+  const [isWishedLocal, setIsWishedLocal] = useState<boolean | undefined>(undefined);
+
+  useEffect(() => {
+    if (productDetail && !isStale) {
+      setIsWishedLocal(productDetail.isWished);
+    }
+  }, [isStale, productDetail]);
+
   const { open: openProductOptionBottomSheet } = useBottomSheet({
     id: "product-option",
     render: (
@@ -88,11 +101,19 @@ export default function ProductDetailView() {
     });
   }, [mainNavigation]);
 
-  const handlePressLike = useCallback((product: Product, newIsWished: boolean) => {
-    // TODO : 좋아요 처리
-    console.log("product", product);
-    console.log("newIsWished", newIsWished);
-  }, []);
+  // related product & product detail 좋아요 처리
+  const handlePressLike = useCallback(
+    (productId: number, newIsWished: boolean) => {
+      updateWishlist(productId, newIsWished);
+    },
+    [updateWishlist]
+  );
+
+  // product detail 좋아요 처리 권한 체크
+  const handlePermissionLike = usePermissionPress((newIsWished: boolean) => {
+    setIsWishedLocal(newIsWished);
+    handlePressLike(productId, newIsWished);
+  });
 
   const handlePressProduct = useCallback(
     (product: Product) => {
@@ -206,6 +227,15 @@ export default function ProductDetailView() {
     openProductOptionBottomSheet();
   }, [openProductOptionBottomSheet]);
 
+  useEffect(() => {
+    return () => {
+      if (!cleanupFns?.length) {
+        return;
+      }
+      cleanupFns.forEach(cleanupFn => cleanupFn());
+    };
+  }, [cleanupFns]);
+
   return (
     <View className="flex-1">
       <ProductDetailHeader
@@ -213,7 +243,7 @@ export default function ProductDetailView() {
         onPressSearch={handlePressSearch}
         onPressCart={handlePressCart}
       />
-      {isProductDetailLoading ? (
+      {isLoading || isStale ? (
         <View className="flex-1 items-center justify-center">
           <Spinner />
         </View>
@@ -281,9 +311,9 @@ export default function ProductDetailView() {
         className="p-10 bg-white absolute bottom-0 left-0 right-0 h-50"
       >
         <ProductDetailActions
-          isWished={productDetail?.isWished || false}
-          likeCount="7.2천"
-          onPressLike={() => {}}
+          isWished={isWishedLocal || false}
+          likeCount="7.2천" // TODO : 좋아요 수 표시
+          onPressLike={handlePermissionLike}
           onPressPurchase={handlePressPurchase}
         />
       </View>

@@ -22,13 +22,13 @@ interface ProductCardProps {
   onPress: (product: Product) => void;
   width: number;
   onPressLike?: (productId: number, newIsWished: boolean) => void;
-  showLike?: boolean;
+  useOptimisticUpdate?: boolean;
 }
 
 const SIZE_RATIO = 0.923;
 
 export default function ProductCard(props: ProductCardProps) {
-  const { product: originProduct, onPress, width, onPressLike, showLike = false } = props;
+  const { product: originProduct, onPress, width, onPressLike, useOptimisticUpdate } = props;
   const [product, setProduct] = useState(originProduct);
   const height = width * SIZE_RATIO;
 
@@ -45,14 +45,16 @@ export default function ProductCard(props: ProductCardProps) {
     likeHaptic();
     const newIsWished = !product.isWished;
 
-    setProduct(
-      produce(draft => {
-        draft.isWished = newIsWished;
-      })
-    );
+    if (useOptimisticUpdate) {
+      setProduct(
+        produce(draft => {
+          draft.isWished = newIsWished;
+        })
+      );
+    }
 
     onPressLike?.(product.id, newIsWished);
-  }, [onPressLike, product]);
+  }, [onPressLike, product.id, product.isWished, useOptimisticUpdate]);
 
   const pressableStyle = useCallback((info: PressableStateCallbackType) => {
     const { pressed } = info;
@@ -72,11 +74,9 @@ export default function ProductCard(props: ProductCardProps) {
 
   return (
     <TouchableOpacity className="relative" onPress={handlePress} activeOpacity={0.7}>
-      {showLike && (
-        <Pressable onPress={handlePressLike} style={pressableStyle}>
-          <Icon icon={COMMON_ASSETS.bigLikeIcon} variant={product.isWished ? "active" : "default"} />
-        </Pressable>
-      )}
+      <Pressable onPress={handlePressLike} style={pressableStyle}>
+        <Icon icon={COMMON_ASSETS.bigLikeIcon} variant={product.isWished ? "active" : "default"} />
+      </Pressable>
       <VStack style={{ width }}>
         <Image style={{ height: height }} source={{ uri: product.thumbnailUrl }} />
         <VStack className="mt-15">

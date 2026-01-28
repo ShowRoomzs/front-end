@@ -3,6 +3,7 @@ import { NativeScrollEvent, NativeSyntheticEvent } from "react-native";
 
 import PagingList from "@/common/components/PagingList/PagingList";
 import { useBottomTab } from "@/common/hooks/useBottomTab";
+import { usePermissionPress } from "@/common/hooks/usePermissionPress";
 import { useTabs } from "@/common/hooks/useTabs";
 import { useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
@@ -90,12 +91,9 @@ export default function ProductListView(props: ProductListViewProps) {
     [navigation]
   );
 
-  const handlePressLike = useCallback(
-    (productId: number, newWished: boolean) => {
-      updateWishlist(productId, newWished);
-    },
-    [updateWishlist]
-  );
+  const handlePressLike = usePermissionPress((productId: number, newWished: boolean) => {
+    updateWishlist(productId, newWished);
+  });
 
   const renderItem = useCallback(
     ({ item }: { item: Product }) => {
@@ -105,7 +103,7 @@ export default function ProductListView(props: ProductListViewProps) {
           onPress={product => handlePressProduct(product)}
           width={CARD_WIDTH}
           onPressLike={handlePressLike}
-          showLike={!!user}
+          useOptimisticUpdate={!!user}
         />
       );
     },

@@ -1,7 +1,7 @@
 import { Gender } from "@/common/types/gender";
 import { PageResponse } from "@/common/types/page";
 
-interface ProductPrice {
+export interface ProductPrice {
   regularPrice: number;
   discountRate: number;
   salePrice: number;
@@ -55,15 +55,6 @@ export interface Product {
   thumbnailUrl: string;
 }
 
-export interface WishlistProduct {
-  id: number;
-  productNumber: string;
-  name: string;
-  thumbnailUrl: string;
-  price: ProductPrice;
-  isWished: boolean;
-}
-
 type Option = {
   optionId: number;
   name: string;
@@ -99,4 +90,3 @@ export interface ProductDetail extends Omit<Product, "price"> {
 
 export type ProductDetailResponse = ProductDetail;
 export type ProductListResponse = PageResponse<Product>;
-export type WishlistProductListResponse = PageResponse<WishlistProduct>;

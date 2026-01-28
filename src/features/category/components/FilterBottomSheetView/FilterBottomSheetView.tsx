@@ -104,12 +104,13 @@ export default function FilterBottomSheetView(props: FilterBottomSheetViewProps)
       <Typography className="text-black text-15 font-semibold text-center py-15">필터</Typography>
       <View className="h-full">
         <Tabs
-          headerClassName="border-b border-gray2"
+          headerClassName="h-45 border-b border-gray2"
           selectedIndex={selectedIndex}
           bodyClassName="min-h-[200px]"
           onSelect={setSelectedIndex}
           items={tabItems}
           enableTabTransitionAnimation={false}
+          scrollable={false}
         />
       </View>
       <VStack gap={10}>

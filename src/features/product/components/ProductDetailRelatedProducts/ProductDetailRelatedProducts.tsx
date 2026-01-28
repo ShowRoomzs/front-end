@@ -45,7 +45,7 @@ export default function ProductDetailRelatedProducts(props: ProductDetailRelated
               {row.map(item => (
                 <ProductCard
                   key={item.id}
-                  showLike={!!user}
+                  useOptimisticUpdate={!!user}
                   onPressLike={onPressLike}
                   product={item}
                   onPress={onPressProduct}

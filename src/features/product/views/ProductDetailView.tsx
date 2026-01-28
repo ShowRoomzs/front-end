@@ -30,7 +30,7 @@ import ProductThumbnailCarousel from "@/features/product/components/ProductThumb
 import { useGetProductDetail } from "@/features/product/hooks/useGetProductDetail";
 import { useGetRelatedProducts } from "@/features/product/hooks/useGetRelatedProducts";
 import { useUpdateWishlist } from "@/features/product/hooks/useUpdateWishlist";
-import { Product } from "@/features/product/types/product";
+import { Product, ProductDetail } from "@/features/product/types/product";
 
 const BOTTOM_TAB_HEIGHT = 59;
 
@@ -42,13 +42,12 @@ export default function ProductDetailView() {
   const { update: updateWishlist, cleanupFns } = useUpdateWishlist();
   const [tabHeaderY, setTabHeaderY] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
-
   // 낙관적 업데이트를 위한 상태
-  const [isWishedLocal, setIsWishedLocal] = useState<boolean | undefined>(undefined);
+  const [localProduct, setLocalProduct] = useState<ProductDetail | undefined>(undefined);
 
   useEffect(() => {
     if (productDetail && !isStale) {
-      setIsWishedLocal(productDetail.isWished);
+      setLocalProduct(productDetail);
     }
   }, [isStale, productDetail]);
 
@@ -111,7 +110,14 @@ export default function ProductDetailView() {
 
   // product detail 좋아요 처리 권한 체크
   const handlePermissionLike = usePermissionPress((newIsWished: boolean) => {
-    setIsWishedLocal(newIsWished);
+    setLocalProduct(
+      produce(draft => {
+        if (!draft) {
+          return;
+        }
+        draft.isWished = newIsWished;
+      })
+    );
     handlePressLike(productId, newIsWished);
   });
 
@@ -311,7 +317,7 @@ export default function ProductDetailView() {
         className="p-10 bg-white absolute bottom-0 left-0 right-0 h-50"
       >
         <ProductDetailActions
-          isWished={isWishedLocal || false}
+          isWished={localProduct?.isWished || false}
           likeCount="7.2천" // TODO : 좋아요 수 표시
           onPressLike={handlePermissionLike}
           onPressPurchase={handlePressPurchase}

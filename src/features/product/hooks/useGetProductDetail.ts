@@ -7,5 +7,6 @@ export function useGetProductDetail(productId: number) {
   return useQuery({
     queryKey: [PRODUCT_QUERY_KEY.PRODUCT_DETAIL, productId],
     queryFn: () => productService.getProductDetail(productId),
+    staleTime: 1000 * 60 * 5,
   });
 }

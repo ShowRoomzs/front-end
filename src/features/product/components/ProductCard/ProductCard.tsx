@@ -1,4 +1,5 @@
-import { useCallback, useState } from "react";
+import { produce } from "immer";
+import { useCallback, useEffect, useState } from "react";
 import {
   Image,
   Pressable,
@@ -20,16 +21,21 @@ interface ProductCardProps {
   product: Product;
   onPress: (product: Product) => void;
   width: number;
-  onPressLike?: (product: Product, newIsWished: boolean) => void;
+  onPressLike?: (productId: number, newIsWished: boolean) => void;
   showLike?: boolean;
 }
 
 const SIZE_RATIO = 0.923;
 
 export default function ProductCard(props: ProductCardProps) {
-  const { product, onPress, width, onPressLike, showLike = false } = props;
-  const [isWished, setIsWished] = useState(product.isWished);
+  const { product: originProduct, onPress, width, onPressLike, showLike = false } = props;
+  const [product, setProduct] = useState(originProduct);
   const height = width * SIZE_RATIO;
+
+  // 외부 상태와 동기화(ex. 리스트 리패치 시)
+  useEffect(() => {
+    setProduct(originProduct);
+  }, [originProduct]);
 
   const handlePress = useCallback(() => {
     onPress(product);
@@ -37,9 +43,16 @@ export default function ProductCard(props: ProductCardProps) {
 
   const handlePressLike = useCallback(() => {
     likeHaptic();
-    setIsWished(!isWished);
-    onPressLike?.(product, !isWished);
-  }, [isWished, onPressLike, product]);
+    const newIsWished = !product.isWished;
+
+    setProduct(
+      produce(draft => {
+        draft.isWished = newIsWished;
+      })
+    );
+
+    onPressLike?.(product.id, newIsWished);
+  }, [onPressLike, product]);
 
   const pressableStyle = useCallback((info: PressableStateCallbackType) => {
     const { pressed } = info;
@@ -61,7 +74,7 @@ export default function ProductCard(props: ProductCardProps) {
     <TouchableOpacity className="relative" onPress={handlePress} activeOpacity={0.7}>
       {showLike && (
         <Pressable onPress={handlePressLike} style={pressableStyle}>
-          <Icon icon={COMMON_ASSETS.bigLikeIcon} variant={isWished ? "active" : "default"} />
+          <Icon icon={COMMON_ASSETS.bigLikeIcon} variant={product.isWished ? "active" : "default"} />
         </Pressable>
       )}
       <VStack style={{ width }}>

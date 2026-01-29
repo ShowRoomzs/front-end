@@ -5,6 +5,7 @@ import { LayoutChangeEvent, ListRenderItemInfo, ScrollView, Text, View } from "r
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Spinner from "@/common/components/Spinner/Spinner";
+import StretchTabHeaderItem from "@/common/components/Tabs/StretchTabHeaderItem";
 import TabBody from "@/common/components/Tabs/TabBody";
 import TabHeader from "@/common/components/Tabs/TabHeader";
 import { TabItemType } from "@/common/components/Tabs/Tabs";
@@ -24,7 +25,6 @@ import ProductDetailInfo from "@/features/product/components/ProductDetailInfo/P
 import ProductDetailPriceSection from "@/features/product/components/ProductDetailPriceSection/ProductDetailPriceSection";
 import ProductDetailRelatedProducts from "@/features/product/components/ProductDetailRelatedProducts/ProductDetailRelatedProducts";
 import ProductDetailShowroomSection from "@/features/product/components/ProductDetailShowroomSection/ProductDetailShowroomSection";
-import ProductDetailTabHeader from "@/features/product/components/ProductDetailTabHeader/ProductDetailTabHeader";
 import { PRODUCT_OPTION_BOTTOM_SHEET_MAX_HEIGHT } from "@/features/product/components/ProductOptionBottomSheet/config";
 import ProductOptionBottomSheet from "@/features/product/components/ProductOptionBottomSheet/ProductOptionBottomSheet";
 import ProductThumbnailCarousel from "@/features/product/components/ProductThumbnailCarousel/ProductThumbnailCarousel";
@@ -196,8 +196,8 @@ export default function ProductDetailView() {
   const renderTabHeader = useCallback(
     (item: ListRenderItemInfo<TabItemType>) => {
       return (
-        <ProductDetailTabHeader
-          item={item}
+        <StretchTabHeaderItem
+          item={item.item}
           itemCount={tabItems.length}
           isActive={item.index === selectedTabIndex}
         />

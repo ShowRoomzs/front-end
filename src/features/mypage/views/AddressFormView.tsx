@@ -1,8 +1,9 @@
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { produce } from "immer";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { isDeepEqual } from "remeda";
 
 import Button from "@/common/components/Button/Button";
 import { DaumPostcodeData } from "@/common/components/DaumPostcode/DaumPostcode";
@@ -18,6 +19,7 @@ import { MypageStackParamList } from "@/common/router/types";
 import { formatPhoneNumber } from "@/features/auth/utils/formatPhoneNumber";
 import AddressManagementHeader from "@/features/mypage/components/AddressManagementHeader/AddressManagementHeader";
 import { useAddressMutation } from "@/features/mypage/hooks/useAddressMutation/useAddressMutation";
+import { useGetAddressDetail } from "@/features/mypage/hooks/useGetAddressDetail";
 import { AddressRequest } from "@/features/mypage/types/address";
 
 const INITIAL_ADDRESS: AddressRequest = {
@@ -34,6 +36,7 @@ export default function AddressFormView() {
   const inset = useSafeAreaInsets();
   const addressId = route.params?.addressId;
   const isEdit = !!addressId;
+  const { data: addressDetail } = useGetAddressDetail(addressId);
   const [address, setAddress] = useState<AddressRequest>(INITIAL_ADDRESS);
   const title = isEdit ? "배송지 수정" : "배송지 추가";
   const detailAddressInputRef = useRef<TextInput>(null);
@@ -44,6 +47,13 @@ export default function AddressFormView() {
   }, [navigation]);
 
   const { openAddressSearch } = useAddressSearch();
+
+  useEffect(() => {
+    if (!addressDetail || !isEdit) {
+      return;
+    }
+    setAddress(addressDetail);
+  }, [addressDetail, isEdit]);
 
   const handleSelectAddress = useCallback((data: DaumPostcodeData) => {
     setAddress(
@@ -87,6 +97,10 @@ export default function AddressFormView() {
   }, []);
 
   const enableValidation = useMemo(() => {
+    if (isEdit && addressDetail) {
+      return !isDeepEqual(address, addressDetail);
+    }
+
     return (Object.keys(address) as Array<keyof AddressRequest>).every(key => {
       const value = address[key];
 
@@ -98,7 +112,7 @@ export default function AddressFormView() {
       }
       return !!value;
     });
-  }, [address]);
+  }, [address, addressDetail, isEdit]);
 
   const handleSubmit = useCallback(async () => {
     const parsedAddress: AddressRequest = {

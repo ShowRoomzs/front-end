@@ -11,6 +11,7 @@ import { TabItemType } from "@/common/components/Tabs/Tabs";
 import Typography from "@/common/components/Typography/Typography";
 import { useBottomSheet } from "@/common/hooks/useBottomSheet";
 import { usePermissionPress } from "@/common/hooks/usePermissionPress";
+import { useTabIndex } from "@/common/hooks/useTabIndex";
 import { useCommonNavigation, useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
@@ -40,6 +41,7 @@ export default function ProductDetailView() {
   const { data: productDetail, isLoading, isStale } = useGetProductDetail(productId);
   const { data: relatedProducts } = useGetRelatedProducts(productId);
   const { update: updateWishlist, cleanupFns } = useUpdateWishlist();
+  const { selectedTabIndex, updateTabIndex } = useTabIndex(0);
   const [tabHeaderY, setTabHeaderY] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
   // 낙관적 업데이트를 위한 상태
@@ -74,8 +76,6 @@ export default function ProductDetailView() {
   });
   const mainNavigation = useMainNavigation();
   const commonNavigation = useCommonNavigation();
-
-  const [selectedIndex, setSelectedIndex] = useState(0); // tab index
 
   const [isExpand, setIsExpand] = useState(false);
   const { bottom } = useSafeAreaInsets();
@@ -199,11 +199,11 @@ export default function ProductDetailView() {
         <ProductDetailTabHeader
           item={item}
           itemCount={tabItems.length}
-          isActive={item.index === selectedIndex}
+          isActive={item.index === selectedTabIndex}
         />
       );
     },
-    [selectedIndex, tabItems.length]
+    [selectedTabIndex, tabItems.length]
   );
 
   const handleLayoutTabBodyContent = useCallback((key: string, e: LayoutChangeEvent) => {
@@ -218,7 +218,7 @@ export default function ProductDetailView() {
 
   const handleChangeSelectedIndex = useCallback(
     (index: number) => {
-      setSelectedIndex(index);
+      updateTabIndex(index);
       requestAnimationFrame(() => {
         scrollViewRef.current?.scrollTo({
           y: tabHeaderY,
@@ -226,7 +226,7 @@ export default function ProductDetailView() {
         });
       });
     },
-    [tabHeaderY]
+    [tabHeaderY, updateTabIndex]
   );
 
   const handlePressPurchase = useCallback(() => {
@@ -287,7 +287,7 @@ export default function ProductDetailView() {
               wrapperClassName="bg-white border-b-[1px] border-gray2"
               items={tabItems}
               renderItem={renderTabHeader}
-              selectedIndex={selectedIndex}
+              selectedIndex={selectedTabIndex}
               keyExtractor={item => item.id}
               onPressTab={handleChangeSelectedIndex}
             />
@@ -296,10 +296,10 @@ export default function ProductDetailView() {
             scrollable={false}
             wrapperClassName="flex-1"
             items={tabItems}
-            selectedIndex={selectedIndex}
+            selectedIndex={selectedTabIndex}
             onChangeIndex={handleChangeSelectedIndex}
             onLayout={handleLayoutTabBodyContent}
-            style={{ height: contentHeightMap[tabItems[selectedIndex].id] }}
+            style={{ height: contentHeightMap[tabItems[selectedTabIndex].id] }}
             enableGesture={false}
             enableTabTransitionAnimation={false}
           />

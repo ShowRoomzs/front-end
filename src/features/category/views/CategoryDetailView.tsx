@@ -1,10 +1,11 @@
 import { RouteProp, useRoute } from "@react-navigation/native";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { View } from "react-native";
 
 import Tabs, { TabItemType } from "@/common/components/Tabs/Tabs";
 import VStack from "@/common/components/VStack/VStack";
 import { useBottomTab } from "@/common/hooks/useBottomTab";
+import { useTabIndex } from "@/common/hooks/useTabIndex";
 import { useTabs } from "@/common/hooks/useTabs";
 import { CATEGORY_ROUTES, useCategoryNavigation, useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
@@ -21,7 +22,6 @@ export default function CategoryDetailView() {
   const { show: showTabs } = useTabs();
   const { categoryId } = route.params;
   const { categoryMap } = useCategory();
-  const [selectedIndex, setSelectedIndex] = useState<number | undefined>(undefined);
   // 2뎁스 카테고리 추출
   const category = useMemo(() => categoryMap?.getSubCategory(categoryId), [categoryMap, categoryId]);
   // 3뎁스 카테고리 추출
@@ -30,20 +30,13 @@ export default function CategoryDetailView() {
     [categoryMap, category]
   );
 
-  useEffect(() => {
-    if (!categoryId || selectedIndex !== undefined) {
-      return;
-    }
-    const initialIndex = detailCategories?.findIndex(c => c.categoryId === categoryId);
+  const initialIndex = useMemo(() => {
+    const index = detailCategories?.findIndex(c => c.categoryId === categoryId);
 
-    if (initialIndex !== undefined) {
-      setTimeout(() => {
-        setSelectedIndex(initialIndex + 1);
-      }, 500);
-      return;
-    }
-    setSelectedIndex(0);
-  }, [categoryId, detailCategories, selectedIndex]);
+    return index !== undefined && index > -1 ? index + 1 : 0;
+  }, [categoryId, detailCategories]);
+
+  const { selectedTabIndex, updateTabIndex } = useTabIndex(initialIndex);
 
   const handlePressBack = useCallback(() => {
     navigation.goBack();
@@ -84,10 +77,6 @@ export default function CategoryDetailView() {
     return items;
   }, [category?.categoryId, detailCategories]);
 
-  const handleChangeSelectedIndex = useCallback((index: number) => {
-    setSelectedIndex(index);
-  }, []);
-
   // 카테고리 detail 페이지 나가면 하단 탭바와 탭 헤더 보이기
   useEffect(() => {
     return () => {
@@ -112,8 +101,8 @@ export default function CategoryDetailView() {
       </View>
       <View className="flex-1">
         <Tabs
-          selectedIndex={selectedIndex}
-          onSelect={handleChangeSelectedIndex}
+          selectedIndex={selectedTabIndex}
+          onSelect={updateTabIndex}
           headerClassName="h-47 border-b border-gray2"
           bodyClassName="flex-1"
           items={tabItems}

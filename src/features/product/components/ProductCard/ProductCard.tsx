@@ -17,18 +17,20 @@ import { COMMON_ASSETS } from "@/common/utils/assets";
 import { likeHaptic } from "@/common/utils/haptics";
 import { Product } from "@/features/product/types/product";
 
+type ProductCardSize = "sm" | "md";
 interface ProductCardProps {
   product: Product;
   onPress: (product: Product) => void;
   width: number;
   onPressLike?: (productId: number, newIsWished: boolean) => void;
   useOptimisticUpdate?: boolean;
+  size?: ProductCardSize;
 }
 
 const SIZE_RATIO = 0.923;
 
 export default function ProductCard(props: ProductCardProps) {
-  const { product: originProduct, onPress, width, onPressLike, useOptimisticUpdate } = props;
+  const { product: originProduct, onPress, width, onPressLike, useOptimisticUpdate, size = "md" } = props;
   const [product, setProduct] = useState(originProduct);
   const height = width * SIZE_RATIO;
 

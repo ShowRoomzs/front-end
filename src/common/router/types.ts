@@ -67,6 +67,7 @@ export type MypageStackParamList = {
   [MYPAGE_ROUTES.ORDER_AND_DELIVERY_SEARCH]: undefined;
   [MYPAGE_ROUTES.CANCEL_AND_REFUND]: undefined;
   [MYPAGE_ROUTES.ADDRESS_MANAGEMENT]: undefined;
+  [MYPAGE_ROUTES.ADD_ADDRESS]: undefined;
   [MYPAGE_ROUTES.INQUIRY_HISTORY]: undefined;
   [MYPAGE_ROUTES.CUSTOMER_CENTER]: undefined;
   [MYPAGE_ROUTES.NOTICE]: undefined;

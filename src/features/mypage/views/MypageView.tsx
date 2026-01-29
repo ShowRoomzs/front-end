@@ -1,9 +1,10 @@
 import { useCallback } from "react";
 import { FlatList, ListRenderItemInfo, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { BOTTOM_TABS_HEIGHT } from "@/common/components/BottomTabs/config";
 import VStack from "@/common/components/VStack/VStack";
-import { useMainNavigation } from "@/common/router";
+import { useMainNavigation, useMypageNavigation } from "@/common/router";
 import { ROOT_ROUTES } from "@/common/router/routes";
 import { useUserStore } from "@/common/stores/useUserStore";
 import AuthEntryBanner from "@/features/mypage/components/AuthEntryBanner/AuthEntryBanner";
@@ -18,7 +19,8 @@ import { MYPAGE_SECTIONS } from "@/features/mypage/constants/sections";
 export default function MypageView() {
   const { user } = useUserStore();
   const mainNavigation = useMainNavigation();
-
+  const inset = useSafeAreaInsets();
+  const mypageNavigation = useMypageNavigation();
   const handlePressSetting = useCallback(() => {
     console.log("setting");
   }, []);
@@ -33,9 +35,15 @@ export default function MypageView() {
     });
   }, [mainNavigation]);
 
-  const handlePressSectionItem = useCallback((item: MypageSectionItem) => {
-    console.log("click section item", item);
-  }, []);
+  const handlePressSectionItem = useCallback(
+    (item: MypageSectionItem) => {
+      if (!item.routeName) {
+        return;
+      }
+      mypageNavigation.navigate(item.routeName);
+    },
+    [mypageNavigation]
+  );
 
   const handlePressProfile = useCallback(() => {
     console.log("profile");
@@ -67,7 +75,7 @@ export default function MypageView() {
   }, [handlePressAuth, handlePressFollowing, handlePressProfile, user]);
 
   return (
-    <VStack gap={20} className="flex-1">
+    <VStack style={{ paddingBottom: inset.bottom }} gap={20} className="flex-1">
       <MypageHeader
         wrapperClassName="px-20"
         onPressCart={handlePressCart}

@@ -9,16 +9,19 @@ export const MYPAGE_SECTIONS: Array<MypageSectionProps> = [
         title: "주문 및 배송 조회",
         rightType: "arrow",
         routeName: MYPAGE_ROUTES.ORDER_AND_DELIVERY_SEARCH,
+        hasPermission: true,
       },
       {
         title: "취소 및 환불",
         rightType: "arrow",
         routeName: MYPAGE_ROUTES.CANCEL_AND_REFUND,
+        hasPermission: true,
       },
       {
         title: "배송지 관리",
         rightType: "arrow",
         routeName: MYPAGE_ROUTES.ADDRESS_MANAGEMENT,
+        hasPermission: true,
       },
     ],
   },
@@ -53,6 +56,7 @@ export const MYPAGE_SECTIONS: Array<MypageSectionProps> = [
       {
         title: "버전 정보",
         rightType: "version",
+        appVersion: "1.0.0", // TODO : 버전 가져오기
       },
       {
         title: "개인정보 처리 방침",

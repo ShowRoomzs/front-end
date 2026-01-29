@@ -3,6 +3,7 @@ import {
   CATEGORY_ROUTES,
   COMMON_ROUTES,
   HOME_ROUTES,
+  MYPAGE_ROUTES,
   ROOT_ROUTES,
 } from "@/common/router/routes";
 import { TermsType } from "@/features/auth/views/TermsView";
@@ -59,4 +60,21 @@ export type RootStackParamList = {
     screen: keyof CommonStackParamList;
     params?: Record<string, unknown>;
   };
+};
+
+export type MypageStackParamList = {
+  [MYPAGE_ROUTES.MAIN]: undefined;
+  [MYPAGE_ROUTES.ORDER_AND_DELIVERY_SEARCH]: undefined;
+  [MYPAGE_ROUTES.CANCEL_AND_REFUND]: undefined;
+  [MYPAGE_ROUTES.ADDRESS_MANAGEMENT]: undefined;
+  [MYPAGE_ROUTES.ADDRESS_FORM]?: {
+    addressId?: number;
+  };
+  [MYPAGE_ROUTES.INQUIRY_HISTORY]: undefined;
+  [MYPAGE_ROUTES.CUSTOMER_CENTER]: undefined;
+  [MYPAGE_ROUTES.NOTICE]: undefined;
+  [MYPAGE_ROUTES.OPEN_LICENSE]: undefined;
+  [MYPAGE_ROUTES.VERSION_INFO]: undefined;
+  [MYPAGE_ROUTES.PRIVACY_POLICY]: undefined;
+  [MYPAGE_ROUTES.SERVICE_AGREEMENT]: undefined;
 };

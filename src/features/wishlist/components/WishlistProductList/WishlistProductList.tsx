@@ -1,7 +1,7 @@
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { Text, View } from "react-native";
 
-import type { WishlistProduct } from "@/features/wishlist/types/wishlist";
+import type { WishlistProductType } from "@/features/wishlist/types/wishlist";
 
 import PagingList from "@/common/components/PagingList/PagingList";
 import { useParams } from "@/common/hooks/useParams";
@@ -16,6 +16,7 @@ import { WishlistParams } from "@/features/wishlist/types/params";
 
 interface WishlistProductListProps {
   categoryId: number | null;
+  onLoad?: (products: Array<WishlistProductType>) => void;
 }
 const INITIAL_PARAMS: WishlistParams = {
   page: 1,
@@ -24,13 +25,22 @@ const INITIAL_PARAMS: WishlistParams = {
 };
 
 export default function WishlistProductList(props: WishlistProductListProps) {
-  const { categoryId } = props;
+  const { categoryId, onLoad } = props;
+  const isMounted = useRef(false);
   const { params } = useParams<WishlistParams>({
     ...INITIAL_PARAMS,
     categoryId,
   });
 
   const { products, pageInfo, isLoading, fetchNextPage } = useGetWishlist(params);
+
+  useEffect(() => {
+    if (isMounted.current || !onLoad || isLoading) {
+      return;
+    }
+    onLoad(products);
+    isMounted.current = true;
+  }, [products, onLoad, isLoading]);
 
   //   const handlePressProduct = useCallback((product: WishlistProduct) => {
   //     console.log(product);
@@ -40,7 +50,7 @@ export default function WishlistProductList(props: WishlistProductListProps) {
   //     console.log(productId, newIsWished);
   //   }, []);
 
-  const renderItem = useCallback(({ item }: { item: WishlistProduct }) => {
+  const renderItem = useCallback(({ item }: { item: WishlistProductType }) => {
     void item;
     return <Text>wishlist product dto 변경후 작업</Text>;
   }, []);
@@ -51,7 +61,7 @@ export default function WishlistProductList(props: WishlistProductListProps) {
 
   return (
     <View className="flex-1">
-      <PagingList<WishlistProduct>
+      <PagingList<WishlistProductType>
         data={products}
         onLoadMore={handleLoadMore}
         pageInfo={pageInfo}

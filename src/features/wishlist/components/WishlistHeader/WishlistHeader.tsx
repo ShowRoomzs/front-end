@@ -7,7 +7,7 @@ import Typography from "@/common/components/Typography/Typography";
 import { COMMON_ASSETS } from "@/common/utils/assets";
 
 interface WishlistHeaderProps {
-  likeCount: number;
+  likeCount: number | undefined;
   onPressSearch: () => void;
   onPressCart: () => void;
   wrapperClassName?: string;
@@ -19,7 +19,11 @@ export default function WishlistHeader(props: WishlistHeaderProps) {
   return (
     <Header
       className={wrapperClassName}
-      renderLeft={<Typography className="text-16 font-semibold text-black">좋아요 {likeCount}</Typography>}
+      renderLeft={
+        <Typography className="text-16 font-semibold text-black">
+          좋아요 {likeCount ? likeCount : null}
+        </Typography>
+      }
       renderRight={
         <HStack className="items-center" gap={16}>
           <TouchableOpacity activeOpacity={0.5} onPress={onPressSearch}>

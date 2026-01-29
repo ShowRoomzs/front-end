@@ -6,8 +6,14 @@ import { useTabIndex } from "@/common/hooks/useTabIndex";
 import { useCategory } from "@/features/category/hooks/useCategory";
 import WishlistProductList from "@/features/wishlist/components/WishlistProductList/WishlistProductList";
 import WishlistProductTabHeader from "@/features/wishlist/components/WishlistProductTabHeader/WishlistProductTabHeader";
+import { WishlistProductType } from "@/features/wishlist/types/wishlist";
 
-export default function WishlistProduct() {
+interface WishlistProductProps {
+  onLoad?: (products: Array<WishlistProductType>) => void;
+}
+
+export default function WishlistProduct(props: WishlistProductProps) {
+  const { onLoad } = props;
   const { categoryMap } = useCategory();
   const { selectedTabIndex, updateTabIndex } = useTabIndex();
 
@@ -20,7 +26,7 @@ export default function WishlistProduct() {
       {
         id: "all",
         label: "전체",
-        render: () => <WishlistProductList categoryId={null} />,
+        render: () => <WishlistProductList categoryId={null} onLoad={onLoad} />,
       },
     ];
 
@@ -33,7 +39,7 @@ export default function WishlistProduct() {
     );
 
     return tabs;
-  }, [categoryMap?.mainCategories]);
+  }, [categoryMap?.mainCategories, onLoad]);
 
   const renderTabHeader = useCallback(
     (item: ListRenderItemInfo<TabItemType>) => {

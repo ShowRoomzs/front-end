@@ -1,7 +1,7 @@
 import { PageResponse } from "@/common/types/page";
 import { ProductPrice } from "@/features/product/types/product";
 
-export interface WishlistProduct {
+export interface WishlistProductType {
   id: number;
   productNumber: string;
   name: string;
@@ -10,4 +10,4 @@ export interface WishlistProduct {
   isWished: boolean;
 }
 
-export type WishlistResponse = PageResponse<WishlistProduct>;
+export type WishlistResponse = PageResponse<WishlistProductType>;

@@ -20,7 +20,7 @@ export const addressService = {
 
     return response;
   },
-  removeAddress: async (addressId: number) => {
+  deleteAddress: async (addressId: number) => {
     const { data: response } = await apiInstance.delete<void>(`/user/delivery-addresses/${addressId}`);
 
     return response;

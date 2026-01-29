@@ -17,7 +17,7 @@ import { MYPAGE_ROUTES } from "@/common/router/routes";
 import { MypageStackParamList } from "@/common/router/types";
 import { formatPhoneNumber } from "@/features/auth/utils/formatPhoneNumber";
 import AddressManagementHeader from "@/features/mypage/components/AddressManagementHeader/AddressManagementHeader";
-import { useAddressMutation } from "@/features/mypage/hooks/useAddressMutation";
+import { useAddressMutation } from "@/features/mypage/hooks/useAddressMutation/useAddressMutation";
 import { AddressRequest } from "@/features/mypage/types/address";
 
 const INITIAL_ADDRESS: AddressRequest = {
@@ -26,7 +26,7 @@ const INITIAL_ADDRESS: AddressRequest = {
   address: "",
   detailAddress: "",
   phoneNumber: "",
-  isDefault: false,
+  default: false,
 };
 
 export default function AddressFormView() {
@@ -90,7 +90,7 @@ export default function AddressFormView() {
     return (Object.keys(address) as Array<keyof AddressRequest>).every(key => {
       const value = address[key];
 
-      if (key === "isDefault") {
+      if (key === "default") {
         return true;
       }
       if (key === "phoneNumber") {

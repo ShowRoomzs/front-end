@@ -3,6 +3,7 @@ import { ListRenderItemInfo, View } from "react-native";
 
 import Tabs, { TabItemType } from "@/common/components/Tabs/Tabs";
 import { useTabIndex } from "@/common/hooks/useTabIndex";
+import { CleanupFn } from "@/common/types/cleanup";
 import { useCategory } from "@/features/category/hooks/useCategory";
 import WishlistProductList from "@/features/wishlist/components/WishlistProductList/WishlistProductList";
 import WishlistProductTabHeader from "@/features/wishlist/components/WishlistProductTabHeader/WishlistProductTabHeader";
@@ -10,10 +11,11 @@ import { WishlistProductType } from "@/features/wishlist/types/wishlist";
 
 interface WishlistProductProps {
   onLoad?: (products: Array<WishlistProductType>) => void;
+  onUpdateCallback?: (cleanupFns: Array<CleanupFn>) => void;
 }
 
 export default function WishlistProduct(props: WishlistProductProps) {
-  const { onLoad } = props;
+  const { onLoad, onUpdateCallback } = props;
   const { categoryMap } = useCategory();
   const { selectedTabIndex, updateTabIndex } = useTabIndex();
 
@@ -26,7 +28,9 @@ export default function WishlistProduct(props: WishlistProductProps) {
       {
         id: "all",
         label: "전체",
-        render: () => <WishlistProductList categoryId={null} onLoad={onLoad} />,
+        render: () => (
+          <WishlistProductList categoryId={null} onLoad={onLoad} onUpdateCallback={onUpdateCallback} />
+        ),
       },
     ];
 
@@ -34,12 +38,14 @@ export default function WishlistProduct(props: WishlistProductProps) {
       ...categoryMap.mainCategories.map(category => ({
         id: category.categoryId.toString(),
         label: category.name,
-        render: () => <WishlistProductList categoryId={category.categoryId} />,
+        render: () => (
+          <WishlistProductList categoryId={category.categoryId} onUpdateCallback={onUpdateCallback} />
+        ),
       }))
     );
 
     return tabs;
-  }, [categoryMap?.mainCategories, onLoad]);
+  }, [categoryMap?.mainCategories, onLoad, onUpdateCallback]);
 
   const renderTabHeader = useCallback(
     (item: ListRenderItemInfo<TabItemType>) => {

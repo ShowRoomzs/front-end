@@ -1,6 +1,7 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { FlatList, Text, View } from "react-native";
 
+import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { useMypageNavigation } from "@/common/router";
 import { MYPAGE_ROUTES } from "@/common/router/routes";
 import AddressManagementHeader from "@/features/mypage/components/AddressManagementHeader/AddressManagementHeader";
@@ -10,6 +11,8 @@ import { Address } from "@/features/mypage/types/address";
 export default function AddressManagementView() {
   const navigation = useMypageNavigation();
   const { data: addressList } = useGetAddressList();
+  const { show: showBottomTab, hide: hideBottomTab } = useBottomTab();
+
   const handleBackPress = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
@@ -17,6 +20,13 @@ export default function AddressManagementView() {
   const handleAddAddressPress = useCallback(() => {
     navigation.navigate(MYPAGE_ROUTES.ADDRESS_FORM);
   }, [navigation]);
+
+  useEffect(() => {
+    hideBottomTab();
+    return () => {
+      showBottomTab();
+    };
+  }, [hideBottomTab, showBottomTab]);
 
   const renderItem = useCallback(({ item }: { item: Address }) => {
     return (

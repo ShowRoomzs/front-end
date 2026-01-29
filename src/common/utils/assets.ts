@@ -34,6 +34,7 @@ import MypageActiveIcon from "@/common/assets/common/mypage-active.svg";
 import MypageDefaultIcon from "@/common/assets/common/mypage-default.svg";
 import NaverIcon from "@/common/assets/common/naver-icon.svg";
 import NotificationIcon from "@/common/assets/common/notification.svg";
+import PlusIconPoint from "@/common/assets/common/plus-icon-point.svg";
 import PlusIcon from "@/common/assets/common/plus-icon.svg";
 import ResetIcon from "@/common/assets/common/reset-icon.svg";
 import SearchIcon from "@/common/assets/common/search.svg";
@@ -158,5 +159,8 @@ export const COMMON_ASSETS: Assets = {
   },
   plusIcon: {
     default: PlusIcon,
+  },
+  plusIconPoint: {
+    default: PlusIconPoint,
   },
 };

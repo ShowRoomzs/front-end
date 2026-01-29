@@ -1,19 +1,17 @@
 import { useCallback, useRef } from "react";
 import { debounce } from "remeda";
 
-import { useWishlistMutation } from "@/features/wishlist/hooks/useWishlistMutation";
+import { useWishlistMutation } from "@/features/wishlist/hooks/useWishlistMutation/useWishlistMutation";
 
 const DEBOUNCED_WAIT_MS = 500;
 
-export function useUpdateWishlist(shouldClearCache: boolean = false) {
+export function useUpdateWishlist(shouldClearCache = false) {
   const { mutateAsync, cleanupFns } = useWishlistMutation(shouldClearCache);
-
-  // productId별 debounce 저장소
   const debouncedMapRef = useRef<Map<number, ReturnType<typeof debounce>>>(new Map());
 
   const update = useCallback(
     async (productId: number, newIsWished: boolean) => {
-      await mutateAsync({ productId, newIsWished: newIsWished });
+      await mutateAsync({ productId, newIsWished });
     },
     [mutateAsync]
   );

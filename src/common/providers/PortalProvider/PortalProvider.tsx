@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 
 import PortalHost from "@/common/components/PortalHost/PortalHost";
+import { AddressSearchProvider } from "@/common/providers/AddressSearchProvider";
 import { BottomSheetProvider } from "@/common/providers/BottomSheetProvider";
 import BottomTabProvider from "@/common/providers/BottomTabProvider";
 import DropdownProvider from "@/common/providers/DropdownProvider/DropdownProvider";
@@ -20,8 +21,10 @@ export default function PortalProvider(props: PortalProviderProps) {
         <BottomTabProvider>
           <TooltipProvider>
             <BottomSheetProvider>
-              {children}
-              <PortalHost />
+              <AddressSearchProvider>
+                {children}
+                <PortalHost />
+              </AddressSearchProvider>
             </BottomSheetProvider>
           </TooltipProvider>
         </BottomTabProvider>

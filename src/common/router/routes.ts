@@ -31,9 +31,11 @@ export const COMMON_ROUTES = {
 
 // 마이페이지 스택 네비게이션
 export const MYPAGE_ROUTES = {
+  MAIN: "main",
   ORDER_AND_DELIVERY_SEARCH: "orderAndDeliverySearch",
   CANCEL_AND_REFUND: "cancelAndRefund",
   ADDRESS_MANAGEMENT: "addressManagement",
+  ADDRESS_FORM: "addressForm",
   INQUIRY_HISTORY: "inquiryHistory",
   CUSTOMER_CENTER: "customerCenter",
   NOTICE: "notice",

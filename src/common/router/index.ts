@@ -6,6 +6,7 @@ import {
   CategoryStackParamList,
   CommonStackParamList,
   HomeTabParamList,
+  MypageStackParamList,
   RootStackParamList,
 } from "@/common/router/types";
 
@@ -18,3 +19,4 @@ export const useCategoryNavigation = () => useNavigation<NavigationProp<Category
 export const useAuthNavigation = () => useNavigation<NavigationProp<AuthStackParamList>>();
 export const useMainNavigation = () => useNavigation<NavigationProp<RootStackParamList>>();
 export const useCommonNavigation = () => useNavigation<NativeStackNavigationProp<CommonStackParamList>>();
+export const useMypageNavigation = () => useNavigation<NavigationProp<MypageStackParamList>>();

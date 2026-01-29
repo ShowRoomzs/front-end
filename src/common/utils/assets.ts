@@ -63,6 +63,10 @@ export const COMMON_ASSETS: Assets = {
     default: LikeDefaultIcon,
     active: LikeActiveIcon,
   },
+  wishlist: {
+    default: LikeDefaultIcon,
+    active: LikeActiveIcon,
+  },
   mypage: {
     default: MypageDefaultIcon,
     active: MypageActiveIcon,

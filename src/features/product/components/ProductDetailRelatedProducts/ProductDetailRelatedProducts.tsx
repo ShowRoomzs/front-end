@@ -3,6 +3,7 @@ import { View } from "react-native";
 import HStack from "@/common/components/HStack/HStack";
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
+import { useUserStore } from "@/common/stores/useUserStore";
 import { cn } from "@/common/utils/cn";
 import ProductCard from "@/features/product/components/ProductCard/ProductCard";
 import { CARD_WIDTH, GAP, PADDING_BLOCK } from "@/features/product/components/ProductListView/config";
@@ -11,11 +12,12 @@ import { Product } from "@/features/product/types/product";
 interface ProductDetailRelatedProductsProps {
   items: Array<Product>;
   onPressProduct: (product: Product) => void;
-  onPressLike: (product: Product, newIsWished: boolean) => void;
+  onPressLike: (productId: number, newIsWished: boolean) => void;
   containerClassName?: string;
 }
 export default function ProductDetailRelatedProducts(props: ProductDetailRelatedProductsProps) {
   const { items, onPressProduct, onPressLike, containerClassName } = props;
+  const { user } = useUserStore();
 
   return (
     <View className={cn("px-15", containerClassName)}>
@@ -43,7 +45,7 @@ export default function ProductDetailRelatedProducts(props: ProductDetailRelated
               {row.map(item => (
                 <ProductCard
                   key={item.id}
-                  showLike
+                  useOptimisticUpdate={!!user}
                   onPressLike={onPressLike}
                   product={item}
                   onPress={onPressProduct}

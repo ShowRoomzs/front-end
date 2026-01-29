@@ -3,9 +3,11 @@ import { NativeScrollEvent, NativeSyntheticEvent } from "react-native";
 
 import PagingList from "@/common/components/PagingList/PagingList";
 import { useBottomTab } from "@/common/hooks/useBottomTab";
+import { usePermissionPress } from "@/common/hooks/usePermissionPress";
 import { useTabs } from "@/common/hooks/useTabs";
 import { useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
+import { useUserStore } from "@/common/stores/useUserStore";
 import { PageInfo } from "@/common/types/page";
 import ProductCard from "@/features/product/components/ProductCard/ProductCard";
 import {
@@ -16,19 +18,22 @@ import {
   SCROLL_THRESHOLD,
 } from "@/features/product/components/ProductListView/config";
 import { Product } from "@/features/product/types/product";
+import { useUpdateWishlist } from "@/features/wishlist/hooks/useUpdateWishlist";
 
 interface ProductListViewProps {
   data: Array<Product> | undefined;
   pageInfo: PageInfo | undefined;
-  onPageChange: (page: number) => void;
+  onLoadMore: () => void;
   isLoading: boolean;
 }
 export default function ProductListView(props: ProductListViewProps) {
-  const { data, pageInfo, isLoading, onPageChange } = props;
+  const { data, pageInfo, isLoading, onLoadMore } = props;
   const navigation = useMainNavigation();
+  const { user } = useUserStore();
   const scrollY = useRef(0);
   const accumulatedScrollDown = useRef(0);
   const accumulatedScrollUp = useRef(0);
+  const { update: updateWishlist } = useUpdateWishlist(true);
 
   const { hide: hideBottomTab, show: showBottomTab } = useBottomTab();
   const { hide: hideTabs, show: showTabs } = useTabs();
@@ -86,20 +91,30 @@ export default function ProductListView(props: ProductListViewProps) {
     [navigation]
   );
 
+  const handlePressLike = usePermissionPress((productId: number, newWished: boolean) => {
+    updateWishlist(productId, newWished);
+  });
+
   const renderItem = useCallback(
     ({ item }: { item: Product }) => {
       return (
-        <ProductCard product={item} onPress={product => handlePressProduct(product)} width={CARD_WIDTH} />
+        <ProductCard
+          product={item}
+          onPress={product => handlePressProduct(product)}
+          width={CARD_WIDTH}
+          onPressLike={handlePressLike}
+          useOptimisticUpdate={!!user}
+        />
       );
     },
-    [handlePressProduct]
+    [handlePressLike, handlePressProduct, user]
   );
 
   return (
     <PagingList<Product>
       data={data}
       isLoading={isLoading}
-      onPageChange={onPageChange}
+      onLoadMore={onLoadMore}
       pageInfo={pageInfo}
       renderItem={renderItem}
       onScroll={handleScroll}

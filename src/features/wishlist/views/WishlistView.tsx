@@ -1,4 +1,5 @@
-import { useCallback, useMemo, useState } from "react";
+import { useIsFocused } from "@react-navigation/native";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ListRenderItemInfo, Text, View } from "react-native";
 
 import StretchTabHeaderItem from "@/common/components/Tabs/StretchTabHeaderItem";
@@ -6,15 +7,22 @@ import Tabs, { TabItemType } from "@/common/components/Tabs/Tabs";
 import { useTabIndex } from "@/common/hooks/useTabIndex";
 import { useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
+import { CleanupFn } from "@/common/types/cleanup";
 import WishlistHeader from "@/features/wishlist/components/WishlistHeader/WishlistHeader";
 import WishlistProduct from "@/features/wishlist/components/WishlistProduct/WishlistProduct";
 import { WishlistProductType } from "@/features/wishlist/types/wishlist";
 
 export default function WishlistView() {
+  const isFocused = useIsFocused();
   const { selectedTabIndex, updateTabIndex } = useTabIndex();
   const navigation = useMainNavigation();
   const [productCount, setProductCount] = useState<number | undefined>(undefined);
+  const [cleanupFns, setCleanupFns] = useState<Array<CleanupFn>>([]);
+  const prevFocusedRef = useRef(isFocused);
 
+  const handleUpdateCallback = useCallback((fns: Array<CleanupFn>) => {
+    setCleanupFns(fns);
+  }, []);
   // 전체 상품 리스트가 가장 먼저 넘어옴
   const handleLoad = useCallback(
     (products: Array<WishlistProductType>) => {
@@ -31,7 +39,7 @@ export default function WishlistView() {
       {
         id: "product",
         label: "상품",
-        render: () => <WishlistProduct onLoad={handleLoad} />,
+        render: () => <WishlistProduct onLoad={handleLoad} onUpdateCallback={handleUpdateCallback} />,
       },
       {
         id: "contents",
@@ -43,7 +51,7 @@ export default function WishlistView() {
         ),
       },
     ],
-    [handleLoad]
+    [handleLoad, handleUpdateCallback]
   );
   const renderTabHeader = useCallback(
     (item: ListRenderItemInfo<TabItemType>) => {
@@ -71,6 +79,19 @@ export default function WishlistView() {
       screen: COMMON_ROUTES.CART,
     });
   }, [navigation]);
+
+  /**
+   * 현재 view 포커즈 빠지면 cleanupFns 실행
+   * Tab Navigator는 탭 이동시 unmount되지 않아 뒷정리함수로 처리 불가
+   */
+  useEffect(() => {
+    if (prevFocusedRef.current && !isFocused && cleanupFns.length) {
+      cleanupFns.forEach((fn: () => void) => {
+        fn();
+      });
+    }
+    prevFocusedRef.current = isFocused;
+  }, [isFocused, cleanupFns]);
 
   return (
     <View className="flex-1">

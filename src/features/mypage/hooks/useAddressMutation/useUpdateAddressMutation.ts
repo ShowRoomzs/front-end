@@ -9,8 +9,9 @@ export function useUpdateAddressMutation() {
   return useMutation({
     mutationFn: ({ addressId, address }: { addressId: number; address: AddressRequest }) =>
       addressService.updateAddress(addressId, address),
-    onSuccess: () => {
+    onSuccess: (_, { addressId }) => {
       queryClient.invalidateQueries({ queryKey: [MYPAGE_QUERY_KEY.ADDRESS_LIST] });
+      queryClient.invalidateQueries({ queryKey: [MYPAGE_QUERY_KEY.ADDRESS_DETAIL, addressId] });
     },
   });
 }

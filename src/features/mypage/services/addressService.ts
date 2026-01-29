@@ -7,6 +7,11 @@ export const addressService = {
 
     return response;
   },
+  getAddressDetail: async (addressId: number) => {
+    const { data: response } = await apiInstance.get<Address>(`/user/delivery-addresses/${addressId}`);
+
+    return response;
+  },
   addAddress: async (address: AddressRequest) => {
     const { data: response } = await apiInstance.post<Address>("/user/delivery-addresses", address);
 

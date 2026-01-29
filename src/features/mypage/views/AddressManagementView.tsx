@@ -15,7 +15,7 @@ export default function AddressManagementView() {
   }, [navigation]);
 
   const handleAddAddressPress = useCallback(() => {
-    navigation.navigate(MYPAGE_ROUTES.ADD_ADDRESS);
+    navigation.navigate(MYPAGE_ROUTES.ADDRESS_FORM);
   }, [navigation]);
 
   const renderItem = useCallback(({ item }: { item: Address }) => {

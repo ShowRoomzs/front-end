@@ -2,6 +2,7 @@ import { Pressable, View } from "react-native";
 
 import Icon from "@/common/components/Icon/Icon";
 import Typography from "@/common/components/Typography/Typography";
+import { usePermissionPress } from "@/common/hooks/usePermissionPress";
 import { MyPageRouteName } from "@/common/router/routes";
 import { COMMON_ASSETS } from "@/common/utils/assets";
 import { cn } from "@/common/utils/cn";
@@ -12,16 +13,31 @@ export interface MypageSectionItem {
   title: string;
   rightType: RightType;
   routeName?: MyPageRouteName;
+  hasPermission?: boolean;
+  appVersion?: string;
 }
 export interface MypageSectionProps {
   title: string;
   items: Array<MypageSectionItem>;
   onPressItem?: (item: MypageSectionItem) => void;
-  appVersion?: string;
 }
 
 export default function MypageSection(props: MypageSectionProps) {
-  const { items, title, onPressItem, appVersion = "1.0.0" } = props;
+  const { items, title, onPressItem } = props;
+
+  const permissionPress = usePermissionPress((item: MypageSectionItem) => {
+    onPressItem?.(item);
+  });
+
+  const handlePressItem = (item: MypageSectionItem) => {
+    const pressEvent = item.hasPermission ? permissionPress : onPressItem;
+
+    if (!pressEvent) {
+      return;
+    }
+
+    pressEvent(item);
+  };
 
   return (
     <View className="flex flex-col">
@@ -31,7 +47,7 @@ export default function MypageSection(props: MypageSectionProps) {
 
         return (
           <Pressable
-            onPress={() => onPressItem?.(item)}
+            onPress={() => handlePressItem?.(item)}
             key={index}
             className={cn(
               "flex flex-row justify-between items-center py-15",
@@ -41,7 +57,7 @@ export default function MypageSection(props: MypageSectionProps) {
             <Typography className="text-black font-medium text-14">{item.title}</Typography>
             {item.rightType === "arrow" && <Icon icon={COMMON_ASSETS.arrowRight} />}
             {item.rightType === "version" && (
-              <Typography className="text-gray10 font-medium text-14">{appVersion}</Typography>
+              <Typography className="text-gray10 font-medium text-14">{item.appVersion}</Typography>
             )}
           </Pressable>
         );

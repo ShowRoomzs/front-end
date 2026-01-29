@@ -12,7 +12,7 @@ export type HomeTabParamList = {
   [HOME_ROUTES.CATEGORY]: undefined;
   [HOME_ROUTES.FOLLOWING]: undefined;
   [HOME_ROUTES.HOME]: undefined;
-  [HOME_ROUTES.LIKE]: undefined;
+  [HOME_ROUTES.WISHLIST]: undefined;
   [HOME_ROUTES.MYPAGE]: undefined;
 };
 

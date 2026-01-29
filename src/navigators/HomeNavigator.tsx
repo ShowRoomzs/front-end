@@ -9,8 +9,8 @@ import CategoryDetailView from "@/features/category/views/CategoryDetailView";
 import CategoryView from "@/features/category/views/CategoryView";
 import FollowingView from "@/features/following/views/FollowingView";
 import HomeView from "@/features/home/views/HomeView";
-import LikeView from "@/features/like/views/LikeView";
 import MypageView from "@/features/mypage/views/MypageView";
+import WishlistView from "@/features/wishlist/views/WishlistView";
 
 const Tab = createBottomTabNavigator();
 const CategoryStack = createNativeStackNavigator<CategoryStackParamList>();
@@ -35,7 +35,7 @@ export default function HomeNavigator() {
         <Tab.Screen name={HOME_ROUTES.CATEGORY} component={CategoryNavigator} />
         <Tab.Screen name={HOME_ROUTES.FOLLOWING} component={FollowingView} />
         <Tab.Screen name={HOME_ROUTES.HOME} component={HomeView} />
-        <Tab.Screen name={HOME_ROUTES.LIKE} component={LikeView} />
+        <Tab.Screen name={HOME_ROUTES.WISHLIST} component={WishlistView} />
         <Tab.Screen name={HOME_ROUTES.MYPAGE} component={MypageView} />
       </Tab.Navigator>
     </SafeAreaView>

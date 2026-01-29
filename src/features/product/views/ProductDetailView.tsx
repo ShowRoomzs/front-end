@@ -1,15 +1,18 @@
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { produce } from "immer";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LayoutChangeEvent, ListRenderItemInfo, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Spinner from "@/common/components/Spinner/Spinner";
+import StretchTabHeaderItem from "@/common/components/Tabs/StretchTabHeaderItem";
 import TabBody from "@/common/components/Tabs/TabBody";
 import TabHeader from "@/common/components/Tabs/TabHeader";
 import { TabItemType } from "@/common/components/Tabs/Tabs";
 import Typography from "@/common/components/Typography/Typography";
 import { useBottomSheet } from "@/common/hooks/useBottomSheet";
+import { usePermissionPress } from "@/common/hooks/usePermissionPress";
+import { useTabIndex } from "@/common/hooks/useTabIndex";
 import { useCommonNavigation, useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
@@ -22,23 +25,34 @@ import ProductDetailInfo from "@/features/product/components/ProductDetailInfo/P
 import ProductDetailPriceSection from "@/features/product/components/ProductDetailPriceSection/ProductDetailPriceSection";
 import ProductDetailRelatedProducts from "@/features/product/components/ProductDetailRelatedProducts/ProductDetailRelatedProducts";
 import ProductDetailShowroomSection from "@/features/product/components/ProductDetailShowroomSection/ProductDetailShowroomSection";
-import ProductDetailTabHeader from "@/features/product/components/ProductDetailTabHeader/ProductDetailTabHeader";
 import { PRODUCT_OPTION_BOTTOM_SHEET_MAX_HEIGHT } from "@/features/product/components/ProductOptionBottomSheet/config";
 import ProductOptionBottomSheet from "@/features/product/components/ProductOptionBottomSheet/ProductOptionBottomSheet";
 import ProductThumbnailCarousel from "@/features/product/components/ProductThumbnailCarousel/ProductThumbnailCarousel";
 import { useGetProductDetail } from "@/features/product/hooks/useGetProductDetail";
 import { useGetRelatedProducts } from "@/features/product/hooks/useGetRelatedProducts";
-import { Product } from "@/features/product/types/product";
+import { Product, ProductDetail } from "@/features/product/types/product";
+import { useUpdateWishlist } from "@/features/wishlist/hooks/useUpdateWishlist";
 
 const BOTTOM_TAB_HEIGHT = 59;
 
 export default function ProductDetailView() {
   const { params } = useRoute<RouteProp<CommonStackParamList, typeof COMMON_ROUTES.PRODUCT_DETAIL>>();
   const { productId } = params;
-  const { data: productDetail, isLoading: isProductDetailLoading } = useGetProductDetail(productId);
+  const { data: productDetail, isLoading, isStale } = useGetProductDetail(productId);
   const { data: relatedProducts } = useGetRelatedProducts(productId);
+  const { update: updateWishlist, cleanupFns } = useUpdateWishlist();
+  const { selectedTabIndex, updateTabIndex } = useTabIndex(0);
   const [tabHeaderY, setTabHeaderY] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
+  // 낙관적 업데이트를 위한 상태
+  const [localProduct, setLocalProduct] = useState<ProductDetail | undefined>(undefined);
+
+  useEffect(() => {
+    if (productDetail && !isStale) {
+      setLocalProduct(productDetail);
+    }
+  }, [isStale, productDetail]);
+
   const { open: openProductOptionBottomSheet } = useBottomSheet({
     id: "product-option",
     render: (
@@ -63,8 +77,6 @@ export default function ProductDetailView() {
   const mainNavigation = useMainNavigation();
   const commonNavigation = useCommonNavigation();
 
-  const [selectedIndex, setSelectedIndex] = useState(0); // tab index
-
   const [isExpand, setIsExpand] = useState(false);
   const { bottom } = useSafeAreaInsets();
 
@@ -88,11 +100,26 @@ export default function ProductDetailView() {
     });
   }, [mainNavigation]);
 
-  const handlePressLike = useCallback((product: Product, newIsWished: boolean) => {
-    // TODO : 좋아요 처리
-    console.log("product", product);
-    console.log("newIsWished", newIsWished);
-  }, []);
+  // related product & product detail 좋아요 처리
+  const handlePressLike = useCallback(
+    (productId: number, newIsWished: boolean) => {
+      updateWishlist(productId, newIsWished);
+    },
+    [updateWishlist]
+  );
+
+  // product detail 좋아요 처리 권한 체크
+  const handlePermissionLike = usePermissionPress((newIsWished: boolean) => {
+    setLocalProduct(
+      produce(draft => {
+        if (!draft) {
+          return;
+        }
+        draft.isWished = newIsWished;
+      })
+    );
+    handlePressLike(productId, newIsWished);
+  });
 
   const handlePressProduct = useCallback(
     (product: Product) => {
@@ -169,14 +196,14 @@ export default function ProductDetailView() {
   const renderTabHeader = useCallback(
     (item: ListRenderItemInfo<TabItemType>) => {
       return (
-        <ProductDetailTabHeader
-          item={item}
+        <StretchTabHeaderItem
+          item={item.item}
           itemCount={tabItems.length}
-          isActive={item.index === selectedIndex}
+          isActive={item.index === selectedTabIndex}
         />
       );
     },
-    [selectedIndex, tabItems.length]
+    [selectedTabIndex, tabItems.length]
   );
 
   const handleLayoutTabBodyContent = useCallback((key: string, e: LayoutChangeEvent) => {
@@ -191,7 +218,7 @@ export default function ProductDetailView() {
 
   const handleChangeSelectedIndex = useCallback(
     (index: number) => {
-      setSelectedIndex(index);
+      updateTabIndex(index);
       requestAnimationFrame(() => {
         scrollViewRef.current?.scrollTo({
           y: tabHeaderY,
@@ -199,12 +226,21 @@ export default function ProductDetailView() {
         });
       });
     },
-    [tabHeaderY]
+    [tabHeaderY, updateTabIndex]
   );
 
   const handlePressPurchase = useCallback(() => {
     openProductOptionBottomSheet();
   }, [openProductOptionBottomSheet]);
+
+  useEffect(() => {
+    return () => {
+      if (!cleanupFns?.length) {
+        return;
+      }
+      cleanupFns.forEach(cleanupFn => cleanupFn());
+    };
+  }, [cleanupFns]);
 
   return (
     <View className="flex-1">
@@ -213,7 +249,7 @@ export default function ProductDetailView() {
         onPressSearch={handlePressSearch}
         onPressCart={handlePressCart}
       />
-      {isProductDetailLoading ? (
+      {isLoading || isStale ? (
         <View className="flex-1 items-center justify-center">
           <Spinner />
         </View>
@@ -251,7 +287,7 @@ export default function ProductDetailView() {
               wrapperClassName="bg-white border-b-[1px] border-gray2"
               items={tabItems}
               renderItem={renderTabHeader}
-              selectedIndex={selectedIndex}
+              selectedIndex={selectedTabIndex}
               keyExtractor={item => item.id}
               onPressTab={handleChangeSelectedIndex}
             />
@@ -260,10 +296,10 @@ export default function ProductDetailView() {
             scrollable={false}
             wrapperClassName="flex-1"
             items={tabItems}
-            selectedIndex={selectedIndex}
+            selectedIndex={selectedTabIndex}
             onChangeIndex={handleChangeSelectedIndex}
             onLayout={handleLayoutTabBodyContent}
-            style={{ height: contentHeightMap[tabItems[selectedIndex].id] }}
+            style={{ height: contentHeightMap[tabItems[selectedTabIndex].id] }}
             enableGesture={false}
             enableTabTransitionAnimation={false}
           />
@@ -281,9 +317,9 @@ export default function ProductDetailView() {
         className="p-10 bg-white absolute bottom-0 left-0 right-0 h-50"
       >
         <ProductDetailActions
-          isWished={productDetail?.isWished || false}
-          likeCount="7.2천"
-          onPressLike={() => {}}
+          isWished={localProduct?.isWished || false}
+          likeCount="7.2천" // TODO : 좋아요 수 표시
+          onPressLike={handlePermissionLike}
           onPressPurchase={handlePressPurchase}
         />
       </View>

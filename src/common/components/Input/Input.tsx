@@ -15,6 +15,8 @@ export interface InputProps extends Omit<TextInputProps, "className"> {
   size?: InputSize;
   helperText?: string;
   status?: InputStatus;
+  /** When true, only numeric input is accepted. Optionally pass { maxLength } to limit digits. */
+  numericOnly?: boolean | { maxLength?: number };
 }
 
 const Input = forwardRef<TextInput, InputProps>((props, ref) => {
@@ -25,8 +27,23 @@ const Input = forwardRef<TextInput, InputProps>((props, ref) => {
     helperText,
     status = "default",
     inputClassName,
+    numericOnly,
+    onChangeText,
     ...inputProps
   } = props;
+
+  const maxLength = typeof numericOnly === "object" ? numericOnly.maxLength : undefined;
+
+  const handleChangeText = (text: string) => {
+    if (numericOnly) {
+      const digitsOnly = text.replace(/\D/g, "").slice(0, maxLength ?? inputProps.maxLength ?? undefined);
+
+      onChangeText?.(digitsOnly);
+
+      return;
+    }
+    onChangeText?.(text);
+  };
 
   const [displayHelperText, setDisplayHelperText] = useState(helperText);
   const [textHeight, setTextHeight] = useState(0);
@@ -120,6 +137,7 @@ const Input = forwardRef<TextInput, InputProps>((props, ref) => {
           className={cn("flex-1", inputClassName)}
           placeholderTextColor="#8D8D91"
           {...inputProps}
+          onChangeText={handleChangeText}
         />
       </View>
       {(helperText || displayHelperText) && (

@@ -4,7 +4,7 @@ import { PageInfo } from "@/common/types/page";
 import { WISHLIST_QUERY_KEY } from "@/features/wishlist/constants/querykey";
 import { wishlistService } from "@/features/wishlist/services/wishlistService";
 import { WishlistParams } from "@/features/wishlist/types/params";
-import { WishlistProduct, WishlistResponse } from "@/features/wishlist/types/wishlist";
+import { WishlistProductType, WishlistResponse } from "@/features/wishlist/types/wishlist";
 
 export function useGetWishlist(params: WishlistParams) {
   const { page: _page, ...paramsWithoutPage } = params;
@@ -21,7 +21,7 @@ export function useGetWishlist(params: WishlistParams) {
       lastPage.pageInfo.hasNext ? lastPage.pageInfo.currentPage + 1 : undefined,
   });
 
-  const products: Array<WishlistProduct> = query.data?.pages.flatMap(page => page.products) ?? [];
+  const products: Array<WishlistProductType> = query.data?.pages.flatMap(page => page.products) ?? [];
   const pageInfo: PageInfo | undefined = query.data?.pages.at(-1)?.pageInfo;
 
   return {

@@ -1,35 +1,37 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { ListRenderItemInfo, Text, View } from "react-native";
 
 import StretchTabHeaderItem from "@/common/components/Tabs/StretchTabHeaderItem";
 import Tabs, { TabItemType } from "@/common/components/Tabs/Tabs";
-import { useParams } from "@/common/hooks/useParams";
 import { useTabIndex } from "@/common/hooks/useTabIndex";
 import { useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import WishlistHeader from "@/features/wishlist/components/WishlistHeader/WishlistHeader";
 import WishlistProduct from "@/features/wishlist/components/WishlistProduct/WishlistProduct";
-import { useGetWishlist } from "@/features/wishlist/hooks/useGetWishlist";
-import { WishlistParams } from "@/features/wishlist/types/params";
-
-const INITIAL_PARAMS: WishlistParams = {
-  page: 1,
-  limit: 10,
-  categoryId: null,
-};
+import { WishlistProductType } from "@/features/wishlist/types/wishlist";
 
 export default function WishlistView() {
-  const { params } = useParams<WishlistParams>(INITIAL_PARAMS);
-  const { products } = useGetWishlist(params);
   const { selectedTabIndex, updateTabIndex } = useTabIndex();
   const navigation = useMainNavigation();
+  const [productCount, setProductCount] = useState<number | undefined>(undefined);
+
+  // 전체 상품 리스트가 가장 먼저 넘어옴
+  const handleLoad = useCallback(
+    (products: Array<WishlistProductType>) => {
+      if (productCount !== undefined) {
+        return;
+      }
+      setProductCount(products.length);
+    },
+    [productCount]
+  );
 
   const tabItems: Array<TabItemType> = useMemo(
     () => [
       {
         id: "product",
         label: "상품",
-        render: () => <WishlistProduct />,
+        render: () => <WishlistProduct onLoad={handleLoad} />,
       },
       {
         id: "contents",
@@ -41,7 +43,7 @@ export default function WishlistView() {
         ),
       },
     ],
-    []
+    [handleLoad]
   );
   const renderTabHeader = useCallback(
     (item: ListRenderItemInfo<TabItemType>) => {
@@ -74,7 +76,7 @@ export default function WishlistView() {
     <View className="flex-1">
       <WishlistHeader
         wrapperClassName="px-20"
-        likeCount={products.length}
+        likeCount={productCount}
         onPressSearch={handlePressSearch}
         onPressCart={handlePressCart}
       />

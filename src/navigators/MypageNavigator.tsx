@@ -2,6 +2,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import { MYPAGE_ROUTES } from "@/common/router/routes";
 import { MypageStackParamList } from "@/common/router/types";
+import AddAddressView from "@/features/mypage/views/AddAddressView";
 import AddressManagementView from "@/features/mypage/views/AddressManagementView";
 import MypageView from "@/features/mypage/views/MypageView";
 
@@ -12,6 +13,7 @@ export default function MypageNavigator() {
     <Stack.Navigator initialRouteName={MYPAGE_ROUTES.MAIN} screenOptions={{ headerShown: false }}>
       <Stack.Screen name={MYPAGE_ROUTES.MAIN} component={MypageView} />
       <Stack.Screen name={MYPAGE_ROUTES.ADDRESS_MANAGEMENT} component={AddressManagementView} />
+      <Stack.Screen name={MYPAGE_ROUTES.ADD_ADDRESS} component={AddAddressView} />
     </Stack.Navigator>
   );
 }

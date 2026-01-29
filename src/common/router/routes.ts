@@ -35,7 +35,7 @@ export const MYPAGE_ROUTES = {
   ORDER_AND_DELIVERY_SEARCH: "orderAndDeliverySearch",
   CANCEL_AND_REFUND: "cancelAndRefund",
   ADDRESS_MANAGEMENT: "addressManagement",
-  ADD_ADDRESS: "addAddress",
+  ADDRESS_FORM: "addressForm",
   INQUIRY_HISTORY: "inquiryHistory",
   CUSTOMER_CENTER: "customerCenter",
   NOTICE: "notice",

@@ -238,7 +238,7 @@ export default function ProductDetailView() {
       if (!cleanupFns?.length) {
         return;
       }
-      cleanupFns.forEach(cleanupFn => cleanupFn());
+      cleanupFns.forEach((fn: () => void) => fn());
     };
   }, [cleanupFns]);
 

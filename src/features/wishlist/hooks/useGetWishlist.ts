@@ -1,7 +1,7 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 
 import { PageInfo } from "@/common/types/page";
-import { WISHLIST_QUERY_KEY } from "@/features/wishlist/constants/querykey";
+import { WISHLIST_QUERY_KEY } from "@/features/wishlist/constants/queryKey";
 import { wishlistService } from "@/features/wishlist/services/wishlistService";
 import { WishlistParams } from "@/features/wishlist/types/params";
 import { WishlistProductType, WishlistResponse } from "@/features/wishlist/types/wishlist";

@@ -1,21 +1,17 @@
-import { ListRenderItemInfo, useWindowDimensions, View } from "react-native";
+import { useWindowDimensions, View } from "react-native";
 
 import { TabItemType } from "@/common/components/Tabs/Tabs";
 import Typography from "@/common/components/Typography/Typography";
 import { cn } from "@/common/utils/cn";
 
-interface ProductDetailTabHeaderProps {
-  item: ListRenderItemInfo<TabItemType>;
+interface StretchTabHeaderItemProps {
+  item: TabItemType;
   itemCount: number;
   isActive: boolean;
 }
-export default function ProductDetailTabHeader(props: ProductDetailTabHeaderProps) {
-  const {
-    item: { item },
-    itemCount,
-    isActive,
-  } = props;
 
+export default function StretchTabHeaderItem(props: StretchTabHeaderItemProps) {
+  const { item, itemCount, isActive } = props;
   const width = useWindowDimensions().width / itemCount;
 
   return (

@@ -1,7 +1,8 @@
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { produce } from "immer";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { TextInput, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Button from "@/common/components/Button/Button";
 import { DaumPostcodeData } from "@/common/components/DaumPostcode/DaumPostcode";
@@ -14,7 +15,9 @@ import { useAddressSearch } from "@/common/providers/AddressSearchProvider";
 import { useMypageNavigation } from "@/common/router";
 import { MYPAGE_ROUTES } from "@/common/router/routes";
 import { MypageStackParamList } from "@/common/router/types";
+import { formatPhoneNumber } from "@/features/auth/utils/formatPhoneNumber";
 import AddressManagementHeader from "@/features/mypage/components/AddressManagementHeader/AddressManagementHeader";
+import { useAddressMutation } from "@/features/mypage/hooks/useAddressMutation";
 import { AddressRequest } from "@/features/mypage/types/address";
 
 const INITIAL_ADDRESS: AddressRequest = {
@@ -28,11 +31,13 @@ const INITIAL_ADDRESS: AddressRequest = {
 
 export default function AddressFormView() {
   const route = useRoute<RouteProp<MypageStackParamList, typeof MYPAGE_ROUTES.ADDRESS_FORM>>();
+  const inset = useSafeAreaInsets();
   const addressId = route.params?.addressId;
   const isEdit = !!addressId;
   const [address, setAddress] = useState<AddressRequest>(INITIAL_ADDRESS);
   const title = isEdit ? "배송지 수정" : "배송지 추가";
   const detailAddressInputRef = useRef<TextInput>(null);
+  const { addAddressMutation, updateAddressMutation } = useAddressMutation();
   const navigation = useMypageNavigation();
   const handleBackPress = useCallback(() => {
     navigation.goBack();
@@ -57,6 +62,14 @@ export default function AddressFormView() {
     openAddressSearch(handleSelectAddress);
   }, [handleSelectAddress, openAddressSearch]);
 
+  const handleChangeRecipientName = useCallback((text: string) => {
+    setAddress(
+      produce(draft => {
+        draft.recipientName = text;
+      })
+    );
+  }, []);
+
   const handleChangeDetailAddress = useCallback((text: string) => {
     setAddress(
       produce(draft => {
@@ -73,6 +86,34 @@ export default function AddressFormView() {
     );
   }, []);
 
+  const enableValidation = useMemo(() => {
+    return (Object.keys(address) as Array<keyof AddressRequest>).every(key => {
+      const value = address[key];
+
+      if (key === "isDefault") {
+        return true;
+      }
+      if (key === "phoneNumber") {
+        return value.toString().length === 11;
+      }
+      return !!value;
+    });
+  }, [address]);
+
+  const handleSubmit = useCallback(async () => {
+    const parsedAddress: AddressRequest = {
+      ...address,
+      phoneNumber: formatPhoneNumber(address.phoneNumber),
+    };
+
+    const apiFn = isEdit
+      ? updateAddressMutation.mutateAsync({ addressId, address: parsedAddress })
+      : addAddressMutation.mutateAsync(parsedAddress);
+
+    await apiFn;
+    navigation.goBack();
+  }, [addAddressMutation, address, addressId, isEdit, navigation, updateAddressMutation]);
+
   return (
     <View className="flex-1">
       <AddressManagementHeader
@@ -81,12 +122,12 @@ export default function AddressFormView() {
         onBackPress={handleBackPress}
         showAddButton={false}
       />
-      <VStack gap={20} className="py-25 px-20">
+      <VStack gap={20} className="flex-1 py-25 px-20 pb-24">
         <LabeledInput
           label="이름"
           placeholder="이름을 입력해 주세요"
           value={address.recipientName}
-          onChangeText={() => {}}
+          onChangeText={handleChangeRecipientName}
         />
         <VStack gap={10}>
           <LabeledComponent label="배송지 입력">
@@ -115,10 +156,20 @@ export default function AddressFormView() {
           label="전화번호"
           value={address.phoneNumber}
           onChangeText={handleChangePhoneNumber}
+          keyboardType="numeric"
           maxLength={11}
+          numericOnly={{ maxLength: 11 }}
           placeholder="전화번호를 입력해 주세요"
         />
       </VStack>
+      <View
+        className="absolute bottom-0 left-0 right-0 border-t border-gray-200 bg-white p-20"
+        style={{ paddingBottom: 10 + inset.bottom }}
+      >
+        <Button size="xl" variant="primary" onPress={handleSubmit} disabled={!enableValidation}>
+          {`배송지 ${isEdit ? "수정" : "입력"}하기`}
+        </Button>
+      </View>
     </View>
   );
 }

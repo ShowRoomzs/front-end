@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { MYPAGE_QUERY_KEY } from "@/features/mypage/constants/querykey";
+import { MYPAGE_QUERY_KEY } from "@/features/mypage/constants/queryKey";
 import { addressService } from "@/features/mypage/services/addressService";
 
 export function useGetAddressList() {

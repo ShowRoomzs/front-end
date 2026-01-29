@@ -5,7 +5,7 @@ export interface Address {
   address: string;
   detailAddress: string;
   phoneNumber: string;
-  isDefault: boolean;
+  default: boolean;
 }
 
 export type AddressRequest = Omit<Address, "id">;

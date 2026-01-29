@@ -86,7 +86,7 @@ export default function WishlistView() {
    */
   useEffect(() => {
     if (prevFocusedRef.current && !isFocused && cleanupFns.length) {
-      cleanupFns.forEach((fn: () => void) => {
+      cleanupFns.forEach((fn: CleanupFn) => {
         fn();
       });
     }

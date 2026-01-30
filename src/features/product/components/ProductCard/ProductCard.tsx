@@ -14,10 +14,12 @@ import Icon from "@/common/components/Icon/Icon";
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
 import { COMMON_ASSETS } from "@/common/utils/assets";
+import { cn } from "@/common/utils/cn";
 import { likeHaptic } from "@/common/utils/haptics";
+import { SIZE_CLASSES, SIZE_RATIO } from "@/features/product/components/ProductCard/config";
 import { Product } from "@/features/product/types/product";
 
-type ProductCardSize = "sm" | "md";
+export type ProductCardSize = "sm" | "md";
 interface ProductCardProps {
   product: Product;
   onPress: (product: Product) => void;
@@ -26,8 +28,6 @@ interface ProductCardProps {
   useOptimisticUpdate?: boolean;
   size?: ProductCardSize;
 }
-
-const SIZE_RATIO = 0.923;
 
 export default function ProductCard(props: ProductCardProps) {
   const { product: originProduct, onPress, width, onPressLike, useOptimisticUpdate, size = "md" } = props;
@@ -74,6 +74,8 @@ export default function ProductCard(props: ProductCardProps) {
     } as StyleProp<ViewStyle>;
   }, []);
 
+  const classes = SIZE_CLASSES[size];
+
   return (
     <TouchableOpacity className="relative" onPress={handlePress} activeOpacity={0.7}>
       <Pressable onPress={handlePressLike} style={pressableStyle}>
@@ -82,15 +84,15 @@ export default function ProductCard(props: ProductCardProps) {
       <VStack style={{ width }}>
         <Image style={{ height: height }} source={{ uri: product.thumbnailUrl }} />
         <VStack className="mt-15">
-          <Typography className="text-12 text-gray10 font-normal">{product.marketName}</Typography>
-          <Typography className="mt-6 text-15 text-black font-medium">{product.name}</Typography>
+          <Typography className={cn("font-normal", classes.marketName)}>{product.marketName}</Typography>
+          <Typography className={cn("mt-6 font-medium", classes.productName)}>{product.name}</Typography>
           <HStack className="mt-8" gap={6}>
             {product.price.discountRate > 0 && (
-              <Typography className="text-16 text-pointColor font-medium">
+              <Typography className={cn("font-medium", classes.discountRate)}>
                 {product.price.discountRate}%
               </Typography>
             )}
-            <Typography className="text-16 text-black font-semibold">
+            <Typography className={cn("font-semibold", classes.salePrice)}>
               ₩ {product.price.salePrice.toLocaleString()}
             </Typography>
           </HStack>

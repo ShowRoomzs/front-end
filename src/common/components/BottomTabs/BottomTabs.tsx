@@ -4,15 +4,11 @@ import { Pressable } from "react-native";
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import {
-  BOTTOM_TABS_HEIGHT,
-  SHOULD_CHECK_PERMISSION_ROUTE_NAMES,
-} from "@/common/components/BottomTabs/config";
+import { BOTTOM_TABS_HEIGHT } from "@/common/components/BottomTabs/config";
 import Icon from "@/common/components/Icon/Icon";
 import Typography from "@/common/components/Typography/Typography";
 import { HOME_ROUTES_LABEL_MAP } from "@/common/constants/tabs";
 import { useBottomTab } from "@/common/hooks/useBottomTab";
-import { usePermissionPress } from "@/common/hooks/usePermissionPress";
 import { HomeRouteName } from "@/common/router";
 import { COMMON_ASSETS, IconVariant } from "@/common/utils/assets";
 
@@ -23,20 +19,8 @@ export default function BottomTabs(props: BottomTabBarProps) {
   const visibleHeight = BOTTOM_TABS_HEIGHT + inset.bottom;
   const progress = useSharedValue(isVisible ? 0 : 1);
 
-  const navigateToRoute = (routeName: string) => {
-    navigation.navigate(routeName);
-  };
-
-  const permissionPress = usePermissionPress((routeName: string) => {
-    navigateToRoute(routeName);
-  });
-
   const handlePress = (routeName: string) => {
-    if (SHOULD_CHECK_PERMISSION_ROUTE_NAMES.includes(routeName as HomeRouteName)) {
-      permissionPress(routeName);
-      return;
-    }
-    navigateToRoute(routeName);
+    navigation.navigate(routeName);
   };
 
   const getTextClassName = (isActive: boolean) => {

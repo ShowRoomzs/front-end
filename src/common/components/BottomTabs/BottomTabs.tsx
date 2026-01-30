@@ -18,9 +18,11 @@ export default function BottomTabs(props: BottomTabBarProps) {
   const inset = useSafeAreaInsets();
   const visibleHeight = BOTTOM_TABS_HEIGHT + inset.bottom;
   const progress = useSharedValue(isVisible ? 0 : 1);
+
   const handlePress = (routeName: string) => {
     navigation.navigate(routeName);
   };
+
   const getTextClassName = (isActive: boolean) => {
     let className = "text-10 font-medium";
     if (isActive) {

@@ -99,8 +99,7 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
     >
       <BottomSheetScrollView
         contentContainerStyle={{
-          paddingBottom:
-            BOTTOM_SHEET_GAP + (hasSelectedVariants ? footerHeight : PRODUCT_OPTION_BOTTOM_SHEET_PADDING),
+          paddingBottom: BOTTOM_SHEET_GAP + footerHeight,
         }}
       >
         <VStack gap={BOTTOM_SHEET_GAP} className="px-20">
@@ -140,28 +139,28 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
           ))}
         </VStack>
       </BottomSheetScrollView>
-      {hasSelectedVariants && (
-        <View
-          onLayout={e => setFooterHeight(e.nativeEvent.layout.height)}
-          className="absolute bottom-0 left-0 right-0 bg-white"
-          style={{ paddingBottom: bottom + PRODUCT_OPTION_BOTTOM_SHEET_PADDING }}
-        >
+      <View
+        onLayout={e => setFooterHeight(e.nativeEvent.layout.height)}
+        className="absolute bottom-0 left-0 right-0 bg-white"
+        style={{ paddingBottom: bottom + PRODUCT_OPTION_BOTTOM_SHEET_PADDING }}
+      >
+        {hasSelectedVariants && (
           <View className="px-10 p-20 border-t-[1px] border-gray2 flex flex-row items-center justify-between">
             <Typography className="text-14 text-gray10 font-normal">총 결제 금액.</Typography>
             <Typography className="text-black text-16 font-semibold">
               ₩ {totalPrice.toLocaleString()}
             </Typography>
           </View>
-          <HStack gap={6} className="px-10 flex flex-row items-center pt-10">
-            <Button size="xl" variant="secondary" className="py-15 flex-1">
-              장바구니
-            </Button>
-            <Button size="xl" variant="primary" className="py-15 flex-1">
-              구매하기
-            </Button>
-          </HStack>
-        </View>
-      )}
+        )}
+        <HStack gap={6} className="px-10 flex flex-row items-center pt-10">
+          <Button disabled={!hasSelectedVariants} size="xl" variant="secondary" className="py-15 flex-1">
+            장바구니
+          </Button>
+          <Button disabled={!hasSelectedVariants} size="xl" variant="primary" className="py-15 flex-1">
+            구매하기
+          </Button>
+        </HStack>
+      </View>
     </View>
   );
 }

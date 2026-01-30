@@ -1,37 +1,39 @@
-import { useCallback, useMemo, useState } from "react";
+import { useIsFocused } from "@react-navigation/native";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ListRenderItemInfo, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import { BOTTOM_TABS_HEIGHT } from "@/common/components/BottomTabs/config";
 import StretchTabHeaderItem from "@/common/components/Tabs/StretchTabHeaderItem";
 import Tabs, { TabItemType } from "@/common/components/Tabs/Tabs";
 import { useTabIndex } from "@/common/hooks/useTabIndex";
 import { useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
+import { useUserStore } from "@/common/stores/useUserStore";
+import { CleanupFn } from "@/common/types/cleanup";
+import AuthEntryBanner from "@/features/mypage/components/AuthEntryBanner/AuthEntryBanner";
 import WishlistHeader from "@/features/wishlist/components/WishlistHeader/WishlistHeader";
 import WishlistProduct from "@/features/wishlist/components/WishlistProduct/WishlistProduct";
-import { WishlistProductType } from "@/features/wishlist/types/wishlist";
 
 export default function WishlistView() {
+  const isFocused = useIsFocused();
+  const { user } = useUserStore();
   const { selectedTabIndex, updateTabIndex } = useTabIndex();
+  const inset = useSafeAreaInsets();
   const navigation = useMainNavigation();
-  const [productCount, setProductCount] = useState<number | undefined>(undefined);
+  const [cleanupFns, setCleanupFns] = useState<Array<CleanupFn>>([]);
+  const prevFocusedRef = useRef(isFocused);
 
-  // 전체 상품 리스트가 가장 먼저 넘어옴
-  const handleLoad = useCallback(
-    (products: Array<WishlistProductType>) => {
-      if (productCount !== undefined) {
-        return;
-      }
-      setProductCount(products.length);
-    },
-    [productCount]
-  );
+  const handleUpdateCallback = useCallback((fns: Array<CleanupFn>) => {
+    setCleanupFns(fns);
+  }, []);
 
   const tabItems: Array<TabItemType> = useMemo(
     () => [
       {
         id: "product",
         label: "상품",
-        render: () => <WishlistProduct onLoad={handleLoad} />,
+        render: () => <WishlistProduct onUpdateCallback={handleUpdateCallback} />,
       },
       {
         id: "contents",
@@ -43,7 +45,7 @@ export default function WishlistView() {
         ),
       },
     ],
-    [handleLoad]
+    [handleUpdateCallback]
   );
   const renderTabHeader = useCallback(
     (item: ListRenderItemInfo<TabItemType>) => {
@@ -72,28 +74,55 @@ export default function WishlistView() {
     });
   }, [navigation]);
 
+  /**
+   * 현재 view 포커즈 빠지면 cleanupFns 실행
+   * Tab Navigator는 탭 이동시 unmount되지 않아 뒷정리함수로 처리 불가
+   */
+  useEffect(() => {
+    if (prevFocusedRef.current && !isFocused && cleanupFns.length) {
+      cleanupFns.forEach((fn: CleanupFn) => {
+        fn();
+      });
+    }
+    prevFocusedRef.current = isFocused;
+  }, [isFocused, cleanupFns]);
+
+  const handlePressAuth = useCallback(() => {
+    navigation.navigate(ROOT_ROUTES.AUTH, {
+      params: {},
+    });
+  }, [navigation]);
+
   return (
     <View className="flex-1">
       <WishlistHeader
         wrapperClassName="px-20"
-        likeCount={productCount}
         onPressSearch={handlePressSearch}
         onPressCart={handlePressCart}
       />
-      <View className="flex-1">
-        <Tabs
-          renderItem={renderTabHeader}
-          headerClassName="border-b-[1px] border-gray2"
-          items={tabItems}
-          scrollable
-          bodyClassName="flex-1"
-          enableGesture={false}
-          enableHeaderScroll={false}
-          enableTabTransitionAnimation={false}
-          selectedIndex={selectedTabIndex}
-          onSelect={updateTabIndex}
-        />
-      </View>
+      {user ? (
+        <View className="flex-1">
+          <Tabs
+            renderItem={renderTabHeader}
+            headerClassName="border-b-[1px] border-gray2"
+            items={tabItems}
+            scrollable
+            bodyClassName="flex-1"
+            enableGesture={false}
+            enableHeaderScroll={false}
+            enableTabTransitionAnimation={false}
+            selectedIndex={selectedTabIndex}
+            onSelect={updateTabIndex}
+          />
+        </View>
+      ) : (
+        <View
+          style={{ paddingBottom: inset.bottom + BOTTOM_TABS_HEIGHT }}
+          className="flex-1 justify-center px-20"
+        >
+          <AuthEntryBanner onPressAuth={handlePressAuth} />
+        </View>
+      )}
     </View>
   );
 }

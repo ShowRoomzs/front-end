@@ -144,12 +144,14 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
         className="absolute bottom-0 left-0 right-0 bg-white"
         style={{ paddingBottom: bottom + PRODUCT_OPTION_BOTTOM_SHEET_PADDING }}
       >
-        <View className="px-10 p-20 border-t-[1px] border-gray2 flex flex-row items-center justify-between">
-          <Typography className="text-14 text-gray10 font-normal">총 결제 금액.</Typography>
-          <Typography className="text-black text-16 font-semibold">
-            ₩ {totalPrice.toLocaleString()}
-          </Typography>
-        </View>
+        {hasSelectedVariants && (
+          <View className="px-10 p-20 border-t-[1px] border-gray2 flex flex-row items-center justify-between">
+            <Typography className="text-14 text-gray10 font-normal">총 결제 금액.</Typography>
+            <Typography className="text-black text-16 font-semibold">
+              ₩ {totalPrice.toLocaleString()}
+            </Typography>
+          </View>
+        )}
         <HStack gap={6} className="px-10 flex flex-row items-center pt-10">
           <Button disabled={!hasSelectedVariants} size="xl" variant="secondary" className="py-15 flex-1">
             장바구니

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect } from "react";
 import { View } from "react-native";
 
 import type { WishlistProductType } from "@/features/wishlist/types/wishlist";
@@ -22,7 +22,6 @@ import { WishlistParams } from "@/features/wishlist/types/params";
 
 interface WishlistProductListProps {
   categoryId: number | null;
-  onLoad?: (products: Array<WishlistProductType>) => void;
   // 좋아요 업데이트 시 외부로 cleanup 함수 전달(view단에서 뒷정리 처리하기 위함)
   onUpdateCallback?: (cleanupFns: Array<CleanupFn>) => void;
 }
@@ -33,24 +32,15 @@ const INITIAL_PARAMS: WishlistParams = {
 };
 
 export default function WishlistProductList(props: WishlistProductListProps) {
-  const { categoryId, onLoad, onUpdateCallback } = props;
+  const { categoryId, onUpdateCallback } = props;
   const { update: updateWishlist, cleanupFns } = useUpdateWishlist();
   const navigation = useMainNavigation();
-  const isMounted = useRef(false);
   const { params } = useParams<WishlistParams>({
     ...INITIAL_PARAMS,
     categoryId,
   });
 
   const { products, pageInfo, isLoading, fetchNextPage } = useGetWishlist(params);
-
-  useEffect(() => {
-    if (isMounted.current || !onLoad || isLoading) {
-      return;
-    }
-    onLoad(products);
-    isMounted.current = true;
-  }, [products, onLoad, isLoading]);
 
   useEffect(() => {
     if (!cleanupFns?.length || !onUpdateCallback) {

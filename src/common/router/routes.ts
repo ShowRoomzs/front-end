@@ -23,6 +23,7 @@ export const AUTH_ROUTES = {
 // 공통 스택 네베게이션
 export const COMMON_ROUTES = {
   SEARCH: "search",
+  SEARCH_DETAIL: "searchDetail",
   CART: "cart",
   NOTIFICATION: "notification",
   SETTING: "setting",

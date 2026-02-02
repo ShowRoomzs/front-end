@@ -6,6 +6,7 @@ import { CommonStackParamList } from "@/common/router/types";
 import CartView from "@/features/cart/views/CartView";
 import NotificationView from "@/features/notification/views/NotificationView";
 import ProductDetailView from "@/features/product/views/ProductDetailView";
+import SearchDetailView from "@/features/search/views/SearchDetailView";
 import SearchView from "@/features/search/views/SearchView";
 import SettingView from "@/features/setting/views/SettingView";
 
@@ -17,6 +18,7 @@ export default function CommonNavigator() {
     <SafeAreaView edges={["top"]} className="flex-1">
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name={COMMON_ROUTES.SEARCH} component={SearchView} />
+        <Stack.Screen name={COMMON_ROUTES.SEARCH_DETAIL} component={SearchDetailView} />
         <Stack.Screen name={COMMON_ROUTES.CART} component={CartView} />
         <Stack.Screen name={COMMON_ROUTES.NOTIFICATION} component={NotificationView} />
         <Stack.Screen name={COMMON_ROUTES.SETTING} component={SettingView} />

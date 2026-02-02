@@ -47,6 +47,7 @@ export default function ProductCard(props: ProductCardProps) {
     likeHaptic();
     const newIsWished = !product.isWished;
 
+    // 낙관적 업데이트 여부
     if (useOptimisticUpdate) {
       setProduct(
         produce(draft => {
@@ -55,6 +56,7 @@ export default function ProductCard(props: ProductCardProps) {
       );
     }
 
+    // 좋아요 상태 업데이트
     onPressLike?.(product.id, newIsWished);
   }, [onPressLike, product.id, product.isWished, useOptimisticUpdate]);
 

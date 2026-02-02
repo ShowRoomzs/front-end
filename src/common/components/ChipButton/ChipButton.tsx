@@ -7,11 +7,11 @@ import { cn } from "@/common/utils/cn";
 interface ChipButtonProps {
   label: string | ReactNode;
   onPress: () => void;
-  className?: string;
+  wrapperClassName?: string;
   labelClassName?: string;
 }
 export default function ChipButton(props: ChipButtonProps) {
-  const { label, onPress, className, labelClassName } = props;
+  const { label, onPress, wrapperClassName, labelClassName } = props;
 
   const content = useMemo(() => {
     if (typeof label === "string") {
@@ -27,7 +27,7 @@ export default function ChipButton(props: ChipButtonProps) {
   };
 
   return (
-    <Pressable className={cn(getDefaultClassName(), className)} onPress={onPress}>
+    <Pressable className={cn(getDefaultClassName(), wrapperClassName)} onPress={onPress}>
       {content}
     </Pressable>
   );

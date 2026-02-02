@@ -128,6 +128,8 @@ export default function SearchDetailView() {
 
   const isActuallyLoading = isLoading || isFetchingNextPage;
 
+  const selectedFilterKeys = useMemo(() => params.filters.map(f => f.key), [params.filters]);
+
   return (
     <View className="flex-1">
       <SearchHeader
@@ -137,6 +139,7 @@ export default function SearchDetailView() {
         onSearch={handleSearch}
       />
       <FilterListView
+        selectedFilterKeys={selectedFilterKeys}
         filters={filterList}
         onPressFilter={handlePressFilter}
         wrapperClassName="border-b-[1px] border-gray2"

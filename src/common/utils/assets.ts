@@ -10,6 +10,7 @@ import CategoryActiveIcon from "@/common/assets/common/category-active.svg";
 import CategoryDefaultIcon from "@/common/assets/common/category-default.svg";
 import CheckBlackIcon from "@/common/assets/common/check-black.svg";
 import CheckIcon from "@/common/assets/common/check.svg";
+import CloseGrayIcon from "@/common/assets/common/close-gray-icon.svg";
 import CloseBlackIcon from "@/common/assets/common/close.svg";
 import CommentIcon from "@/common/assets/common/comment-icon.svg";
 import DownloadIcon from "@/common/assets/common/download-icon.svg";
@@ -162,5 +163,8 @@ export const COMMON_ASSETS: Assets = {
   },
   plusIconPoint: {
     default: PlusIconPoint,
+  },
+  closeGray: {
+    default: CloseGrayIcon,
   },
 };

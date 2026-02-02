@@ -6,14 +6,16 @@ import HStack from "@/common/components/HStack/HStack";
 import Icon from "@/common/components/Icon/Icon";
 import Typography from "@/common/components/Typography/Typography";
 import { COMMON_ASSETS } from "@/common/utils/assets";
+import { cn } from "@/common/utils/cn";
 import { Filter } from "@/features/filter/types/filter";
 
 interface FilterListViewProps {
   filters: Array<Filter>;
   onPressFilter: (filterId: number) => void;
+  wrapperClassName?: string;
 }
 export default function FilterListView(props: FilterListViewProps) {
-  const { filters, onPressFilter } = props;
+  const { filters, onPressFilter, wrapperClassName } = props;
 
   const renderItem = useCallback(
     ({ item }: { item: Filter }) => {
@@ -34,7 +36,7 @@ export default function FilterListView(props: FilterListViewProps) {
   );
 
   return (
-    <View className="w-full py-6 px-10 bg-gray0">
+    <View className={cn("w-full py-6 px-10", wrapperClassName)}>
       <FlatList
         showsHorizontalScrollIndicator={false}
         ItemSeparatorComponent={() => <View className="w-10" />}

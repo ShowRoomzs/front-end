@@ -4,11 +4,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useBottomSheet } from "@/common/hooks/useBottomSheet";
 import { useParams } from "@/common/hooks/useParams";
-import { useFilters } from "@/features/category/hooks/useFilters";
 import FilterBottomSheetView, {
   FILTER_BOTTOM_SHEET_HEIGHT,
 } from "@/features/filter/components/FilterBottomSheetView/FilterBottomSheetView";
 import FilterListView from "@/features/filter/components/FilterListView/FilterListView";
+import { useFilters } from "@/features/filter/hooks/useFilters";
 import { FilterValue } from "@/features/filter/types/filter";
 import ProductListView from "@/features/product/components/ProductListView/ProductListView";
 import { useGetProducts } from "@/features/product/hooks/useGetProducts";
@@ -106,7 +106,7 @@ export default function CategoryDetailContent(props: CategoryDetailContentProps)
 
   return (
     <View className="flex-1">
-      <FilterListView filters={filters} onPressFilter={handlePressFilter} />
+      <FilterListView filters={filters} onPressFilter={handlePressFilter} wrapperClassName="bg-gray0" />
       <ProductListView
         data={products}
         pageInfo={pageInfo}

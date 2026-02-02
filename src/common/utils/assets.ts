@@ -14,6 +14,7 @@ import CloseGrayIcon from "@/common/assets/common/close-gray-icon.svg";
 import CloseBlackIcon from "@/common/assets/common/close.svg";
 import CommentIcon from "@/common/assets/common/comment-icon.svg";
 import DownloadIcon from "@/common/assets/common/download-icon.svg";
+import EmptyIcon from "@/common/assets/common/empty.svg";
 import FollowingActiveIcon from "@/common/assets/common/following-active.svg";
 import FollowingDefaultIcon from "@/common/assets/common/following-default.svg";
 import FollowingIcon from "@/common/assets/common/following.svg";
@@ -166,5 +167,8 @@ export const COMMON_ASSETS: Assets = {
   },
   closeGray: {
     default: CloseGrayIcon,
+  },
+  empty: {
+    default: EmptyIcon,
   },
 };

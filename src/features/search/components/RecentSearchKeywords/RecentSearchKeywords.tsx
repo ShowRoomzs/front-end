@@ -29,8 +29,7 @@ export default function RecentSearchKeywords(props: RecentSearchKeywordsProps) {
       <FlatList
         showsHorizontalScrollIndicator={false}
         horizontal
-        contentContainerStyle={{ gap: 10 }}
-        className="px-20"
+        contentContainerStyle={{ gap: 10, paddingHorizontal: 20 }}
         data={keywords}
         renderItem={renderItem}
       />

@@ -6,7 +6,7 @@ import { COMMON_ASSETS } from "@/common/utils/assets";
 import { cn } from "@/common/utils/cn";
 
 interface SearchProps extends InputProps {
-  onPressSearch: () => void;
+  onPressSearch?: () => void;
   className?: string;
 }
 

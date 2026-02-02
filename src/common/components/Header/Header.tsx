@@ -24,9 +24,9 @@ export default function Header(props: HeaderProps) {
 
   return (
     <View style={style} className={cn("flex flex-row items-center bg-white py-5", className)}>
-      <View className="flex-1 flex-row justify-start">{renderLeft}</View>
-      <View>{title && renderTitle()}</View>
-      <View className="flex-1 flex-row justify-end">{renderRight}</View>
+      <View className="flex-row justify-start">{renderLeft}</View>
+      <View className="min-w-0 flex-1">{title && renderTitle()}</View>
+      <View className="flex-row justify-end">{renderRight}</View>
     </View>
   );
 }

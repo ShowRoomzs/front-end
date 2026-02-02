@@ -10,8 +10,8 @@ import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
 import { SheetApi } from "@/common/providers/BottomSheetProvider/context";
 import { COMMON_ASSETS } from "@/common/utils/assets";
-import FilterBottomSheetItemView from "@/features/category/components/FilterBottomSheetItemView/FilterBottomSheetItemView";
-import { Filter } from "@/features/category/types/category";
+import FilterBottomSheetItemView from "@/features/filter/components/FilterBottomSheetItemView/FilterBottomSheetItemView";
+import { Filter } from "@/features/filter/types/filter";
 import { useGetProducts } from "@/features/product/hooks/useGetProducts";
 import { FilterParam, ProductListParams } from "@/features/product/types/params";
 
@@ -120,7 +120,7 @@ export default function FilterBottomSheetView(props: FilterBottomSheetViewProps)
           horizontal
           showsHorizontalScrollIndicator={false}
           className="px-20 py-15 bg-gray2"
-          renderItem={({ item }) => <Text>d</Text>}
+          renderItem={() => <Text>d</Text>}
         />
         <HStack gap={6} className="px-10 items-center w-full">
           <Button onPress={onPressReset} activeOpacity={0.7} size="xl" variant="ghost">

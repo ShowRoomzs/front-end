@@ -1,6 +1,6 @@
 import { useCategory } from "@/features/category/hooks/useCategory";
-import { Filter } from "@/features/category/types/category";
 import { mergeFilters } from "@/features/category/utils/mergeFilters";
+import { Filter } from "@/features/filter/types/filter";
 
 /**
  * @description 특정 카테고리 id값 전달 시 해당 카테고리에 필요한 필터 리스트 반환

@@ -6,7 +6,7 @@ import HStack from "@/common/components/HStack/HStack";
 import Icon from "@/common/components/Icon/Icon";
 import Typography from "@/common/components/Typography/Typography";
 import { COMMON_ASSETS } from "@/common/utils/assets";
-import { Filter } from "@/features/category/types/category";
+import { Filter } from "@/features/filter/types/filter";
 
 interface FilterListViewProps {
   filters: Array<Filter>;

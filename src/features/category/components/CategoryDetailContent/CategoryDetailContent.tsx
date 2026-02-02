@@ -4,11 +4,12 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useBottomSheet } from "@/common/hooks/useBottomSheet";
 import { useParams } from "@/common/hooks/useParams";
+import { useFilters } from "@/features/category/hooks/useFilters";
 import FilterBottomSheetView, {
   FILTER_BOTTOM_SHEET_HEIGHT,
-} from "@/features/category/components/FilterBottomSheetView/FilterBottomSheetView";
-import FilterListView from "@/features/category/components/FilterListView/FilterListView";
-import { useFilters } from "@/features/category/hooks/useFilters";
+} from "@/features/filter/components/FilterBottomSheetView/FilterBottomSheetView";
+import FilterListView from "@/features/filter/components/FilterListView/FilterListView";
+import { FilterValue } from "@/features/filter/types/filter";
 import ProductListView from "@/features/product/components/ProductListView/ProductListView";
 import { useGetProducts } from "@/features/product/hooks/useGetProducts";
 import { FilterParam, ProductListParams } from "@/features/product/types/params";
@@ -44,12 +45,12 @@ export default function CategoryDetailContent(props: CategoryDetailContentProps)
       return;
     }
     const defaultSelectedFilters: Array<FilterParam> = filters.reduce((acc, filter) => {
-      const defaultFilters = filter.values.filter(v => v.extra === "default");
+      const defaultFilters = filter.values.filter((v: FilterValue) => v.extra === "default");
 
       if (defaultFilters.length > 0) {
         acc.push({
           key: filter.filterKey,
-          values: [...defaultFilters.map(v => v.value)],
+          values: [...defaultFilters.map((v: FilterValue) => v.value)],
         });
         return acc;
       }

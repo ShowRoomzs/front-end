@@ -93,10 +93,7 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
   const hasSelectedVariants = useMemo(() => selectedVariants.length > 0, [selectedVariants]);
 
   return (
-    <View
-      onLayout={e => console.log(e.nativeEvent.layout.height)}
-      style={{ maxHeight: PRODUCT_OPTION_BOTTOM_SHEET_MAX_HEIGHT }}
-    >
+    <View style={{ maxHeight: PRODUCT_OPTION_BOTTOM_SHEET_MAX_HEIGHT }}>
       <BottomSheetScrollView
         contentContainerStyle={{
           paddingBottom: BOTTOM_SHEET_GAP + footerHeight,

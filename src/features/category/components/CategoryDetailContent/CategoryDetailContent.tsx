@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -103,10 +103,16 @@ export default function CategoryDetailContent(props: CategoryDetailContentProps)
   }, [fetchNextPage]);
 
   const isActuallyLoading = isLoading || isFetchingNextPage;
+  const selectedFilterKeys = useMemo(() => params.filters.map(f => f.key), [params.filters]);
 
   return (
     <View className="flex-1">
-      <FilterListView filters={filters} onPressFilter={handlePressFilter} wrapperClassName="bg-gray0" />
+      <FilterListView
+        selectedFilterKeys={selectedFilterKeys}
+        filters={filters}
+        onPressFilter={handlePressFilter}
+        wrapperClassName="bg-gray0"
+      />
       <ProductListView
         data={products}
         pageInfo={pageInfo}

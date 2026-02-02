@@ -9,10 +9,10 @@ import { useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { useUserStore } from "@/common/stores/useUserStore";
 import { PageInfo } from "@/common/types/page";
-import ProductCard from "@/features/product/components/ProductCard/ProductCard";
+import ProductCard, { ProductCardSize } from "@/features/product/components/ProductCard/ProductCard";
 import {
-  CARD_WIDTH,
   GAP,
+  getCardWidth,
   PADDING_BLOCK,
   PADDING_HORIZONTAL,
   SCROLL_THRESHOLD,
@@ -25,9 +25,11 @@ interface ProductListViewProps {
   pageInfo: PageInfo | undefined;
   onLoadMore: () => void;
   isLoading: boolean;
+  productCardSize?: ProductCardSize;
+  numColumns?: number;
 }
 export default function ProductListView(props: ProductListViewProps) {
-  const { data, pageInfo, isLoading, onLoadMore } = props;
+  const { data, pageInfo, isLoading, onLoadMore, productCardSize = "md", numColumns = 2 } = props;
   const navigation = useMainNavigation();
   const { user } = useUserStore();
   const scrollY = useRef(0);
@@ -94,20 +96,20 @@ export default function ProductListView(props: ProductListViewProps) {
   const handlePressLike = usePermissionPress((productId: number, newWished: boolean) => {
     updateWishlist(productId, newWished);
   });
-
   const renderItem = useCallback(
     ({ item }: { item: Product }) => {
       return (
         <ProductCard
           product={item}
           onPress={product => handlePressProduct(product)}
-          width={CARD_WIDTH}
+          width={getCardWidth(numColumns)}
           onPressLike={handlePressLike}
           useOptimisticUpdate={!!user}
+          size={productCardSize}
         />
       );
     },
-    [handlePressLike, handlePressProduct, user]
+    [handlePressLike, handlePressProduct, numColumns, productCardSize, user]
   );
 
   return (
@@ -118,14 +120,13 @@ export default function ProductListView(props: ProductListViewProps) {
       pageInfo={pageInfo}
       renderItem={renderItem}
       onScroll={handleScroll}
-      numColumns={2}
+      numColumns={numColumns}
+      style={{}}
       columnWrapperStyle={{
         gap: GAP,
         paddingBlock: PADDING_BLOCK,
         borderBottomWidth: 1,
         borderBottomColor: "#EAEAEF",
-      }}
-      contentContainerStyle={{
         paddingHorizontal: PADDING_HORIZONTAL,
       }}
     />

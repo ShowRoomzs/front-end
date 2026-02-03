@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -6,9 +6,10 @@ import { useBottomSheet } from "@/common/hooks/useBottomSheet";
 import { useParams } from "@/common/hooks/useParams";
 import FilterBottomSheetView, {
   FILTER_BOTTOM_SHEET_HEIGHT,
-} from "@/features/category/components/FilterBottomSheetView/FilterBottomSheetView";
-import FilterListView from "@/features/category/components/FilterListView/FilterListView";
-import { useFilters } from "@/features/category/hooks/useFilters";
+} from "@/features/filter/components/FilterBottomSheetView/FilterBottomSheetView";
+import FilterListView from "@/features/filter/components/FilterListView/FilterListView";
+import { useFilters } from "@/features/filter/hooks/useFilters";
+import { FilterValue } from "@/features/filter/types/filter";
 import ProductListView from "@/features/product/components/ProductListView/ProductListView";
 import { useGetProducts } from "@/features/product/hooks/useGetProducts";
 import { FilterParam, ProductListParams } from "@/features/product/types/params";
@@ -44,12 +45,12 @@ export default function CategoryDetailContent(props: CategoryDetailContentProps)
       return;
     }
     const defaultSelectedFilters: Array<FilterParam> = filters.reduce((acc, filter) => {
-      const defaultFilters = filter.values.filter(v => v.extra === "default");
+      const defaultFilters = filter.values.filter((v: FilterValue) => v.extra === "default");
 
       if (defaultFilters.length > 0) {
         acc.push({
           key: filter.filterKey,
-          values: [...defaultFilters.map(v => v.value)],
+          values: [...defaultFilters.map((v: FilterValue) => v.value)],
         });
         return acc;
       }
@@ -102,10 +103,16 @@ export default function CategoryDetailContent(props: CategoryDetailContentProps)
   }, [fetchNextPage]);
 
   const isActuallyLoading = isLoading || isFetchingNextPage;
+  const selectedFilterKeys = useMemo(() => params.filters.map(f => f.key), [params.filters]);
 
   return (
     <View className="flex-1">
-      <FilterListView filters={filters} onPressFilter={handlePressFilter} />
+      <FilterListView
+        selectedFilterKeys={selectedFilterKeys}
+        filters={filters}
+        onPressFilter={handlePressFilter}
+        wrapperClassName="bg-gray0"
+      />
       <ProductListView
         data={products}
         pageInfo={pageInfo}

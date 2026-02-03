@@ -1,4 +1,4 @@
-import { Filter, FilterValue } from "@/features/category/types/category";
+import { Filter, FilterValue } from "@/features/filter/types/filter";
 
 export function mergeFilters(categoryFilters: Array<Filter>, detailFilters: Array<Filter>): Array<Filter> {
   const filterMap = new Map<number, Filter>();

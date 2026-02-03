@@ -1,6 +1,6 @@
 import { BottomSheetView } from "@gorhom/bottom-sheet";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { FlatList, Text, View } from "react-native";
+import { FlatList, View } from "react-native";
 
 import Button from "@/common/components/Button/Button";
 import HStack from "@/common/components/HStack/HStack";
@@ -10,8 +10,11 @@ import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
 import { SheetApi } from "@/common/providers/BottomSheetProvider/context";
 import { COMMON_ASSETS } from "@/common/utils/assets";
-import FilterBottomSheetItemView from "@/features/category/components/FilterBottomSheetItemView/FilterBottomSheetItemView";
-import { Filter } from "@/features/category/types/category";
+import FilterBottomSheetItemView from "@/features/filter/components/FilterBottomSheetItemView/FilterBottomSheetItemView";
+import FilterChipButton, {
+  FilterChipContent,
+} from "@/features/filter/components/FilterChipButton/FilterChipButton";
+import { Filter } from "@/features/filter/types/filter";
 import { useGetProducts } from "@/features/product/hooks/useGetProducts";
 import { FilterParam, ProductListParams } from "@/features/product/types/params";
 
@@ -99,6 +102,37 @@ export default function FilterBottomSheetView(props: FilterBottomSheetViewProps)
     });
   }, [filters, tempFilters, handleItemChange]);
 
+  // values를 기준으로 flatten된 배열 생성
+  const flattenedFiltersByValues: Array<FilterChipContent | null> = useMemo(() => {
+    return tempFilters.flatMap(f =>
+      f.values.map(v => {
+        const targetFilter = filters.find(filter => filter.filterKey === f.key);
+
+        if (!targetFilter) {
+          return null;
+        }
+        const targetValue = targetFilter.values.find(value => value.value === v);
+
+        if (!targetValue) {
+          return null;
+        }
+
+        return {
+          filterType: targetFilter.filterType,
+          value: targetValue?.label,
+          extra: targetValue?.extra || "",
+        };
+      })
+    );
+  }, [filters, tempFilters]);
+
+  const renderFilterChipButton = useCallback(({ item }: { item: FilterChipContent | null }) => {
+    if (!item) {
+      return null;
+    }
+    return <FilterChipButton filter={item} onRemove={() => {}} />;
+  }, []);
+
   return (
     <BottomSheetView className="relative">
       <Typography className="text-black text-15 font-semibold text-center py-15">필터</Typography>
@@ -106,7 +140,7 @@ export default function FilterBottomSheetView(props: FilterBottomSheetViewProps)
         <Tabs
           headerClassName="h-45 border-b border-gray2"
           selectedIndex={selectedIndex}
-          bodyClassName="min-h-[200px]"
+          bodyClassName="min-h-[160px]"
           onSelect={setSelectedIndex}
           items={tabItems}
           enableTabTransitionAnimation={false}
@@ -116,11 +150,13 @@ export default function FilterBottomSheetView(props: FilterBottomSheetViewProps)
       <VStack gap={10}>
         {/* TODO : 선택된 필터 표출 */}
         <FlatList
-          data={[]}
+          data={flattenedFiltersByValues || []}
           horizontal
           showsHorizontalScrollIndicator={false}
+          style={{ opacity: tempFilters.length > 1 ? 1 : 0 }}
           className="px-20 py-15 bg-gray2"
-          renderItem={({ item }) => <Text>d</Text>}
+          renderItem={renderFilterChipButton}
+          contentContainerStyle={{ gap: 20 }}
         />
         <HStack gap={6} className="px-10 items-center w-full">
           <Button onPress={onPressReset} activeOpacity={0.7} size="xl" variant="ghost">

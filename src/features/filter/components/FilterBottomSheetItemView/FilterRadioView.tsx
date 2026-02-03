@@ -1,7 +1,7 @@
 import { View } from "react-native";
 
 import Radio from "@/common/components/Radio/Radio";
-import { Filter } from "@/features/category/types/category";
+import { Filter } from "@/features/filter/types/filter";
 
 interface FilterRadioViewProps {
   filter: Filter;

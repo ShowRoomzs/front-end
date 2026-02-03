@@ -4,7 +4,7 @@ import Icon from "@/common/components/Icon/Icon";
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
 import { COMMON_ASSETS } from "@/common/utils/assets";
-import { Filter, FilterValue } from "@/features/category/types/category";
+import { Filter, FilterValue } from "@/features/filter/types/filter";
 
 interface FilterSelectViewProps {
   filter: Filter;

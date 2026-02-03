@@ -41,6 +41,9 @@ export type AuthStackParamList = {
 
 export type CommonStackParamList = {
   [COMMON_ROUTES.SEARCH]: undefined;
+  [COMMON_ROUTES.SEARCH_DETAIL]: {
+    keyword: string;
+  };
   [COMMON_ROUTES.CART]: undefined;
   [COMMON_ROUTES.NOTIFICATION]: undefined;
   [COMMON_ROUTES.SETTING]: undefined;
@@ -58,7 +61,7 @@ export type RootStackParamList = {
   };
   [ROOT_ROUTES.COMMON]: {
     screen: keyof CommonStackParamList;
-    params?: Record<string, unknown>;
+    params?: CommonStackParamList[keyof CommonStackParamList];
   };
 };
 

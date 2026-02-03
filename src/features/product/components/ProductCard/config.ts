@@ -19,3 +19,23 @@ export const SIZE_CLASSES: Record<
     salePrice: "text-16 text-black",
   },
 };
+
+export const parseCount = (count: number): string => {
+  if (count <= 0) {
+    return "";
+  }
+
+  if (count < 1_000) {
+    return String(count);
+  }
+
+  if (count < 10_000) {
+    const value = count / 1_000;
+
+    return `${value.toFixed(1)}천`;
+  }
+
+  const value = count / 10_000;
+
+  return `${value.toFixed(1)}만`;
+};

@@ -10,6 +10,7 @@ import {
 import { clamp, runOnJS, useSharedValue, withTiming } from "react-native-reanimated";
 
 import {
+  ACTIVE_OFFSET_X,
   CONTENT_SCROLL_OFFSET,
   DEFAULT_ANIMATION_DURATION,
   DEFAULT_MOUNTED_COUNT,
@@ -106,6 +107,7 @@ export default function TabBody(props: TabBodyProps) {
     () =>
       Gesture.Pan()
         .enabled(enableGesture)
+        .activeOffsetX([-ACTIVE_OFFSET_X, ACTIVE_OFFSET_X])
         .onStart(() => {
           isSwiping.value = true;
         })

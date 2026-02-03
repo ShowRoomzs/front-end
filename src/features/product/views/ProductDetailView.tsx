@@ -140,7 +140,7 @@ export default function ProductDetailView() {
             />
             <ProductDetailRelatedProducts
               containerClassName="mt-40"
-              items={relatedProducts?.products || []}
+              items={relatedProducts?.data || []}
               onPressProduct={handlePressProduct}
               onPressLike={handlePermissionLike}
             />
@@ -173,7 +173,7 @@ export default function ProductDetailView() {
     isExpand,
     productDetail?.description,
     productDetail?.reviewCount,
-    relatedProducts?.products,
+    relatedProducts?.data,
   ]);
 
   const handlePressMarket = useCallback(() => {

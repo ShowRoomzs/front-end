@@ -14,5 +14,5 @@ export type PageInfo = {
 
 export interface PageResponse<T> {
   pageInfo: PageInfo;
-  products: Array<T>; // 추후 DTO 수정 가능성 있음 products > data
+  data: Array<T>; // 추후 DTO 수정 가능성 있음 products > data
 }

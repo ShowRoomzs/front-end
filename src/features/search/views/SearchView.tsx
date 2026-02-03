@@ -47,7 +47,7 @@ export default function SearchView() {
       <RecentSearchKeywords
         onPressKeyword={handlePressKeyword}
         onDeleteKeyword={handleDeleteKeyword}
-        keywords={recentSearches?.data || []}
+        keywords={recentSearches?.content || []}
         wrapperClassName="mt-20"
       />
     </View>

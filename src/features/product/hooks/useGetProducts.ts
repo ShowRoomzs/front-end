@@ -9,7 +9,7 @@ import { Product, ProductListResponse } from "@/features/product/types/product";
 function parseProductListResponse(response: ProductListResponse): ProductListResponse {
   return {
     ...response,
-    data: response.data.map(product => ({
+    content: response.content.map(product => ({
       ...product,
       productNotice:
         typeof product.productNotice === "string" ? JSON.parse(product.productNotice) : product.productNotice,
@@ -33,7 +33,7 @@ export function useGetProducts(params: ProductListParams) {
       lastPage.pageInfo.hasNext ? lastPage.pageInfo.currentPage + 1 : undefined,
   });
 
-  const products: Array<Product> = query.data?.pages.flatMap(page => page.data) ?? [];
+  const products: Array<Product> = query.data?.pages.flatMap(page => page.content) ?? [];
   const pageInfo: PageInfo | undefined = query.data?.pages.at(-1)?.pageInfo;
 
   return {

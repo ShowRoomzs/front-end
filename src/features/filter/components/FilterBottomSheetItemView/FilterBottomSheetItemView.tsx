@@ -2,9 +2,10 @@ import { useCallback } from "react";
 import { View } from "react-native";
 
 import { cn } from "@/common/utils/cn";
-import FilterRadioView from "@/features/category/components/FilterBottomSheetItemView/FilterRadioView";
-import FilterSelectView from "@/features/category/components/FilterBottomSheetItemView/FilterSelectView";
-import { Filter } from "@/features/category/types/category";
+import FilterColorView from "@/features/filter/components/FilterBottomSheetItemView/FilterColorView";
+import FilterRadioView from "@/features/filter/components/FilterBottomSheetItemView/FilterRadioView";
+import FilterSelectView from "@/features/filter/components/FilterBottomSheetItemView/FilterSelectView";
+import { Filter } from "@/features/filter/types/filter";
 
 interface FilterBottomSheetItemViewProps {
   filter: Filter;
@@ -31,6 +32,8 @@ export default function FilterBottomSheetItemView(props: FilterBottomSheetItemVi
           return <FilterSelectView filter={filter} selectedValues={selectedValues} onChange={handleChange} />;
         case "RADIO":
           return <FilterRadioView filter={filter} selectedValues={selectedValues} onChange={handleChange} />;
+        case "COLOR":
+          return <FilterColorView filter={filter} selectedValues={selectedValues} onChange={handleChange} />;
         default:
           return null;
       }

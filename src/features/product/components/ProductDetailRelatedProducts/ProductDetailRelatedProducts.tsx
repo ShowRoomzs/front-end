@@ -6,7 +6,7 @@ import VStack from "@/common/components/VStack/VStack";
 import { useUserStore } from "@/common/stores/useUserStore";
 import { cn } from "@/common/utils/cn";
 import ProductCard from "@/features/product/components/ProductCard/ProductCard";
-import { CARD_WIDTH, GAP, PADDING_BLOCK } from "@/features/product/components/ProductListView/config";
+import { GAP, getCardWidth, PADDING_BLOCK } from "@/features/product/components/ProductListView/config";
 import { Product } from "@/features/product/types/product";
 
 interface ProductDetailRelatedProductsProps {
@@ -18,6 +18,7 @@ interface ProductDetailRelatedProductsProps {
 export default function ProductDetailRelatedProducts(props: ProductDetailRelatedProductsProps) {
   const { items, onPressProduct, onPressLike, containerClassName } = props;
   const { user } = useUserStore();
+  const numColumns = 2;
 
   return (
     <View className={cn("px-15", containerClassName)}>
@@ -49,7 +50,7 @@ export default function ProductDetailRelatedProducts(props: ProductDetailRelated
                   onPressLike={onPressLike}
                   product={item}
                   onPress={onPressProduct}
-                  width={CARD_WIDTH}
+                  width={getCardWidth(numColumns)}
                 />
               ))}
             </HStack>

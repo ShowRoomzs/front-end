@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Text, View } from "react-native";
 
 import Search from "@/common/components/Search/Search";
@@ -39,11 +39,22 @@ export default function HomeView() {
     });
   });
 
+  const handlePressSearch = useCallback(() => {
+    navigation.navigate(ROOT_ROUTES.COMMON, {
+      screen: COMMON_ROUTES.SEARCH,
+    });
+  }, [navigation]);
+
   return (
     <View className="flex-1 bg-white">
       <VStack gap={10} className="px-20">
         <HomeHeader onPressCart={() => {}} onPressNotification={handlePressNotification} />
-        <Search onPressSearch={() => {}} placeholder="원하는 제품을 빠르게 찾아 보세요" size="medium" />
+        <Search
+          readOnly
+          onPressSearch={handlePressSearch}
+          placeholder="원하는 제품을 빠르게 찾아 보세요"
+          size="medium"
+        />
       </VStack>
       <View className="flex-1 mt-5">
         <HomeTabs items={tabItems} />

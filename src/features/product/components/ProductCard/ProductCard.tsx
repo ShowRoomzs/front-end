@@ -16,7 +16,7 @@ import VStack from "@/common/components/VStack/VStack";
 import { COMMON_ASSETS } from "@/common/utils/assets";
 import { cn } from "@/common/utils/cn";
 import { likeHaptic } from "@/common/utils/haptics";
-import { SIZE_CLASSES, SIZE_RATIO } from "@/features/product/components/ProductCard/config";
+import { parseCount, SIZE_CLASSES, SIZE_RATIO } from "@/features/product/components/ProductCard/config";
 import { Product } from "@/features/product/types/product";
 
 export type ProductCardSize = "sm" | "md";
@@ -47,14 +47,19 @@ export default function ProductCard(props: ProductCardProps) {
     likeHaptic();
     const newIsWished = !product.isWished;
 
+    // 낙관적 업데이트 여부
     if (useOptimisticUpdate) {
       setProduct(
         produce(draft => {
+          const newLikeCount = Math.max(0, draft.likeCount + (newIsWished ? 1 : -1));
+
           draft.isWished = newIsWished;
+          draft.likeCount = newLikeCount;
         })
       );
     }
 
+    // 좋아요 상태 업데이트
     onPressLike?.(product.id, newIsWished);
   }, [onPressLike, product.id, product.isWished, useOptimisticUpdate]);
 
@@ -75,6 +80,7 @@ export default function ProductCard(props: ProductCardProps) {
   }, []);
 
   const classes = SIZE_CLASSES[size];
+  const showCountSection = product.likeCount > 0 || product.reviewCount > 0;
 
   return (
     <TouchableOpacity className="relative" onPress={handlePress} activeOpacity={0.7}>
@@ -96,16 +102,26 @@ export default function ProductCard(props: ProductCardProps) {
               ₩ {product.price.salePrice.toLocaleString()}
             </Typography>
           </HStack>
-          <HStack className="mt-10" gap={10}>
-            <HStack className="items-center" gap={4}>
-              <Icon icon={COMMON_ASSETS.likeIcon} />
-              <Typography className="text-11 text-gray10 font-normal">{product.likeCount}</Typography>
+          {showCountSection && (
+            <HStack className="mt-10" gap={10}>
+              {product.likeCount > 0 && (
+                <HStack className="items-center" gap={4}>
+                  <Icon icon={COMMON_ASSETS.likeIcon} />
+                  <Typography className="text-11 text-gray10 font-normal">
+                    {parseCount(product.likeCount)}
+                  </Typography>
+                </HStack>
+              )}
+              {product.reviewCount > 0 && (
+                <HStack className="items-center" gap={4}>
+                  <Icon icon={COMMON_ASSETS.commentIcon} />
+                  <Typography className="text-11 text-gray10 font-normal">
+                    {parseCount(product.reviewCount)}
+                  </Typography>
+                </HStack>
+              )}
             </HStack>
-            <HStack className="items-center" gap={4}>
-              <Icon icon={COMMON_ASSETS.commentIcon} />
-              <Typography className="text-11 text-gray10 font-normal">{product.reviewCount}</Typography>
-            </HStack>
-          </HStack>
+          )}
         </VStack>
       </VStack>
     </TouchableOpacity>

@@ -100,25 +100,20 @@ export default function ProductDetailView() {
     });
   }, [mainNavigation]);
 
-  // related product & product detail 좋아요 처리
-  const handlePressLike = useCallback(
-    (productId: number, newIsWished: boolean) => {
-      updateWishlist(productId, newIsWished);
-    },
-    [updateWishlist]
-  );
-
   // product detail 좋아요 처리 권한 체크
-  const handlePermissionLike = usePermissionPress((newIsWished: boolean) => {
-    setLocalProduct(
-      produce(draft => {
-        if (!draft) {
-          return;
-        }
-        draft.isWished = newIsWished;
-      })
-    );
-    handlePressLike(productId, newIsWished);
+  const handlePermissionLike = usePermissionPress((productId: number, newIsWished: boolean) => {
+    // ui 낙관적 업데이트 이후 좋아요 상태 업데이트
+    if (productId === productDetail?.id) {
+      setLocalProduct(
+        produce(draft => {
+          if (!draft) {
+            return;
+          }
+          draft.isWished = newIsWished;
+        })
+      );
+    }
+    updateWishlist(productId, newIsWished);
   });
 
   const handlePressProduct = useCallback(
@@ -145,9 +140,9 @@ export default function ProductDetailView() {
             />
             <ProductDetailRelatedProducts
               containerClassName="mt-40"
-              items={relatedProducts?.products || []}
+              items={relatedProducts?.data || []}
               onPressProduct={handlePressProduct}
-              onPressLike={handlePressLike}
+              onPressLike={handlePermissionLike}
             />
           </>
         ),
@@ -172,13 +167,13 @@ export default function ProductDetailView() {
       },
     ];
   }, [
+    handlePermissionLike,
     handlePressExpand,
-    handlePressLike,
     handlePressProduct,
     isExpand,
     productDetail?.description,
     productDetail?.reviewCount,
-    relatedProducts?.products,
+    relatedProducts?.data,
   ]);
 
   const handlePressMarket = useCallback(() => {
@@ -238,10 +233,10 @@ export default function ProductDetailView() {
       if (!cleanupFns?.length) {
         return;
       }
+      console.log("ASDf");
       cleanupFns.forEach((fn: () => void) => fn());
     };
   }, [cleanupFns]);
-
   return (
     <View className="flex-1">
       <ProductDetailHeader
@@ -319,7 +314,7 @@ export default function ProductDetailView() {
         <ProductDetailActions
           isWished={localProduct?.isWished || false}
           likeCount="7.2천" // TODO : 좋아요 수 표시
-          onPressLike={handlePermissionLike}
+          onPressLike={(newIsWished: boolean) => handlePermissionLike(productId, newIsWished)}
           onPressPurchase={handlePressPurchase}
         />
       </View>

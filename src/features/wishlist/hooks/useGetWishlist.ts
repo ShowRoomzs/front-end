@@ -12,7 +12,7 @@ export function useGetWishlist(params: WishlistParams) {
   const query = useInfiniteQuery({
     queryKey: [WISHLIST_QUERY_KEY.WISHLIST, paramsWithoutPage],
     queryFn: async ({ pageParam }) => {
-      const response = await wishlistService.getWishlist({ ...params, page: pageParam });
+      const response = await wishlistService.get({ ...params, page: pageParam });
 
       return response;
     },

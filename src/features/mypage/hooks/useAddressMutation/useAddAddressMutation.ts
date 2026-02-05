@@ -6,7 +6,7 @@ import { addressService } from "@/features/mypage/services/addressService";
 
 export function useAddAddressMutation() {
   return useMutation({
-    mutationFn: addressService.addAddress,
+    mutationFn: addressService.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [MYPAGE_QUERY_KEY.ADDRESS_LIST] });
     },

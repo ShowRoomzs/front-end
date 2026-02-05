@@ -6,7 +6,7 @@ import { addressService } from "@/features/mypage/services/addressService";
 
 export function useDeleteAddressMutation() {
   return useMutation({
-    mutationFn: addressService.deleteAddress,
+    mutationFn: addressService.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [MYPAGE_QUERY_KEY.ADDRESS_LIST] });
     },

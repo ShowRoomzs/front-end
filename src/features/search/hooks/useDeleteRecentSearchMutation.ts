@@ -6,7 +6,7 @@ import { recentSearchService } from "@/features/search/services/recentSearchServ
 
 export function useDeleteRecentSearchMutation() {
   return useMutation({
-    mutationFn: recentSearchService.deleteRecentSearch,
+    mutationFn: recentSearchService.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [RECENT_SEARCH_QUERY_KEY.RECENT_SEARCH] });
     },

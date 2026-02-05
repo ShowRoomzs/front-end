@@ -15,7 +15,7 @@ export function useLogin() {
       await SecureStore.setItemAsync(SECURE_STORE.ACCESS_TOKEN, response.accessToken);
       await SecureStore.setItemAsync(SECURE_STORE.REFRESH_TOKEN, response.refreshToken);
 
-      const user = await userService.getUserInfo();
+      const user = await userService.get();
 
       setUser(user);
     },

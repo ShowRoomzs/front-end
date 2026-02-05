@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { View } from "react-native";
 
 import { useCommonNavigation, useMainNavigation } from "@/common/router";
@@ -11,7 +11,12 @@ export default function SearchView() {
   const navigation = useMainNavigation();
   const commonNavigation = useCommonNavigation();
   // 추후 필요 시 useParams로 파라미터 관리
-  const { data: recentSearches, create, remove } = useRecentSearch();
+  const { data: recentSearches, create, remove, sync } = useRecentSearch();
+
+  useEffect(() => {
+    // 로컬 검색어 <-> 서버 겅색어 동기화
+    sync();
+  }, [sync]);
 
   const handlePressBack = useCallback(() => {
     navigation.goBack();

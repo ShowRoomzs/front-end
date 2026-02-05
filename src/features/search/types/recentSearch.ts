@@ -11,9 +11,11 @@ export interface RecentSearchItem extends Omit<RecentSearchItemResponse, "id"> {
   id: string | number;
 }
 
-interface RecentSearchSyncItem {
+export interface RecentSearchSyncItem {
   keyword: string;
   createdAt: string;
 }
 
-export type RecentSearchSyncRequest = Array<RecentSearchSyncItem>;
+export interface RecentSearchSyncRequest {
+  keywords: Array<RecentSearchSyncItem>;
+}

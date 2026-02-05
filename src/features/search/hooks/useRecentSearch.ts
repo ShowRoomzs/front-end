@@ -9,7 +9,7 @@ import { useDeleteRecentSearchMutation } from "@/features/search/hooks/useDelete
 import { useGetRecentSearch } from "@/features/search/hooks/useGetRecentSearch";
 import { useSyncRecentSearchMutation } from "@/features/search/hooks/useSyncRecentSearchMutation";
 import { RecentSearchParams } from "@/features/search/types/params";
-import { RecentSearchItemResponse, RecentSearchSyncRequest } from "@/features/search/types/recentSearch";
+import { RecentSearchItemResponse, RecentSearchSyncItem } from "@/features/search/types/recentSearch";
 
 interface LocalRecentSearchItem extends Omit<RecentSearchItemResponse, "id"> {
   id: string;
@@ -33,14 +33,14 @@ export function useRecentSearch() {
   // 로컬 검색어 <-> 서버 겅색어 동기화
   const sync = useCallback(async () => {
     if (user && localRecentSearches.length > 0) {
-      const data: RecentSearchSyncRequest = localRecentSearches.map(item => ({
+      const data: Array<RecentSearchSyncItem> = localRecentSearches.map(item => ({
         keyword: item.term,
         createdAt: item.createdAt,
       }));
 
       setLocalRecentSearches([]);
       await storage.setItem(JSON.stringify([]));
-      await syncMutateAsync(data);
+      await syncMutateAsync({ keywords: data });
     }
   }, [localRecentSearches, storage, syncMutateAsync, user]);
 

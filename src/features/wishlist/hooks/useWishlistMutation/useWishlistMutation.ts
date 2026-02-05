@@ -22,7 +22,7 @@ export function useWishlistMutation(shouldClearCache = false) {
         setCleanupFns(getInvalidateFns(productId));
       }
 
-      return newIsWished ? wishlistService.addWishlist(productId) : wishlistService.removeWishlist(productId);
+      return newIsWished ? wishlistService.create(productId) : wishlistService.delete(productId);
     },
     onSuccess: (_data, variables) => {
       if (shouldClearCache) {

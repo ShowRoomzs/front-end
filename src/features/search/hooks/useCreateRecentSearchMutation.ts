@@ -6,7 +6,7 @@ import { recentSearchService } from "@/features/search/services/recentSearchServ
 
 export function useCreateRecentSearchMutation() {
   return useMutation({
-    mutationFn: recentSearchService.createRecentSearch,
+    mutationFn: recentSearchService.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [RECENT_SEARCH_QUERY_KEY.RECENT_SEARCH] });
     },

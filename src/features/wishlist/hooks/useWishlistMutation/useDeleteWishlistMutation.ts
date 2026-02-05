@@ -6,7 +6,7 @@ import { wishlistService } from "@/features/wishlist/services/wishlistService";
 
 export function useDeleteWishlistMutation(invalidateOnSuccess = true) {
   return useMutation({
-    mutationFn: wishlistService.removeWishlist,
+    mutationFn: wishlistService.delete,
     onSuccess: (_data, productId) => {
       if (invalidateOnSuccess) {
         getInvalidateFns(productId).forEach(fn => fn());

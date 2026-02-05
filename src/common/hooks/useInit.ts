@@ -17,7 +17,7 @@ export function useInit(): boolean {
       const accessToken = await SecureStore.getItemAsync(SECURE_STORE.ACCESS_TOKEN);
 
       if (accessToken) {
-        const userInfo = await userService.getUserInfo();
+        const userInfo = await userService.get();
 
         setUser(userInfo);
       }

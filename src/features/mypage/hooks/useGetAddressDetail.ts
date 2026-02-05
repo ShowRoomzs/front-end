@@ -6,7 +6,7 @@ import { addressService } from "@/features/mypage/services/addressService";
 
 export function useGetAddressDetail(addressId?: number) {
   const queryFn = useCallback(async () => {
-    const res = await addressService.getAddressDetail(addressId ?? 0);
+    const res = await addressService.getDetail(addressId ?? 0);
 
     return {
       ...res,

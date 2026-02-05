@@ -1,6 +1,6 @@
 import { apiInstance } from "@/common/lib/apiInstance";
 import { RecentSearchParams } from "@/features/search/types/params";
-import { RecentSearchResponse } from "@/features/search/types/recentSearch";
+import { RecentSearchResponse, RecentSearchSyncRequest } from "@/features/search/types/recentSearch";
 
 export const recentSearchService = {
   get: async (params: RecentSearchParams) => {
@@ -17,6 +17,11 @@ export const recentSearchService = {
   },
   delete: async (recentSearchId: number) => {
     const { data: response } = await apiInstance.delete(`/user/recent-searches/${recentSearchId}`);
+
+    return response;
+  },
+  sync: async (data: RecentSearchSyncRequest) => {
+    const { data: response } = await apiInstance.post(`/user/recent-searches/sync`, data);
 
     return response;
   },

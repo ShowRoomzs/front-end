@@ -10,3 +10,10 @@ export type RecentSearchResponse = PageResponse<RecentSearchItemResponse>;
 export interface RecentSearchItem extends Omit<RecentSearchItemResponse, "id"> {
   id: string | number;
 }
+
+interface RecentSearchSyncItem {
+  keyword: string;
+  createdAt: string;
+}
+
+export type RecentSearchSyncRequest = Array<RecentSearchSyncItem>;

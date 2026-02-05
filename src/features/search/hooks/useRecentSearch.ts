@@ -1,6 +1,6 @@
 import { useAsyncStorage } from "@react-native-async-storage/async-storage";
 import { randomUUID } from "expo-crypto";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ASYNC_STORAGE } from "@/common/constants/asyncStorage";
 import { useUserStore } from "@/common/stores/useUserStore";
@@ -27,6 +27,25 @@ export function useRecentSearch() {
   const [localRecentSearches, setLocalRecentSearches] = useState<Array<LocalRecentSearchItem>>([]);
   const { mutateAsync: createMutateAsync } = useCreateRecentSearchMutation();
   const { mutateAsync: deleteMutateAsync } = useDeleteRecentSearchMutation();
+
+  useEffect(() => {
+    storage.getItem().then(raw => {
+      if (raw) {
+        try {
+          setLocalRecentSearches(JSON.parse(raw) as Array<LocalRecentSearchItem>);
+        } catch {
+          setLocalRecentSearches([]);
+        }
+      }
+    });
+  }, [storage]);
+
+  const data = useMemo(() => {
+    const server = recentSearches?.content ?? [];
+    const merged = [...server, ...localRecentSearches];
+
+    return merged.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [recentSearches?.content, localRecentSearches]);
 
   const createLocalRecentSearch = useCallback(
     async (keyword: string) => {
@@ -88,5 +107,5 @@ export function useRecentSearch() {
     [deleteLocalRecentSearch, deleteMutateAsync, user]
   );
 
-  return { data: recentSearches, create, remove };
+  return { data, create, remove };
 }

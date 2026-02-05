@@ -24,7 +24,7 @@ export function useGetProducts(params: ProductListParams) {
   const query = useInfiniteQuery({
     queryKey: [PRODUCT_QUERY_KEY.PRODUCTS, paramsWithoutPage],
     queryFn: async ({ pageParam }) => {
-      const response = await productService.getProducts({ ...params, page: pageParam });
+      const response = await productService.get({ ...params, page: pageParam });
 
       return parseProductListResponse(response);
     },

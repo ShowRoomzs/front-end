@@ -6,7 +6,7 @@ import { addressService } from "@/features/mypage/services/addressService";
 
 export function useDefaultAddressMutation() {
   return useMutation({
-    mutationFn: addressService.setDefaultAddress,
+    mutationFn: addressService.setDefault,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [MYPAGE_QUERY_KEY.ADDRESS_LIST] });
     },

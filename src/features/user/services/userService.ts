@@ -2,7 +2,7 @@ import { apiInstance } from "@/common/lib/apiInstance";
 import { CheckNicknameCode, CheckNicknameResponse, User } from "@/features/user/types/user";
 
 export const userService = {
-  getUserInfo: async (): Promise<User> => {
+  get: async (): Promise<User> => {
     const { data: response } = await apiInstance.get<User>("/user/me");
 
     return response;

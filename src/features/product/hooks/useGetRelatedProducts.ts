@@ -13,6 +13,6 @@ export function useGetRelatedProducts(productId: number) {
 
   return useQuery({
     queryKey: [PRODUCT_QUERY_KEY.RELATED_PRODUCTS, productId, params],
-    queryFn: () => productService.getRelatedProducts(productId, params),
+    queryFn: () => productService.getRelated(productId, params),
   });
 }

@@ -6,6 +6,6 @@ import { filterService } from "@/features/filter/services/filterService";
 export function useGetFilters() {
   return useQuery({
     queryKey: [FILTER_QUERY_KEY.FILTERS],
-    queryFn: filterService.getFilters,
+    queryFn: filterService.get,
   });
 }

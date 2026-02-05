@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { useWindowDimensions, View } from "react-native";
+import { LayoutChangeEvent, useWindowDimensions, View, ViewStyle } from "react-native";
+import { StyleProp } from "react-native";
 import {
   Gesture,
   GestureDetector,
@@ -9,6 +10,7 @@ import {
 import { clamp, runOnJS, useSharedValue, withTiming } from "react-native-reanimated";
 
 import {
+  ACTIVE_OFFSET_X,
   CONTENT_SCROLL_OFFSET,
   DEFAULT_ANIMATION_DURATION,
   DEFAULT_MOUNTED_COUNT,
@@ -17,18 +19,33 @@ import {
 import TabContent from "@/common/components/Tabs/TabContent";
 import TabItem from "@/common/components/Tabs/TabItem";
 import { TabItemType } from "@/common/components/Tabs/Tabs";
-import { cn } from "@/common/utils/cn";
 
 interface TabBodyProps {
   items: Array<TabItemType>;
   selectedIndex: number;
   onChangeIndex: (index: number) => void;
   wrapperClassName?: string;
-  skipIntermediateTabs: boolean;
+  skipIntermediateTabs?: boolean;
+  enableTabTransitionAnimation?: boolean;
+  enableGesture?: boolean;
+  onLayout?: (key: string, e: LayoutChangeEvent) => void;
+  style?: StyleProp<ViewStyle>;
+  scrollable?: boolean;
 }
 
 export default function TabBody(props: TabBodyProps) {
-  const { items, onChangeIndex, selectedIndex, wrapperClassName, skipIntermediateTabs } = props;
+  const {
+    items,
+    onChangeIndex,
+    selectedIndex,
+    wrapperClassName,
+    skipIntermediateTabs,
+    enableTabTransitionAnimation,
+    enableGesture = true,
+    onLayout,
+    style,
+    scrollable = true,
+  } = props;
   const { width: SCREEN_WIDTH } = useWindowDimensions();
   const dragTranslation = useSharedValue(0);
   const memorizedDragTranslation = useSharedValue(0);
@@ -69,6 +86,7 @@ export default function TabBody(props: TabBodyProps) {
   const updateDragTranslationWithAnimation = useCallback(
     (translationX: number) => {
       "worklet";
+
       dragTranslation.value = withTiming(
         translationX,
         {
@@ -88,6 +106,8 @@ export default function TabBody(props: TabBodyProps) {
   const pan = useMemo(
     () =>
       Gesture.Pan()
+        .enabled(enableGesture)
+        .activeOffsetX([-ACTIVE_OFFSET_X, ACTIVE_OFFSET_X])
         .onStart(() => {
           isSwiping.value = true;
         })
@@ -126,6 +146,7 @@ export default function TabBody(props: TabBodyProps) {
           }
         }),
     [
+      enableGesture,
       SCREEN_WIDTH,
       dragTranslation,
       getClampedTranslation,
@@ -148,20 +169,39 @@ export default function TabBody(props: TabBodyProps) {
     [initialMountedIndexes, selectedIndex]
   );
 
+  const handleLayoutTabBodyContent = useCallback(
+    (key: string, e: LayoutChangeEvent) => {
+      if (!onLayout) {
+        return;
+      }
+      onLayout(key, e);
+    },
+    [onLayout]
+  );
+
   return (
-    <View className={cn("flex-1", wrapperClassName)}>
+    <View style={style} className={wrapperClassName}>
       <GestureDetector gesture={pan}>
         <View className="flex-1 flex flex-row relative">
           {items.map((item, ix) => (
             <TabItem
+              scrollable={scrollable}
+              wrapperClassName="min-h-full"
               key={item.id}
               index={ix}
               selectedIndex={selectedIndex}
               isSwiping={isSwiping}
               translationX={dragTranslation}
               skipIntermediateTabs={skipIntermediateTabs}
+              enableTabTransitionAnimation={enableTabTransitionAnimation}
             >
-              <TabContent isMounted={checkIsMounted(ix)}>{item.render}</TabContent>
+              <TabContent
+                scrollable={scrollable}
+                onLayout={e => handleLayoutTabBodyContent(item.id, e)}
+                isMounted={checkIsMounted(ix)}
+              >
+                {item?.render?.(item.id) || null}
+              </TabContent>
             </TabItem>
           ))}
         </View>

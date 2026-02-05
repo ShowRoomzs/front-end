@@ -14,3 +14,11 @@ export interface User {
   modifiedAt: Date;
   marketingAgree: boolean;
 }
+
+export type CheckNicknameCode = "AVAILABLE" | "DUPLICATE" | "PROFANITY" | "INVALID_FORMAT";
+
+export interface CheckNicknameResponse<C extends CheckNicknameCode> {
+  isAvailable: boolean;
+  code: C;
+  message: string;
+}

@@ -1,5 +1,5 @@
 import { ReactNode, useCallback, useMemo } from "react";
-import { Pressable, StyleProp, ViewStyle } from "react-native";
+import { StyleProp, TouchableOpacity, ViewStyle } from "react-native";
 
 import { extractTextClassName } from "@/common/components/Button/config";
 import Typography from "@/common/components/Typography/Typography";
@@ -27,10 +27,20 @@ interface ButtonProps {
   children?: ReactNode;
   className?: string;
   style?: StyleProp<ViewStyle>;
+  activeOpacity?: number;
 }
 
 export default function Button(props: ButtonProps) {
-  const { children, className, disabled = false, onPress, size = "md", variant = "primary", style } = props;
+  const {
+    children,
+    className,
+    disabled = false,
+    onPress,
+    size = "md",
+    variant = "primary",
+    style,
+    activeOpacity = 0.7,
+  } = props;
 
   const getDefaultClassName = () => {
     return "flex flex-row items-center justify-center";
@@ -114,12 +124,13 @@ export default function Button(props: ButtonProps) {
   }, [disabled, onPress]);
 
   return (
-    <Pressable
+    <TouchableOpacity
       onPress={handlePress}
       className={cn(getDefaultClassName(), getClassNameBySize(), getClassNameByVariant(), className)}
       style={style}
+      activeOpacity={activeOpacity}
     >
       {content}
-    </Pressable>
+    </TouchableOpacity>
   );
 }

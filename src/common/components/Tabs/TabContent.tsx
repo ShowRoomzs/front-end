@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useState } from "react";
-import { View } from "react-native";
+import { LayoutChangeEvent, View } from "react-native";
 
 import { cn } from "@/common/utils/cn";
 
@@ -7,9 +7,11 @@ interface TabContentProps {
   isMounted: boolean;
   children: ReactNode;
   className?: string;
+  onLayout?: (e: LayoutChangeEvent) => void;
+  scrollable?: boolean;
 }
 export default function TabContent(props: TabContentProps) {
-  const { isMounted: originMounted, children, className } = props;
+  const { isMounted: originMounted, children, className, onLayout, scrollable = true } = props;
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -24,5 +26,9 @@ export default function TabContent(props: TabContentProps) {
     return null; // TODO 스켈레톤
   }
 
-  return <View className={cn("flex-1", className)}>{children}</View>;
+  return (
+    <View onLayout={onLayout} className={cn(scrollable ? "flex-1" : "flex-grow-1", className)}>
+      {children}
+    </View>
+  );
 }

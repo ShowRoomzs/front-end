@@ -1,0 +1,2 @@
+export const VARIANT_CARD_MIN_COUNT = 1;
+export const VARIANT_CARD_MAX_COUNT = 9999999;

@@ -16,7 +16,9 @@ export default function BottomTabs(props: BottomTabBarProps) {
   const { state, navigation } = props;
   const { isVisible } = useBottomTab();
   const inset = useSafeAreaInsets();
-  const translateY = useSharedValue(-inset.bottom);
+  const visibleHeight = BOTTOM_TABS_HEIGHT + inset.bottom;
+  const progress = useSharedValue(isVisible ? 0 : 1);
+
   const handlePress = (routeName: string) => {
     navigation.navigate(routeName);
   };
@@ -32,16 +34,17 @@ export default function BottomTabs(props: BottomTabBarProps) {
   };
 
   useEffect(() => {
-    if (isVisible) {
-      translateY.value = withTiming(-inset.bottom, { duration: 200 });
-      return;
-    }
-    translateY.value = withTiming(BOTTOM_TABS_HEIGHT, { duration: 200 });
-  }, [inset.bottom, isVisible, translateY]);
+    progress.value = withTiming(isVisible ? 0 : 1, { duration: 200 });
+  }, [isVisible, progress]);
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
-    height: BOTTOM_TABS_HEIGHT,
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    transform: [{ translateY: visibleHeight * progress.value }],
+    height: visibleHeight,
+    paddingBottom: inset.bottom,
   }));
 
   return (

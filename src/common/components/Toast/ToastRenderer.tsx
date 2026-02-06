@@ -1,32 +1,125 @@
+import { useCallback, useEffect, useMemo } from "react";
 import { Dimensions, View } from "react-native";
-import Animated, { useAnimatedStyle } from "react-native-reanimated";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
+import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import {
+  DEFAULT_OFFSET,
+  DISTANCE_THRESHOLD_PERCENT,
+  LIMIT_OPPOSITE_OFFSET,
+  TYPE_STYLES,
+  VELOCITY_THRESHOLD,
+} from "@/common/components/Toast/config";
 import Typography from "@/common/components/Typography/Typography";
-import { ToastType, useToastState } from "@/common/providers/ToastProvider/context";
+import { useToast, useToastState } from "@/common/providers/ToastProvider/context";
 import { cn } from "@/common/utils/cn";
-
-const TYPE_STYLES: Record<ToastType, string> = {
-  info: "bg-gray14",
-  success: "bg-positiveColor",
-  error: "bg-negativeColor",
-  warning: "bg-pointColor",
-};
-
-const DEFAULT_OFFSET = {
-  top: 10,
-  bottom: 10,
-  left: 10,
-  right: 10,
-};
 
 export default function ToastRenderer() {
   const { top, bottom } = useSafeAreaInsets();
-  const { currentToast, opacity } = useToastState();
+  const { currentToast, opacity, translateY } = useToastState();
+  const { hide, pauseTimer } = useToast();
+  const gestureTranslateY = useSharedValue(0);
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-  }));
+  const position = currentToast?.position ?? "bottom";
+  const screenHeight = Dimensions.get("window").height;
+
+  useEffect(() => {
+    if (currentToast) {
+      gestureTranslateY.value = 0;
+    }
+  }, [currentToast, gestureTranslateY]);
+
+  const hideAfterDelay = useCallback(
+    (delay: number) => {
+      setTimeout(() => {
+        hide();
+      }, delay);
+    },
+    [hide]
+  );
+
+  const animatedStyle = useAnimatedStyle(() => {
+    const transforms: Array<{ translateY: number }> = [
+      { translateY: translateY.value + gestureTranslateY.value },
+    ];
+
+    if (position === "center") {
+      const offset = currentToast?.offset;
+      const offsetTop = typeof offset === "number" ? offset : (offset?.top ?? 0);
+
+      transforms.push({ translateY: -25 + offsetTop });
+    }
+
+    return {
+      opacity: opacity.value,
+      transform: transforms,
+    };
+  }, [position, currentToast?.offset]);
+
+  const pan = useMemo(() => {
+    if (position === "center") {
+      return Gesture.Pan().enabled(false);
+    }
+
+    return Gesture.Pan()
+      .onBegin(() => {
+        runOnJS(pauseTimer)();
+      })
+      .onUpdate(e => {
+        const { velocityY, translationY } = e;
+        const swipePercent = Math.abs(translationY) / screenHeight;
+
+        if (position === "bottom") {
+          // 아래로 스와이프 (velocityY > VELOCITY_THRESHOLD): 토스트를 아래로 밀어서 닫기 (정방향)
+          if (velocityY > VELOCITY_THRESHOLD) {
+            runOnJS(hide)();
+          }
+          // 위로 스와이프 (translationY < 0): 토스트를 위로 당기기 (역방향, 제한)
+          else {
+            const limitedOffset = Math.min(swipePercent * LIMIT_OPPOSITE_OFFSET, LIMIT_OPPOSITE_OFFSET);
+
+            gestureTranslateY.value = -limitedOffset;
+          }
+        } else if (position === "top") {
+          // 위로 스와이프 (VELOCITY_THRESHOLD < velocityY): 토스트를 위로 밀어서 닫기 (정방향)
+          if (VELOCITY_THRESHOLD < velocityY) {
+            runOnJS(hide)();
+          }
+          // 아래로 스와이프 (translationY > 0): 토스트를 아래로 당기기 (역방향, 제한)
+          else {
+            const limitedOffset = Math.min(swipePercent * LIMIT_OPPOSITE_OFFSET, LIMIT_OPPOSITE_OFFSET);
+
+            gestureTranslateY.value = limitedOffset;
+          }
+        }
+      })
+      .onEnd(e => {
+        const { velocityY, translationY } = e;
+        const distanceThreshold = screenHeight * DISTANCE_THRESHOLD_PERCENT;
+
+        let shouldClose = false;
+
+        if (position === "bottom") {
+          // 아래로 스와이프 (translationY > 0) 시 닫힘 조건
+          shouldClose =
+            (translationY > 0 && Math.abs(velocityY) > VELOCITY_THRESHOLD) ||
+            Math.abs(translationY) > distanceThreshold;
+        } else if (position === "top") {
+          // 위로 스와이프 (translationY < 0) 시 닫힘 조건
+          shouldClose =
+            (translationY < 0 && Math.abs(velocityY) > VELOCITY_THRESHOLD) ||
+            Math.abs(translationY) > distanceThreshold;
+        }
+
+        if (shouldClose) {
+          runOnJS(hide)();
+        } else {
+          gestureTranslateY.value = withTiming(0, { duration: 200 });
+          runOnJS(hideAfterDelay)(1000);
+        }
+      });
+  }, [position, pauseTimer, screenHeight, gestureTranslateY, hide, hideAfterDelay]);
 
   if (!currentToast) {
     return null;
@@ -46,7 +139,6 @@ export default function ToastRenderer() {
   };
 
   const type = currentToast.type ?? "info";
-  const position = currentToast.position ?? "bottom";
 
   const getPositionStyle = () => {
     const offset = currentToast.offset;
@@ -70,7 +162,6 @@ export default function ToastRenderer() {
         };
       case "center": {
         const screenHeight = Dimensions.get("window").height;
-        const offsetTop = typeof offset === "number" ? offset : (offset?.top ?? 0);
         const offsetLeft = typeof offset === "number" ? 0 : (offset?.left ?? 0);
         const offsetRight = typeof offset === "number" ? 0 : (offset?.right ?? 0);
 
@@ -78,19 +169,20 @@ export default function ToastRenderer() {
           top: screenHeight / 2,
           left: resolvedOffset.left + offsetLeft,
           right: resolvedOffset.right + offsetRight,
-          transform: [{ translateY: -25 + offsetTop }],
         };
       }
     }
   };
 
   return (
-    <Animated.View
-      style={[getPositionStyle(), animatedStyle]}
-      pointerEvents="box-none"
-      className={cn("absolute z-[9999] items-center", wrapperClassName)}
-    >
-      <View className={cn("rounded-[6px] px-15 py-10", TYPE_STYLES[type])}>{renderContent()}</View>
-    </Animated.View>
+    <GestureDetector gesture={pan}>
+      <Animated.View
+        style={[getPositionStyle(), animatedStyle]}
+        pointerEvents="box-none"
+        className={cn("absolute z-[9999] items-center", wrapperClassName)}
+      >
+        <View className={cn("rounded-[6px] px-15 py-10", TYPE_STYLES[type])}>{renderContent()}</View>
+      </Animated.View>
+    </GestureDetector>
   );
 }

@@ -10,6 +10,7 @@ import HStack from "@/common/components/HStack/HStack";
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
 import { SheetApi } from "@/common/providers/BottomSheetProvider/context";
+import { toast } from "@/common/providers/ToastProvider";
 import {
   BOTTOM_SHEET_GAP,
   PRODUCT_OPTION_BOTTOM_SHEET_MAX_HEIGHT,
@@ -92,6 +93,12 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
 
   const hasSelectedVariants = useMemo(() => selectedVariants.length > 0, [selectedVariants]);
 
+  const handlePressCart = useCallback(() => {
+    if (!hasSelectedVariants) {
+      toast.show("옵션을 선택해 주세요.");
+    }
+  }, [hasSelectedVariants]);
+
   return (
     <View style={{ maxHeight: PRODUCT_OPTION_BOTTOM_SHEET_MAX_HEIGHT }}>
       <BottomSheetScrollView
@@ -150,10 +157,10 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
           </View>
         )}
         <HStack gap={6} className="px-10 flex flex-row items-center pt-10">
-          <Button disabled={!hasSelectedVariants} size="xl" variant="secondary" className="py-15 flex-1">
+          <Button onPress={handlePressCart} size="xl" variant="secondary" className="py-15 flex-1">
             장바구니
           </Button>
-          <Button disabled={!hasSelectedVariants} size="xl" variant="primary" className="py-15 flex-1">
+          <Button size="xl" variant="primary" className="py-15 flex-1">
             구매하기
           </Button>
         </HStack>

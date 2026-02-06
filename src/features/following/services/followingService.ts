@@ -1,5 +1,3 @@
-// src/features/following/services/followingService.ts
-
 import { apiInstance } from "@/common/lib/apiInstance";
 import { FollowingListResponse } from "@/features/following/types/following";
 

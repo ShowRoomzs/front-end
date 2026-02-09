@@ -1,0 +1,3 @@
+export const FOLLOWING_QUERY_KEY = {
+  FOLLOWING_LIST: "FOLLOWING_LIST",
+};

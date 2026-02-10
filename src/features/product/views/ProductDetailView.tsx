@@ -16,6 +16,7 @@ import { useTabIndex } from "@/common/hooks/useTabIndex";
 import { useCommonNavigation, useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
+import { useFollowingMutation } from "@/features/following/hooks/useFollowingMutation/useFollowingMutation";
 import ProductDetailActions from "@/features/product/components/ProductDetailActions/ProductDetailActions";
 import ProductDetailBenefitSection from "@/features/product/components/ProductDetailBenefitSection/ProductDetailBenefitSection";
 import ProductDetailBrandSection from "@/features/product/components/ProductDetailBrandSection/ProductDetailBrandSection";
@@ -43,6 +44,7 @@ export default function ProductDetailView() {
   const { data: relatedProducts } = useGetRelatedProducts(productId);
   const { update: updateWishlist, cleanupFns } = useUpdateWishlist();
   const { clearSelectedVariants } = useProductVariantSelection();
+  const { addFollowingMutation, deleteFollowingMutation } = useFollowingMutation();
   const { selectedTabIndex, updateTabIndex } = useTabIndex(0);
   const [tabHeaderY, setTabHeaderY] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
@@ -54,6 +56,43 @@ export default function ProductDetailView() {
       setLocalProduct(productDetail);
     }
   }, [isStale, productDetail]);
+
+  // 팔로우 처리 (권한 체크 포함)
+  const handlePermissionFollow = usePermissionPress(async () => {
+    if (!productDetail?.marketId || !productId) {
+      return;
+    }
+
+    const newIsFollowing = !localProduct?.isFollowing;
+
+    // UI 낙관적 업데이트
+    setLocalProduct(
+      produce(draft => {
+        if (!draft) {
+          return;
+        }
+        draft.isFollowing = newIsFollowing;
+      })
+    );
+
+    try {
+      if (newIsFollowing) {
+        await addFollowingMutation.mutateAsync(productDetail.marketId);
+      } else {
+        await deleteFollowingMutation.mutateAsync(productDetail.marketId);
+      }
+    } catch (error) {
+      // 실패 시 원래 상태로 복구
+      setLocalProduct(
+        produce(draft => {
+          if (!draft) {
+            return;
+          }
+          draft.isFollowing = !newIsFollowing;
+        })
+      );
+    }
+  });
 
   const { open: openProductOptionBottomSheet } = useBottomSheet({
     id: "product-option",
@@ -102,6 +141,10 @@ export default function ProductDetailView() {
       screen: COMMON_ROUTES.CART,
     });
   }, [mainNavigation]);
+
+  const handlePressFollow = useCallback(() => {
+    handlePermissionFollow();
+  }, [handlePermissionFollow]);
 
   // product detail 좋아요 처리 권한 체크
   const handlePermissionLike = usePermissionPress((productId: number, newIsWished: boolean) => {
@@ -183,10 +226,6 @@ export default function ProductDetailView() {
     console.log("market");
   }, []);
 
-  const handlePressFollow = useCallback(() => {
-    console.log("follow");
-  }, []);
-
   const handlePressCoupon = useCallback(() => {
     console.log("coupon");
   }, []);
@@ -266,6 +305,7 @@ export default function ProductDetailView() {
           <ProductThumbnailCarousel images={productDetail?.coverImageUrls || []} />
           <ProductDetailBrandSection
             marketName={productDetail?.marketName || ""}
+            isFollowed={localProduct?.isFollowing || false}
             onPressMarket={handlePressMarket}
             onPressFollow={handlePressFollow}
           />

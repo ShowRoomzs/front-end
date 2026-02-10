@@ -8,11 +8,12 @@ import { COMMON_ASSETS } from "@/common/utils/assets";
 
 interface ProductDetailBrandSectionProps {
   marketName: string;
+  isFollowed: boolean;
   onPressFollow: () => void;
   onPressMarket: () => void;
 }
 export default function ProductDetailBrandSection(props: ProductDetailBrandSectionProps) {
-  const { marketName, onPressFollow, onPressMarket } = props;
+  const { marketName, isFollowed, onPressFollow, onPressMarket } = props;
 
   return (
     <View className="flex flex-row items-center justify-between px-20 py-8 flex-1 border-b-[1px] border-t-[1px] border-gray2">
@@ -22,8 +23,15 @@ export default function ProductDetailBrandSection(props: ProductDetailBrandSecti
           <Icon icon={COMMON_ASSETS.arrowRight} />
         </HStack>
       </Pressable>
-      <Button onPress={onPressFollow} size="xs" className="px-10 py-6" variant="outline">
-        <Typography className="text-12 text-gray15 font-normal">팔로잉</Typography>
+      <Button
+        onPress={onPressFollow}
+        size="xs"
+        className="px-10 py-6"
+        variant={isFollowed ? "secondary-black" : "outline"}
+      >
+        <Typography className={`text-12 font-normal ${isFollowed ? "text-positiveColor" : "text-gray15"}`}>
+          {isFollowed ? "팔로잉" : "팔로우"}
+        </Typography>
       </Button>
     </View>
   );

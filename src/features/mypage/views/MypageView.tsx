@@ -6,6 +6,7 @@ import { BOTTOM_TABS_HEIGHT } from "@/common/components/BottomTabs/config";
 import VStack from "@/common/components/VStack/VStack";
 import { useMainNavigation, useMypageNavigation } from "@/common/router";
 import { ROOT_ROUTES } from "@/common/router/routes";
+import { MYPAGE_ROUTES } from "@/common/router/routes";
 import { useUserStore } from "@/common/stores/useUserStore";
 import AuthEntryBanner from "@/features/mypage/components/AuthEntryBanner/AuthEntryBanner";
 import MypageHeader from "@/features/mypage/components/MypageHeader/MypageHeader";
@@ -50,8 +51,8 @@ export default function MypageView() {
   }, []);
 
   const handlePressFollowing = useCallback(() => {
-    console.log("following");
-  }, []);
+    mypageNavigation.navigate(MYPAGE_ROUTES.FOLLOWING_LIST);
+  }, [mypageNavigation]);
 
   const renderItem = useCallback(
     ({ item }: ListRenderItemInfo<MypageSectionProps>) => {

@@ -78,6 +78,10 @@ export interface Variant {
   optionIds: Array<number>;
 }
 
+export interface LocalVariant extends Variant {
+  count: number;
+}
+
 export interface ProductDetail extends Omit<Product, "price"> {
   coverImageUrls: Array<string>;
   regularPrice: number;

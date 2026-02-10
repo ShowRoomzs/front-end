@@ -30,6 +30,7 @@ import ProductOptionBottomSheet from "@/features/product/components/ProductOptio
 import ProductThumbnailCarousel from "@/features/product/components/ProductThumbnailCarousel/ProductThumbnailCarousel";
 import { useGetProductDetail } from "@/features/product/hooks/useGetProductDetail";
 import { useGetRelatedProducts } from "@/features/product/hooks/useGetRelatedProducts";
+import { useProductVariantSelection } from "@/features/product/stores/useProductVariantSelection";
 import { Product, ProductDetail } from "@/features/product/types/product";
 import { useUpdateWishlist } from "@/features/wishlist/hooks/useUpdateWishlist";
 
@@ -41,6 +42,7 @@ export default function ProductDetailView() {
   const { data: productDetail, isLoading, isStale } = useGetProductDetail(productId);
   const { data: relatedProducts } = useGetRelatedProducts(productId);
   const { update: updateWishlist, cleanupFns } = useUpdateWishlist();
+  const { clearSelectedVariants } = useProductVariantSelection();
   const { selectedTabIndex, updateTabIndex } = useTabIndex(0);
   const [tabHeaderY, setTabHeaderY] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
@@ -57,6 +59,7 @@ export default function ProductDetailView() {
     id: "product-option",
     render: (
       <ProductOptionBottomSheet
+        productId={productId}
         optionGroups={productDetail?.optionGroups || []}
         variants={productDetail?.variants || []}
       />
@@ -237,6 +240,12 @@ export default function ProductDetailView() {
       cleanupFns.forEach((fn: () => void) => fn());
     };
   }, [cleanupFns]);
+
+  useEffect(() => {
+    return () => {
+      clearSelectedVariants(productId);
+    };
+  }, [clearSelectedVariants, productId]);
   return (
     <View className="flex-1">
       <ProductDetailHeader

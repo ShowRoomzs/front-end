@@ -73,6 +73,7 @@ export type MypageStackParamList = {
   [MYPAGE_ROUTES.ADDRESS_FORM]?: {
     addressId?: number;
   };
+  [MYPAGE_ROUTES.FOLLOWING_LIST]: undefined;
   [MYPAGE_ROUTES.INQUIRY_HISTORY]: undefined;
   [MYPAGE_ROUTES.CUSTOMER_CENTER]: undefined;
   [MYPAGE_ROUTES.NOTICE]: undefined;

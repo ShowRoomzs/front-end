@@ -26,10 +26,12 @@ interface ProductOptionBottomSheetProps {
   productId: number;
   optionGroups: Array<OptionGroup>;
   variants: Array<Variant>;
+  onPressCart: () => void;
+  onPressBuy: () => void;
 }
 
 export default function ProductOptionBottomSheet(props: ProductOptionBottomSheetProps) {
-  const { productId, optionGroups, variants, sheetApi: _sheetApi } = props;
+  const { productId, optionGroups, variants, sheetApi, onPressCart, onPressBuy } = props;
   const { bottom } = useSafeAreaInsets();
   const { selectedVariantsByProductId, setSelectedVariants } = useProductVariantSelection();
   const [selectedOptions, setSelectedOptions] = useState<Record<number, number>>({});
@@ -109,8 +111,20 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
   const handlePressCart = useCallback(() => {
     if (!hasSelectedVariants) {
       toast.show("옵션을 선택해 주세요.");
+      return;
     }
-  }, [hasSelectedVariants]);
+    sheetApi?.close();
+    onPressCart();
+  }, [hasSelectedVariants, onPressCart, sheetApi]);
+
+  const handlePressBuy = useCallback(() => {
+    if (!hasSelectedVariants) {
+      toast.show("옵션을 선택해 주세요.");
+      return;
+    }
+    sheetApi?.close();
+    onPressBuy();
+  }, [hasSelectedVariants, onPressBuy, sheetApi]);
 
   return (
     <View style={{ maxHeight: PRODUCT_OPTION_BOTTOM_SHEET_MAX_HEIGHT }}>
@@ -173,7 +187,7 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
           <Button onPress={handlePressCart} size="xl" variant="secondary" className="py-15 flex-1">
             장바구니
           </Button>
-          <Button size="xl" variant="primary" className="py-15 flex-1">
+          <Button onPress={handlePressBuy} size="xl" variant="primary" className="py-15 flex-1">
             구매하기
           </Button>
         </HStack>

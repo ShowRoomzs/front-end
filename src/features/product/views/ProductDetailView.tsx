@@ -13,9 +13,11 @@ import Typography from "@/common/components/Typography/Typography";
 import { useBottomSheet } from "@/common/hooks/useBottomSheet";
 import { usePermissionPress } from "@/common/hooks/usePermissionPress";
 import { useTabIndex } from "@/common/hooks/useTabIndex";
+import { toast } from "@/common/providers/ToastProvider";
 import { useCommonNavigation, useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
+import { useCart } from "@/features/cart/hooks/useCart";
 import { useFollowingMutation } from "@/features/following/hooks/useFollowingMutation/useFollowingMutation";
 import ProductDetailActions from "@/features/product/components/ProductDetailActions/ProductDetailActions";
 import ProductDetailBenefitSection from "@/features/product/components/ProductDetailBenefitSection/ProductDetailBenefitSection";
@@ -43,8 +45,9 @@ export default function ProductDetailView() {
   const { data: productDetail, isLoading, isStale } = useGetProductDetail(productId);
   const { data: relatedProducts } = useGetRelatedProducts(productId);
   const { update: updateWishlist, cleanupFns } = useUpdateWishlist();
-  const { clearSelectedVariants } = useProductVariantSelection();
   const { addFollowingMutation, deleteFollowingMutation } = useFollowingMutation();
+  const { create: createCart } = useCart();
+  const { clearSelectedVariants, selectedVariantsByProductId } = useProductVariantSelection();
   const { selectedTabIndex, updateTabIndex } = useTabIndex(0);
   const [tabHeaderY, setTabHeaderY] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
@@ -94,6 +97,25 @@ export default function ProductDetailView() {
     }
   });
 
+  const handlePressBottomSheetCart = usePermissionPress(async () => {
+    const variants = selectedVariantsByProductId[productId];
+
+    // TODO : 여러개 등록 가능하도록 개선 요청
+    try {
+      await createCart({ variantId: variants[0].variantId, quantity: variants[0].count });
+      toast.show("장바구니에 추가되었습니다.");
+      clearSelectedVariants(productId);
+    } catch (error) {
+      console.error(error);
+      toast.error("장바구니에 추가에 실패했습니다.");
+    }
+  });
+
+  const handlePressBottomSheetBuy = usePermissionPress(() => {
+    const variants = selectedVariantsByProductId[productId];
+
+    console.log("variants", variants);
+  });
   const { open: openProductOptionBottomSheet } = useBottomSheet({
     id: "product-option",
     render: (
@@ -101,6 +123,8 @@ export default function ProductDetailView() {
         productId={productId}
         optionGroups={productDetail?.optionGroups || []}
         variants={productDetail?.variants || []}
+        onPressCart={handlePressBottomSheetCart}
+        onPressBuy={handlePressBottomSheetBuy}
       />
     ),
     sheetProps: {

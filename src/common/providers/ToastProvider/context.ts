@@ -23,11 +23,14 @@ export interface ToastConfig {
 export interface ToastContextValue {
   show: (config: string | ToastConfig) => void;
   hide: () => void;
+  pauseTimer: () => void;
+  resumeTimer: () => void;
 }
 
 export interface ToastStateContextValue {
   currentToast: ToastConfig | null;
   opacity: SharedValue<number>;
+  translateY: SharedValue<number>;
 }
 
 export const ToastContext = createContext<ToastContextValue | null>(null);

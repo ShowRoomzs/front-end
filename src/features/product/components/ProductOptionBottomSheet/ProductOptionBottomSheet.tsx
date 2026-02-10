@@ -17,25 +17,28 @@ import {
   PRODUCT_OPTION_BOTTOM_SHEET_PADDING,
 } from "@/features/product/components/ProductOptionBottomSheet/config";
 import VariantCard from "@/features/product/components/VariantCard/VariantCard";
+import { useProductVariantSelection } from "@/features/product/stores/useProductVariantSelection";
 import { OptionGroup, Variant } from "@/features/product/types/product";
 import { getEnabledVariants, getNextOptionGroupIds, parseOption } from "@/features/product/utils/option";
 
-// TODO : api 나오면 타입 수정 필요
-export interface LocalVariant extends Variant {
-  count: number;
-}
 interface ProductOptionBottomSheetProps {
   sheetApi?: SheetApi;
+  productId: number;
   optionGroups: Array<OptionGroup>;
   variants: Array<Variant>;
 }
 
 export default function ProductOptionBottomSheet(props: ProductOptionBottomSheetProps) {
-  const { optionGroups, variants, sheetApi } = props;
+  const { productId, optionGroups, variants, sheetApi: _sheetApi } = props;
   const { bottom } = useSafeAreaInsets();
+  const { selectedVariantsByProductId, setSelectedVariants } = useProductVariantSelection();
   const [selectedOptions, setSelectedOptions] = useState<Record<number, number>>({});
-  const [selectedVariants, setSelectedVariants] = useState<Array<LocalVariant>>([]);
   const [footerHeight, setFooterHeight] = useState(0);
+
+  const selectedVariants = useMemo(
+    () => selectedVariantsByProductId[productId] || [],
+    [selectedVariantsByProductId, productId]
+  );
   const handleChangeOption = useCallback(
     (optionGroupId: number, optionId: number) => {
       // 현재 선택한 optionGroupId 이후의 optionGroupId들을 제거 (옵션 선택 순서 유지)
@@ -54,37 +57,47 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
         // equals find
         const targetVariant = getEnabledVariants(variants, newSelectOptions)[0];
 
-        setSelectedVariants(
-          produce(draft => {
-            const exist = draft.find(v => v.variantId === targetVariant.variantId);
+        const newVariants = produce(selectedVariants, draft => {
+          const exist = draft.find(v => v.variantId === targetVariant.variantId);
 
-            // 이미 존재하는 조합이라면 개수 증가
-            if (exist) {
-              exist.count += 1;
-              return;
-            }
+          // 이미 존재하는 조합이라면 개수 증가
+          if (exist) {
+            exist.count += 1;
+            return;
+          }
 
-            // 존재하지 않는 조합이라면 배열에 추가
-            return [...draft, { ...targetVariant, count: 1 }];
-          })
-        );
+          // 존재하지 않는 조합이라면 배열에 추가
+          return [...draft, { ...targetVariant, count: 1 }];
+        });
+
+        setSelectedVariants(productId, newVariants);
 
         return;
       }
       setSelectedOptions(newSelectOptions);
     },
-    [optionGroups, selectedOptions, variants]
+    [productId, optionGroups, selectedOptions, selectedVariants, setSelectedVariants, variants]
   );
 
-  const handleChangeVariantCount = useCallback((variantId: number, count: number) => {
-    setSelectedVariants(prev =>
-      prev.map(variant => (variant.variantId === variantId ? { ...variant, count } : variant))
-    );
-  }, []);
+  const handleChangeVariantCount = useCallback(
+    (variantId: number, count: number) => {
+      const newVariants = selectedVariants.map(variant =>
+        variant.variantId === variantId ? { ...variant, count } : variant
+      );
 
-  const handleRemoveVariant = useCallback((variantId: number) => {
-    setSelectedVariants(prev => prev.filter(variant => variant.variantId !== variantId));
-  }, []);
+      setSelectedVariants(productId, newVariants);
+    },
+    [productId, selectedVariants, setSelectedVariants]
+  );
+
+  const handleRemoveVariant = useCallback(
+    (variantId: number) => {
+      const newVariants = selectedVariants.filter(variant => variant.variantId !== variantId);
+
+      setSelectedVariants(productId, newVariants);
+    },
+    [productId, selectedVariants, setSelectedVariants]
+  );
 
   const totalPrice = useMemo(
     () => selectedVariants.reduce((sum, variant) => sum + variant.salePrice * variant.count, 0),

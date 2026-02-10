@@ -1,5 +1,6 @@
 import { useCallback } from "react";
 
+import { useUserStore } from "@/common/stores/useUserStore";
 import { useCreateCartMutation } from "@/features/cart/hooks/useCreateCartMutation";
 import { useDeleteAllCartMutation } from "@/features/cart/hooks/useDeleteAllCartMutation";
 import { useDeleteCartMutation } from "@/features/cart/hooks/useDeleteCartMutation";
@@ -8,7 +9,8 @@ import { useUpdateCartMutation } from "@/features/cart/hooks/useUpdateCartMutati
 import { CreateCartRequest, UpdateCartRequest } from "@/features/cart/types/cart";
 
 export function useCart() {
-  const { data: cartData } = useGetCart();
+  const { user } = useUserStore();
+  const { data: cartData } = useGetCart(!!user);
   const { mutateAsync: createMutateAsync } = useCreateCartMutation();
   const { mutateAsync: updateMutateAsync } = useUpdateCartMutation();
   const { mutateAsync: deleteMutateAsync } = useDeleteCartMutation();

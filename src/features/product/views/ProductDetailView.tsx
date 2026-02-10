@@ -294,15 +294,15 @@ export default function ProductDetailView() {
     openProductOptionBottomSheet();
   }, [openProductOptionBottomSheet]);
 
+  const cleanupFnsRef = useRef(cleanupFns);
+
+  cleanupFnsRef.current = cleanupFns;
+
   useEffect(() => {
     return () => {
-      if (!cleanupFns?.length) {
-        return;
-      }
-      console.log("ASDf");
-      cleanupFns.forEach((fn: () => void) => fn());
+      cleanupFnsRef.current?.forEach((fn: () => void) => fn());
     };
-  }, [cleanupFns]);
+  }, []);
 
   useEffect(() => {
     return () => {

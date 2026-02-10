@@ -10,6 +10,9 @@ export function usePermissionPress<Args extends Array<unknown>>(
   const { user } = useUserStore();
   const navigation = useMainNavigation();
   const pendingArgsRef = useRef<Args | null>(null);
+  const callbackRef = useRef(callback);
+
+  callbackRef.current = callback;
 
   const handlePress = useCallback(
     async (...args: Args) => {
@@ -22,16 +25,16 @@ export function usePermissionPress<Args extends Array<unknown>>(
 
               pendingArgsRef.current = null;
               if (stored) {
-                void callback(...stored);
+                void callbackRef.current(...stored);
               }
             },
           },
         });
         return;
       }
-      await callback(...args);
+      await callbackRef.current(...args);
     },
-    [callback, navigation, user]
+    [navigation, user]
   );
 
   return handlePress;

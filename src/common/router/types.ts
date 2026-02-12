@@ -40,7 +40,9 @@ export type AuthStackParamList = {
 };
 
 export type CommonStackParamList = {
-  [COMMON_ROUTES.SEARCH]: undefined;
+  [COMMON_ROUTES.SEARCH]: {
+    keyword: string;
+  };
   [COMMON_ROUTES.SEARCH_DETAIL]: {
     keyword: string;
   };

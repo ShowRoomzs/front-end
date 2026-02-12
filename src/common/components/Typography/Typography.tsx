@@ -2,7 +2,7 @@ import { Text, TextProps } from "react-native";
 
 import { cn } from "@/common/utils/cn";
 
-type TypographyProps = TextProps;
+export type TypographyProps = TextProps;
 
 export default function Typography(props: TypographyProps) {
   const { className, ...restProps } = props;

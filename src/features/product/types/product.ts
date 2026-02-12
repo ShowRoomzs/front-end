@@ -91,6 +91,14 @@ export interface ProductDetail extends Omit<Product, "price"> {
   variants: Array<Variant>;
   isFollowing: boolean;
 }
-
+export interface Stock {
+  productId: number;
+  variantId: number;
+  stock: number;
+  isOutOfStock: boolean;
+  isOutOfStockForced: boolean;
+  price: ProductPrice;
+}
+export type StockResponse = { variants: Array<Stock> };
 export type ProductDetailResponse = ProductDetail;
 export type ProductListResponse = PageResponse<Product>;

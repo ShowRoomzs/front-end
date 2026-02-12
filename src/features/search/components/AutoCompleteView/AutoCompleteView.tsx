@@ -2,7 +2,7 @@ import { useCallback, useMemo } from "react";
 import { FlatList, Pressable, View } from "react-native";
 
 import HighlightTypo from "@/common/components/HighlightTypo/HighlightTypo";
-import { useGetAutoComplete } from "@/features/search/hooks/useGetAutoComplete";
+import { useAutoComplete } from "@/features/search/hooks/useAutoComplete";
 import { AutoCompleteItem } from "@/features/search/types/autoComplete";
 
 interface AutoCompleteViewProps {
@@ -11,7 +11,7 @@ interface AutoCompleteViewProps {
 }
 export default function AutoCompleteView(props: AutoCompleteViewProps) {
   const { keyword, onPressKeyword } = props;
-  const { data: autoCompleteResponse } = useGetAutoComplete(keyword);
+  const { data: autoCompleteResponse } = useAutoComplete(keyword);
 
   const keywords = useMemo(
     () => [

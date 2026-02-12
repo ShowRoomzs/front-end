@@ -5,19 +5,20 @@ import Icon from "@/common/components/Icon/Icon";
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
 import { useBottomTab } from "@/common/hooks/useBottomTab";
+import { usePermissionPress } from "@/common/hooks/usePermissionPress";
 import { useMypageNavigation } from "@/common/router";
 import { COMMON_ASSETS } from "@/common/utils/assets";
 import FollowingListHeader from "@/features/following/components/FollowingListHeader/FollowingListHeader";
 import FollowingListItem from "@/features/following/components/FollowingListItem/FollowingListItem";
-import { useFollowingMutation } from "@/features/following/hooks/useFollowingMutation/useFollowingMutation";
 import { useGetFollowingList } from "@/features/following/hooks/useGetFollowingList";
+import { useUpdateFollowing } from "@/features/following/hooks/useUpdateFollowing";
 import { FollowingShop } from "@/features/following/types/following";
 
 export default function FollowingListView() {
   const navigation = useMypageNavigation();
   const { show: showBottomTab, hide: hideBottomTab } = useBottomTab();
   const { data, isLoading } = useGetFollowingList();
-  const { addFollowingMutation, deleteFollowingMutation } = useFollowingMutation();
+  const { update: updateFollowing } = useUpdateFollowing(true);
 
   const handleBackPress = useCallback(() => {
     navigation.goBack();
@@ -35,16 +36,9 @@ export default function FollowingListView() {
     console.log("Shop clicked:", shop.shopId);
   }, []);
 
-  const handlePressFollowing = useCallback(
-    async (shop: FollowingShop, isFollowed: boolean) => {
-      if (isFollowed) {
-        await deleteFollowingMutation.mutateAsync(shop.shopId);
-      } else {
-        await addFollowingMutation.mutateAsync(shop.shopId);
-      }
-    },
-    [addFollowingMutation, deleteFollowingMutation]
-  );
+  const handlePressFollowing = usePermissionPress((shop: FollowingShop, isFollowed: boolean) => {
+    updateFollowing(shop.shopId, !isFollowed);
+  });
 
   const renderItem = useCallback(
     ({ item }: { item: FollowingShop }) => {
@@ -63,7 +57,7 @@ export default function FollowingListView() {
     if (isLoading) {
       return null;
     }
-    // TODO: 디자인 QA - 간격/색상/크기 조정 필요
+
     return (
       <View className="flex-1 h-[500px] items-center justify-center">
         <VStack gap={10} className="items-center">

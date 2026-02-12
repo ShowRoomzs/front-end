@@ -1,13 +1,12 @@
 import { PageResponse } from "@/common/types/page";
 import { ProductPrice } from "@/features/product/types/product";
 
-// TODO : 여러개 등록 가능하도록 개선 요청
-export interface CreateCartRequest {
+export interface CreateCartItem {
   variantId: number;
   quantity: number;
 }
-
-export type UpdateCartRequest = CreateCartRequest;
+export type CreateCartRequest = Array<CreateCartItem>;
+export type UpdateCartRequest = CreateCartItem;
 
 interface Stock {
   stock: number;

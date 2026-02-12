@@ -9,7 +9,7 @@ import { FollowingShop } from "@/features/following/types/following";
 interface FollowingListItemProps {
   shop: FollowingShop;
   onPressShop: (shop: FollowingShop) => void;
-  onPressFollowing: (shop: FollowingShop, isFollowed: boolean) => Promise<void>;
+  onPressFollowing: (shop: FollowingShop, isFollowed: boolean) => void;
 }
 // TODO: 디자인 QA - 간격/색상/크기 조정 필요
 export default function FollowingListItem(props: FollowingListItemProps) {
@@ -20,16 +20,11 @@ export default function FollowingListItem(props: FollowingListItemProps) {
     onPressShop(shop);
   }, [onPressShop, shop]);
 
-  const handlePressFollowing = useCallback(async () => {
+  const handlePressFollowing = useCallback(() => {
     const newIsFollowed = !isFollowed;
 
     setIsFollowed(newIsFollowed);
-
-    try {
-      await onPressFollowing(shop, isFollowed);
-    } catch (error) {
-      setIsFollowed(isFollowed);
-    }
+    onPressFollowing(shop, isFollowed);
   }, [isFollowed, onPressFollowing, shop]);
 
   return (

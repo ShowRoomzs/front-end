@@ -18,7 +18,7 @@ import { useCommonNavigation, useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
 import { useCart } from "@/features/cart/hooks/useCart";
-import { useFollowingMutation } from "@/features/following/hooks/useFollowingMutation/useFollowingMutation";
+import { useUpdateFollowing } from "@/features/following/hooks/useUpdateFollowing";
 import ProductDetailActions from "@/features/product/components/ProductDetailActions/ProductDetailActions";
 import ProductDetailBenefitSection from "@/features/product/components/ProductDetailBenefitSection/ProductDetailBenefitSection";
 import ProductDetailBrandSection from "@/features/product/components/ProductDetailBrandSection/ProductDetailBrandSection";
@@ -45,7 +45,7 @@ export default function ProductDetailView() {
   const { data: productDetail, isLoading, isStale } = useGetProductDetail(productId);
   const { data: relatedProducts } = useGetRelatedProducts(productId);
   const { update: updateWishlist, cleanupFns } = useUpdateWishlist();
-  const { addFollowingMutation, deleteFollowingMutation } = useFollowingMutation();
+  const { update: updateFollowing, cleanupFns: followingCleanupFns } = useUpdateFollowing();
   const { create: createCart } = useCart();
   const { clearSelectedVariants, selectedVariantsByProductId } = useProductVariantSelection();
   const { selectedTabIndex, updateTabIndex } = useTabIndex(0);
@@ -61,8 +61,8 @@ export default function ProductDetailView() {
   }, [isStale, productDetail]);
 
   // 팔로우 처리 (권한 체크 포함)
-  const handlePermissionFollow = usePermissionPress(async () => {
-    if (!productDetail?.marketId || !productId) {
+  const handlePermissionFollow = usePermissionPress(() => {
+    if (!productDetail?.marketId) {
       return;
     }
 
@@ -78,23 +78,8 @@ export default function ProductDetailView() {
       })
     );
 
-    try {
-      if (newIsFollowing) {
-        await addFollowingMutation.mutateAsync(productDetail.marketId);
-      } else {
-        await deleteFollowingMutation.mutateAsync(productDetail.marketId);
-      }
-    } catch (error) {
-      // 실패 시 원래 상태로 복구
-      setLocalProduct(
-        produce(draft => {
-          if (!draft) {
-            return;
-          }
-          draft.isFollowing = !newIsFollowing;
-        })
-      );
-    }
+    // API는 디바운스 처리 (500ms 후 최종 상태만 전송)
+    updateFollowing(productDetail.marketId, newIsFollowing);
   });
 
   const handlePressBottomSheetCart = usePermissionPress(async () => {
@@ -116,6 +101,7 @@ export default function ProductDetailView() {
 
     console.log("variants", variants);
   });
+
   const { open: openProductOptionBottomSheet } = useBottomSheet({
     id: "product-option",
     render: (
@@ -135,11 +121,13 @@ export default function ProductDetailView() {
       maxDynamicContentSize: PRODUCT_OPTION_BOTTOM_SHEET_MAX_HEIGHT,
     },
   });
+
   const [contentHeightMap, setContentHeightMap] = useState<Record<string, number>>({
     info: 0,
     review: 0,
     inquiry: 0,
   });
+
   const mainNavigation = useMainNavigation();
   const commonNavigation = useCommonNavigation();
 
@@ -169,7 +157,6 @@ export default function ProductDetailView() {
   const handlePressFollow = useCallback(() => {
     handlePermissionFollow();
   }, [handlePermissionFollow]);
-
   // product detail 좋아요 처리 권한 체크
   const handlePermissionLike = usePermissionPress((productId: number, newIsWished: boolean) => {
     // ui 낙관적 업데이트 이후 좋아요 상태 업데이트
@@ -295,12 +282,15 @@ export default function ProductDetailView() {
   }, [openProductOptionBottomSheet]);
 
   const cleanupFnsRef = useRef(cleanupFns);
+  const followingCleanupFnsRef = useRef(followingCleanupFns);
 
   cleanupFnsRef.current = cleanupFns;
+  followingCleanupFnsRef.current = followingCleanupFns;
 
   useEffect(() => {
     return () => {
       cleanupFnsRef.current?.forEach((fn: () => void) => fn());
+      followingCleanupFnsRef.current?.forEach((fn: () => void) => fn());
     };
   }, []);
 
@@ -309,6 +299,7 @@ export default function ProductDetailView() {
       clearSelectedVariants(productId);
     };
   }, [clearSelectedVariants, productId]);
+
   return (
     <View className="flex-1">
       <ProductDetailHeader

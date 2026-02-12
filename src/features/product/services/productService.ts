@@ -1,7 +1,7 @@
 import { apiInstance } from "@/common/lib/apiInstance";
 import { PageParams } from "@/common/types/page";
 import { ProductListParams } from "@/features/product/types/params";
-import { ProductDetailResponse, ProductListResponse } from "@/features/product/types/product";
+import { ProductDetailResponse, ProductListResponse, StockResponse } from "@/features/product/types/product";
 
 export const productService = {
   get: async (params: ProductListParams) => {
@@ -20,6 +20,14 @@ export const productService = {
       {
         params,
       }
+    );
+
+    return response;
+  },
+  getStock: async (productId: number, variantIds: Array<number>) => {
+    const { data: response } = await apiInstance.get<StockResponse>(
+      `/common/products/${productId}/variants`,
+      { params: { variantIds } }
     );
 
     return response;

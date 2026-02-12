@@ -44,7 +44,7 @@ export default function ProductDetailView() {
   const { productId } = params;
   const { data: productDetail, isLoading, isStale } = useGetProductDetail(productId);
   const { data: relatedProducts } = useGetRelatedProducts(productId);
-  const { update: updateWishlist, cleanupFns } = useUpdateWishlist();
+  const { update: updateWishlist, cleanupFns: wishlistCleanupFns } = useUpdateWishlist();
   const { update: updateFollowing, cleanupFns: followingCleanupFns } = useUpdateFollowing();
   const { create: createCart } = useCart();
   const { clearSelectedVariants, selectedVariantsByProductId } = useProductVariantSelection();
@@ -85,9 +85,14 @@ export default function ProductDetailView() {
   const handlePressBottomSheetCart = usePermissionPress(async () => {
     const variants = selectedVariantsByProductId[productId];
 
-    // TODO : 여러개 등록 가능하도록 개선 요청
     try {
-      await createCart({ variantId: variants[0].variantId, quantity: variants[0].count });
+      const items = variants.map(variant => ({
+        productId,
+        variantId: variant.variantId,
+        quantity: variant.count,
+      }));
+
+      await createCart(items);
       toast.show("장바구니에 추가되었습니다.");
       clearSelectedVariants(productId);
     } catch (error) {
@@ -281,15 +286,15 @@ export default function ProductDetailView() {
     openProductOptionBottomSheet();
   }, [openProductOptionBottomSheet]);
 
-  const cleanupFnsRef = useRef(cleanupFns);
+  const wishlistCleanupFnsRef = useRef(wishlistCleanupFns);
   const followingCleanupFnsRef = useRef(followingCleanupFns);
 
-  cleanupFnsRef.current = cleanupFns;
+  wishlistCleanupFnsRef.current = wishlistCleanupFns;
   followingCleanupFnsRef.current = followingCleanupFns;
 
   useEffect(() => {
     return () => {
-      cleanupFnsRef.current?.forEach((fn: () => void) => fn());
+      wishlistCleanupFnsRef.current?.forEach((fn: () => void) => fn());
       followingCleanupFnsRef.current?.forEach((fn: () => void) => fn());
     };
   }, []);
@@ -307,7 +312,7 @@ export default function ProductDetailView() {
         onPressSearch={handlePressSearch}
         onPressCart={handlePressCart}
       />
-      {isLoading || isStale ? (
+      {isLoading ? (
         <View className="flex-1 items-center justify-center">
           <Spinner />
         </View>

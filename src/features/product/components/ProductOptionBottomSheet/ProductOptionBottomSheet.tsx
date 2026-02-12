@@ -5,7 +5,6 @@ import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Button from "@/common/components/Button/Button";
-import Dropdown from "@/common/components/Dropdown/Dropdown";
 import HStack from "@/common/components/HStack/HStack";
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
@@ -16,10 +15,11 @@ import {
   PRODUCT_OPTION_BOTTOM_SHEET_MAX_HEIGHT,
   PRODUCT_OPTION_BOTTOM_SHEET_PADDING,
 } from "@/features/product/components/ProductOptionBottomSheet/config";
+import ProductOptionDropdown from "@/features/product/components/ProductOptionDropdown/ProductOptionDropdown";
 import VariantCard from "@/features/product/components/VariantCard/VariantCard";
 import { useProductVariantSelection } from "@/features/product/stores/useProductVariantSelection";
 import { OptionGroup, Variant } from "@/features/product/types/product";
-import { getEnabledVariants, getNextOptionGroupIds, parseOption } from "@/features/product/utils/option";
+import { getEnabledVariants, getNextOptionGroupIds } from "@/features/product/utils/option";
 
 interface ProductOptionBottomSheetProps {
   sheetApi?: SheetApi;
@@ -134,32 +134,18 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
         }}
       >
         <VStack gap={BOTTOM_SHEET_GAP} className="px-20">
-          {optionGroups.map((optionGroup, ix) => {
-            const nextIds = getNextOptionGroupIds(optionGroups, optionGroup.optionGroupId);
-            const selectedOptionsExcludingSelf = produce(selectedOptions, draft => {
-              // 비교 대상 중 현재 optionGroupId 이후의 optionGroupId들을 제거 (옵션 선택 순서 유지)
-              nextIds.forEach(id => {
-                delete draft[id];
-              });
-              // 비교 대상 중 본인 optionGroupId 제거
-              delete draft[optionGroup.optionGroupId];
-            });
-            const enabledVariants = getEnabledVariants(variants, selectedOptionsExcludingSelf);
-
-            const isDisabled = ix > 0 && Object.keys(selectedOptions).length === 0;
-
-            return (
-              <Dropdown
-                id={optionGroup.optionGroupId.toString()}
-                placeholder={`(${optionGroup.name})옵션을 선택해 보세요`}
-                value={selectedOptions[optionGroup.optionGroupId]?.toString() || ""}
-                onChange={optionId => handleChangeOption(optionGroup.optionGroupId, Number(optionId))}
-                key={optionGroup.optionGroupId}
-                items={parseOption(optionGroup, enabledVariants)}
-                disabled={isDisabled}
-              />
-            );
-          })}
+          {optionGroups.map((optionGroup, ix) => (
+            <ProductOptionDropdown
+              key={optionGroup.optionGroupId}
+              optionGroup={optionGroup}
+              index={ix}
+              optionGroups={optionGroups}
+              variants={variants}
+              selectedOptions={selectedOptions}
+              onChangeOption={handleChangeOption}
+              productId={productId}
+            />
+          ))}
           {selectedVariants.map(variant => (
             <VariantCard
               key={variant.variantId}

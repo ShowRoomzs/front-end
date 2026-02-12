@@ -19,9 +19,10 @@ interface DropdownProps {
   onChange: (value: string) => void;
   placeholder?: string;
   disabled?: boolean;
+  closeOnDisabled?: boolean;
 }
 export default function Dropdown(props: DropdownProps) {
-  const { items, value, onChange, placeholder, disabled, id } = props;
+  const { items, value, onChange, placeholder, disabled, id, closeOnDisabled = true } = props;
 
   const { openStatus, open, close } = useDropdown();
 
@@ -39,11 +40,14 @@ export default function Dropdown(props: DropdownProps) {
   };
 
   const handleChange = (item: DropdownItem) => {
-    if (item.disabled) {
+    // disabled에 따른 비지니스 로직은 외부에서 처리
+    onChange(item.value);
+    // disabled가 아니라면 무조건 close
+    // disabled이고 closeOnDisabled가 true라면 close
+    if (!item.disabled || (item.disabled && closeOnDisabled)) {
+      close(id);
       return;
     }
-    onChange(item.value);
-    close(id);
   };
 
   const selectedItem = items.find(item => item.value === value);
@@ -51,6 +55,7 @@ export default function Dropdown(props: DropdownProps) {
   return (
     <Pressable
       onPress={handlePress}
+      onTouchEnd={e => e.stopPropagation()} // dropdown provider onTouchEnd 방지
       className={cn("flex flex-col border-[1px] border-gray3 rounded-[5px]", isOpen && "border-gray13")}
     >
       <View className="flex flex-row items-center justify-between p-15">

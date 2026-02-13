@@ -12,11 +12,11 @@ import { SheetApi } from "@/common/providers/BottomSheetProvider/context";
 import { toast } from "@/common/providers/ToastProvider";
 import {
   BOTTOM_SHEET_GAP,
-  PRODUCT_OPTION_BOTTOM_SHEET_MAX_HEIGHT,
   PRODUCT_OPTION_BOTTOM_SHEET_PADDING,
 } from "@/features/product/components/ProductOptionBottomSheet/config";
 import ProductOptionDropdown from "@/features/product/components/ProductOptionDropdown/ProductOptionDropdown";
 import VariantCard from "@/features/product/components/VariantCard/VariantCard";
+import { PRODUCT_OPTION_BOTTOM_SHEET_MAX_HEIGHT } from "@/features/product/constants/optionBottomSheet";
 import { useGetProductDetail } from "@/features/product/hooks/useGetProductDetail";
 import { useOptionSelection } from "@/features/product/hooks/useOptionSelection";
 import { LocalVariant } from "@/features/product/types/product";

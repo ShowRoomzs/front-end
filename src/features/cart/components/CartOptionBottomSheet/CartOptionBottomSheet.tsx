@@ -28,7 +28,7 @@ interface CartOptionBottomSheetProps {
   productId: number;
   variantId: number;
   quantity: number;
-  onConfirm: (cartId: number, newVariantId: number, newQuantity: number) => void;
+  onConfirm: (cartId: number, newVariantId: number, newQuantity: number, sheetApi?: SheetApi) => void;
 }
 
 export default function CartOptionBottomSheet(props: CartOptionBottomSheetProps) {
@@ -80,7 +80,7 @@ export default function CartOptionBottomSheet(props: CartOptionBottomSheetProps)
       return;
     }
 
-    setSelectedVariants([{ ...targetVariant, count: quantity }]);
+    setSelectedVariants([{ ...targetVariant, count: quantity, stock: targetVariant.stock }]);
   }, [productDetail, variantId, quantity, initialSelectedOptions]);
 
   const handleChangeOptionInternal = useCallback(
@@ -151,8 +151,7 @@ export default function CartOptionBottomSheet(props: CartOptionBottomSheetProps)
     // 여러 variant 중 첫 번째 것만 전달 (장바구니는 개별 아이템 단위 수정)
     const targetVariant = selectedVariants[0];
 
-    onConfirm(cartId, targetVariant.variantId, targetVariant.count);
-    sheetApi?.close();
+    onConfirm(cartId, targetVariant.variantId, targetVariant.count, sheetApi);
   }, [hasSelectedVariants, selectedVariants, cartId, onConfirm, sheetApi]);
 
   if (!productDetail) {

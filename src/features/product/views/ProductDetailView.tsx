@@ -1,4 +1,5 @@
 import { RouteProp, useRoute } from "@react-navigation/native";
+import { AxiosError } from "axios";
 import { produce } from "immer";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LayoutChangeEvent, ListRenderItemInfo, ScrollView, Text, View } from "react-native";
@@ -13,10 +14,12 @@ import Typography from "@/common/components/Typography/Typography";
 import { useBottomSheet } from "@/common/hooks/useBottomSheet";
 import { usePermissionPress } from "@/common/hooks/usePermissionPress";
 import { useTabIndex } from "@/common/hooks/useTabIndex";
+import { SheetApi } from "@/common/providers/BottomSheetProvider/context";
 import { toast } from "@/common/providers/ToastProvider";
 import { useCommonNavigation, useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
+import { CustomErrorResponse } from "@/common/types/error";
 import { useCart } from "@/features/cart/hooks/useCart";
 import { useUpdateFollowing } from "@/features/following/hooks/useUpdateFollowing";
 import ProductDetailActions from "@/features/product/components/ProductDetailActions/ProductDetailActions";
@@ -82,7 +85,7 @@ export default function ProductDetailView() {
     updateFollowing(productDetail.marketId, newIsFollowing);
   });
 
-  const handlePressBottomSheetCart = usePermissionPress(async () => {
+  const handlePressBottomSheetCart = usePermissionPress(async (sheetApi?: SheetApi) => {
     const variants = selectedVariantsByProductId[productId];
 
     try {
@@ -93,11 +96,13 @@ export default function ProductDetailView() {
       }));
 
       await createCart(items);
+      sheetApi?.close();
       toast.show("장바구니에 추가되었습니다.");
       clearSelectedVariants(productId);
     } catch (error) {
-      console.error(error);
-      toast.error("장바구니에 추가에 실패했습니다.");
+      const axiosError = error as AxiosError<CustomErrorResponse<string, { message?: string }>>;
+
+      toast.show(axiosError.response?.data?.message || "장바구니에 추가에 실패했습니다.");
     }
   });
 

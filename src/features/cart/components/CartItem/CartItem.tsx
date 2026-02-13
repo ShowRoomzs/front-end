@@ -8,6 +8,7 @@ import Icon from "@/common/components/Icon/Icon";
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
 import { useBottomSheet } from "@/common/hooks/useBottomSheet";
+import { SheetApi } from "@/common/providers/BottomSheetProvider/context";
 import { COMMON_ASSETS } from "@/common/utils/assets";
 import CartOptionBottomSheet from "@/features/cart/components/CartOptionBottomSheet/CartOptionBottomSheet";
 import { CartItem as CartItemType } from "@/features/cart/types/cart";
@@ -17,18 +18,18 @@ import { PRODUCT_OPTION_BOTTOM_SHEET_PROPS } from "@/features/product/constants/
 interface CartItemProps {
   item: CartItemType;
   isChecked: boolean;
-  onPressCheckbox: () => void;
-  onChangeOption: (cartId: number, newVariantId: number, newQuantity: number) => void;
+  onPressCheckbox: (cartId: number) => void;
+  onChangeOption: (cartId: number, newVariantId: number, newQuantity: number, sheetApi?: SheetApi) => void;
   onPressCoupon: () => void;
-  onPressDelete: () => void;
+  onPressDelete: (cartId: number) => void;
   onPress: () => void;
 }
 export default function CartItem(props: CartItemProps) {
   const { item, isChecked, onPressCheckbox, onChangeOption, onPressCoupon, onPressDelete, onPress } = props;
 
   const handleConfirmOption = useCallback(
-    (cartId: number, newVariantId: number, newQuantity: number) => {
-      onChangeOption(cartId, newVariantId, newQuantity);
+    (cartId: number, newVariantId: number, newQuantity: number, sheetApi?: SheetApi) => {
+      onChangeOption(cartId, newVariantId, newQuantity, sheetApi);
     },
     [onChangeOption]
   );
@@ -56,8 +57,8 @@ export default function CartItem(props: CartItemProps) {
   return (
     <VStack className="px-20 py-15 border-b-[1px] border-gray2" gap={15}>
       <View className="flex flex-row justify-between items-center">
-        <Checkbox isChecked={isChecked} onChange={onPressCheckbox} />
-        <TouchableOpacity onPress={onPressDelete} activeOpacity={0.7}>
+        <Checkbox isChecked={isChecked} onChange={() => onPressCheckbox(item.cartId)} />
+        <TouchableOpacity onPress={() => onPressDelete(item.cartId)} activeOpacity={0.7}>
           <Icon icon={COMMON_ASSETS.closeBlack} />
         </TouchableOpacity>
       </View>

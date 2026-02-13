@@ -28,9 +28,9 @@ import ProductDetailInfo from "@/features/product/components/ProductDetailInfo/P
 import ProductDetailPriceSection from "@/features/product/components/ProductDetailPriceSection/ProductDetailPriceSection";
 import ProductDetailRelatedProducts from "@/features/product/components/ProductDetailRelatedProducts/ProductDetailRelatedProducts";
 import ProductDetailShowroomSection from "@/features/product/components/ProductDetailShowroomSection/ProductDetailShowroomSection";
-import { PRODUCT_OPTION_BOTTOM_SHEET_MAX_HEIGHT } from "@/features/product/components/ProductOptionBottomSheet/config";
 import ProductOptionBottomSheet from "@/features/product/components/ProductOptionBottomSheet/ProductOptionBottomSheet";
 import ProductThumbnailCarousel from "@/features/product/components/ProductThumbnailCarousel/ProductThumbnailCarousel";
+import { PRODUCT_OPTION_BOTTOM_SHEET_PROPS } from "@/features/product/constants/optionBottomSheet";
 import { useGetProductDetail } from "@/features/product/hooks/useGetProductDetail";
 import { useGetRelatedProducts } from "@/features/product/hooks/useGetRelatedProducts";
 import { useProductVariantSelection } from "@/features/product/stores/useProductVariantSelection";
@@ -118,13 +118,7 @@ export default function ProductDetailView() {
         onPressBuy={handlePressBottomSheetBuy}
       />
     ),
-    sheetProps: {
-      enableDynamicSizing: true,
-      enableContentPanningGesture: false, // 내부 콘텐츠 패닝 금지
-      enableHandlePanningGesture: false, // 핸들 패닝 금지
-      snapPoints: ["80%"], // 최대 높이 화면 80%
-      maxDynamicContentSize: PRODUCT_OPTION_BOTTOM_SHEET_MAX_HEIGHT,
-    },
+    sheetProps: PRODUCT_OPTION_BOTTOM_SHEET_PROPS,
   });
 
   const [contentHeightMap, setContentHeightMap] = useState<Record<string, number>>({

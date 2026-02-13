@@ -80,7 +80,7 @@ export default function CartOptionBottomSheet(props: CartOptionBottomSheetProps)
       return;
     }
 
-    setSelectedVariants([{ ...targetVariant, count: quantity, stock: targetVariant.stock }]);
+    setSelectedVariants([{ ...targetVariant, count: quantity }]);
   }, [productDetail, variantId, quantity, initialSelectedOptions]);
 
   const handleChangeOptionInternal = useCallback(

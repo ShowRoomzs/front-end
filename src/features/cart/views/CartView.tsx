@@ -1,11 +1,14 @@
 import { StackActions } from "@react-navigation/native";
+import { AxiosError } from "axios";
 import { useCallback } from "react";
 import { View } from "react-native";
 
 import { useBottomTab } from "@/common/hooks/useBottomTab";
+import { SheetApi } from "@/common/providers/BottomSheetProvider/context";
 import { CheckboxProvider } from "@/common/providers/CheckboxProvider";
 import { toast } from "@/common/providers/ToastProvider";
 import { HOME_ROUTES, useMainNavigation } from "@/common/router";
+import { CustomErrorResponse } from "@/common/types/error";
 import CartContent from "@/features/cart/components/CartContent/CartContent";
 import CartHeader from "@/features/cart/components/CartHeader/CartHeader";
 import { useCart } from "@/features/cart/hooks/useCart";
@@ -30,12 +33,15 @@ export default function CartView() {
   }, []);
 
   const handleChangeOption = useCallback(
-    async (cartId: number, newVariantId: number, newQuantity: number) => {
+    async (cartId: number, newVariantId: number, newQuantity: number, sheetApi?: SheetApi) => {
       try {
         await update(cartId, { variantId: newVariantId, quantity: newQuantity });
         toast.show("옵션이 변경되었습니다.");
+        sheetApi?.close();
       } catch (error) {
-        console.error(error);
+        const axiosError = error as AxiosError<CustomErrorResponse<string, { message?: string }>>;
+
+        toast.show(axiosError.response?.data?.message || "옵션 변경에 실패했습니다.");
       }
     },
     [update]

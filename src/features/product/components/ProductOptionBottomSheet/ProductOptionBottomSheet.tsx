@@ -27,7 +27,7 @@ interface ProductOptionBottomSheetProps {
   productId: number;
   optionGroups: Array<OptionGroup>;
   variants: Array<Variant>;
-  onPressCart: () => void;
+  onPressCart: (sheetApi?: SheetApi) => void;
   onPressBuy: () => void;
 }
 
@@ -102,8 +102,7 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
       toast.show("옵션을 선택해 주세요.");
       return;
     }
-    sheetApi?.close();
-    onPressCart();
+    onPressCart(sheetApi);
   }, [hasSelectedVariants, onPressCart, sheetApi]);
 
   const handlePressBuy = useCallback(() => {

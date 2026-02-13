@@ -14,7 +14,7 @@ interface Stock {
   isOutOfStockForced: boolean;
 }
 
-export interface CartItemResponse {
+export interface CartItem {
   cartId: number;
   productId: number;
   variantId: number;
@@ -37,6 +37,6 @@ interface CartSummary {
   finalTotal: number;
 }
 
-export interface CartResponse extends PageResponse<CartItemResponse> {
+export interface CartResponse extends PageResponse<CartItem> {
   summary: CartSummary;
 }

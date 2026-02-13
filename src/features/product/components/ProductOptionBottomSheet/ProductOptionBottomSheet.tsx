@@ -12,14 +12,15 @@ import { SheetApi } from "@/common/providers/BottomSheetProvider/context";
 import { toast } from "@/common/providers/ToastProvider";
 import {
   BOTTOM_SHEET_GAP,
-  PRODUCT_OPTION_BOTTOM_SHEET_MAX_HEIGHT,
   PRODUCT_OPTION_BOTTOM_SHEET_PADDING,
 } from "@/features/product/components/ProductOptionBottomSheet/config";
 import ProductOptionDropdown from "@/features/product/components/ProductOptionDropdown/ProductOptionDropdown";
 import VariantCard from "@/features/product/components/VariantCard/VariantCard";
+import { PRODUCT_OPTION_BOTTOM_SHEET_MAX_HEIGHT } from "@/features/product/constants/optionBottomSheet";
+import { useOptionSelection } from "@/features/product/hooks/useOptionSelection";
 import { useProductVariantSelection } from "@/features/product/stores/useProductVariantSelection";
 import { OptionGroup, Variant } from "@/features/product/types/product";
-import { getEnabledVariants, getNextOptionGroupIds } from "@/features/product/utils/option";
+import { getEnabledVariants } from "@/features/product/utils/option";
 
 interface ProductOptionBottomSheetProps {
   sheetApi?: SheetApi;
@@ -34,29 +35,20 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
   const { productId, optionGroups, variants, sheetApi, onPressCart, onPressBuy } = props;
   const { bottom } = useSafeAreaInsets();
   const { selectedVariantsByProductId, setSelectedVariants } = useProductVariantSelection();
-  const [selectedOptions, setSelectedOptions] = useState<Record<number, number>>({});
+  const { selectedOptions, handleChangeOption } = useOptionSelection({ optionGroups });
   const [footerHeight, setFooterHeight] = useState(0);
 
   const selectedVariants = useMemo(
     () => selectedVariantsByProductId[productId] || [],
     [selectedVariantsByProductId, productId]
   );
-  const handleChangeOption = useCallback(
+
+  const handleChangeOptionInternal = useCallback(
     (optionGroupId: number, optionId: number) => {
-      // 현재 선택한 optionGroupId 이후의 optionGroupId들을 제거 (옵션 선택 순서 유지)
-      const nextIds = getNextOptionGroupIds(optionGroups, optionGroupId);
+      const newSelectOptions = handleChangeOption(optionGroupId, optionId);
 
-      const newSelectOptions = produce(selectedOptions, draft => {
-        draft[optionGroupId] = optionId;
-        nextIds.forEach(id => {
-          delete draft[id];
-        });
-      });
-
-      // 모든 option이 선택된 경우 > 초기화 > selectedVariants 배열에 담음
+      // 모든 option이 선택된 경우 > selectedVariants 배열에 담음
       if (Object.keys(newSelectOptions).length === optionGroups.length) {
-        setSelectedOptions({});
-        // equals find
         const targetVariant = getEnabledVariants(variants, newSelectOptions)[0];
 
         const newVariants = produce(selectedVariants, draft => {
@@ -73,12 +65,9 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
         });
 
         setSelectedVariants(productId, newVariants);
-
-        return;
       }
-      setSelectedOptions(newSelectOptions);
     },
-    [productId, optionGroups, selectedOptions, selectedVariants, setSelectedVariants, variants]
+    [productId, optionGroups, selectedVariants, setSelectedVariants, variants, handleChangeOption]
   );
 
   const handleChangeVariantCount = useCallback(
@@ -142,7 +131,7 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
               optionGroups={optionGroups}
               variants={variants}
               selectedOptions={selectedOptions}
-              onChangeOption={handleChangeOption}
+              onChangeOption={handleChangeOptionInternal}
               productId={productId}
             />
           ))}

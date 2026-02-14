@@ -237,8 +237,11 @@ export default function ProductDetailView() {
   ]);
 
   const handlePressMarket = useCallback(() => {
-    console.log("market");
-  }, []);
+    if (!productDetail?.marketId) {
+      return;
+    }
+    commonNavigation.push(COMMON_ROUTES.MARKET_DETAIL, { marketId: productDetail.marketId });
+  }, [commonNavigation, productDetail?.marketId]);
 
   const handlePressCoupon = useCallback(() => {
     console.log("coupon");

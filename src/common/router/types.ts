@@ -49,6 +49,9 @@ export type CommonStackParamList = {
   [COMMON_ROUTES.CART]: undefined;
   [COMMON_ROUTES.NOTIFICATION]: undefined;
   [COMMON_ROUTES.SETTING]: undefined;
+  [COMMON_ROUTES.MARKET_DETAIL]: {
+    marketId: number;
+  };
   [COMMON_ROUTES.PRODUCT_DETAIL]: {
     productId: number;
   };

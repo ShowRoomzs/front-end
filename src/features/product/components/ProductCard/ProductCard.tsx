@@ -51,10 +51,10 @@ export default function ProductCard(props: ProductCardProps) {
     if (useOptimisticUpdate) {
       setProduct(
         produce(draft => {
-          const newLikeCount = Math.max(0, draft.likeCount + (newIsWished ? 1 : -1));
+          const newWishCount = Math.max(0, draft.wishCount + (newIsWished ? 1 : -1));
 
           draft.isWished = newIsWished;
-          draft.likeCount = newLikeCount;
+          draft.wishCount = newWishCount;
         })
       );
     }
@@ -80,7 +80,7 @@ export default function ProductCard(props: ProductCardProps) {
   }, []);
 
   const classes = SIZE_CLASSES[size];
-  const showCountSection = product.likeCount > 0 || product.reviewCount > 0;
+  const showCountSection = product.wishCount > 0 || product.reviewCount > 0;
 
   return (
     <TouchableOpacity className="relative" onPress={handlePress} activeOpacity={0.7}>
@@ -104,11 +104,11 @@ export default function ProductCard(props: ProductCardProps) {
           </HStack>
           {showCountSection && (
             <HStack className="mt-10" gap={10}>
-              {product.likeCount > 0 && (
+              {product.wishCount > 0 && (
                 <HStack className="items-center" gap={4}>
                   <Icon icon={COMMON_ASSETS.likeIcon} />
                   <Typography className="text-11 text-gray10 font-normal">
-                    {parseCount(product.likeCount)}
+                    {parseCount(product.wishCount)}
                   </Typography>
                 </HStack>
               )}

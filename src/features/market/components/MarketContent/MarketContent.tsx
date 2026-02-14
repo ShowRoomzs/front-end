@@ -15,7 +15,7 @@ export default function MarketContent(props: MarketContentProps) {
   if (!market) {
     return null;
   }
-  console.log(market);
+
   return (
     <View className={cn(wrapperClassName)}>
       <MarketDetailProfileSection

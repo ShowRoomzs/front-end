@@ -42,7 +42,7 @@ export function useCart() {
   }, [deleteAllMutateAsync]);
 
   return {
-    data: cartData?.content ?? [],
+    data: cartData?.items ?? [],
     create,
     update,
     remove,

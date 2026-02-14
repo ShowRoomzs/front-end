@@ -5,6 +5,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Button from "@/common/components/Button/Button";
 import { useCheckbox } from "@/common/hooks/useCheckbox";
 import { SheetApi } from "@/common/providers/BottomSheetProvider/context";
+import { useMainNavigation } from "@/common/router";
+import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import CartAllSelectSection from "@/features/cart/components/CartAllSelectSection/CartAllSelectSection";
 import CartItemComponent from "@/features/cart/components/CartItem/CartItem";
 import CartPaymentSummary from "@/features/cart/components/CartPaymentSummary/CartPaymentSummary";
@@ -18,6 +20,7 @@ interface CartContentProps {
 export default function CartContent(props: CartContentProps) {
   const { cartItems, onChangeCheckedItems, onChangeOption } = props;
   const inset = useSafeAreaInsets();
+  const navigation = useMainNavigation();
   const { checkedItems, isAllChecked, toggleAll, toggleItem } = useCheckbox();
   const [actionButtonHeight, setActionButtonHeight] = useState(0);
   const allIds = useMemo(() => cartItems.map(item => String(item.cartId)), [cartItems]);
@@ -54,6 +57,18 @@ export default function CartContent(props: CartContentProps) {
     [onChangeOption]
   );
 
+  const handlePressImage = useCallback(
+    (cartItem: CartItem) => {
+      navigation.navigate(ROOT_ROUTES.COMMON, {
+        screen: COMMON_ROUTES.PRODUCT_DETAIL,
+        params: {
+          productId: cartItem.productId,
+        },
+      });
+    },
+    [navigation]
+  );
+
   const renderItem = useCallback(
     ({ item }: { item: CartItem }) => {
       return (
@@ -64,11 +79,11 @@ export default function CartContent(props: CartContentProps) {
           onChangeOption={handleChangeOption}
           onPressCoupon={() => {}}
           onPressDelete={handlePressDelete}
-          onPress={() => {}}
+          onPressImage={handlePressImage}
         />
       );
     },
-    [checkedItems, handleChangeOption, handlePressDelete, toggleItem]
+    [checkedItems, handleChangeOption, handlePressDelete, handlePressImage, toggleItem]
   );
 
   const totalDeliveryFee = useMemo(

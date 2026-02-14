@@ -102,6 +102,7 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
       toast.show("옵션을 선택해 주세요.");
       return;
     }
+    sheetApi?.close();
     onPressCart(sheetApi);
   }, [hasSelectedVariants, onPressCart, sheetApi]);
 

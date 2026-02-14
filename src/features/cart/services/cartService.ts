@@ -15,13 +15,10 @@ export const cartService = {
   update: async (cartId: number, data: UpdateCartRequest) => {
     await apiInstance.patch(`/user/cart/${cartId}`, data);
   },
-  delete: async (cartId: number) => {
-    const { data: response } = await apiInstance.delete(`/user/cart/${cartId}`);
-
-    return response;
-  },
-  deleteAll: async () => {
-    const { data: response } = await apiInstance.delete("/user/cart");
+  deleteMany: async (cartItemIds: Array<number>) => {
+    const { data: response } = await apiInstance.delete("/user/cart", {
+      params: { cartItemIds },
+    });
 
     return response;
   },

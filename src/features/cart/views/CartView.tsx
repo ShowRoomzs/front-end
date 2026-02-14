@@ -16,7 +16,7 @@ import { useCart } from "@/features/cart/hooks/useCart";
 export default function CartView() {
   const navigation = useMainNavigation();
   const { navigate } = useBottomTab();
-  const { data: cartItems, update } = useCart();
+  const { data: cartItems, update, remove, removeMany } = useCart();
   const handlePressBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
@@ -47,6 +47,34 @@ export default function CartView() {
     [update]
   );
 
+  const handlePressDelete = useCallback(
+    async (cartId: number) => {
+      try {
+        await remove(cartId);
+        toast.show("삭제되었습니다.");
+      } catch (error) {
+        const axiosError = error as AxiosError<CustomErrorResponse<string, { message?: string }>>;
+
+        toast.show(axiosError.response?.data?.message || "삭제에 실패했습니다.");
+      }
+    },
+    [remove]
+  );
+
+  const handlePressDeleteSelected = useCallback(
+    async (cartIds: Array<number>) => {
+      try {
+        await removeMany(cartIds);
+        toast.show("삭제되었습니다.");
+      } catch (error) {
+        const axiosError = error as AxiosError<CustomErrorResponse<string, { message?: string }>>;
+
+        toast.show(axiosError.response?.data?.message || "삭제에 실패했습니다.");
+      }
+    },
+    [removeMany]
+  );
+
   return (
     <View className="flex-1">
       <CartHeader
@@ -56,6 +84,8 @@ export default function CartView() {
       />
       <CheckboxProvider>
         <CartContent
+          onRemove={handlePressDelete}
+          onRemoveMany={handlePressDeleteSelected}
           onChangeOption={handleChangeOption}
           cartItems={cartItems}
           onChangeCheckedItems={handleChangeCheckedItems}

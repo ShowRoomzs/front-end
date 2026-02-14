@@ -16,9 +16,11 @@ interface CartContentProps {
   cartItems: Array<CartItem>;
   onChangeCheckedItems: (newCheckedItems: Set<string>) => void;
   onChangeOption: (cartId: number, newVariantId: number, newQuantity: number, sheetApi?: SheetApi) => void;
+  onRemove: (cartId: number) => void;
+  onRemoveMany: (cartIds: Array<number>) => void;
 }
 export default function CartContent(props: CartContentProps) {
-  const { cartItems, onChangeCheckedItems, onChangeOption } = props;
+  const { cartItems, onChangeCheckedItems, onChangeOption, onRemove, onRemoveMany } = props;
   const inset = useSafeAreaInsets();
   const navigation = useMainNavigation();
   const { checkedItems, isAllChecked, toggleAll, toggleItem } = useCheckbox();
@@ -43,12 +45,17 @@ export default function CartContent(props: CartContentProps) {
   }, [toggleAll, allIds]);
 
   const handlePressDeleteSelected = useCallback(() => {
-    console.log("asdf");
-  }, []);
+    onRemoveMany(Array.from(checkedItems.values()).map(Number));
+    checkedItems.clear();
+  }, [checkedItems, onRemoveMany]);
 
-  const handlePressDelete = useCallback((cartId: number) => {
-    console.log("asdf");
-  }, []);
+  const handlePressDelete = useCallback(
+    (cartId: number) => {
+      onRemove(cartId);
+      checkedItems.delete(String(cartId));
+    },
+    [checkedItems, onRemove]
+  );
 
   const handleChangeOption = useCallback(
     (cartId: number, newVariantId: number, newQuantity: number, sheetApi?: SheetApi) => {

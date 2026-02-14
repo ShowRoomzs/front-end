@@ -45,10 +45,16 @@ export default function HomeView() {
     });
   }, [navigation]);
 
+  const handlePressCart = usePermissionPress(() => {
+    navigation.navigate(ROOT_ROUTES.COMMON, {
+      screen: COMMON_ROUTES.CART,
+    });
+  });
+
   return (
     <View className="flex-1 bg-white">
       <VStack gap={10} className="px-20">
-        <HomeHeader onPressCart={() => {}} onPressNotification={handlePressNotification} />
+        <HomeHeader onPressCart={handlePressCart} onPressNotification={handlePressNotification} />
         <Search
           readOnly
           onPressSearch={handlePressSearch}

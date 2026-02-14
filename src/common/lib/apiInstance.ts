@@ -20,7 +20,7 @@ apiInstance.interceptors.request.use(async config => {
 apiInstance.interceptors.response.use(
   response => response,
   async error => {
-    if (error.response.data.status === 401) {
+    if (error.response?.data?.status === 401) {
       const refreshToken = await SecureStore.getItemAsync(SECURE_STORE.REFRESH_TOKEN);
 
       if (!refreshToken) {
@@ -35,5 +35,7 @@ apiInstance.interceptors.response.use(
 
       return apiInstance(error.config);
     }
+
+    return Promise.reject(error);
   }
 );

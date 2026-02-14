@@ -2,8 +2,7 @@ import { useCallback } from "react";
 
 import { useUserStore } from "@/common/stores/useUserStore";
 import { useCreateCartMutation } from "@/features/cart/hooks/useCreateCartMutation";
-import { useDeleteAllCartMutation } from "@/features/cart/hooks/useDeleteAllCartMutation";
-import { useDeleteCartMutation } from "@/features/cart/hooks/useDeleteCartMutation";
+import { useDeleteCartManyMutation } from "@/features/cart/hooks/useDeleteManyCartMutation";
 import { useGetCart } from "@/features/cart/hooks/useGetCart";
 import { useUpdateCartMutation } from "@/features/cart/hooks/useUpdateCartMutation";
 import { CreateCartRequest, UpdateCartRequest } from "@/features/cart/types/cart";
@@ -13,8 +12,7 @@ export function useCart() {
   const { data: cartData } = useGetCart(!!user);
   const { mutateAsync: createMutateAsync } = useCreateCartMutation();
   const { mutateAsync: updateMutateAsync } = useUpdateCartMutation();
-  const { mutateAsync: deleteMutateAsync } = useDeleteCartMutation();
-  const { mutateAsync: deleteAllMutateAsync } = useDeleteAllCartMutation();
+  const { mutateAsync: deleteManyMutateAsync } = useDeleteCartManyMutation();
 
   const create = useCallback(
     async (cartData: CreateCartRequest) => {
@@ -32,20 +30,23 @@ export function useCart() {
 
   const remove = useCallback(
     async (id: number) => {
-      await deleteMutateAsync(id);
+      await deleteManyMutateAsync([id]);
     },
-    [deleteMutateAsync]
+    [deleteManyMutateAsync]
   );
 
-  const removeAll = useCallback(async () => {
-    await deleteAllMutateAsync();
-  }, [deleteAllMutateAsync]);
+  const removeMany = useCallback(
+    async (ids: Array<number>) => {
+      await deleteManyMutateAsync(ids);
+    },
+    [deleteManyMutateAsync]
+  );
 
   return {
-    data: cartData?.content ?? [],
+    data: cartData?.items ?? [],
     create,
     update,
     remove,
-    removeAll,
+    removeMany,
   };
 }

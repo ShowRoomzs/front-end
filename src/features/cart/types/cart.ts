@@ -1,4 +1,3 @@
-import { PageResponse } from "@/common/types/page";
 import { ProductPrice } from "@/features/product/types/product";
 
 export interface CreateCartItem {
@@ -14,7 +13,7 @@ interface Stock {
   isOutOfStockForced: boolean;
 }
 
-export interface CartItemResponse {
+export interface CartItem {
   cartId: number;
   productId: number;
   variantId: number;
@@ -37,6 +36,7 @@ interface CartSummary {
   finalTotal: number;
 }
 
-export interface CartResponse extends PageResponse<CartItemResponse> {
+export interface CartResponse {
+  items: Array<CartItem>;
   summary: CartSummary;
 }

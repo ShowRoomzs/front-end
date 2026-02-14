@@ -1,6 +1,6 @@
 import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { produce } from "immer";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -17,57 +17,98 @@ import {
 import ProductOptionDropdown from "@/features/product/components/ProductOptionDropdown/ProductOptionDropdown";
 import VariantCard from "@/features/product/components/VariantCard/VariantCard";
 import { PRODUCT_OPTION_BOTTOM_SHEET_MAX_HEIGHT } from "@/features/product/constants/optionBottomSheet";
+import { useGetProductDetail } from "@/features/product/hooks/useGetProductDetail";
 import { useOptionSelection } from "@/features/product/hooks/useOptionSelection";
-import { useProductVariantSelection } from "@/features/product/stores/useProductVariantSelection";
-import { OptionGroup, Variant } from "@/features/product/types/product";
+import { LocalVariant } from "@/features/product/types/product";
 import { getEnabledVariants } from "@/features/product/utils/option";
 
-interface ProductOptionBottomSheetProps {
+interface CartOptionBottomSheetProps {
   sheetApi?: SheetApi;
+  cartId: number;
   productId: number;
-  optionGroups: Array<OptionGroup>;
-  variants: Array<Variant>;
-  onPressCart: (sheetApi?: SheetApi) => void;
-  onPressBuy: () => void;
+  variantId: number;
+  quantity: number;
+  onConfirm: (cartId: number, newVariantId: number, newQuantity: number, sheetApi?: SheetApi) => void;
 }
 
-export default function ProductOptionBottomSheet(props: ProductOptionBottomSheetProps) {
-  const { productId, optionGroups, variants, sheetApi, onPressCart, onPressBuy } = props;
+export default function CartOptionBottomSheet(props: CartOptionBottomSheetProps) {
+  const { cartId, productId, variantId, quantity, sheetApi, onConfirm } = props;
   const { bottom } = useSafeAreaInsets();
-  const { selectedVariantsByProductId, setSelectedVariants } = useProductVariantSelection();
-  const { selectedOptions, handleChangeOption } = useOptionSelection({ optionGroups });
+  const { data: productDetail } = useGetProductDetail(productId);
   const [footerHeight, setFooterHeight] = useState(0);
 
-  const selectedVariants = useMemo(
-    () => selectedVariantsByProductId[productId] || [],
-    [selectedVariantsByProductId, productId]
-  );
+  // productDetail의 variants에서 variantId로 찾아서 초기 옵션 매핑
+  const initialSelectedOptions = useMemo(() => {
+    if (!productDetail) {
+      return {};
+    }
+
+    const targetVariant = productDetail.variants.find(v => v.variantId === variantId);
+
+    if (!targetVariant) {
+      return {};
+    }
+
+    const options: Record<number, number> = {};
+
+    productDetail.optionGroups.forEach(group => {
+      const matchedOption = group.options.find(opt => targetVariant.optionIds.includes(opt.optionId));
+
+      if (matchedOption) {
+        options[group.optionGroupId] = matchedOption.optionId;
+      }
+    });
+
+    return options;
+  }, [productDetail, variantId]);
+
+  const { selectedOptions, handleChangeOption } = useOptionSelection({
+    optionGroups: productDetail?.optionGroups ?? [],
+    initialSelectedOptions,
+  });
+
+  const [selectedVariants, setSelectedVariants] = useState<Array<LocalVariant>>([]);
+
+  useEffect(() => {
+    if (!productDetail || !initialSelectedOptions || Object.keys(initialSelectedOptions).length === 0) {
+      return;
+    }
+
+    const targetVariant = productDetail.variants.find(v => v.variantId === variantId);
+
+    if (!targetVariant) {
+      return;
+    }
+
+    setSelectedVariants([{ ...targetVariant, count: quantity }]);
+  }, [productDetail, variantId, quantity, initialSelectedOptions]);
 
   const handleChangeOptionInternal = useCallback(
     (optionGroupId: number, optionId: number) => {
+      if (!productDetail) {
+        return;
+      }
+
       const newSelectOptions = handleChangeOption(optionGroupId, optionId);
 
-      // 모든 option이 선택된 경우 > selectedVariants 배열에 담음
-      if (Object.keys(newSelectOptions).length === optionGroups.length) {
-        const targetVariant = getEnabledVariants(variants, newSelectOptions)[0];
+      if (Object.keys(newSelectOptions).length === productDetail.optionGroups.length) {
+        const targetVariant = getEnabledVariants(productDetail.variants, newSelectOptions)[0];
 
         const newVariants = produce(selectedVariants, draft => {
           const exist = draft.find(v => v.variantId === targetVariant.variantId);
 
-          // 이미 존재하는 조합이라면 개수 증가
           if (exist) {
             exist.count += 1;
             return;
           }
 
-          // 존재하지 않는 조합이라면 배열에 추가
           return [...draft, { ...targetVariant, count: 1 }];
         });
 
-        setSelectedVariants(productId, newVariants);
+        setSelectedVariants(newVariants);
       }
     },
-    [productId, optionGroups, selectedVariants, setSelectedVariants, variants, handleChangeOption]
+    [productDetail, selectedVariants, handleChangeOption]
   );
 
   const handleChangeVariantCount = useCallback(
@@ -76,18 +117,18 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
         variant.variantId === variantId ? { ...variant, count } : variant
       );
 
-      setSelectedVariants(productId, newVariants);
+      setSelectedVariants(newVariants);
     },
-    [productId, selectedVariants, setSelectedVariants]
+    [selectedVariants]
   );
 
   const handleRemoveVariant = useCallback(
     (variantId: number) => {
       const newVariants = selectedVariants.filter(variant => variant.variantId !== variantId);
 
-      setSelectedVariants(productId, newVariants);
+      setSelectedVariants(newVariants);
     },
-    [productId, selectedVariants, setSelectedVariants]
+    [selectedVariants]
   );
 
   const totalPrice = useMemo(
@@ -97,23 +138,25 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
 
   const hasSelectedVariants = useMemo(() => selectedVariants.length > 0, [selectedVariants]);
 
-  const handlePressCart = useCallback(() => {
-    if (!hasSelectedVariants) {
-      toast.show("옵션을 선택해 주세요.");
-      return;
-    }
+  const handlePressCancel = useCallback(() => {
     sheetApi?.close();
-    onPressCart(sheetApi);
-  }, [hasSelectedVariants, onPressCart, sheetApi]);
+  }, [sheetApi]);
 
-  const handlePressBuy = useCallback(() => {
+  const handlePressConfirm = useCallback(() => {
     if (!hasSelectedVariants) {
       toast.show("옵션을 선택해 주세요.");
       return;
     }
-    sheetApi?.close();
-    onPressBuy();
-  }, [hasSelectedVariants, onPressBuy, sheetApi]);
+
+    // 여러 variant 중 첫 번째 것만 전달 (장바구니는 개별 아이템 단위 수정)
+    const targetVariant = selectedVariants[0];
+
+    onConfirm(cartId, targetVariant.variantId, targetVariant.count, sheetApi);
+  }, [hasSelectedVariants, selectedVariants, cartId, onConfirm, sheetApi]);
+
+  if (!productDetail) {
+    return null;
+  }
 
   return (
     <View style={{ maxHeight: PRODUCT_OPTION_BOTTOM_SHEET_MAX_HEIGHT }}>
@@ -123,13 +166,13 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
         }}
       >
         <VStack gap={BOTTOM_SHEET_GAP} className="px-20">
-          {optionGroups.map((optionGroup, ix) => (
+          {productDetail.optionGroups.map((optionGroup, ix) => (
             <ProductOptionDropdown
               key={optionGroup.optionGroupId}
               optionGroup={optionGroup}
               index={ix}
-              optionGroups={optionGroups}
-              variants={variants}
+              optionGroups={productDetail.optionGroups}
+              variants={productDetail.variants}
               selectedOptions={selectedOptions}
               onChangeOption={handleChangeOptionInternal}
               productId={productId}
@@ -159,11 +202,17 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
           </View>
         )}
         <HStack gap={6} className="px-10 flex flex-row items-center pt-10">
-          <Button onPress={handlePressCart} size="xl" variant="secondary" className="py-15 flex-1">
-            장바구니
+          <Button onPress={handlePressCancel} size="xl" variant="secondary" className="py-15 flex-1">
+            취소
           </Button>
-          <Button onPress={handlePressBuy} size="xl" variant="primary" className="py-15 flex-1">
-            구매하기
+          <Button
+            disabled={!hasSelectedVariants}
+            onPress={handlePressConfirm}
+            size="xl"
+            variant="primary"
+            className="py-15 flex-1"
+          >
+            변경하기
           </Button>
         </HStack>
       </View>

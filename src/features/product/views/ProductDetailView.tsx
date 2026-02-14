@@ -14,7 +14,6 @@ import Typography from "@/common/components/Typography/Typography";
 import { useBottomSheet } from "@/common/hooks/useBottomSheet";
 import { usePermissionPress } from "@/common/hooks/usePermissionPress";
 import { useTabIndex } from "@/common/hooks/useTabIndex";
-import { SheetApi } from "@/common/providers/BottomSheetProvider/context";
 import { toast } from "@/common/providers/ToastProvider";
 import { useCommonNavigation, useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
@@ -85,7 +84,7 @@ export default function ProductDetailView() {
     updateFollowing(productDetail.marketId, newIsFollowing);
   });
 
-  const handlePressBottomSheetCart = usePermissionPress(async (sheetApi?: SheetApi) => {
+  const handlePressBottomSheetCart = usePermissionPress(async () => {
     const variants = selectedVariantsByProductId[productId];
 
     try {
@@ -96,7 +95,7 @@ export default function ProductDetailView() {
       }));
 
       await createCart(items);
-      sheetApi?.close();
+
       toast.show("장바구니에 추가되었습니다.");
       clearSelectedVariants(productId);
     } catch (error) {

@@ -17,7 +17,11 @@ export default function Header(props: HeaderProps) {
 
   const renderTitle = useCallback(() => {
     if (typeof title === "string") {
-      return <Typography className="text-black text-14 font-semibold">{title}</Typography>;
+      return (
+        <View className="flex-1 items-center justify-center">
+          <Typography className="text-black text-14 font-semibold">{title}</Typography>
+        </View>
+      );
     }
     return title;
   }, [title]);

@@ -1,4 +1,5 @@
 import { RouteProp, useRoute } from "@react-navigation/native";
+import { AxiosError } from "axios";
 import { produce } from "immer";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LayoutChangeEvent, ListRenderItemInfo, ScrollView, Text, View } from "react-native";
@@ -17,6 +18,7 @@ import { toast } from "@/common/providers/ToastProvider";
 import { useCommonNavigation, useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
+import { CustomErrorResponse } from "@/common/types/error";
 import { useCart } from "@/features/cart/hooks/useCart";
 import { useUpdateFollowing } from "@/features/following/hooks/useUpdateFollowing";
 import ProductDetailActions from "@/features/product/components/ProductDetailActions/ProductDetailActions";
@@ -28,9 +30,9 @@ import ProductDetailInfo from "@/features/product/components/ProductDetailInfo/P
 import ProductDetailPriceSection from "@/features/product/components/ProductDetailPriceSection/ProductDetailPriceSection";
 import ProductDetailRelatedProducts from "@/features/product/components/ProductDetailRelatedProducts/ProductDetailRelatedProducts";
 import ProductDetailShowroomSection from "@/features/product/components/ProductDetailShowroomSection/ProductDetailShowroomSection";
-import { PRODUCT_OPTION_BOTTOM_SHEET_MAX_HEIGHT } from "@/features/product/components/ProductOptionBottomSheet/config";
 import ProductOptionBottomSheet from "@/features/product/components/ProductOptionBottomSheet/ProductOptionBottomSheet";
 import ProductThumbnailCarousel from "@/features/product/components/ProductThumbnailCarousel/ProductThumbnailCarousel";
+import { PRODUCT_OPTION_BOTTOM_SHEET_PROPS } from "@/features/product/constants/optionBottomSheet";
 import { useGetProductDetail } from "@/features/product/hooks/useGetProductDetail";
 import { useGetRelatedProducts } from "@/features/product/hooks/useGetRelatedProducts";
 import { useProductVariantSelection } from "@/features/product/stores/useProductVariantSelection";
@@ -93,11 +95,13 @@ export default function ProductDetailView() {
       }));
 
       await createCart(items);
+
       toast.show("장바구니에 추가되었습니다.");
       clearSelectedVariants(productId);
     } catch (error) {
-      console.error(error);
-      toast.error("장바구니에 추가에 실패했습니다.");
+      const axiosError = error as AxiosError<CustomErrorResponse<string, { message?: string }>>;
+
+      toast.show(axiosError.response?.data?.message || "장바구니에 추가에 실패했습니다.");
     }
   });
 
@@ -118,13 +122,7 @@ export default function ProductDetailView() {
         onPressBuy={handlePressBottomSheetBuy}
       />
     ),
-    sheetProps: {
-      enableDynamicSizing: true,
-      enableContentPanningGesture: false, // 내부 콘텐츠 패닝 금지
-      enableHandlePanningGesture: false, // 핸들 패닝 금지
-      snapPoints: ["80%"], // 최대 높이 화면 80%
-      maxDynamicContentSize: PRODUCT_OPTION_BOTTOM_SHEET_MAX_HEIGHT,
-    },
+    sheetProps: PRODUCT_OPTION_BOTTOM_SHEET_PROPS,
   });
 
   const [contentHeightMap, setContentHeightMap] = useState<Record<string, number>>({

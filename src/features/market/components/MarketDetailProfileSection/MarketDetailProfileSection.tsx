@@ -17,6 +17,7 @@ interface MarketDetailProfileSectionProps {
   snsLinks: SnsLinks;
   onPressFollow: (newIsFollowed: boolean) => void;
   isFollowed: boolean;
+  wrapperClassName?: string;
 }
 export default function MarketDetailProfileSection(props: MarketDetailProfileSectionProps) {
   const {
@@ -28,6 +29,7 @@ export default function MarketDetailProfileSection(props: MarketDetailProfileSec
     onPressFollow,
     categoryName,
     isFollowed,
+    wrapperClassName,
   } = props;
   const [localIsFollowed, setLocalIsFollowed] = useState(isFollowed);
   const handlePressSns = (snsLink: SnsLink) => {
@@ -54,7 +56,7 @@ export default function MarketDetailProfileSection(props: MarketDetailProfileSec
   }, [followerCount, isFollowed, localIsFollowed]);
 
   return (
-    <VStack gap={20}>
+    <VStack gap={20} className={wrapperClassName}>
       <View className="flex flex-row" style={{ gap: 10 }}>
         <Image
           style={{ borderColor: "rgba(13, 12, 17, 0.1)" }}

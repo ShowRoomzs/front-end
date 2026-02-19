@@ -4,6 +4,7 @@ import Header from "@/common/components/Header/Header";
 import HStack from "@/common/components/HStack/HStack";
 import Icon from "@/common/components/Icon/Icon";
 import { COMMON_ASSETS } from "@/common/utils/assets";
+import { MARKET_DETAIL_HEADER_HEIGHT } from "@/features/market/components/MarketDetailHeader/config";
 
 interface MarketDetailHeaderProps {
   onPressBack: () => void;
@@ -15,6 +16,7 @@ export default function MarketDetailHeader(props: MarketDetailHeaderProps) {
 
   return (
     <Header
+      style={{ height: MARKET_DETAIL_HEADER_HEIGHT }}
       className="px-20 pb-16"
       renderLeft={
         <TouchableOpacity onPress={onPressBack} activeOpacity={0.5}>

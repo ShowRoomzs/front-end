@@ -25,7 +25,7 @@ export default function SnsButton(props: SnsButtonProps) {
   };
 
   return (
-    <Button variant="secondary" size="sm" className="px-10">
+    <Button onPress={onPress} variant="secondary" size="sm" className="px-10">
       <HStack gap={10} className="items-center">
         {getIcon()}
         <Icon icon={COMMON_ASSETS.externalArrow} />

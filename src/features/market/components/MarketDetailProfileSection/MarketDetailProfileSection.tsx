@@ -1,10 +1,12 @@
-import { useCallback, useMemo, useState } from "react";
-import { Image, View } from "react-native";
+import { useMemo, useState } from "react";
+import { Image, Linking, View } from "react-native";
 
 import Button from "@/common/components/Button/Button";
 import HStack from "@/common/components/HStack/HStack";
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
+import { usePermissionPress } from "@/common/hooks/usePermissionPress";
+import { parseDeepLink } from "@/common/utils/parseDeepLink";
 import SnsButton from "@/features/market/components/SnsButton/SnsButton";
 import { SnsLink, SnsLinks } from "@/features/market/types/market";
 
@@ -32,18 +34,21 @@ export default function MarketDetailProfileSection(props: MarketDetailProfileSec
     wrapperClassName,
   } = props;
   const [localIsFollowed, setLocalIsFollowed] = useState(isFollowed);
-  const handlePressSns = (snsLink: SnsLink) => {
-    console.log(snsLink);
-    // TODO : 딥링크 연동
+
+  const handlePressSns = async (snsLink: SnsLink) => {
+    const { appUrl, webUrl } = parseDeepLink(snsLink);
+    const supported = await Linking.canOpenURL(appUrl);
+
+    await Linking.openURL(supported ? appUrl : webUrl);
   };
 
-  const handlePressFollow = useCallback(() => {
+  const handlePressFollow = usePermissionPress(() => {
     const newIsFollowed = !localIsFollowed;
 
     // 낙관적 업데이트
     setLocalIsFollowed(newIsFollowed);
     onPressFollow(newIsFollowed);
-  }, [localIsFollowed, onPressFollow]);
+  });
 
   // 낙관적 업데이트를 위한 팔로워 수
   const localFollowCount = useMemo(() => {

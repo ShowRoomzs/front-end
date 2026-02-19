@@ -42,6 +42,7 @@ export default function SearchHeader(props: SearchHeaderProps) {
           <Icon icon={COMMON_ASSETS.back} />
         </TouchableOpacity>
       }
+      centered={false}
       title={
         <Search
           renderPreFix={<Icon icon={COMMON_ASSETS.search} />}

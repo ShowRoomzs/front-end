@@ -39,7 +39,7 @@ export interface Product {
   isDisplay: boolean;
   isRecommended: boolean;
   isWished: boolean;
-  likeCount: number;
+  wishCount: number;
   marketId: number;
   marketName: "number";
   name: string;

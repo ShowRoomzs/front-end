@@ -27,12 +27,21 @@ interface ProductCardProps {
   onPressLike?: (productId: number, newIsWished: boolean) => void;
   useOptimisticUpdate?: boolean;
   size?: ProductCardSize;
+  sizeRatio?: number;
 }
 
 export default function ProductCard(props: ProductCardProps) {
-  const { product: originProduct, onPress, width, onPressLike, useOptimisticUpdate, size = "md" } = props;
+  const {
+    product: originProduct,
+    onPress,
+    width,
+    onPressLike,
+    useOptimisticUpdate,
+    size = "md",
+    sizeRatio = SIZE_RATIO,
+  } = props;
   const [product, setProduct] = useState(originProduct);
-  const height = width * SIZE_RATIO;
+  const height = width * sizeRatio;
 
   // 외부 상태와 동기화(ex. 리스트 리패치 시)
   useEffect(() => {
@@ -91,7 +100,13 @@ export default function ProductCard(props: ProductCardProps) {
         <Image style={{ height: height }} source={{ uri: product.thumbnailUrl }} />
         <VStack className="mt-15">
           <Typography className={cn("font-normal", classes.marketName)}>{product.marketName}</Typography>
-          <Typography className={cn("mt-6 font-medium", classes.productName)}>{product.name}</Typography>
+          <Typography
+            className={cn("mt-6 font-medium", classes.productName)}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {product.name}
+          </Typography>
           <HStack className="mt-8" gap={6}>
             {product.price.discountRate > 0 && (
               <Typography className={cn("font-medium", classes.discountRate)}>

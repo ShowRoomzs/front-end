@@ -27,6 +27,10 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           "naversearchthirdlogin",
           "kakaokompassauth",
           "kakaolink",
+          "instagram",
+          "youtube",
+          "tiktok",
+          "twitter",
         ],
         CFBundleURLTypes: [
           {

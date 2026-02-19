@@ -1,6 +1,6 @@
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { useCallback, useEffect, useRef } from "react";
-import { View } from "react-native";
+import { KeyboardAvoidingView } from "react-native";
 
 import { usePermissionPress } from "@/common/hooks/usePermissionPress";
 import { useCommonNavigation } from "@/common/router";
@@ -45,13 +45,13 @@ export default function MarketDetailView() {
   }, []);
 
   return (
-    <View className="flex-1">
+    <KeyboardAvoidingView behavior="position" className="flex-1">
       <MarketDetailHeader
         onPressBack={handlePressBack}
         onPressSearch={handlePressSearch}
         onPressCart={handlePressCart}
       />
-      <MarketContent wrapperClassName="mt-20 px-20" market={marketDetail} onPressFollow={handlePressFollow} />
-    </View>
+      <MarketContent market={marketDetail} onPressFollow={handlePressFollow} />
+    </KeyboardAvoidingView>
   );
 }

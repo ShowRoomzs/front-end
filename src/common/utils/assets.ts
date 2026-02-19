@@ -15,6 +15,7 @@ import CloseBlackIcon from "@/common/assets/common/close.svg";
 import CommentIcon from "@/common/assets/common/comment-icon.svg";
 import DownloadIcon from "@/common/assets/common/download-icon.svg";
 import EmptyIcon from "@/common/assets/common/empty.svg";
+import ExternalArrowIcon from "@/common/assets/common/external-arrow.svg";
 import FollowingActiveIcon from "@/common/assets/common/following-active.svg";
 import FollowingDefaultIcon from "@/common/assets/common/following-default.svg";
 import FollowingIcon from "@/common/assets/common/following.svg";
@@ -23,6 +24,7 @@ import HomeActiveIcon from "@/common/assets/common/home-active.svg";
 import HomeBlackIcon from "@/common/assets/common/home-black.svg";
 import HomeDefaultIcon from "@/common/assets/common/home-default.svg";
 import InfoIcon from "@/common/assets/common/info-icon.svg";
+import InstagramIcon from "@/common/assets/common/instagram-black.svg";
 import KakaoIcon from "@/common/assets/common/kakao-icon.svg";
 import LikeActiveIcon from "@/common/assets/common/like-active.svg";
 import LikeBigFilledIcon from "@/common/assets/common/like-big-filled-icon.svg";
@@ -43,6 +45,7 @@ import ResetIcon from "@/common/assets/common/reset-icon.svg";
 import SearchIcon from "@/common/assets/common/search.svg";
 import SettingIcon from "@/common/assets/common/setting.svg";
 import TooltipArrowIcon from "@/common/assets/common/tooltip-arrow.svg";
+import YoutubeIcon from "@/common/assets/common/youtube-black.svg";
 
 export interface Asset {
   default: FC<SvgProps>;
@@ -174,5 +177,21 @@ export const COMMON_ASSETS: Assets = {
   },
   homeBlack: {
     default: HomeBlackIcon,
+  },
+  instagram: {
+    default: InstagramIcon,
+  },
+  youtube: {
+    default: YoutubeIcon,
+  },
+  // TODO : 아이콘 추가 후 수정
+  tiktok: {
+    default: InstagramIcon,
+  },
+  x: {
+    default: InstagramIcon,
+  },
+  externalArrow: {
+    default: ExternalArrowIcon,
   },
 };

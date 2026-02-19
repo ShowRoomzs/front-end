@@ -78,8 +78,8 @@ export default function TabItem(props: TabItemProps) {
       return index === selectedIndex || index === prevSelectedIndex || Math.abs(index - selectedIndex) === 1;
     }
 
-    // 스와이프 끝: 현재만 표시
-    return index === selectedIndex;
+    // 스와이프 끝: 현재 또는 이전 탭 표시
+    return index === selectedIndex || index === prevSelectedIndex;
   };
 
   const updateTranslation = (targetValue: number, isSwiping: boolean): number => {

@@ -27,6 +27,7 @@ import ProductDetailBrandSection from "@/features/product/components/ProductDeta
 import ProductDetailDeliverySection from "@/features/product/components/ProductDetailDeliverySection/ProductDetailDeliverySection";
 import ProductDetailHeader from "@/features/product/components/ProductDetailHeader/ProductDetailHeader";
 import ProductDetailInfo from "@/features/product/components/ProductDetailInfo/ProductDetailInfo";
+import ProductDetailInquiry from "@/features/product/components/ProductDetailInquiry/ProductDetailInquiry";
 import ProductDetailPriceSection from "@/features/product/components/ProductDetailPriceSection/ProductDetailPriceSection";
 import ProductDetailRelatedProducts from "@/features/product/components/ProductDetailRelatedProducts/ProductDetailRelatedProducts";
 import ProductDetailShowroomSection from "@/features/product/components/ProductDetailShowroomSection/ProductDetailShowroomSection";
@@ -219,11 +220,7 @@ export default function ProductDetailView() {
       {
         id: "inquiry",
         label: "문의",
-        render: () => (
-          <View style={{ height: 500 }}>
-            <Text>문의</Text>
-          </View>
-        ),
+        render: () => <ProductDetailInquiry />,
       },
     ];
   }, [

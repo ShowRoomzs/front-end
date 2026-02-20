@@ -19,6 +19,7 @@ import ExternalArrowIcon from "@/common/assets/common/external-arrow.svg";
 import FollowingActiveIcon from "@/common/assets/common/following-active.svg";
 import FollowingDefaultIcon from "@/common/assets/common/following-default.svg";
 import FollowingIcon from "@/common/assets/common/following.svg";
+import GiftIcon from "@/common/assets/common/gift.svg";
 import GoogleIcon from "@/common/assets/common/google-icon.svg";
 import HomeActiveIcon from "@/common/assets/common/home-active.svg";
 import HomeBlackIcon from "@/common/assets/common/home-black.svg";
@@ -193,5 +194,8 @@ export const COMMON_ASSETS: Assets = {
   },
   externalArrow: {
     default: ExternalArrowIcon,
+  },
+  gift: {
+    default: GiftIcon,
   },
 };

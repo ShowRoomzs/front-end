@@ -28,6 +28,7 @@ export const COMMON_ROUTES = {
   NOTIFICATION: "notification",
   SETTING: "setting",
   PRODUCT_DETAIL: "productDetail",
+  PRODUCT_INQUIRY: "productInquiry",
   MARKET_DETAIL: "marketDetail",
 } as const;
 

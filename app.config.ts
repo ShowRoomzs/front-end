@@ -22,6 +22,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       supportsTablet: true,
       bundleIdentifier: "com.showroomz.app",
       infoPlist: {
+        NSPhotoLibraryUsageDescription:
+          "1:1 문의에 첨부할 사진을 선택하기 위해 갤러리 접근 권한이 필요합니다.",
         LSApplicationQueriesSchemes: [
           "naversearchapp",
           "naversearchthirdlogin",

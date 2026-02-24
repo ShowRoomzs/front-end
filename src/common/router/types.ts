@@ -80,6 +80,7 @@ export type MypageStackParamList = {
   };
   [MYPAGE_ROUTES.FOLLOWING_LIST]: undefined;
   [MYPAGE_ROUTES.INQUIRY_HISTORY]: undefined;
+  [MYPAGE_ROUTES.INQUIRY_REGISTER]: undefined;
   [MYPAGE_ROUTES.CUSTOMER_CENTER]: undefined;
   [MYPAGE_ROUTES.NOTICE]: undefined;
   [MYPAGE_ROUTES.OPEN_LICENSE]: undefined;

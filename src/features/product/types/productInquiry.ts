@@ -1,3 +1,5 @@
+import { PageParams } from "@/common/types/page";
+
 export interface ProductInquiryCategoryDetail {
   key: string;
   description: string;
@@ -13,4 +15,23 @@ export type ProductInquiryCategoryResponse = Array<ProductInquiryCategory>;
 export interface ProductInquiryRequest {
   type: string;
   content: string;
+}
+
+export type ProductInquiryHistoryParams = PageParams;
+
+export type ProductInquiryHistoryStatus = "WAITING" | "ANSWERED";
+
+export interface ProductInquiryHistory {
+  id: number;
+  productId: number;
+  shopName: string;
+  productName: string;
+  productImageUrl: string;
+  type: string;
+  typeName: string;
+  content: string;
+  status: ProductInquiryHistoryStatus;
+  answerContent: string | null;
+  createdAt: string;
+  answeredAt: string | null;
 }

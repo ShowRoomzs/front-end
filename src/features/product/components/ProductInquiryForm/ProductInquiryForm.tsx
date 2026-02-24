@@ -16,8 +16,6 @@ export default function ProductInquiryForm(props: ProductInquiryFormProps) {
   const { onChangeType, onChangeContent, type, content } = props;
   const { data: productInquiryCategory } = useGetProductInquiryCategory();
 
-  console.log("productInquiryCategory", productInquiryCategory);
-
   const categoryItems = useMemo(() => {
     if (!productInquiryCategory?.length) {
       return [];

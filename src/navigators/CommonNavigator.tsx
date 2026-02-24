@@ -7,6 +7,7 @@ import CartView from "@/features/cart/views/CartView";
 import MarketDetailView from "@/features/market/views/MarketDetailView";
 import NotificationView from "@/features/notification/views/NotificationView";
 import ProductDetailView from "@/features/product/views/ProductDetailView";
+import ProductInquiryView from "@/features/product/views/ProductInquiryView";
 import SearchDetailView from "@/features/search/views/SearchDetailView";
 import SearchView from "@/features/search/views/SearchView";
 import SettingView from "@/features/setting/views/SettingView";
@@ -24,6 +25,7 @@ export default function CommonNavigator() {
         <Stack.Screen name={COMMON_ROUTES.NOTIFICATION} component={NotificationView} />
         <Stack.Screen name={COMMON_ROUTES.SETTING} component={SettingView} />
         <Stack.Screen name={COMMON_ROUTES.PRODUCT_DETAIL} component={ProductDetailView} />
+        <Stack.Screen name={COMMON_ROUTES.PRODUCT_INQUIRY} component={ProductInquiryView} />
         <Stack.Screen name={COMMON_ROUTES.MARKET_DETAIL} component={MarketDetailView} />
       </Stack.Navigator>
     </SafeAreaView>

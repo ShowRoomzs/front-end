@@ -32,6 +32,7 @@ export const MYPAGE_SECTIONS: Array<MypageSectionProps> = [
         title: "문의 내역",
         rightType: "arrow",
         routeName: MYPAGE_ROUTES.INQUIRY_HISTORY,
+        hasPermission: true,
       },
       {
         title: "고객센터",

@@ -1,0 +1,52 @@
+import { useCallback, useEffect } from "react";
+import { View } from "react-native";
+
+import { TabItemType } from "@/common/components/Tabs/Tabs";
+import { useBottomTab } from "@/common/hooks/useBottomTab";
+import { useTabIndex } from "@/common/hooks/useTabIndex";
+import { useMypageNavigation } from "@/common/router";
+import InquiryHistoryHeader from "@/features/mypage/components/InquiryHistoryHeader/InquiryHistoryHeader";
+import InquiryHistoryTabs from "@/features/mypage/components/InquiryHistoryTabs/InquiryHistoryTabs";
+import OneOnOneInquiryHistoryTab from "@/features/mypage/components/OneOnOneInquiryHistoryTab/OneOnOneInquiryHistoryTab";
+import ProductInquiryHistoryTab from "@/features/mypage/components/ProductInquiryHistoryTab/ProductInquiryHistoryTab";
+
+const INQUIRY_HISTORY_TABS: Array<TabItemType> = [
+  {
+    id: "product-inquiry",
+    label: "상품 문의 내역",
+    render: () => <ProductInquiryHistoryTab />,
+  },
+  {
+    id: "one-on-one-inquiry",
+    label: "1:1 문의 내역",
+    render: () => <OneOnOneInquiryHistoryTab />,
+  },
+];
+
+export default function InquiryHistoryView() {
+  const navigation = useMypageNavigation();
+  const { show: showBottomTab, hide: hideBottomTab } = useBottomTab();
+  const { selectedTabIndex, updateTabIndex } = useTabIndex(0);
+
+  const handlePressBack = useCallback(() => {
+    navigation.goBack();
+  }, [navigation]);
+
+  useEffect(() => {
+    hideBottomTab();
+    return () => {
+      showBottomTab();
+    };
+  }, [hideBottomTab, showBottomTab]);
+
+  return (
+    <View className="flex-1 bg-white">
+      <InquiryHistoryHeader wrapperClassName="px-20" onPressBack={handlePressBack} />
+      <InquiryHistoryTabs
+        items={INQUIRY_HISTORY_TABS}
+        selectedIndex={selectedTabIndex}
+        onSelect={updateTabIndex}
+      />
+    </View>
+  );
+}

@@ -4,16 +4,26 @@ import { View } from "react-native";
 import Button from "@/common/components/Button/Button";
 import Icon from "@/common/components/Icon/Icon";
 import Typography from "@/common/components/Typography/Typography";
+import { useCommonNavigation } from "@/common/router";
+import { COMMON_ROUTES } from "@/common/router/routes";
 import { COMMON_ASSETS } from "@/common/utils/assets";
 
-export default function ProductDetailInquiry() {
+interface ProductDetailInquiryProps {
+  productId: number;
+}
+export default function ProductDetailInquiry(props: ProductDetailInquiryProps) {
+  const { productId } = props;
+
+  const navigation = useCommonNavigation();
   const handlePressInquiry = useCallback(() => {
     // TODO : navigate to 1:1문의
   }, []);
 
   const handlePressProductInquiry = useCallback(() => {
-    // TODO : navigate to product inquiry
-  }, []);
+    navigation.navigate(COMMON_ROUTES.PRODUCT_INQUIRY, {
+      productId,
+    });
+  }, [navigation, productId]);
 
   return (
     <View className="flex flex-col">

@@ -220,7 +220,7 @@ export default function ProductDetailView() {
       {
         id: "inquiry",
         label: "문의",
-        render: () => <ProductDetailInquiry />,
+        render: () => <ProductDetailInquiry productId={productId} />,
       },
     ];
   }, [
@@ -230,6 +230,7 @@ export default function ProductDetailView() {
     isExpand,
     productDetail?.description,
     productDetail?.reviewCount,
+    productId,
     relatedProducts?.content,
   ]);
 

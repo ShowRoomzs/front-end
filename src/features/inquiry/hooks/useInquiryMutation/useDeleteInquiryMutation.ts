@@ -7,7 +7,7 @@ import { queryClient } from "@/common/lib/queryClient";
 
 export function useDeleteInquiryMutation() {
   return useMutation({
-    mutationFn: inquiryService.deleteInquiry,
+    mutationFn: inquiryService.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [INQUIRY_QUERY_KEY.LIST] });
     },

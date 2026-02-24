@@ -1,7 +1,5 @@
 import { PageParams } from "@/common/types/page";
 
-export type InquiryStatus = "WAITING" | "ANSWERED";
-
 export interface InquiryCategoryDetail {
   key: string;
   description: string;
@@ -13,7 +11,20 @@ export interface InquiryCategory {
   details: Array<InquiryCategoryDetail>;
 }
 
-export interface Inquiry {
+export type InquiryCategoryResponse = Array<InquiryCategory>;
+
+export interface InquiryRequest {
+  type: string;
+  detailType: string;
+  content: string;
+  imageUrls?: Array<string>;
+}
+
+export type InquiryHistoryParams = PageParams;
+
+export type InquiryHistoryStatus = "WAITING" | "ANSWERED";
+
+export interface InquiryHistory {
   id: number;
   type: string;
   typeName: string;
@@ -21,17 +32,8 @@ export interface Inquiry {
   detailTypeName: string;
   content: string;
   imageUrls: Array<string>;
-  status: InquiryStatus;
+  status: InquiryHistoryStatus;
   answerContent: string | null;
-  answeredAt: string | null;
   createdAt: string;
-}
-
-export type InquiryListParams = PageParams;
-
-export interface InquiryRequest {
-  type: string;
-  detailType: string;
-  content: string;
-  imageUrls?: Array<string>;
+  answeredAt: string | null;
 }

@@ -1,12 +1,32 @@
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 
 import { INQUIRY_QUERY_KEY } from "../constants/queryKey";
 import { inquiryService } from "../services/inquiryService";
-import { InquiryListParams } from "../types/inquiry";
+import { InquiryHistoryParams, InquiryHistory } from "../types/inquiry";
 
-export function useGetInquiries(params: InquiryListParams) {
-  return useQuery({
-    queryKey: [INQUIRY_QUERY_KEY.LIST, params],
-    queryFn: () => inquiryService.getInquiries(params),
+import { PageInfo, PageResponse } from "@/common/types/page";
+
+export function useGetInquiries(params: InquiryHistoryParams) {
+  const { page: _page, ...paramsWithoutPage } = params;
+
+  const query = useInfiniteQuery({
+    queryKey: [INQUIRY_QUERY_KEY.LIST, paramsWithoutPage],
+    queryFn: async ({ pageParam }) => {
+      const response = await inquiryService.getHistory({ ...params, page: pageParam });
+
+      return response;
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage: PageResponse<InquiryHistory>) =>
+      lastPage.pageInfo.hasNext ? lastPage.pageInfo.currentPage + 1 : undefined,
   });
+
+  const inquiries: Array<InquiryHistory> = query.data?.pages.flatMap(page => page.content) ?? [];
+  const pageInfo: PageInfo | undefined = query.data?.pages.at(-1)?.pageInfo;
+
+  return {
+    ...query,
+    inquiries,
+    pageInfo,
+  };
 }

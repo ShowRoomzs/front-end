@@ -1,6 +1,7 @@
 import { FC } from "react";
 import { SvgProps } from "react-native-svg";
 
+import AnswerIcon from "@/common/assets/common/answer.svg";
 import AppleIcon from "@/common/assets/common/apple-icon.svg";
 import ArrowDownIcon from "@/common/assets/common/arrow-down.svg";
 import ArrowRightIcon from "@/common/assets/common/arrow-right.svg";
@@ -42,6 +43,7 @@ import NaverIcon from "@/common/assets/common/naver-icon.svg";
 import NotificationIcon from "@/common/assets/common/notification.svg";
 import PlusIconPoint from "@/common/assets/common/plus-icon-point.svg";
 import PlusIcon from "@/common/assets/common/plus-icon.svg";
+import QuestionIcon from "@/common/assets/common/question.svg";
 import ResetIcon from "@/common/assets/common/reset-icon.svg";
 import SearchIcon from "@/common/assets/common/search.svg";
 import SettingIcon from "@/common/assets/common/setting.svg";
@@ -197,5 +199,11 @@ export const COMMON_ASSETS: Assets = {
   },
   gift: {
     default: GiftIcon,
+  },
+  question: {
+    default: QuestionIcon,
+  },
+  answer: {
+    default: AnswerIcon,
   },
 };

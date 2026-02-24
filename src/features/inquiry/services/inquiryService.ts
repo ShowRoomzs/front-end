@@ -1,40 +1,47 @@
-import { InquiryCategory, Inquiry, InquiryListParams, InquiryRequest } from "../types/inquiry";
+import {
+  InquiryCategoryResponse,
+  InquiryHistory,
+  InquiryHistoryParams,
+  InquiryRequest,
+} from "../types/inquiry";
 
 import { apiInstance } from "@/common/lib/apiInstance";
 import { PageResponse } from "@/common/types/page";
 
 export const inquiryService = {
   getCategories: async () => {
-    const { data: response } = await apiInstance.get<Array<InquiryCategory>>("/common/inquiries/categories");
+    const { data: response } = await apiInstance.get<InquiryCategoryResponse>("/common/inquiries/categories");
 
     return response;
   },
 
-  getInquiries: async (params: InquiryListParams) => {
-    const { data: response } = await apiInstance.get<PageResponse<Inquiry>>("/user/inquiries", { params });
+  create: async (data: InquiryRequest) => {
+    const { data: response } = await apiInstance.post<{ inquiryId: number }>("/user/inquiries", data);
 
     return response;
   },
 
-  getInquiryDetail: async (inquiryId: number) => {
-    const { data: response } = await apiInstance.get<Inquiry>(`/user/inquiries/${inquiryId}`);
+  getHistory: async (params: InquiryHistoryParams) => {
+    const { data: response } = await apiInstance.get<PageResponse<InquiryHistory>>("/user/inquiries", {
+      params,
+    });
 
     return response;
   },
 
-  createInquiry: async (requestBody: InquiryRequest) => {
-    const { data: response } = await apiInstance.post<{ inquiryId: number }>("/user/inquiries", requestBody);
+  getDetail: async (inquiryId: number) => {
+    const { data: response } = await apiInstance.get<InquiryHistory>(`/user/inquiries/${inquiryId}`);
 
     return response;
   },
 
-  updateInquiry: async ({ inquiryId, requestBody }: { inquiryId: number; requestBody: InquiryRequest }) => {
-    const { data: response } = await apiInstance.put(`/user/inquiries/${inquiryId}`, requestBody);
+  update: async (inquiryId: number, data: InquiryRequest) => {
+    const { data: response } = await apiInstance.put(`/user/inquiries/${inquiryId}`, data);
 
     return response;
   },
 
-  deleteInquiry: async (inquiryId: number) => {
+  delete: async (inquiryId: number) => {
     const { data: response } = await apiInstance.delete(`/user/inquiries/${inquiryId}`);
 
     return response;

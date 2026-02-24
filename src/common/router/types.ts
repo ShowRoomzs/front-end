@@ -55,6 +55,9 @@ export type CommonStackParamList = {
   [COMMON_ROUTES.PRODUCT_DETAIL]: {
     productId: number;
   };
+  [COMMON_ROUTES.PRODUCT_INQUIRY]: {
+    productId: number;
+  };
 };
 
 export type RootStackParamList = {

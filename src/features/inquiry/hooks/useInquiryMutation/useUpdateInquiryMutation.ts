@@ -6,13 +6,13 @@ import { InquiryRequest } from "../../types/inquiry";
 
 import { queryClient } from "@/common/lib/queryClient";
 
-export function useUpdateInquiryMutation() {
+export function useUpdateInquiryMutation(inquiryId: number) {
   return useMutation({
-    mutationFn: ({ inquiryId, data }: { inquiryId: number; data: InquiryRequest }) =>
-      inquiryService.update(inquiryId, data),
-    onSuccess: (_, { inquiryId }) => {
-      queryClient.invalidateQueries({ queryKey: [INQUIRY_QUERY_KEY.LIST] });
-      queryClient.invalidateQueries({ queryKey: [INQUIRY_QUERY_KEY.DETAIL, inquiryId] });
+    mutationFn: (data: InquiryRequest) => inquiryService.update(inquiryId, data),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [INQUIRY_QUERY_KEY.INQUIRY_HISTORY] });
+      queryClient.invalidateQueries({ queryKey: [INQUIRY_QUERY_KEY.INQUIRY_DETAIL, inquiryId] });
     },
   });
 }

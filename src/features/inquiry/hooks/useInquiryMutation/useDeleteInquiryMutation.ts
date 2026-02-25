@@ -9,7 +9,7 @@ export function useDeleteInquiryMutation() {
   return useMutation({
     mutationFn: inquiryService.delete,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [INQUIRY_QUERY_KEY.LIST] });
+      queryClient.invalidateQueries({ queryKey: [INQUIRY_QUERY_KEY.INQUIRY_HISTORY] });
     },
   });
 }

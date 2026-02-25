@@ -5,7 +5,7 @@ import { apiInstance } from "@/common/lib/apiInstance";
 
 interface UploadImagesParams {
   localUris: Array<string>;
-  type: "PROFILE" | "REVIEW";
+  type: "PROFILE" | "REVIEW" | "INQUIRY";
 }
 
 export function useUploadImagesMutation() {

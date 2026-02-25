@@ -5,14 +5,20 @@ import {
   AuthStackParamList,
   CategoryStackParamList,
   CommonStackParamList,
+  CouponStackParamList,
   HomeTabParamList,
   MypageStackParamList,
   RootStackParamList,
 } from "@/common/router/types";
 
-export { ROUTES, HOME_ROUTES, CATEGORY_ROUTES, AUTH_ROUTES } from "./routes";
+export { ROUTES, HOME_ROUTES, CATEGORY_ROUTES, AUTH_ROUTES, COUPON_ROUTES } from "./routes";
 export type { RouteName, HomeRouteName, CategoryRouteName, AuthRouteName } from "./routes";
-export type { HomeTabParamList, CategoryStackParamList, AuthStackParamList } from "./types";
+export type {
+  HomeTabParamList,
+  CategoryStackParamList,
+  AuthStackParamList,
+  CouponStackParamList,
+} from "./types";
 
 export const useHomeNavigation = () => useNavigation<NavigationProp<HomeTabParamList>>();
 export const useCategoryNavigation = () => useNavigation<NavigationProp<CategoryStackParamList>>();
@@ -20,3 +26,4 @@ export const useAuthNavigation = () => useNavigation<NavigationProp<AuthStackPar
 export const useMainNavigation = () => useNavigation<NavigationProp<RootStackParamList>>();
 export const useCommonNavigation = () => useNavigation<NativeStackNavigationProp<CommonStackParamList>>();
 export const useMypageNavigation = () => useNavigation<NavigationProp<MypageStackParamList>>();
+export const useCouponNavigation = () => useNavigation<NativeStackNavigationProp<CouponStackParamList>>();

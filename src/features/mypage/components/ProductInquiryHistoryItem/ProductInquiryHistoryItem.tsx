@@ -12,7 +12,7 @@ import { ProductInquiryHistory } from "@/features/product/types/productInquiry";
 
 interface ProductInquiryHistoryItemProps {
   item: ProductInquiryHistory;
-  onPressEdit: (id: number) => void;
+  onPressEdit: (id: number, productId: number) => void;
   onPressDelete: (id: number) => void;
   onPressProduct: (productId: number) => void;
 }
@@ -33,8 +33,8 @@ export default function ProductInquiryHistoryItem(props: ProductInquiryHistoryIt
   }, [item.status]);
 
   const handlePressEdit = useCallback(() => {
-    onPressEdit(item.id);
-  }, [item.id, onPressEdit]);
+    onPressEdit(item.id, item.productId);
+  }, [item.id, item.productId, onPressEdit]);
 
   const handlePressDelete = useCallback(() => {
     onPressDelete(item.id);

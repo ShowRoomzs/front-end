@@ -1,6 +1,7 @@
 import { RouteProp, useRoute } from "@react-navigation/native";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ScrollView, View } from "react-native";
+import { isDeepEqual } from "remeda";
 
 import Divider from "@/common/components/Divider/Divider";
 import { usePermissionPress } from "@/common/hooks/usePermissionPress";
@@ -15,20 +16,41 @@ import ProductInquiryNotice from "@/features/product/components/ProductInquiryNo
 import ProductInquiryProductDetail from "@/features/product/components/ProductInquiryProductDetail/ProductInquiryProductDetail";
 import { useCreateProductInquiryMutation } from "@/features/product/hooks/useCreateProductInquiryMutation";
 import { useGetProductDetail } from "@/features/product/hooks/useGetProductDetail";
+import { useGetProductInquiryDetail } from "@/features/product/hooks/useGetProductInquiryDetail";
+import { useUpdateInquiryMutation } from "@/features/product/hooks/useUpdateInquiryMutation";
 import { ProductInquiryRequest } from "@/features/product/types/productInquiry";
 
 export default function ProductInquiryView() {
   const navigation = useCommonNavigation();
 
   const { params } = useRoute<RouteProp<CommonStackParamList, typeof COMMON_ROUTES.PRODUCT_INQUIRY>>();
-  const { productId } = params;
+  const { productId, inquiryId } = params;
+  const isEdit = !!inquiryId;
   const { data: productDetail } = useGetProductDetail(productId);
+  const { data: inquiryDetail } = useGetProductInquiryDetail(inquiryId);
+
+  useEffect(() => {
+    if (!inquiryDetail) {
+      return;
+    }
+    setForm({
+      type: inquiryDetail.type,
+      content: inquiryDetail.content,
+    });
+  }, [inquiryDetail]);
 
   const { mutateAsync: createInquiry } = useCreateProductInquiryMutation();
+  const { mutateAsync: updateInquiry } = useUpdateInquiryMutation(inquiryId!);
 
   const [form, setForm] = useState<ProductInquiryRequest>({ type: "", content: "" });
 
-  const isFormValid = form.type.length > 0 && form.content.length > 0;
+  const isFormValid = useMemo(() => {
+    if (!isEdit || !inquiryDetail) {
+      return form.type.length > 0 && form.content.length > 0;
+    }
+
+    return !isDeepEqual(form, { type: inquiryDetail.type, content: inquiryDetail.content });
+  }, [form, inquiryDetail, isEdit]);
 
   const handleChangeType = useCallback((type: string) => {
     setForm(prev => ({ ...prev, type }));
@@ -43,9 +65,11 @@ export default function ProductInquiryView() {
   }, [navigation]);
 
   const handlePressSubmit = usePermissionPress(async () => {
+    const apiFn = isEdit ? updateInquiry(form) : createInquiry({ productId, data: form });
+
     try {
-      await createInquiry({ productId, data: form });
-      toast.show("문의가 접수되었습니다.");
+      await apiFn;
+      toast.show(isEdit ? "수정되었습니다." : "문의가 접수되었습니다.");
       setForm({ type: "", content: "" });
       setTimeout(() => {
         navigation.goBack();
@@ -69,7 +93,11 @@ export default function ProductInquiryView() {
         <Divider height={10} wrapperClassName="bg-gray1" />
         <ProductInquiryNotice />
       </ScrollView>
-      <ProductInquiryActions disabled={!isFormValid} onPress={handlePressSubmit} />
+      <ProductInquiryActions
+        label={isEdit ? "수정하기" : "문의하기"}
+        disabled={!isFormValid}
+        onPress={handlePressSubmit}
+      />
     </View>
   );
 }

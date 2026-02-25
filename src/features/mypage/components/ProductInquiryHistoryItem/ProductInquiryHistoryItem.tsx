@@ -52,14 +52,16 @@ export default function ProductInquiryHistoryItem(props: ProductInquiryHistoryIt
         <VStack gap={10} className="flex flex-col flex-1">
           <View className="flex flex-row justify-between items-center">
             {statusLabel}
-            <HStack gap={10} className="items-center">
-              <Typography onPress={handlePressEdit} className="text-black text-12 font-medium underline">
-                수정
-              </Typography>
-              <Typography onPress={handlePressDelete} className="text-black text-12 font-medium underline">
-                삭제
-              </Typography>
-            </HStack>
+            {item.status === "WAITING" && (
+              <HStack gap={10} className="items-center">
+                <Typography onPress={handlePressEdit} className="text-black text-12 font-medium underline">
+                  수정
+                </Typography>
+                <Typography onPress={handlePressDelete} className="text-black text-12 font-medium underline">
+                  삭제
+                </Typography>
+              </HStack>
+            )}
           </View>
           <Typography className="text-11 text-gray9 font-normal">{item.typeName}</Typography>
           <Typography className="text-13 text-black font-medium">{item.content}</Typography>

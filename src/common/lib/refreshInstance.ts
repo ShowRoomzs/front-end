@@ -5,7 +5,7 @@ import { SECURE_STORE } from "@/common/constants/secureStore";
 import { useUserStore } from "@/common/stores/useUserStore";
 
 export const refreshInstance = axios.create({
-  baseURL: `${process.env.EXPO_PUBLIC_PROTOCOL}://${process.env.EXPO_PUBLIC_API_HOST}/v1/auth`,
+  baseURL: `${process.env.EXPO_PUBLIC_PROTOCOL}://${process.env.EXPO_PUBLIC_API_HOST}/v1/user/auth`,
 });
 
 refreshInstance.interceptors.response.use(

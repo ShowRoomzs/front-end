@@ -57,6 +57,7 @@ export type CommonStackParamList = {
   };
   [COMMON_ROUTES.PRODUCT_INQUIRY]: {
     productId: number;
+    inquiryId?: number;
   };
 };
 

@@ -5,8 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BOTTOM_TABS_HEIGHT } from "@/common/components/BottomTabs/config";
 import VStack from "@/common/components/VStack/VStack";
 import { useMainNavigation, useMypageNavigation } from "@/common/router";
-import { ROOT_ROUTES } from "@/common/router/routes";
-import { MYPAGE_ROUTES } from "@/common/router/routes";
+import { MYPAGE_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { useUserStore } from "@/common/stores/useUserStore";
 import AuthEntryBanner from "@/features/mypage/components/AuthEntryBanner/AuthEntryBanner";
 import MypageHeader from "@/features/mypage/components/MypageHeader/MypageHeader";
@@ -61,6 +60,9 @@ export default function MypageView() {
     },
     [handlePressSectionItem]
   );
+  const handlePressCoupon = useCallback(() => {
+    mypageNavigation.navigate(MYPAGE_ROUTES.COUPON);
+  }, [mypageNavigation]);
 
   const renderListHeaderComponent = useCallback(() => {
     if (user) {
@@ -69,11 +71,12 @@ export default function MypageView() {
           user={user}
           onPressProfile={handlePressProfile}
           onPressFollowing={handlePressFollowing}
+          onPressCoupon={handlePressCoupon}
         />
       );
     }
     return <AuthEntryBanner onPressAuth={handlePressAuth} />;
-  }, [handlePressAuth, handlePressFollowing, handlePressProfile, user]);
+  }, [handlePressAuth, handlePressCoupon, handlePressFollowing, handlePressProfile, user]);
 
   return (
     <VStack style={{ paddingBottom: inset.bottom }} gap={20} className="flex-1">

@@ -13,10 +13,11 @@ interface MypageProfileProps {
   user: User;
   onPressProfile: () => void;
   onPressFollowing: () => void;
+  onPressCoupon: () => void;
 }
 
 export default function MypageProfile(props: MypageProfileProps) {
-  const { user, onPressFollowing, onPressProfile } = props;
+  const { user, onPressFollowing, onPressProfile, onPressCoupon } = props;
 
   const cardItems = useMemo(
     () => [
@@ -25,21 +26,24 @@ export default function MypageProfile(props: MypageProfileProps) {
         count: 0,
         suffix: "개",
         label: "쿠폰",
+        onPress: onPressCoupon,
       },
       {
         id: "point",
         count: 999000,
         suffix: "P",
         label: "포인트",
+        onPress: () => {},
       },
       {
         id: "review",
         count: 2,
         suffix: "개",
         label: "리뷰",
+        onPress: () => {},
       },
     ],
-    []
+    [onPressCoupon]
   );
 
   // TODO : 분리 해야할 것 있다면 분리
@@ -68,19 +72,21 @@ export default function MypageProfile(props: MypageProfileProps) {
       </View>
       <HStack gap={4}>
         {cardItems.map(cardItem => (
-          <VStack
-            gap={4}
-            key={cardItem.id}
-            className="flex-1 flex h-75 rounded-4 bg-gray0 items-center justify-center"
-          >
-            <HStack gap={4} className="items-center">
-              <Typography className="text-14 font-semibold text-black">
-                {cardItem.count.toLocaleString()}
-              </Typography>
-              <Typography className="text-12 font-medium text-black">{cardItem.suffix}</Typography>
-            </HStack>
-            <Typography className="text-12 font-normal text-gray9">{cardItem.label}</Typography>
-          </VStack>
+          <Pressable onPress={cardItem.onPress} key={cardItem.id} className="flex-1">
+            <VStack
+              gap={4}
+              key={cardItem.id}
+              className="flex-1 flex h-75 rounded-4 bg-gray0 items-center justify-center"
+            >
+              <HStack gap={4} className="items-center">
+                <Typography className="text-14 font-semibold text-black">
+                  {cardItem.count.toLocaleString()}
+                </Typography>
+                <Typography className="text-12 font-medium text-black">{cardItem.suffix}</Typography>
+              </HStack>
+              <Typography className="text-12 font-normal text-gray9">{cardItem.label}</Typography>
+            </VStack>
+          </Pressable>
         ))}
       </HStack>
     </VStack>

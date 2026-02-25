@@ -1,5 +1,5 @@
 export const INQUIRY_QUERY_KEY = {
-  CATEGORIES: "inquiryCategories",
-  LIST: "inquiryList",
-  DETAIL: "inquiryDetail",
+  INQUIRY_CATEGORY: "oneOnOneInquiryCategory",
+  INQUIRY_HISTORY: "oneOnOneInquiryHistory",
+  INQUIRY_DETAIL: "oneOnOneInquiryDetail",
 } as const;

@@ -5,13 +5,14 @@ import Button from "@/common/components/Button/Button";
 import HStack from "@/common/components/HStack/HStack";
 
 interface InquiryRegisterActionsProps {
+  label: string;
   isSubmitEnabled: boolean;
   onPressCancel: () => void;
   onPressSubmit: () => void;
 }
 
 export default function InquiryRegisterActions(props: InquiryRegisterActionsProps) {
-  const { isSubmitEnabled, onPressCancel, onPressSubmit } = props;
+  const { label, isSubmitEnabled, onPressCancel, onPressSubmit } = props;
   const { bottom } = useSafeAreaInsets();
 
   return (
@@ -27,7 +28,7 @@ export default function InquiryRegisterActions(props: InquiryRegisterActionsProp
         </View>
         <View className="flex-1">
           <Button size="xl" variant="primary" disabled={!isSubmitEnabled} onPress={onPressSubmit}>
-            작성하기
+            {label}
           </Button>
         </View>
       </HStack>

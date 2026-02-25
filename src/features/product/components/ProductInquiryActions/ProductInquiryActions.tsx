@@ -6,10 +6,11 @@ import Button from "@/common/components/Button/Button";
 interface ProductInquiryActionsProps {
   disabled: boolean;
   onPress: () => void;
+  label: string;
 }
 
 export default function ProductInquiryActions(props: ProductInquiryActionsProps) {
-  const { disabled, onPress } = props;
+  const { disabled, onPress, label } = props;
   const { bottom } = useSafeAreaInsets();
 
   return (
@@ -18,7 +19,7 @@ export default function ProductInquiryActions(props: ProductInquiryActionsProps)
       style={{ paddingBottom: bottom + 10 }}
     >
       <Button size="xl" disabled={disabled} onPress={onPress}>
-        문의하기
+        {label}
       </Button>
     </View>
   );

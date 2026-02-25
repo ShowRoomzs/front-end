@@ -27,7 +27,6 @@ export default function CouponListView() {
 
   const renderItem = useCallback(() => <View />, []);
 
-  console.log(coupons);
   return (
     <View className="flex-1 bg-gray0">
       <CouponListHeader onPressBack={handlePressBack} wrapperClassName="px-20" />

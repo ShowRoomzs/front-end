@@ -84,7 +84,7 @@ export type MypageStackParamList = {
   };
   [MYPAGE_ROUTES.FOLLOWING_LIST]: undefined;
   [MYPAGE_ROUTES.INQUIRY_HISTORY]: undefined;
-  [MYPAGE_ROUTES.INQUIRY_REGISTER]: {
+  [MYPAGE_ROUTES.INQUIRY_REGISTER]?: {
     inquiryId?: number;
   };
   [MYPAGE_ROUTES.CUSTOMER_CENTER]: undefined;

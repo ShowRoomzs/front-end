@@ -10,7 +10,7 @@ export function useCreateInquiryMutation() {
   return useMutation({
     mutationFn: (data: InquiryRequest) => inquiryService.create(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [INQUIRY_QUERY_KEY.LIST] });
+      queryClient.invalidateQueries({ queryKey: [INQUIRY_QUERY_KEY.INQUIRY_HISTORY] });
     },
   });
 }

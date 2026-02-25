@@ -5,7 +5,7 @@ import { inquiryService } from "../services/inquiryService";
 
 export function useGetCategories() {
   return useQuery({
-    queryKey: [INQUIRY_QUERY_KEY.CATEGORIES],
+    queryKey: [INQUIRY_QUERY_KEY.INQUIRY_CATEGORY],
     queryFn: inquiryService.getCategories,
   });
 }

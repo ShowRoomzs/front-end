@@ -44,7 +44,6 @@ export default function ProductInquiryHistoryItem(props: ProductInquiryHistoryIt
     onPressProduct(item.productId);
   }, [item.productId, onPressProduct]);
 
-  console.log(item);
   return (
     <View style={{ gap: 15 }} className="flex flex-col p-20 bg-white">
       <HStack gap={6}>

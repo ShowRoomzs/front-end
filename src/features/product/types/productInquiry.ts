@@ -17,6 +17,21 @@ export interface ProductInquiryRequest {
   content: string;
 }
 
+export interface ProductInquiryDetail {
+  id: number;
+  productId: number;
+  shopName: string;
+  productName: string;
+  productImageUrl: string;
+  type: string;
+  typeName: string;
+  content: string;
+  status: ProductInquiryHistoryStatus;
+  answerContent: string | null;
+  createdAt: string;
+  answeredAt: string | null;
+}
+
 export type ProductInquiryHistoryParams = PageParams;
 
 export type ProductInquiryHistoryStatus = "WAITING" | "ANSWERED";

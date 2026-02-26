@@ -32,6 +32,16 @@ export const COMMON_ROUTES = {
   MARKET_DETAIL: "marketDetail",
 } as const;
 
+// 설정 스택 네비게이션
+export const SETTINGS_ROUTES = {
+  MAIN: "settingsMain",
+  NICKNAME_CHANGE: "nicknameChange",
+  MEMBER_INFO_CHANGE: "memberInfoChange",
+  NOTIFICATION_SETTINGS: "notificationSettings",
+  REFUND_ACCOUNT: "refundAccount",
+  WITHDRAWAL: "withdrawal",
+} as const;
+
 // 마이페이지 스택 네비게이션
 export const MYPAGE_ROUTES = {
   MAIN: "main",
@@ -65,5 +75,6 @@ export const ROUTES = {
 export type HomeRouteName = (typeof HOME_ROUTES)[keyof typeof HOME_ROUTES];
 export type CategoryRouteName = (typeof CATEGORY_ROUTES)[keyof typeof CATEGORY_ROUTES];
 export type AuthRouteName = (typeof AUTH_ROUTES)[keyof typeof AUTH_ROUTES];
+export type SettingsRouteName = (typeof SETTINGS_ROUTES)[keyof typeof SETTINGS_ROUTES];
 export type MyPageRouteName = (typeof MYPAGE_ROUTES)[keyof typeof MYPAGE_ROUTES];
 export type RouteName = (typeof ROUTES)[keyof typeof ROUTES];

@@ -10,6 +10,7 @@ import VStack from "@/common/components/VStack/VStack";
 import { useMypageNavigation, useSettingsNavigation } from "@/common/router";
 import { useUserStore } from "@/common/stores/useUserStore";
 import { COMMON_ASSETS } from "@/common/utils/assets";
+import { cn } from "@/common/utils/cn";
 import ProfileImageSelectButton from "@/features/setting/components/ProfileImageSelectButton/ProfileImageSelectButton";
 import SettingsHeader from "@/features/setting/components/SettingsHeader/SettingsHeader";
 import { SETTING_MENUS } from "@/features/setting/constants/menus";
@@ -68,11 +69,14 @@ export default function SettingView() {
           </View>
         </View>
         <VStack>
-          {settingMenus.map(menu => (
+          {settingMenus.map((menu, ix) => (
             <Pressable
               onPress={menu.onPress}
               key={menu.key}
-              className="flex flex-row justify-between items-center py-15 border-b-[1px] border-gray2"
+              className={cn(
+                "flex flex-row justify-between items-center py-15 border-gray2",
+                ix !== settingMenus.length - 1 && "border-b-[1px]"
+              )}
             >
               <Typography className="text-black text-14 font-medium">{menu.title}</Typography>
               <Icon icon={COMMON_ASSETS.arrowRight} />

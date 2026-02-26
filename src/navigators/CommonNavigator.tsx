@@ -10,7 +10,7 @@ import ProductDetailView from "@/features/product/views/ProductDetailView";
 import ProductInquiryView from "@/features/product/views/ProductInquiryView";
 import SearchDetailView from "@/features/search/views/SearchDetailView";
 import SearchView from "@/features/search/views/SearchView";
-import SettingView from "@/features/setting/views/SettingView";
+import SettingsNavigator from "@/navigators/SettingsNavigator";
 
 const Stack = createNativeStackNavigator<CommonStackParamList>();
 
@@ -23,7 +23,7 @@ export default function CommonNavigator() {
         <Stack.Screen name={COMMON_ROUTES.SEARCH_DETAIL} component={SearchDetailView} />
         <Stack.Screen name={COMMON_ROUTES.CART} component={CartView} />
         <Stack.Screen name={COMMON_ROUTES.NOTIFICATION} component={NotificationView} />
-        <Stack.Screen name={COMMON_ROUTES.SETTING} component={SettingView} />
+        <Stack.Screen name={COMMON_ROUTES.SETTING} component={SettingsNavigator} />
         <Stack.Screen name={COMMON_ROUTES.PRODUCT_DETAIL} component={ProductDetailView} />
         <Stack.Screen name={COMMON_ROUTES.PRODUCT_INQUIRY} component={ProductInquiryView} />
         <Stack.Screen name={COMMON_ROUTES.MARKET_DETAIL} component={MarketDetailView} />

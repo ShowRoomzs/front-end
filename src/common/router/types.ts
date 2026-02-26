@@ -5,6 +5,7 @@ import {
   HOME_ROUTES,
   MYPAGE_ROUTES,
   ROOT_ROUTES,
+  SETTINGS_ROUTES,
 } from "@/common/router/routes";
 import { TermsType } from "@/features/auth/views/TermsView";
 
@@ -72,6 +73,15 @@ export type RootStackParamList = {
     screen: keyof CommonStackParamList;
     params?: CommonStackParamList[keyof CommonStackParamList];
   };
+};
+
+export type SettingsStackParamList = {
+  [SETTINGS_ROUTES.MAIN]: undefined;
+  [SETTINGS_ROUTES.NICKNAME_CHANGE]: undefined;
+  [SETTINGS_ROUTES.MEMBER_INFO_CHANGE]: undefined;
+  [SETTINGS_ROUTES.NOTIFICATION_SETTINGS]: undefined;
+  [SETTINGS_ROUTES.REFUND_ACCOUNT]: undefined;
+  [SETTINGS_ROUTES.WITHDRAWAL]: undefined;
 };
 
 export type MypageStackParamList = {

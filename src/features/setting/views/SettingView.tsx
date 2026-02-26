@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { Image, ImageSourcePropType, Pressable, View } from "react-native";
+import { Image, Pressable, View } from "react-native";
 
 import defaultProfileImage from "@/common/assets/common/profile-default.png";
 import Button from "@/common/components/Button/Button";
@@ -7,6 +7,7 @@ import HStack from "@/common/components/HStack/HStack";
 import Icon from "@/common/components/Icon/Icon";
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
+import { useUploadImagesMutation } from "@/common/queries/useUploadImagesMutation";
 import { useMypageNavigation, useSettingsNavigation } from "@/common/router";
 import { useUserStore } from "@/common/stores/useUserStore";
 import { COMMON_ASSETS } from "@/common/utils/assets";
@@ -18,6 +19,8 @@ import { SETTING_MENUS } from "@/features/setting/constants/menus";
 export default function SettingView() {
   const mypageNavigation = useMypageNavigation();
   const settingsNavigation = useSettingsNavigation();
+  const { mutateAsync: uploadImages, isPending: _isUploading } = useUploadImagesMutation();
+
   const { user } = useUserStore();
 
   const handlePressBack = useCallback(() => {
@@ -41,14 +44,25 @@ export default function SettingView() {
     [settingsNavigation]
   );
 
-  const handleSelectProfileImage = useCallback((image: ImageSourcePropType | undefined) => {
-    console.log("image", image);
-  }, []);
+  const handleSelectProfileImage = useCallback(
+    async (imageUrl: string) => {
+      try {
+        const uploadedUrls = await uploadImages({ localUris: [imageUrl], type: "PROFILE" });
+        // TODO 유저 정보 업데이트
+
+        console.log(uploadedUrls);
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [uploadImages]
+  );
 
   if (!user) {
     return null;
   }
 
+  // TODO : 스피너 표출
   return (
     <View className="flex-1">
       <SettingsHeader wrapperClassName="px-20" onPressBack={handlePressBack} />

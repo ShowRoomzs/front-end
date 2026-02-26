@@ -24,11 +24,12 @@ export function useUploadImagesMutation() {
         const formData = new FormData();
         const filename = manipulated.uri.split("/").pop() || "image.jpg";
 
+        // React Native FormData requires { uri, name, type } object instead of Blob
         formData.append("file", {
           uri: manipulated.uri,
           name: filename.replace(/\.[^.]+$/, ".jpg"),
           type: "image/jpeg",
-        } as any);
+        } as unknown as Blob);
 
         const response = await apiInstance.post<{ imageUrl: string }>(`/user/images?type=${type}`, formData, {
           headers: { "Content-Type": "multipart/form-data" },

@@ -86,6 +86,7 @@ export type SettingsStackParamList = {
 
 export type MypageStackParamList = {
   [MYPAGE_ROUTES.MAIN]: undefined;
+  [MYPAGE_ROUTES.SETTINGS]: undefined;
   [MYPAGE_ROUTES.ORDER_AND_DELIVERY_SEARCH]: undefined;
   [MYPAGE_ROUTES.CANCEL_AND_REFUND]: undefined;
   [MYPAGE_ROUTES.ADDRESS_MANAGEMENT]: undefined;

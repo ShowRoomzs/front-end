@@ -1,15 +1,19 @@
 import { MenuAction, NativeActionEvent } from "@react-native-menu/menu";
 import { useCallback, useMemo } from "react";
-import { ImageSourcePropType, Platform } from "react-native";
+import { Platform } from "react-native";
 
 import ActionMenu from "@/common/components/ActionMenu/ActionMenu";
 import Button from "@/common/components/Button/Button";
+import { useSelectImage } from "@/common/hooks/useSelectImage";
 
 interface ProfileImageSelectButtonProps {
-  onSelect: (image: ImageSourcePropType | undefined) => void;
+  onSelect: (imageUrl: string) => void;
 }
 export default function ProfileImageSelectButton(props: ProfileImageSelectButtonProps) {
-  const { onSelect: _onSelect } = props;
+  const { onSelect } = props;
+  const { selectImage } = useSelectImage({
+    allowsMultipleSelection: false,
+  });
 
   const profileImageActions = useMemo(
     (): Array<MenuAction> => [
@@ -38,9 +42,34 @@ export default function ProfileImageSelectButton(props: ProfileImageSelectButton
     []
   );
 
-  const handlePressProfileImageAction = useCallback(({ nativeEvent }: NativeActionEvent) => {
-    console.log(nativeEvent.event);
-  }, []);
+  const handlePressGallery = useCallback(async () => {
+    try {
+      const imageUrl = await selectImage();
+      const localUri = imageUrl[0].split("file://")[1];
+      const localUris = [localUri];
+
+      onSelect(localUris[0]);
+    } catch (error) {
+      console.error(error);
+    }
+  }, [onSelect, selectImage]);
+
+  const handlePressProfileImageAction = useCallback(
+    async ({ nativeEvent }: NativeActionEvent) => {
+      switch (nativeEvent.event) {
+        case "gallery":
+          handlePressGallery();
+          break;
+        case "camera":
+          // handlePressCamera();
+          break;
+        case "file":
+          // handlePressFile();
+          break;
+      }
+    },
+    [handlePressGallery]
+  );
 
   return (
     <ActionMenu

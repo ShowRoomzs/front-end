@@ -17,29 +17,28 @@ interface MypageProfileProps {
 
 export default function MypageProfile(props: MypageProfileProps) {
   const { user, onPressFollowing, onPressProfile } = props;
-
   const cardItems = useMemo(
     () => [
       {
         id: "coupon",
-        count: 0,
+        count: user.couponCount,
         suffix: "개",
         label: "쿠폰",
       },
       {
         id: "point",
-        count: 999000,
+        count: user.point,
         suffix: "P",
         label: "포인트",
       },
       {
         id: "review",
-        count: 2,
+        count: user.reviewCount,
         suffix: "개",
         label: "리뷰",
       },
     ],
-    []
+    [user.couponCount, user.point, user.reviewCount]
   );
 
   // TODO : 분리 해야할 것 있다면 분리

@@ -64,7 +64,7 @@ export default function MypageProfile(props: MypageProfileProps) {
         <Pressable onPress={onPressFollowing}>
           <HStack gap={4} className="items-center">
             <Icon icon={COMMON_ASSETS.followingIcon} />
-            <Typography className="text-black font-medium text-13">{12}</Typography>
+            <Typography className="text-black font-medium text-13">{user.followingCount}</Typography>
             <Typography className="text-black font-medium text-13">팔로잉</Typography>
             <Icon icon={COMMON_ASSETS.arrowRight} />
           </HStack>

@@ -7,6 +7,8 @@ import HStack from "@/common/components/HStack/HStack";
 import Icon from "@/common/components/Icon/Icon";
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
+import { useGlobalLoading } from "@/common/hooks/useGlobalLoading";
+import { toast } from "@/common/providers/ToastProvider";
 import { useUploadImagesMutation } from "@/common/queries/useUploadImagesMutation";
 import { useMypageNavigation, useSettingsNavigation } from "@/common/router";
 import { useUserStore } from "@/common/stores/useUserStore";
@@ -15,12 +17,18 @@ import { cn } from "@/common/utils/cn";
 import ProfileImageSelectButton from "@/features/setting/components/ProfileImageSelectButton/ProfileImageSelectButton";
 import SettingsHeader from "@/features/setting/components/SettingsHeader/SettingsHeader";
 import { SETTING_MENUS } from "@/features/setting/constants/menus";
+import { useUpdateUserMutation } from "@/features/user/hooks/useUpdateUserMutation";
+import { UpdateUserRequest } from "@/features/user/types/user";
 
 export default function SettingView() {
   const mypageNavigation = useMypageNavigation();
   const settingsNavigation = useSettingsNavigation();
-  const { mutateAsync: uploadImages, isPending: _isUploading } = useUploadImagesMutation();
+  const { mutateAsync: uploadImages, isPending: isUploading } = useUploadImagesMutation();
+  const { mutateAsync: updateUser, isPending: isUpdating } = useUpdateUserMutation();
 
+  useGlobalLoading({
+    condition: isUploading || isUpdating,
+  });
   const { user } = useUserStore();
 
   const handlePressBack = useCallback(() => {
@@ -47,22 +55,33 @@ export default function SettingView() {
   const handleSelectProfileImage = useCallback(
     async (imageUrl: string) => {
       try {
-        const uploadedUrls = await uploadImages({ localUris: [imageUrl], type: "PROFILE" });
-        // TODO 유저 정보 업데이트
+        if (!user) {
+          return;
+        }
 
-        console.log(uploadedUrls);
+        const uploadedUrls = await uploadImages({ localUris: [imageUrl], type: "PROFILE" });
+        const userData: UpdateUserRequest = {
+          profileImageUrl: uploadedUrls[0],
+          birthday: user.birthday,
+          gender: user.gender,
+          marketingAgree: user.marketingAgree,
+          nickname: user.nickname,
+          phoneNumber: user.phoneNumber,
+        };
+
+        await updateUser(userData);
+        toast.show("프로필 이미지가 변경되었습니다.");
       } catch (error) {
         console.error(error);
       }
     },
-    [uploadImages]
+    [updateUser, uploadImages, user]
   );
 
   if (!user) {
     return null;
   }
 
-  // TODO : 스피너 표출
   return (
     <View className="flex-1">
       <SettingsHeader wrapperClassName="px-20" onPressBack={handlePressBack} />

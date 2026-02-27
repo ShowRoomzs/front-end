@@ -4,7 +4,9 @@ import { Platform } from "react-native";
 
 import ActionMenu from "@/common/components/ActionMenu/ActionMenu";
 import Button from "@/common/components/Button/Button";
+import { useSelectFile } from "@/common/hooks/useSelectFile";
 import { useSelectImage } from "@/common/hooks/useSelectImage";
+import { useTakePhoto } from "@/common/hooks/useTakePhoto";
 
 interface ProfileImageSelectButtonProps {
   onSelect: (imageUrl: string) => void;
@@ -14,6 +16,8 @@ export default function ProfileImageSelectButton(props: ProfileImageSelectButton
   const { selectImage } = useSelectImage({
     allowsMultipleSelection: false,
   });
+  const { takePhoto } = useTakePhoto();
+  const { selectFile } = useSelectFile({ type: "image/*" });
 
   const profileImageActions = useMemo(
     (): Array<MenuAction> => [
@@ -58,6 +62,37 @@ export default function ProfileImageSelectButton(props: ProfileImageSelectButton
     }
   }, [onSelect, selectImage]);
 
+  const handlePressCamera = useCallback(async () => {
+    try {
+      const imageUrl = await takePhoto();
+
+      if (!imageUrl) {
+        return;
+      }
+      const localUri = imageUrl.split("file://")[1];
+
+      // TODO : 실기기 테스트 필요
+      onSelect(localUri);
+    } catch (error) {
+      console.error(error);
+    }
+  }, [onSelect, takePhoto]);
+
+  const handlePressFile = useCallback(async () => {
+    try {
+      const file = await selectFile();
+
+      if (!file) {
+        return;
+      }
+      const localUrl = file.uri.split("file://")[1];
+
+      onSelect(localUrl);
+    } catch (error) {
+      console.error(error);
+    }
+  }, [onSelect, selectFile]);
+
   const handlePressProfileImageAction = useCallback(
     async ({ nativeEvent }: NativeActionEvent) => {
       switch (nativeEvent.event) {
@@ -65,14 +100,14 @@ export default function ProfileImageSelectButton(props: ProfileImageSelectButton
           handlePressGallery();
           break;
         case "camera":
-          // handlePressCamera();
+          handlePressCamera();
           break;
         case "file":
-          // handlePressFile();
+          handlePressFile();
           break;
       }
     },
-    [handlePressGallery]
+    [handlePressCamera, handlePressFile, handlePressGallery]
   );
 
   return (

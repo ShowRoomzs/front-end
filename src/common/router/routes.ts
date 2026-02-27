@@ -59,6 +59,13 @@ export const MYPAGE_ROUTES = {
   VERSION_INFO: "versionInfo",
   PRIVACY_POLICY: "privacyPolicy",
   SERVICE_AGREEMENT: "serviceAgreement",
+  COUPON: "coupon",
+} as const;
+
+// 쿠폰 스택 네비게이션
+export const COUPON_ROUTES = {
+  LIST: "couponList",
+  REGISTER: "couponRegister",
 } as const;
 
 export const ROOT_ROUTES = {

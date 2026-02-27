@@ -8,11 +8,17 @@ import {
   HomeTabParamList,
   MypageStackParamList,
   RootStackParamList,
+  SettingsStackParamList,
 } from "@/common/router/types";
 
-export { ROUTES, HOME_ROUTES, CATEGORY_ROUTES, AUTH_ROUTES } from "./routes";
-export type { RouteName, HomeRouteName, CategoryRouteName, AuthRouteName } from "./routes";
-export type { HomeTabParamList, CategoryStackParamList, AuthStackParamList } from "./types";
+export { ROUTES, HOME_ROUTES, CATEGORY_ROUTES, AUTH_ROUTES, SETTINGS_ROUTES } from "./routes";
+export type { RouteName, HomeRouteName, CategoryRouteName, AuthRouteName, SettingsRouteName } from "./routes";
+export type {
+  HomeTabParamList,
+  CategoryStackParamList,
+  AuthStackParamList,
+  SettingsStackParamList,
+} from "./types";
 
 export const useHomeNavigation = () => useNavigation<NavigationProp<HomeTabParamList>>();
 export const useCategoryNavigation = () => useNavigation<NavigationProp<CategoryStackParamList>>();
@@ -20,3 +26,4 @@ export const useAuthNavigation = () => useNavigation<NavigationProp<AuthStackPar
 export const useMainNavigation = () => useNavigation<NavigationProp<RootStackParamList>>();
 export const useCommonNavigation = () => useNavigation<NativeStackNavigationProp<CommonStackParamList>>();
 export const useMypageNavigation = () => useNavigation<NavigationProp<MypageStackParamList>>();
+export const useSettingsNavigation = () => useNavigation<NavigationProp<SettingsStackParamList>>();

@@ -1,7 +1,10 @@
+import { NavigatorScreenParams } from "@react-navigation/native";
+
 import {
   AUTH_ROUTES,
   CATEGORY_ROUTES,
   COMMON_ROUTES,
+  COUPON_ROUTES,
   HOME_ROUTES,
   MYPAGE_ROUTES,
   ROOT_ROUTES,
@@ -75,6 +78,11 @@ export type RootStackParamList = {
   };
 };
 
+export type CouponStackParamList = {
+  [COUPON_ROUTES.LIST]: undefined;
+  [COUPON_ROUTES.REGISTER]: undefined;
+};
+
 export type SettingsStackParamList = {
   [SETTINGS_ROUTES.MAIN]: undefined;
   [SETTINGS_ROUTES.NICKNAME_CHANGE]: undefined;
@@ -104,4 +112,5 @@ export type MypageStackParamList = {
   [MYPAGE_ROUTES.VERSION_INFO]: undefined;
   [MYPAGE_ROUTES.PRIVACY_POLICY]: undefined;
   [MYPAGE_ROUTES.SERVICE_AGREEMENT]: undefined;
+  [MYPAGE_ROUTES.COUPON]: NavigatorScreenParams<CouponStackParamList> | undefined;
 };

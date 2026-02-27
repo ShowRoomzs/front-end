@@ -67,7 +67,9 @@ export default function NicknameChangeView() {
     try {
       await updateUser(userData);
       toast.show("닉네임이 변경되었습니다.");
-      settingsNavigation.goBack();
+      setTimeout(() => {
+        settingsNavigation.goBack();
+      }, 500);
     } catch (error) {
       console.error(error);
     }

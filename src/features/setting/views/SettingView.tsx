@@ -10,7 +10,7 @@ import VStack from "@/common/components/VStack/VStack";
 import { useGlobalLoading } from "@/common/hooks/useGlobalLoading";
 import { toast } from "@/common/providers/ToastProvider";
 import { useUploadImagesMutation } from "@/common/queries/useUploadImagesMutation";
-import { useMypageNavigation, useSettingsNavigation } from "@/common/router";
+import { SETTINGS_ROUTES, useMypageNavigation, useSettingsNavigation } from "@/common/router";
 import { useUserStore } from "@/common/stores/useUserStore";
 import { COMMON_ASSETS } from "@/common/utils/assets";
 import { cn } from "@/common/utils/cn";
@@ -51,6 +51,10 @@ export default function SettingView() {
       })),
     [settingsNavigation]
   );
+
+  const handlePressNicknameChange = useCallback(() => {
+    settingsNavigation.navigate(SETTINGS_ROUTES.NICKNAME_CHANGE);
+  }, [settingsNavigation]);
 
   const handleSelectProfileImage = useCallback(
     async (imageUrl: string) => {
@@ -96,7 +100,12 @@ export default function SettingView() {
           </HStack>
           <View style={{ flexDirection: "row", gap: 10 }}>
             <ProfileImageSelectButton onSelect={handleSelectProfileImage} />
-            <Button className="flex-1" size="md" variant="secondary-black">
+            <Button
+              onPress={handlePressNicknameChange}
+              className="flex-1"
+              size="md"
+              variant="secondary-black"
+            >
               닉네임 변경
             </Button>
           </View>

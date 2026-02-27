@@ -1,7 +1,7 @@
 import { MYPAGE_ROUTES } from "@/common/router/routes";
 import { MypageSectionProps } from "@/features/mypage/components/MypageSection/MypageSection";
 
-export const MYPAGE_SECTIONS: Array<MypageSectionProps> = [
+export const MYPAGE_MENUS: Array<MypageSectionProps> = [
   {
     title: "나의 쇼핑 정보",
     items: [

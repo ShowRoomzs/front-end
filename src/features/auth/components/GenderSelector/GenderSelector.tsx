@@ -17,11 +17,11 @@ export default function GenderSelector(props: GenderSelectorProps) {
     () => [
       {
         label: "남자",
-        value: "male",
+        value: "MALE",
       },
       {
         label: "여자",
-        value: "female",
+        value: "FEMALE",
       },
     ],
     []

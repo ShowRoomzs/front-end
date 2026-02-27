@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { BOTTOM_TABS_HEIGHT } from "@/common/components/BottomTabs/config";
 import VStack from "@/common/components/VStack/VStack";
+import { usePermissionPress } from "@/common/hooks/usePermissionPress";
 import { useMainNavigation, useMypageNavigation } from "@/common/router";
 import { ROOT_ROUTES } from "@/common/router/routes";
 import { MYPAGE_ROUTES } from "@/common/router/routes";
@@ -15,16 +16,16 @@ import MypageSection, {
   MypageSectionItem,
   MypageSectionProps,
 } from "@/features/mypage/components/MypageSection/MypageSection";
-import { MYPAGE_SECTIONS } from "@/features/mypage/constants/sections";
+import { MYPAGE_MENUS } from "@/features/mypage/constants/menus";
 
 export default function MypageView() {
   const { user } = useUserStore();
   const mainNavigation = useMainNavigation();
   const inset = useSafeAreaInsets();
   const mypageNavigation = useMypageNavigation();
-  const handlePressSetting = useCallback(() => {
-    console.log("setting");
-  }, []);
+  const handlePressSetting = usePermissionPress(() => {
+    mypageNavigation.navigate(MYPAGE_ROUTES.SETTINGS);
+  });
 
   const handlePressCart = useCallback(() => {
     console.log("cart");
@@ -88,7 +89,7 @@ export default function MypageView() {
         ListHeaderComponentStyle={{ marginBottom: 40 }}
         ListHeaderComponent={renderListHeaderComponent}
         ItemSeparatorComponent={() => <View className="h-25" />}
-        data={MYPAGE_SECTIONS}
+        data={MYPAGE_MENUS}
         renderItem={renderItem}
       />
     </VStack>

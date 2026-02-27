@@ -36,7 +36,10 @@ export default function InquiryView() {
   }, [hideBottomTab, showBottomTab]);
 
   const [form, setForm] = useState({ type: "", detailType: "", content: "" });
-  const { imageUrls, handleAddImage, handleRemoveImage, setImageUrls } = useImagePicker();
+  const { imageUrls, handleAddImage, handleRemoveImage, setImageUrls } = useImagePicker({
+    maxCount: 10,
+    allowsMultipleSelection: true,
+  });
 
   useEffect(() => {
     if (inquiryDetail) {

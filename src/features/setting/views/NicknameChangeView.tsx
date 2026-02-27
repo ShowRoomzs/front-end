@@ -1,10 +1,6 @@
 import { useEffect, useState } from "react";
-import { TouchableOpacity, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { View } from "react-native";
 
-import Button from "@/common/components/Button/Button";
-import Header from "@/common/components/Header/Header";
-import Icon from "@/common/components/Icon/Icon";
 import LabeledInput from "@/common/components/LabeledInput/LabeledInput";
 import VStack from "@/common/components/VStack/VStack";
 import { useBottomTab } from "@/common/hooks/useBottomTab";
@@ -13,15 +9,15 @@ import { useInputValidation } from "@/common/hooks/useInputValidation";
 import { toast } from "@/common/providers/ToastProvider";
 import { useSettingsNavigation } from "@/common/router";
 import { useUserStore } from "@/common/stores/useUserStore";
-import { COMMON_ASSETS } from "@/common/utils/assets";
 import { NICKNAME_MAX_LENGTH, NICKNAME_VALIDATION_RULES } from "@/features/auth/constants/validation";
+import NicknameChangeBottomAction from "@/features/setting/components/NicknameChangeBottomAction/NicknameChangeBottomAction";
+import SettingsHeader from "@/features/setting/components/SettingsHeader/SettingsHeader";
 import { useUpdateUserMutation } from "@/features/user/hooks/useUpdateUserMutation";
 import { UpdateUserRequest } from "@/features/user/types/user";
 
 export default function NicknameChangeView() {
   const settingsNavigation = useSettingsNavigation();
   const { user } = useUserStore();
-  const insets = useSafeAreaInsets();
   const { mutateAsync: updateUser, isPending } = useUpdateUserMutation();
   const { hide, show } = useBottomTab();
 
@@ -77,16 +73,7 @@ export default function NicknameChangeView() {
 
   return (
     <View className="flex-1">
-      <Header
-        centered
-        title="닉네임 변경"
-        className="px-20 py-10 border-b-[1px] border-gray2"
-        renderLeft={
-          <TouchableOpacity onPress={handlePressBack} activeOpacity={0.7}>
-            <Icon icon={COMMON_ASSETS.back} />
-          </TouchableOpacity>
-        }
-      />
+      <SettingsHeader title="닉네임 변경" wrapperClassName="px-20" onPressBack={handlePressBack} />
       <VStack className="px-20 pt-25" gap={20}>
         <LabeledInput
           label="닉네임"
@@ -98,14 +85,7 @@ export default function NicknameChangeView() {
           helperText={helperText}
         />
       </VStack>
-      <View
-        className="absolute bottom-0 left-0 right-0 border-t border-gray2 bg-white px-10 pt-10"
-        style={{ paddingBottom: insets.bottom }}
-      >
-        <Button size="xl" variant="primary" onPress={handleSubmit} disabled={!isValid || !isNicknameChanged}>
-          변경하기
-        </Button>
-      </View>
+      <NicknameChangeBottomAction onPress={handleSubmit} disabled={!isValid || !isNicknameChanged} />
     </View>
   );
 }

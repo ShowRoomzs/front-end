@@ -9,15 +9,18 @@ import {
   HomeTabParamList,
   MypageStackParamList,
   RootStackParamList,
+  SettingsStackParamList,
 } from "@/common/router/types";
 
-export { ROUTES, HOME_ROUTES, CATEGORY_ROUTES, AUTH_ROUTES, COUPON_ROUTES } from "./routes";
-export type { RouteName, HomeRouteName, CategoryRouteName, AuthRouteName } from "./routes";
+export { ROUTES, HOME_ROUTES, CATEGORY_ROUTES, AUTH_ROUTES, SETTINGS_ROUTES } from "./routes";
+export type { RouteName, HomeRouteName, CategoryRouteName, AuthRouteName, SettingsRouteName } from "./routes";
+
 export type {
   HomeTabParamList,
   CategoryStackParamList,
   AuthStackParamList,
   CouponStackParamList,
+  SettingsStackParamList,
 } from "./types";
 
 export const useHomeNavigation = () => useNavigation<NavigationProp<HomeTabParamList>>();
@@ -27,3 +30,4 @@ export const useMainNavigation = () => useNavigation<NavigationProp<RootStackPar
 export const useCommonNavigation = () => useNavigation<NativeStackNavigationProp<CommonStackParamList>>();
 export const useMypageNavigation = () => useNavigation<NavigationProp<MypageStackParamList>>();
 export const useCouponNavigation = () => useNavigation<NativeStackNavigationProp<CouponStackParamList>>();
+export const useSettingsNavigation = () => useNavigation<NavigationProp<SettingsStackParamList>>();

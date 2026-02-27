@@ -8,6 +8,7 @@ import {
   HOME_ROUTES,
   MYPAGE_ROUTES,
   ROOT_ROUTES,
+  SETTINGS_ROUTES,
 } from "@/common/router/routes";
 import { TermsType } from "@/features/auth/views/TermsView";
 
@@ -82,8 +83,18 @@ export type CouponStackParamList = {
   [COUPON_ROUTES.REGISTER]: undefined;
 };
 
+export type SettingsStackParamList = {
+  [SETTINGS_ROUTES.MAIN]: undefined;
+  [SETTINGS_ROUTES.NICKNAME_CHANGE]: undefined;
+  [SETTINGS_ROUTES.MEMBER_INFO_CHANGE]: undefined;
+  [SETTINGS_ROUTES.NOTIFICATION_SETTINGS]: undefined;
+  [SETTINGS_ROUTES.REFUND_ACCOUNT]: undefined;
+  [SETTINGS_ROUTES.WITHDRAWAL]: undefined;
+};
+
 export type MypageStackParamList = {
   [MYPAGE_ROUTES.MAIN]: undefined;
+  [MYPAGE_ROUTES.SETTINGS]: undefined;
   [MYPAGE_ROUTES.ORDER_AND_DELIVERY_SEARCH]: undefined;
   [MYPAGE_ROUTES.CANCEL_AND_REFUND]: undefined;
   [MYPAGE_ROUTES.ADDRESS_MANAGEMENT]: undefined;
@@ -92,6 +103,9 @@ export type MypageStackParamList = {
   };
   [MYPAGE_ROUTES.FOLLOWING_LIST]: undefined;
   [MYPAGE_ROUTES.INQUIRY_HISTORY]: undefined;
+  [MYPAGE_ROUTES.INQUIRY_REGISTER]?: {
+    inquiryId?: number;
+  };
   [MYPAGE_ROUTES.CUSTOMER_CENTER]: undefined;
   [MYPAGE_ROUTES.NOTICE]: undefined;
   [MYPAGE_ROUTES.OPEN_LICENSE]: undefined;

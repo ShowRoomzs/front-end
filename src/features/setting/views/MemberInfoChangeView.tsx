@@ -9,12 +9,13 @@ import { useUserStore } from "@/common/stores/useUserStore";
 import { cn } from "@/common/utils/cn";
 import MemberInfoChangeBottomAction from "@/features/setting/components/MemberInfoChangeBottomAction/MemberInfoChangeBottomAction";
 import SettingsHeader from "@/features/setting/components/SettingsHeader/SettingsHeader";
+import { User } from "@/features/user/types/user";
 
-const INFO_ITEMS = [
+const INFO_ITEMS: Array<{ label: string; key: keyof User; formatter?: (value: string) => string }> = [
   { label: "이름", key: "nickname" },
-  { label: "생년월일", key: "birthday" },
+  { label: "생년월일", key: "birthday", formatter: (value: string) => value.replaceAll("-", ".") },
   { label: "휴대폰 번호", key: "phoneNumber" },
-] as const;
+];
 
 export default function MemberInfoChangeView() {
   const settingsNavigation = useSettingsNavigation();
@@ -40,18 +41,23 @@ export default function MemberInfoChangeView() {
     <View className="flex-1">
       <SettingsHeader title="회원 정보" wrapperClassName="px-20" onPressBack={handlePressBack} />
       <View className="px-20 pt-25">
-        {INFO_ITEMS.map((item, ix) => (
-          <HStack
-            key={item.key}
-            className={cn(
-              "py-15 justify-between items-center",
-              ix !== INFO_ITEMS.length - 1 && "border-b-[1px] border-gray2"
-            )}
-          >
-            <Typography className="text-gray9 text-14 font-normal">{item.label}</Typography>
-            <Typography className="text-black text-14 font-medium">{user[item.key]}</Typography>
-          </HStack>
-        ))}
+        {INFO_ITEMS.map((item, ix) => {
+          const value = user[item.key] ? user[item.key].toString() : "";
+          const formattedValue = item.formatter ? item.formatter(value) : value;
+
+          return (
+            <HStack
+              key={item.key}
+              className={cn(
+                "py-15 justify-between items-center",
+                ix !== INFO_ITEMS.length - 1 && "border-b-[1px] border-gray2"
+              )}
+            >
+              <Typography className="text-gray9 text-14 font-normal">{item.label}</Typography>
+              <Typography className="text-black text-14 font-medium">{formattedValue}</Typography>
+            </HStack>
+          );
+        })}
       </View>
       <MemberInfoChangeBottomAction />
     </View>

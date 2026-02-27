@@ -45,6 +45,10 @@ export default function ProfileImageSelectButton(props: ProfileImageSelectButton
   const handlePressGallery = useCallback(async () => {
     try {
       const imageUrl = await selectImage();
+
+      if (!imageUrl.length) {
+        return;
+      }
       const localUri = imageUrl[0].split("file://")[1];
       const localUris = [localUri];
 

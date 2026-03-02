@@ -8,7 +8,9 @@ import Checkbox from "@/common/components/Checkbox/Checkbox";
 import HStack from "@/common/components/HStack/HStack";
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
-import { SETTINGS_ROUTES, SettingsStackParamList, useSettingsNavigation } from "@/common/router";
+import { useBottomTab } from "@/common/hooks/useBottomTab";
+import { modal } from "@/common/providers/ModalProvider";
+import { HOME_ROUTES, SETTINGS_ROUTES, SettingsStackParamList, useSettingsNavigation } from "@/common/router";
 import { useUserStore } from "@/common/stores/useUserStore";
 import SettingsHeader from "@/features/setting/components/SettingsHeader/SettingsHeader";
 import { useWithdrawlMutation } from "@/features/setting/hooks/useWithdrawlMutation";
@@ -31,6 +33,7 @@ const WARNING_ITEMS = [
 export default function WithdrawalConfirmView() {
   const settingsNavigation = useSettingsNavigation();
   const route = useRoute<RouteProp<SettingsStackParamList, typeof SETTINGS_ROUTES.WITHDRAWAL_CONFIRM>>();
+  const { navigate } = useBottomTab();
   const { selectedReason } = route.params;
   const { mutateAsync: withdrawl } = useWithdrawlMutation();
   const { user } = useUserStore();
@@ -53,7 +56,16 @@ export default function WithdrawalConfirmView() {
         reason: selectedReason,
         customReason: null,
       });
-      // TODO : 모달 표출
+      modal.alert({
+        title: "회원 탈퇴",
+        message: "회원 탈퇴가 완료되었습니다.",
+        confirmLabel: "확인",
+        onConfirm: () => {
+          settingsNavigation.goBack();
+          settingsNavigation.goBack();
+          navigate(HOME_ROUTES.HOME);
+        },
+      });
     } catch (error) {
       console.error(error);
     }

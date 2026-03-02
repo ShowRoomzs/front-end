@@ -3,7 +3,7 @@ import { SETTINGS_ROUTES, SettingsRouteName } from "@/common/router";
 export interface SettingMenu {
   key: string;
   title: string;
-  routeName?: SettingsRouteName;
+  routeName?: Exclude<SettingsRouteName, typeof SETTINGS_ROUTES.WITHDRAWAL_CONFIRM>;
   onPress?: () => void;
 }
 

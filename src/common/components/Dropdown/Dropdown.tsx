@@ -1,8 +1,8 @@
-import { Pressable, View } from "react-native";
+import { useEffect, useRef } from "react";
+import { Pressable, ScrollView, View } from "react-native";
 
 import Icon from "@/common/components/Icon/Icon";
 import Typography from "@/common/components/Typography/Typography";
-import VStack from "@/common/components/VStack/VStack";
 import { useDropdown } from "@/common/hooks/useDropdown";
 import { COMMON_ASSETS } from "@/common/utils/assets";
 import { cn } from "@/common/utils/cn";
@@ -23,10 +23,23 @@ interface DropdownProps {
 }
 export default function Dropdown(props: DropdownProps) {
   const { items, value, onChange, placeholder, disabled, id, closeOnDisabled = true } = props;
-
+  const scrollViewRef = useRef<ScrollView>(null);
   const { openStatus, open, close } = useDropdown();
-
+  const itemOffsetMap = useRef<Map<string, number>>(new Map());
   const isOpen = openStatus[id];
+
+  // 선택된 아이템 존재한다면 자동 스크롤 이동
+  useEffect(() => {
+    if (!isOpen || !scrollViewRef.current || !value) {
+      return;
+    }
+    const y = itemOffsetMap.current.get(value);
+
+    if (y === undefined) {
+      return;
+    }
+    scrollViewRef.current.scrollTo({ y, animated: false });
+  }, [isOpen, value]);
 
   const handlePress = () => {
     if (disabled) {
@@ -65,12 +78,13 @@ export default function Dropdown(props: DropdownProps) {
         <Icon icon={COMMON_ASSETS.arrowDown} />
       </View>
       {isOpen && (
-        <VStack>
+        <ScrollView ref={scrollViewRef} showsVerticalScrollIndicator={false} className="max-h-[225px]">
           {items.map(item => {
             const isSelected = value === item.value;
 
             return (
               <Pressable
+                onLayout={e => itemOffsetMap.current.set(item.value, e.nativeEvent.layout.y)}
                 onPress={() => handleChange(item)}
                 key={item.value}
                 className="flex flex-row items-center justify-between p-15 border-t-[1px] border-gray2"
@@ -78,11 +92,11 @@ export default function Dropdown(props: DropdownProps) {
                 <Typography className={cn("text-13 text-black font-normal", item.disabled && "text-gray10")}>
                   {item.label}
                 </Typography>
-                {isSelected && <Icon icon={COMMON_ASSETS.check} />}
+                {isSelected && <Icon icon={COMMON_ASSETS.checkBlack} />}
               </Pressable>
             );
           })}
-        </VStack>
+        </ScrollView>
       )}
     </Pressable>
   );

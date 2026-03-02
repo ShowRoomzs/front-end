@@ -1,12 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 
+import { SETTING_QUERY_KEY } from "@/features/setting/constants/queryKey";
 import { settingService } from "@/features/setting/services/settingService";
-
-export const NOTIFICATION_SETTINGS_QUERY_KEY = "notification-settings";
 
 export function useGetNotificationSettings() {
   return useQuery({
-    queryKey: [NOTIFICATION_SETTINGS_QUERY_KEY],
+    queryKey: [SETTING_QUERY_KEY.NOTIFICATION_SETTINGS],
     queryFn: settingService.getNotificationSettings,
   });
 }

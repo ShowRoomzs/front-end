@@ -31,7 +31,7 @@ export const settingService = {
     return response;
   },
   withdrawal: async (data: WithdrawalRequest) => {
-    const { data: response } = await apiInstance.delete("/user/auth/withdrawal", { data });
+    const { data: response } = await apiInstance.delete("/user/auth/withdraw", { data });
 
     return response;
   },

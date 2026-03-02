@@ -52,7 +52,7 @@ export const MYPAGE_MENUS: Array<MypageSectionProps> = [
       {
         title: "오픈라이선스",
         rightType: "arrow",
-        routeName: MYPAGE_ROUTES.INQUIRY_HISTORY,
+        routeName: MYPAGE_ROUTES.OPEN_LICENSE,
       },
       {
         title: "버전 정보",

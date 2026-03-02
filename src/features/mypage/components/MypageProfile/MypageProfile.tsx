@@ -51,7 +51,7 @@ export default function MypageProfile(props: MypageProfileProps) {
     <VStack gap={26}>
       <View className="flex flex-row justify-between items-center">
         {/* 프로필 버튼 */}
-        <Pressable onPointerCancel={onPressProfile}>
+        <Pressable onPress={onPressProfile}>
           <HStack className="items-center" gap={10}>
             <Image
               source={user.profileImageUrl ? { uri: user.profileImageUrl } : defaultProfileImage}

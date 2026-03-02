@@ -2,15 +2,14 @@ import { useEffect, useState } from "react";
 import { Pressable, View } from "react-native";
 
 import HStack from "@/common/components/HStack/HStack";
+import Radio from "@/common/components/Radio/Radio";
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
 import { useBottomTab } from "@/common/hooks/useBottomTab";
-import { useSettingsNavigation } from "@/common/router";
-import { cn } from "@/common/utils/cn";
+import { SETTINGS_ROUTES, useSettingsNavigation } from "@/common/router";
 import SettingsHeader from "@/features/setting/components/SettingsHeader/SettingsHeader";
 import WithdrawalBottomAction from "@/features/setting/components/WithdrawalBottomAction/WithdrawalBottomAction";
-
-const WITHDRAWAL_REASONS = ["앱 사용이 불편해요", "상품 탐색이 어려워요"];
+import { WITHDRAWAL_REASONS } from "@/features/setting/constants/withdraw";
 
 export default function WithdrawalView() {
   const settingsNavigation = useSettingsNavigation();
@@ -18,6 +17,12 @@ export default function WithdrawalView() {
   const { hide, show } = useBottomTab();
   const handlePressBack = () => {
     settingsNavigation.goBack();
+  };
+  const handlePressNext = () => {
+    if (!selectedReason) {
+      return;
+    }
+    settingsNavigation.navigate(SETTINGS_ROUTES.WITHDRAWAL_CONFIRM, { selectedReason });
   };
 
   useEffect(() => {
@@ -34,18 +39,14 @@ export default function WithdrawalView() {
         <Typography className="text-black text-20 font-semibold">탈퇴하는 사유를 선택해 주세요</Typography>
         <VStack gap={0}>
           {WITHDRAWAL_REASONS.map((reason, ix) => (
-            <View key={reason}>
-              <Pressable onPress={() => setSelectedReason(reason)}>
+            <View key={reason.value}>
+              <Pressable onPress={() => setSelectedReason(reason.value)}>
                 <HStack className="py-15 items-center" gap={10}>
-                  <View
-                    className={cn(
-                      "w-24 h-24 rounded-full border-2 items-center justify-center",
-                      selectedReason === reason ? "border-black" : "border-gray3"
-                    )}
-                  >
-                    {selectedReason === reason && <View className="w-12 h-12 rounded-full bg-black" />}
-                  </View>
-                  <Typography className="text-black text-14 font-normal">{reason}</Typography>
+                  <Radio
+                    isChecked={selectedReason === reason.value}
+                    onChange={() => setSelectedReason(reason.value)}
+                  />
+                  <Typography className="text-black text-14 font-normal">{reason.label}</Typography>
                 </HStack>
               </Pressable>
               {ix !== WITHDRAWAL_REASONS.length - 1 && <View className="h-[1px] bg-gray2" />}
@@ -53,7 +54,11 @@ export default function WithdrawalView() {
           ))}
         </VStack>
       </VStack>
-      <WithdrawalBottomAction onPressContinue={handlePressBack} isNextEnabled={!!selectedReason} />
+      <WithdrawalBottomAction
+        onPressNext={handlePressNext}
+        onPressContinue={handlePressBack}
+        isNextEnabled={!!selectedReason}
+      />
     </View>
   );
 }

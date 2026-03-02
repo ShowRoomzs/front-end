@@ -6,7 +6,7 @@ import HStack from "@/common/components/HStack/HStack";
 
 interface WithdrawalBottomActionProps {
   onPressContinue: () => void;
-  onPressNext?: () => void;
+  onPressNext: () => void;
   isNextEnabled: boolean;
 }
 
@@ -20,13 +20,13 @@ export default function WithdrawalBottomAction(props: WithdrawalBottomActionProp
       style={{ paddingBottom: insets.bottom }}
     >
       <HStack gap={6}>
-        <Button className="flex-1" size="xl" variant="outline" onPress={onPressContinue}>
+        <Button className="flex-1" size="xl" variant="primary" onPress={onPressContinue}>
           계속 사용하기
         </Button>
         <Button
           className="flex-1"
           size="xl"
-          variant="primary"
+          variant="secondary-black"
           onPress={onPressNext}
           disabled={!isNextEnabled}
         >

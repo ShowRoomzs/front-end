@@ -6,3 +6,9 @@ export interface RefundAccountResponse {
 }
 
 export type UpdateRefundAccountRequest = Omit<RefundAccountResponse, "bankName">;
+
+export interface WithdrawalRequest {
+  agreeConsent: boolean;
+  reason: string;
+  customReason: string | null;
+}

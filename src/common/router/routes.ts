@@ -40,6 +40,7 @@ export const SETTINGS_ROUTES = {
   NOTIFICATION_SETTINGS: "notificationSettings",
   REFUND_ACCOUNT: "refundAccount",
   WITHDRAWAL: "withdrawal",
+  WITHDRAWAL_CONFIRM: "withdrawalConfirm",
 } as const;
 
 // 마이페이지 스택 네비게이션

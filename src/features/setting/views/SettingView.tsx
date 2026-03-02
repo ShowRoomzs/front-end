@@ -7,13 +7,16 @@ import HStack from "@/common/components/HStack/HStack";
 import Icon from "@/common/components/Icon/Icon";
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
+import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { useGlobalLoading } from "@/common/hooks/useGlobalLoading";
 import { toast } from "@/common/providers/ToastProvider";
 import { useUploadImagesMutation } from "@/common/queries/useUploadImagesMutation";
 import { SETTINGS_ROUTES, useMypageNavigation, useSettingsNavigation } from "@/common/router";
+import { HOME_ROUTES } from "@/common/router/routes";
 import { useUserStore } from "@/common/stores/useUserStore";
 import { COMMON_ASSETS } from "@/common/utils/assets";
 import { cn } from "@/common/utils/cn";
+import { useLogin } from "@/features/auth/hooks/useLogin";
 import ProfileImageSelectButton from "@/features/setting/components/ProfileImageSelectButton/ProfileImageSelectButton";
 import SettingsHeader from "@/features/setting/components/SettingsHeader/SettingsHeader";
 import { SETTING_MENUS } from "@/features/setting/constants/menus";
@@ -22,6 +25,7 @@ import { UpdateUserRequest } from "@/features/user/types/user";
 
 export default function SettingView() {
   const mypageNavigation = useMypageNavigation();
+  const { navigate } = useBottomTab();
   const settingsNavigation = useSettingsNavigation();
   const { mutateAsync: uploadImages, isPending: isUploading } = useUploadImagesMutation();
   const { mutateAsync: updateUser, isPending: isUpdating } = useUpdateUserMutation();
@@ -30,6 +34,16 @@ export default function SettingView() {
     condition: isUploading || isUpdating,
   });
   const { user } = useUserStore();
+  const { logout } = useLogin();
+
+  const handleLogout = useCallback(async () => {
+    await logout();
+    mypageNavigation.goBack();
+    setTimeout(() => {
+      navigate(HOME_ROUTES.HOME);
+    }, 500);
+    toast.show("로그아웃 되었습니다.");
+  }, [logout, mypageNavigation, navigate]);
 
   const handlePressBack = useCallback(() => {
     mypageNavigation.goBack();
@@ -41,7 +55,7 @@ export default function SettingView() {
         ...menu,
         onPress: () => {
           if (menu.key === "logout") {
-            console.log("logout"); // TODO : 로그아웃 처리
+            handleLogout();
             return;
           }
           if (menu.routeName) {
@@ -49,7 +63,7 @@ export default function SettingView() {
           }
         },
       })),
-    [settingsNavigation]
+    [handleLogout, settingsNavigation]
   );
 
   const handlePressNicknameChange = useCallback(() => {

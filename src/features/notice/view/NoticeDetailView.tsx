@@ -14,8 +14,8 @@ import { MYPAGE_ROUTES } from "@/common/router/routes";
 import { MypageStackParamList } from "@/common/router/types";
 
 export default function NoticeDetailView() {
-  const { params } = useRoute<RouteProp<MypageStackParamList, typeof MYPAGE_ROUTES.NOTICE_DETAIL>>();
-  const { noticeId } = params;
+  const route = useRoute<RouteProp<MypageStackParamList, typeof MYPAGE_ROUTES.NOTICE_DETAIL>>();
+  const noticeId = route.params?.noticeId;
   const navigation = useMypageNavigation();
   const { show: showBottomTab, hide: hideBottomTab } = useBottomTab();
 

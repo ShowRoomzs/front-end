@@ -5,7 +5,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BOTTOM_TABS_HEIGHT } from "@/common/components/BottomTabs/config";
 import VStack from "@/common/components/VStack/VStack";
 import { usePermissionPress } from "@/common/hooks/usePermissionPress";
-import { modal } from "@/common/providers/ModalProvider";
 import { useMainNavigation, useMypageNavigation } from "@/common/router";
 import { MYPAGE_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { useUserStore } from "@/common/stores/useUserStore";
@@ -48,13 +47,8 @@ export default function MypageView() {
   );
 
   const handlePressProfile = useCallback(() => {
-    modal.alert({
-      title: "test",
-      message: "testtest",
-      confirmLabel: "확인",
-      centered: true,
-    });
-  }, []);
+    mypageNavigation.navigate(MYPAGE_ROUTES.SETTINGS);
+  }, [mypageNavigation]);
 
   const handlePressFollowing = useCallback(() => {
     mypageNavigation.navigate(MYPAGE_ROUTES.FOLLOWING_LIST);
@@ -71,6 +65,10 @@ export default function MypageView() {
     mypageNavigation.navigate(MYPAGE_ROUTES.COUPON);
   }, [mypageNavigation]);
 
+  const handlePressPoint = useCallback(() => {
+    mypageNavigation.navigate(MYPAGE_ROUTES.COUPON);
+  }, [mypageNavigation]);
+
   const renderListHeaderComponent = useCallback(() => {
     if (user) {
       return (
@@ -78,12 +76,13 @@ export default function MypageView() {
           user={user}
           onPressProfile={handlePressProfile}
           onPressFollowing={handlePressFollowing}
+          onPressPoint={handlePressPoint}
           onPressCoupon={handlePressCoupon}
         />
       );
     }
     return <AuthEntryBanner onPressAuth={handlePressAuth} />;
-  }, [handlePressAuth, handlePressCoupon, handlePressFollowing, handlePressProfile, user]);
+  }, [handlePressAuth, handlePressCoupon, handlePressFollowing, handlePressPoint, handlePressProfile, user]);
 
   return (
     <VStack style={{ paddingBottom: inset.bottom }} gap={20} className="flex-1">

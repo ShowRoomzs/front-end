@@ -14,10 +14,11 @@ interface MypageProfileProps {
   onPressProfile: () => void;
   onPressFollowing: () => void;
   onPressCoupon: () => void;
+  onPressPoint: () => void;
 }
 
 export default function MypageProfile(props: MypageProfileProps) {
-  const { user, onPressFollowing, onPressProfile, onPressCoupon } = props;
+  const { user, onPressFollowing, onPressProfile, onPressCoupon, onPressPoint } = props;
 
   const cardItems = useMemo(
     () => [
@@ -33,7 +34,7 @@ export default function MypageProfile(props: MypageProfileProps) {
         count: user.point,
         suffix: "P",
         label: "포인트",
-        onPress: () => {},
+        onPress: onPressPoint,
       },
       {
         id: "review",
@@ -43,7 +44,7 @@ export default function MypageProfile(props: MypageProfileProps) {
         onPress: () => {},
       },
     ],
-    [onPressCoupon, user.couponCount, user.point, user.reviewCount]
+    [onPressCoupon, onPressPoint, user.couponCount, user.point, user.reviewCount]
   );
 
   // TODO : 분리 해야할 것 있다면 분리

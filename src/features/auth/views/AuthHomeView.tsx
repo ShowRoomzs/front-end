@@ -17,7 +17,7 @@ import { SocialLoginResponse } from "@/features/auth/hooks/useSocialLogin";
 export default function AuthHomeView() {
   const navigation = useAuthNavigation();
   const { socialLoginMutation } = useAuth();
-  const { handleLogin } = useLogin();
+  const { login } = useLogin();
   const { mutateAsync: socialLoginAsync } = socialLoginMutation;
   const { params } = useRoute<RouteProp<AuthStackParamList, typeof AUTH_ROUTES.AUTH_HOME>>();
   const socialButtons = useMemo((): Array<SocialType> => {
@@ -54,13 +54,13 @@ export default function AuthHomeView() {
         });
         return;
       }
-      await handleLogin(res);
+      await login(res);
       navigation.goBack();
       setTimeout(() => {
         params.onSuccessLogin?.();
       }, 500);
     },
-    [handleLogin, navigation, params, socialLoginAsync]
+    [login, navigation, params, socialLoginAsync]
   );
 
   const pan = useMemo(

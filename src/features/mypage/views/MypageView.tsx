@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BOTTOM_TABS_HEIGHT } from "@/common/components/BottomTabs/config";
 import VStack from "@/common/components/VStack/VStack";
 import { usePermissionPress } from "@/common/hooks/usePermissionPress";
+import { modal } from "@/common/providers/ModalProvider";
 import { useMainNavigation, useMypageNavigation } from "@/common/router";
 import { MYPAGE_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { useUserStore } from "@/common/stores/useUserStore";
@@ -47,7 +48,12 @@ export default function MypageView() {
   );
 
   const handlePressProfile = useCallback(() => {
-    console.log("profile");
+    modal.alert({
+      title: "test",
+      message: "testtest",
+      confirmLabel: "확인",
+      centered: true,
+    });
   }, []);
 
   const handlePressFollowing = useCallback(() => {

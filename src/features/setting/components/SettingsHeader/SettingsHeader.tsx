@@ -8,14 +8,15 @@ import { cn } from "@/common/utils/cn";
 interface SettingsHeaderProps {
   onPressBack: () => void;
   wrapperClassName?: string;
+  title?: string;
 }
 export default function SettingsHeader(props: SettingsHeaderProps) {
-  const { onPressBack, wrapperClassName } = props;
+  const { onPressBack, wrapperClassName, title = "설정" } = props;
 
   return (
     <Header
       centered
-      title="설정"
+      title={title}
       className={cn(wrapperClassName, "py-10 border-b-[1px] border-gray2")}
       renderLeft={
         <TouchableOpacity onPress={onPressBack} activeOpacity={0.7}>

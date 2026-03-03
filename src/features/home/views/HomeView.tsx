@@ -9,16 +9,16 @@ import { useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import HomeHeader from "@/features/home/components/HomeHeader/HomeHeader";
 import HomeTabs from "@/features/home/components/HomeTabs/HomeTabs";
-import ShowroomView from "@/features/home/views/ShowroomView";
+import RecommendationsView from "@/features/home/views/RecommendationsView";
 
 export default function HomeView() {
   const navigation = useMainNavigation();
   const tabItems = useMemo(
     (): Array<TabItemType> => [
       {
-        id: "showroom",
-        label: "쇼룸",
-        render: () => <ShowroomView />,
+        id: "recommendations",
+        label: "추천",
+        render: () => <RecommendationsView />,
       },
       {
         id: "ranking",

@@ -40,7 +40,7 @@ export default function SignUpView() {
   const nicknameValidation = useInputValidation(nickname, NICKNAME_VALIDATION_RULES);
   const birthdayValidation = useInputValidation(birthday, BIRTHDATE_VALIDATION_RULES);
   const [isValidTerms, setIsValidTerms] = useState(false);
-  const { handleLogin } = useLogin();
+  const { login } = useLogin();
 
   const handleChangeNickname = (newNickname: string) => {
     setNickname(filterSpecialCharacters(newNickname));
@@ -92,7 +92,7 @@ export default function SignUpView() {
       registerToken,
     });
 
-    await handleLogin(res);
+    await login(res);
 
     const parent = navigation.getParent();
 
@@ -105,7 +105,7 @@ export default function SignUpView() {
   }, [
     birthday,
     gender,
-    handleLogin,
+    login,
     isValidTerms,
     navigation,
     nickname,

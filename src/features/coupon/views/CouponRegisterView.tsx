@@ -2,7 +2,6 @@ import { AxiosError } from "axios";
 import { useCallback, useState } from "react";
 import { View } from "react-native";
 
-import Divider from "@/common/components/Divider/Divider";
 import LabeledComponent from "@/common/components/LabeledComponent/LabeledComponent";
 import LabeledInput from "@/common/components/LabeledInput/LabeledInput";
 import Typography from "@/common/components/Typography/Typography";
@@ -39,20 +38,19 @@ export default function CouponRegisterView() {
   return (
     <View className="flex-1">
       <CouponRegisterHeader onPressBack={handlePressBack} wrapperClassName="px-20" />
-      <VStack gap={25} className="px-20 pt-25">
+      <VStack gap={30} className="px-20 pt-25">
         <LabeledInput
           label="쿠폰 코드"
           placeholder="쿠폰 코드를 입력해 주세요."
           value={code}
           onChangeText={setCode}
         />
-        <Divider height={1} wrapperClassName="bg-gray1" />
         <LabeledComponent label="주의사항">
-          <VStack gap={8}>
+          <VStack className="p-15 bg-gray0 border-gray2 border rounded-[5px]" gap={15}>
             {WARN_ITEMS.map(item => (
               <View key={item} style={{ flexDirection: "row", alignItems: "flex-start", gap: 6 }}>
-                <Typography className="text-12 text-gray10 font-normal">•</Typography>
-                <Typography className="text-12 text-gray10 font-normal" style={{ flex: 1 }}>
+                <Typography className="text-11 text-gray12 font-normal">•</Typography>
+                <Typography className="text-11 text-gray12 font-normal" style={{ flex: 1 }}>
                   {item}
                 </Typography>
               </View>

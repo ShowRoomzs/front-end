@@ -8,9 +8,9 @@ import { userService } from "@/features/user/services/userService";
 
 // 로그인, 회원가입 > 로그인 시 공통적으로 사용
 export function useLogin() {
-  const { setUser } = useUserStore();
+  const { setUser, clear } = useUserStore();
 
-  const handleLogin = useCallback(
+  const login = useCallback(
     async (response: RegisterResponse) => {
       await SecureStore.setItemAsync(SECURE_STORE.ACCESS_TOKEN, response.accessToken);
       await SecureStore.setItemAsync(SECURE_STORE.REFRESH_TOKEN, response.refreshToken);
@@ -22,5 +22,11 @@ export function useLogin() {
     [setUser]
   );
 
-  return { handleLogin };
+  const logout = useCallback(async () => {
+    await SecureStore.deleteItemAsync(SECURE_STORE.ACCESS_TOKEN);
+    await SecureStore.deleteItemAsync(SECURE_STORE.REFRESH_TOKEN);
+    clear();
+  }, [clear]);
+
+  return { login, logout };
 }

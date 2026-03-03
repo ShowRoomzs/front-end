@@ -11,6 +11,10 @@ export interface EditableUserInfo {
 }
 export interface User extends EditableUserInfo {
   id: number;
+  couponCount: number;
+  followingCount: number;
+  point: number;
+  reviewCount: number;
   email: string;
   providerType: SocialType;
   roleType: string; // TODO : 권한 타입 추가

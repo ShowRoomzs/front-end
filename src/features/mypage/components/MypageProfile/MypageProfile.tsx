@@ -23,27 +23,27 @@ export default function MypageProfile(props: MypageProfileProps) {
     () => [
       {
         id: "coupon",
-        count: 0,
+        count: user.couponCount,
         suffix: "개",
         label: "쿠폰",
         onPress: onPressCoupon,
       },
       {
         id: "point",
-        count: 999000,
+        count: user.point,
         suffix: "P",
         label: "포인트",
         onPress: () => {},
       },
       {
         id: "review",
-        count: 2,
+        count: user.reviewCount,
         suffix: "개",
         label: "리뷰",
         onPress: () => {},
       },
     ],
-    [onPressCoupon]
+    [onPressCoupon, user.couponCount, user.point, user.reviewCount]
   );
 
   // TODO : 분리 해야할 것 있다면 분리
@@ -51,7 +51,7 @@ export default function MypageProfile(props: MypageProfileProps) {
     <VStack gap={26}>
       <View className="flex flex-row justify-between items-center">
         {/* 프로필 버튼 */}
-        <Pressable onPointerCancel={onPressProfile}>
+        <Pressable onPress={onPressProfile}>
           <HStack className="items-center" gap={10}>
             <Image
               source={user.profileImageUrl ? { uri: user.profileImageUrl } : defaultProfileImage}
@@ -64,8 +64,7 @@ export default function MypageProfile(props: MypageProfileProps) {
         <Pressable onPress={onPressFollowing}>
           <HStack gap={4} className="items-center">
             <Icon icon={COMMON_ASSETS.followingIcon} />
-            <Typography className="text-black font-medium text-13">{12}</Typography>
-            <Typography className="text-black font-medium text-13">팔로잉</Typography>
+            <Typography className="text-black font-medium text-13">{`팔로잉${user.followingCount}`}</Typography>
             <Icon icon={COMMON_ASSETS.arrowRight} />
           </HStack>
         </Pressable>

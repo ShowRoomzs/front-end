@@ -90,6 +90,9 @@ export type SettingsStackParamList = {
   [SETTINGS_ROUTES.NOTIFICATION_SETTINGS]: undefined;
   [SETTINGS_ROUTES.REFUND_ACCOUNT]: undefined;
   [SETTINGS_ROUTES.WITHDRAWAL]: undefined;
+  [SETTINGS_ROUTES.WITHDRAWAL_CONFIRM]: {
+    selectedReason: string;
+  };
 };
 
 export type MypageStackParamList = {

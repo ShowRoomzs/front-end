@@ -65,6 +65,10 @@ export default function MypageView() {
     mypageNavigation.navigate(MYPAGE_ROUTES.COUPON);
   }, [mypageNavigation]);
 
+  const handlePressPoint = useCallback(() => {
+    mypageNavigation.navigate(MYPAGE_ROUTES.COUPON);
+  }, [mypageNavigation]);
+
   const renderListHeaderComponent = useCallback(() => {
     if (user) {
       return (
@@ -72,12 +76,13 @@ export default function MypageView() {
           user={user}
           onPressProfile={handlePressProfile}
           onPressFollowing={handlePressFollowing}
+          onPressPoint={handlePressPoint}
           onPressCoupon={handlePressCoupon}
         />
       );
     }
     return <AuthEntryBanner onPressAuth={handlePressAuth} />;
-  }, [handlePressAuth, handlePressCoupon, handlePressFollowing, handlePressProfile, user]);
+  }, [handlePressAuth, handlePressCoupon, handlePressFollowing, handlePressPoint, handlePressProfile, user]);
 
   return (
     <VStack style={{ paddingBottom: inset.bottom }} gap={20} className="flex-1">

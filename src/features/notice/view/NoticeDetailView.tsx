@@ -1,6 +1,6 @@
 import { RouteProp, useRoute } from "@react-navigation/native";
 import dayjs from "dayjs";
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { ScrollView, View } from "react-native";
 
 import NoticeListHeader from "../components/NoticeListHeader/NoticeListHeader";
@@ -8,7 +8,6 @@ import useGetNoticeDetail from "../hooks/useGetNoticeDetail";
 
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
-import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { useMypageNavigation } from "@/common/router";
 import { MYPAGE_ROUTES } from "@/common/router/routes";
 import { MypageStackParamList } from "@/common/router/types";
@@ -17,20 +16,12 @@ export default function NoticeDetailView() {
   const route = useRoute<RouteProp<MypageStackParamList, typeof MYPAGE_ROUTES.NOTICE_DETAIL>>();
   const noticeId = route.params?.noticeId;
   const navigation = useMypageNavigation();
-  const { show: showBottomTab, hide: hideBottomTab } = useBottomTab();
 
   const { data: noticeDetail } = useGetNoticeDetail(noticeId);
 
   const handlePressBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
-
-  useEffect(() => {
-    hideBottomTab();
-    return () => {
-      showBottomTab();
-    };
-  }, [hideBottomTab, showBottomTab]);
 
   return (
     <View className="flex-1 bg-white">

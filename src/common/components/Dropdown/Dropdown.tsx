@@ -20,10 +20,21 @@ interface DropdownProps {
   placeholder?: string;
   disabled?: boolean;
   closeOnDisabled?: boolean;
+  onPressDisabled?: () => void;
 }
 export default function Dropdown(props: DropdownProps) {
-  const { items, value, onChange, placeholder, disabled, id, closeOnDisabled = true } = props;
+  const {
+    items,
+    value,
+    onChange,
+    placeholder,
+    disabled,
+    id,
+    closeOnDisabled = true,
+    onPressDisabled,
+  } = props;
   const scrollViewRef = useRef<ScrollView>(null);
+
   const { openStatus, open, close } = useDropdown();
   const itemOffsetMap = useRef<Map<string, number>>(new Map());
   const isOpen = openStatus[id];
@@ -43,6 +54,8 @@ export default function Dropdown(props: DropdownProps) {
 
   const handlePress = () => {
     if (disabled) {
+      // disabled 상태일 때 비지니스 로직은 외부에서 처리
+      onPressDisabled?.();
       return;
     }
     if (isOpen) {

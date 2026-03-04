@@ -33,9 +33,7 @@ export default function InquiryDetailDropdown(props: InquiryDetailDropdownProps)
       wrapperClassName: "bg-white/90 rounded-full shadow-sm border border-gray2",
       showArrow: false,
     });
-    const timer = setTimeout(() => hideTooltip(), 2000);
-
-    return () => clearTimeout(timer);
+    setTimeout(() => hideTooltip(), 2000);
   }, [showTooltip, hideTooltip]);
 
   return (

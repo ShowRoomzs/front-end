@@ -109,8 +109,11 @@ export type MypageStackParamList = {
   [MYPAGE_ROUTES.INQUIRY_REGISTER]?: {
     inquiryId?: number;
   };
-  [MYPAGE_ROUTES.CUSTOMER_CENTER]: undefined;
   [MYPAGE_ROUTES.NOTICE]: undefined;
+  [MYPAGE_ROUTES.NOTICE_DETAIL]?: {
+    noticeId?: number;
+  };
+  [MYPAGE_ROUTES.CUSTOMER_CENTER]: undefined;
   [MYPAGE_ROUTES.OPEN_LICENSE]: undefined;
   [MYPAGE_ROUTES.VERSION_INFO]: undefined;
   [MYPAGE_ROUTES.PRIVACY_POLICY]: undefined;

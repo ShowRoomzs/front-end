@@ -9,6 +9,8 @@ import AddressManagementView from "@/features/mypage/views/AddressManagementView
 import CustomerCenterView from "@/features/mypage/views/CustomerCenterView";
 import InquiryHistoryView from "@/features/mypage/views/InquiryHistoryView";
 import MypageView from "@/features/mypage/views/MypageView";
+import NoticeDetailView from "@/features/notice/view/NoticeDetailView";
+import NoticeListView from "@/features/notice/view/NoticeListView";
 import CouponNavigator from "@/navigators/CouponNavigator";
 import SettingsNavigator from "@/navigators/SettingsNavigator";
 
@@ -26,6 +28,8 @@ export default function MypageNavigator() {
       <Stack.Screen name={MYPAGE_ROUTES.SETTINGS} component={SettingsNavigator} />
       <Stack.Screen name={MYPAGE_ROUTES.INQUIRY_REGISTER} component={InquiryView} />
       <Stack.Screen name={MYPAGE_ROUTES.CUSTOMER_CENTER} component={CustomerCenterView} />
+      <Stack.Screen name={MYPAGE_ROUTES.NOTICE} component={NoticeListView} />
+      <Stack.Screen name={MYPAGE_ROUTES.NOTICE_DETAIL} component={NoticeDetailView} />
     </Stack.Navigator>
   );
 }

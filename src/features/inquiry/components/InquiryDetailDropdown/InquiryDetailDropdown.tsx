@@ -3,7 +3,11 @@ import { View } from "react-native";
 
 import { DropdownItem } from "@/common/components/Dropdown/Dropdown";
 import Dropdown from "@/common/components/Dropdown/Dropdown";
+import HStack from "@/common/components/HStack/HStack";
+import Icon from "@/common/components/Icon/Icon";
+import Typography from "@/common/components/Typography/Typography";
 import { useTooltip } from "@/common/hooks/useTooltip";
+import { COMMON_ASSETS } from "@/common/utils/assets";
 
 interface InquiryDetailDropdownProps {
   items: Array<DropdownItem>;
@@ -18,8 +22,16 @@ export default function InquiryDetailDropdown(props: InquiryDetailDropdownProps)
 
   const handlePressDisabled = useCallback(() => {
     showTooltip({
-      renderContent: "문의 유형을 선택해주세요.",
-      placement: "bottomRight",
+      renderContent: (
+        <HStack gap={6} className="items-center px-16 py-10">
+          <Icon icon={COMMON_ASSETS.checkBlack} />
+          <Typography className="text-13 font-normal text-black">문의 카테고리를 선택해주세요.</Typography>
+        </HStack>
+      ),
+      placement: "bottom",
+      gap: -35,
+      wrapperClassName: "bg-white/90 rounded-full shadow-sm border border-gray2",
+      showArrow: false,
     });
     const timer = setTimeout(() => hideTooltip(), 2000);
 
@@ -27,7 +39,7 @@ export default function InquiryDetailDropdown(props: InquiryDetailDropdownProps)
   }, [showTooltip, hideTooltip]);
 
   return (
-    <View ref={ref}>
+    <View ref={ref} collapsable={false}>
       <Dropdown
         id="inquiry-detail"
         items={items}

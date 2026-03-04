@@ -56,6 +56,7 @@ export const MYPAGE_ROUTES = {
   INQUIRY_REGISTER: "inquiryRegister",
   CUSTOMER_CENTER: "customerCenter",
   NOTICE: "notice",
+  NOTICE_DETAIL: "noticeDetail",
   OPEN_LICENSE: "openLicense",
   VERSION_INFO: "versionInfo",
   PRIVACY_POLICY: "privacyPolicy",

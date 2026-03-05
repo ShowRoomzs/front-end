@@ -4,4 +4,5 @@ export const BANK_QUERY_KEY = {
 
 export const RECOMMENDATION_QUERY_KEY = {
   RECOMMENDATIONS: "recommendations",
+  RECOMMENDATION_MARKET: "recommendationMarket",
 };

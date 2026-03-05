@@ -7,10 +7,8 @@ import { InquiryHistoryParams, InquiryHistory } from "../types/inquiry";
 import { PageInfo, PageResponse } from "@/common/types/page";
 
 export function useGetInquiryHistory(params: InquiryHistoryParams) {
-  const { page: _page, ...paramsWithoutPage } = params;
-
   const query = useInfiniteQuery({
-    queryKey: [INQUIRY_QUERY_KEY.INQUIRY_HISTORY, paramsWithoutPage],
+    queryKey: [INQUIRY_QUERY_KEY.INQUIRY_HISTORY, params],
     queryFn: async ({ pageParam }) => {
       const response = await inquiryService.getHistory({ ...params, page: pageParam });
 

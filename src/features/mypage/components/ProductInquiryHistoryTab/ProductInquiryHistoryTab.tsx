@@ -12,7 +12,6 @@ import { useGetProductInquiryHistory } from "@/features/product/hooks/useGetProd
 import { ProductInquiryHistory, ProductInquiryHistoryParams } from "@/features/product/types/productInquiry";
 
 const INITIAL_PARAMS: ProductInquiryHistoryParams = {
-  page: 1,
   limit: 10,
 };
 

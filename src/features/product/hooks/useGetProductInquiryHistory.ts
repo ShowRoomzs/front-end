@@ -6,10 +6,8 @@ import { productInquiryService } from "@/features/product/services/productInquir
 import { ProductInquiryHistory, ProductInquiryHistoryParams } from "@/features/product/types/productInquiry";
 
 export function useGetProductInquiryHistory(params: ProductInquiryHistoryParams) {
-  const { page: _page, ...paramsWithoutPage } = params;
-
   const query = useInfiniteQuery({
-    queryKey: [PRODUCT_INQUIRY_QUERY_KEY.INQUIRY_HISTORY, paramsWithoutPage],
+    queryKey: [PRODUCT_INQUIRY_QUERY_KEY.INQUIRY_HISTORY, params],
     queryFn: async ({ pageParam }) => {
       const response = await productInquiryService.getHistory({ ...params, page: pageParam });
 

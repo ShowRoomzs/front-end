@@ -44,7 +44,6 @@ export default function BannerCarousel() {
       if (currentIndex === index) {
         return;
       }
-      console.log("index", index);
       if (index === DUMMY_BANNER_ITEMS.length) {
         setCurrentIndex(0);
         return;

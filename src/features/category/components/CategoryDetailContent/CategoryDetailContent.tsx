@@ -19,7 +19,6 @@ interface CategoryDetailContentProps {
 }
 
 const INITIAL_PARAMS: ProductListParams = {
-  page: 1,
   limit: 10,
   q: "",
   categoryId: null,
@@ -68,7 +67,6 @@ export default function CategoryDetailContent(props: CategoryDetailContentProps)
   const handlePressApply = useCallback(
     (newFilters: Array<FilterParam>) => {
       updateParams("filters", newFilters);
-      updateParams("page", 1);
     },
     [updateParams]
   );
@@ -82,7 +80,7 @@ export default function CategoryDetailContent(props: CategoryDetailContentProps)
         appliedFilters={params.filters}
         filters={filters}
         selectedId={selectedFilterId}
-        previewParams={{ ...params, page: 1 }}
+        previewParams={params}
       />
     ),
     sheetProps: {

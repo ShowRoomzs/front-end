@@ -1,20 +1,30 @@
 import { PageParams, PageResponse } from "@/common/types/page";
+import { ShopType } from "@/common/types/shop";
 import { ProductPrice } from "@/features/product/types/product";
 
+// 추천 상품, 마켓 파라미터 타입(추후 분리 가능성 존재)
 export interface RecommendationParams extends PageParams {
   categoryId: number | null;
 }
 
-interface RepresentativeProduct {
-  id: 1;
-  productNumber: string;
-  name: string;
-  thumbnailUrl: string;
-  price: Omit<ProductPrice, "maxBenefitPrice">;
-  isRecommended: boolean;
+export interface RecommendedMarket {
+  marketId: number;
+  marketName: string;
+  sellerId: 1;
+  marketImageUrl: string;
+  representativeProducts: Array<{
+    productId: number;
+    imageUrl: string;
+  }>;
+  marketDescription: string;
+  marketUrl: string;
+  shopType: ShopType;
+  followCount: number;
+  isFollowing: boolean;
+  mainCategoryId: number;
 }
 
-interface RecommendedProduct {
+export interface RecommendedProduct {
   id: number;
   productNumber: number;
   name: string;
@@ -27,17 +37,5 @@ interface RecommendedProduct {
   isWished: boolean;
 }
 
-interface RecommendedMarket {
-  marketId: number;
-  marketName: string;
-  marketImageUrl: string;
-  mainCategoryId: number;
-  mainCategoryName: string;
-  followerCount: number;
-  isFollowing: boolean;
-  representativeProducts: Array<RepresentativeProduct>;
-}
-
-export interface RecommendationResponse extends PageResponse<RecommendedProduct> {
-  recommendedMarkets: Array<RecommendedMarket>;
-}
+export type RecommendedMarketResponse = PageResponse<RecommendedMarket>;
+export type RecommendationResponse = PageResponse<RecommendedProduct>;

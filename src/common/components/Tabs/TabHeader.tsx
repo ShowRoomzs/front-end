@@ -25,6 +25,7 @@ interface TabHeaderProps {
   selectedIndex: number;
   onPressTab: (index: number, id: string) => void;
   onLayout?: (e: LayoutChangeEvent) => void;
+  gap?: number;
 }
 
 export default function TabHeader(props: TabHeaderProps) {
@@ -40,6 +41,7 @@ export default function TabHeader(props: TabHeaderProps) {
     selectedIndex,
     onPressTab,
     onLayout,
+    gap = 0,
   } = props;
 
   const renderItem = useCallback(
@@ -82,6 +84,7 @@ export default function TabHeader(props: TabHeaderProps) {
         renderItem={wrappedRenderItem}
         keyExtractor={keyExtractor}
         initialNumToRender={items.length}
+        contentContainerStyle={{ gap }}
       />
     </View>
   );

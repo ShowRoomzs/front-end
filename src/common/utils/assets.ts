@@ -19,6 +19,7 @@ import EmptyIcon from "@/common/assets/common/empty.svg";
 import ExternalArrowIcon from "@/common/assets/common/external-arrow.svg";
 import FollowingActiveIcon from "@/common/assets/common/following-active.svg";
 import FollowingDefaultIcon from "@/common/assets/common/following-default.svg";
+import FollowingGrayIcon from "@/common/assets/common/following-gray.svg";
 import FollowingIcon from "@/common/assets/common/following.svg";
 import GiftIcon from "@/common/assets/common/gift.svg";
 import GoogleIcon from "@/common/assets/common/google-icon.svg";
@@ -205,5 +206,8 @@ export const COMMON_ASSETS: Assets = {
   },
   answer: {
     default: AnswerIcon,
+  },
+  followingGrayIcon: {
+    default: FollowingGrayIcon,
   },
 };

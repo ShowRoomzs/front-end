@@ -19,10 +19,8 @@ function parseProductListResponse(response: ProductListResponse): ProductListRes
 }
 
 export function useGetProducts(params: ProductListParams) {
-  const { page: _page, ...paramsWithoutPage } = params;
-
   const query = useInfiniteQuery({
-    queryKey: [PRODUCT_QUERY_KEY.PRODUCTS, paramsWithoutPage],
+    queryKey: [PRODUCT_QUERY_KEY.PRODUCTS, params],
     queryFn: async ({ pageParam }) => {
       const response = await productService.get({ ...params, page: pageParam });
 

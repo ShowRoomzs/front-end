@@ -1,6 +1,9 @@
-export interface PageParams {
-  page: number;
+export interface LimitParams {
   limit: number;
+}
+
+export interface PageParams extends LimitParams {
+  page: number;
 }
 
 export type PageInfo = {

@@ -20,7 +20,6 @@ import { FilterParam, ProductListParams } from "@/features/product/types/params"
 import SearchHeader from "@/features/search/components/SearchHeader/SearchHeader";
 
 const INITIAL_PARAMS: ProductListParams = {
-  page: 1,
   limit: 10,
   categoryId: null,
   marketId: null,
@@ -73,25 +72,20 @@ export default function SearchDetailView() {
   const handleSearch = useCallback(
     (newKeyword: string) => {
       updateParams("q", newKeyword);
-      updateParams("page", 1);
     },
     [updateParams]
   );
 
   const handlePressReset = useCallback(() => {
     updateParams("filters", []);
-    updateParams("page", 1);
   }, [updateParams]);
 
   const handlePressApply = useCallback(
     (newFilters: Array<FilterParam>) => {
       updateParams("filters", newFilters);
-      updateParams("page", 1);
     },
     [updateParams]
   );
-
-  const previewParams = useMemo(() => ({ ...params, page: 1 }), [params]);
 
   const renderBottomSheet = useMemo(
     () => (
@@ -101,10 +95,10 @@ export default function SearchDetailView() {
         appliedFilters={params.filters}
         filters={filterList}
         selectedId={selectedFilterId}
-        previewParams={previewParams}
+        previewParams={params}
       />
     ),
-    [handlePressReset, handlePressApply, params.filters, filterList, selectedFilterId, previewParams]
+    [handlePressReset, handlePressApply, params, filterList, selectedFilterId]
   );
 
   const { open } = useBottomSheet({

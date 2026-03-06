@@ -6,17 +6,15 @@ type ContentOf<R> = R extends PageResponse<infer T> ? T : never;
 
 interface UseInfiniteListProps<R extends PageResponse<unknown>> extends Omit<
   UseInfiniteQueryOptions<R, Error, InfiniteData<R, number>, QueryKey, number>,
-  "queryKey" | "queryFn" | "initialPageParam" | "getNextPageParam"
+  "queryFn" | "initialPageParam" | "getNextPageParam"
 > {
   queryFn: (page: number) => Promise<R>;
-  queryKey: QueryKey;
 }
 
 export function useInfiniteList<R extends PageResponse<unknown>>(props: UseInfiniteListProps<R>) {
-  const { queryKey, queryFn, ...restQueryOptions } = props;
+  const { queryFn, ...restQueryOptions } = props;
 
   const query = useInfiniteQuery({
-    queryKey,
     queryFn: ({ pageParam }) => queryFn(pageParam),
     initialPageParam: 1,
     getNextPageParam: (lastPage: R) =>

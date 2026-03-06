@@ -12,7 +12,7 @@ import { Coupon } from "@/features/coupon/types/coupon";
 
 export default function CouponListView() {
   const navigation = useCouponNavigation();
-  const { coupons, pageInfo, isFetching, fetchNextPage } = useGetCoupons();
+  const { content: coupons, pageInfo, isFetching, fetchNextPage } = useGetCoupons();
 
   const handlePressBack = useCallback(() => {
     navigation.goBack();

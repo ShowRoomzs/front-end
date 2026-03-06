@@ -51,7 +51,7 @@ const MarketProductList = forwardRef<MarketProductListRef, MarketProductListProp
       values: [value],
     })),
   });
-  const { products, pageInfo, isLoading, fetchNextPage } = useGetProducts(params);
+  const { content: products, pageInfo, isLoading, fetchNextPage } = useGetProducts(params);
   const isLoadingRef = useRef(isLoading);
   const hasNextRef = useRef(pageInfo?.hasNext ?? false);
 

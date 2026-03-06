@@ -17,7 +17,7 @@ const INITIAL_PARAMS: ProductInquiryHistoryParams = {
 
 export default function ProductInquiryHistoryTab() {
   const { params } = useParams<ProductInquiryHistoryParams>(INITIAL_PARAMS);
-  const { inquiries, pageInfo, isFetching, fetchNextPage } = useGetProductInquiryHistory(params);
+  const { content: inquiries, pageInfo, isFetching, fetchNextPage } = useGetProductInquiryHistory(params);
   const { mutateAsync: deleteInquiry } = useDeleteInquiryMutation();
   const mainNavigation = useMainNavigation();
 

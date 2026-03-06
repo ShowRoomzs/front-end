@@ -4,7 +4,7 @@ import { ProductListParams } from "@/features/product/types/params";
 import { ProductDetailResponse, ProductListResponse, StockResponse } from "@/features/product/types/product";
 
 export const productService = {
-  get: async (params: ProductListParams) => {
+  get: async (params: ProductListParams & Pick<PageParams, "page">) => {
     const { data: response } = await apiInstance.get<ProductListResponse>("/common/products", { params });
 
     return response;

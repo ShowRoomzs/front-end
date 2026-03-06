@@ -121,7 +121,6 @@ export default function ProductListView(props: ProductListViewProps) {
       renderItem={renderItem}
       onScroll={handleScroll}
       numColumns={numColumns}
-      style={{}}
       columnWrapperStyle={{
         gap: GAP,
         paddingBlock: PADDING_BLOCK,

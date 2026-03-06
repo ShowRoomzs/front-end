@@ -1,9 +1,10 @@
 import { apiInstance } from "@/common/lib/apiInstance";
+import { PageParams } from "@/common/types/page";
 import { WishlistParams } from "@/features/wishlist/types/params";
 import { WishlistResponse } from "@/features/wishlist/types/wishlist";
 
 export const wishlistService = {
-  get: async (params: WishlistParams) => {
+  get: async (params: WishlistParams & Pick<PageParams, "page">) => {
     const { data: response } = await apiInstance.get<WishlistResponse>(`/user/wishlist`, {
       params,
     });

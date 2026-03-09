@@ -1,12 +1,7 @@
-import {
-  InquiryCategoryResponse,
-  InquiryHistory,
-  InquiryHistoryParams,
-  InquiryRequest,
-} from "../types/inquiry";
+import { InquiryCategoryResponse, InquiryHistory, InquiryRequest } from "../types/inquiry";
 
 import { apiInstance } from "@/common/lib/apiInstance";
-import { PageResponse } from "@/common/types/page";
+import { PageParams, PageResponse } from "@/common/types/page";
 
 export const inquiryService = {
   getCategories: async () => {
@@ -21,7 +16,7 @@ export const inquiryService = {
     return response;
   },
 
-  getHistory: async (params: InquiryHistoryParams) => {
+  getHistory: async (params: PageParams) => {
     const { data: response } = await apiInstance.get<PageResponse<InquiryHistory>>("/user/inquiries", {
       params,
     });

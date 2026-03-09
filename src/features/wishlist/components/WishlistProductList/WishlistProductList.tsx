@@ -26,7 +26,6 @@ interface WishlistProductListProps {
   onUpdateCallback?: (cleanupFns: Array<CleanupFn>) => void;
 }
 const INITIAL_PARAMS: WishlistParams = {
-  page: 1,
   limit: 10,
   categoryId: null,
 };

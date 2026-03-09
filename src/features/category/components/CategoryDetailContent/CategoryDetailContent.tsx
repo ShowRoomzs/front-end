@@ -33,7 +33,13 @@ export default function CategoryDetailContent(props: CategoryDetailContentProps)
     ...INITIAL_PARAMS,
     categoryId,
   });
-  const { products, pageInfo, isLoading, isFetchingNextPage, fetchNextPage } = useGetProducts(params);
+  const {
+    content: products,
+    pageInfo,
+    isLoading,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useGetProducts(params);
   const isMounted = useRef(false);
   const [selectedFilterId, setSelectedFilterId] = useState<number | null>(null);
   const { bottom } = useSafeAreaInsets();

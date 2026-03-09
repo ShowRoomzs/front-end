@@ -34,7 +34,7 @@ export default function FilterBottomSheetView(props: FilterBottomSheetViewProps)
   const [selectedIndex, setSelectedIndex] = useState<number | undefined>(undefined);
   const [tempFilters, setTempFilters] = useState<Array<FilterParam>>(appliedFilters);
 
-  const { data: previewData } = useGetProducts({ ...previewParams, filters: tempFilters });
+  const { content: previewContent } = useGetProducts({ ...previewParams, filters: tempFilters });
 
   useEffect(() => {
     setTempFilters(appliedFilters);
@@ -172,7 +172,7 @@ export default function FilterBottomSheetView(props: FilterBottomSheetViewProps)
             size="xl"
             variant="primary"
           >
-            {`${previewData?.products?.length || 0}개의 상품 보기`}
+            {`${previewContent?.length || 0}개의 상품 보기`}
           </Button>
         </HStack>
       </VStack>

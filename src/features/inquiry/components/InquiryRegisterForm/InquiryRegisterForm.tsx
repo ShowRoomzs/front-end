@@ -1,24 +1,22 @@
 import { useCallback, useMemo } from "react";
+import { View } from "react-native";
 
-import { InquiryCategory } from "../../types/inquiry";
+import { InquiryCategory, InquiryRequest } from "../../types/inquiry";
+import InquiryDetailDropdown from "../InquiryDetailDropdown/InquiryDetailDropdown";
 
-import Dropdown from "@/common/components/Dropdown/Dropdown";
+import Button from "@/common/components/Button/Button";
+import HStack from "@/common/components/HStack/HStack";
 import ImageUploader from "@/common/components/ImageUploader/ImageUploader";
+import Input from "@/common/components/Input/Input";
 import LabeledComponent from "@/common/components/LabeledComponent/LabeledComponent";
 import SelectableButtonGroup from "@/common/components/SelectableButtonGroup/SelectableButtonGroup";
 import TextArea from "@/common/components/TextArea/TextArea";
 import VStack from "@/common/components/VStack/VStack";
 
-interface InquiryFormState {
-  type: string;
-  detailType: string;
-  content: string;
-}
-
 interface InquiryRegisterFormProps {
   categories?: Array<InquiryCategory>;
-  form: InquiryFormState;
-  onChangeForm: React.Dispatch<React.SetStateAction<InquiryFormState>>;
+  form: InquiryRequest;
+  onChangeForm: React.Dispatch<React.SetStateAction<InquiryRequest>>;
   imageUrls: Array<string>;
   onAddImage: () => void;
   onRemoveImage: (index: number) => void;
@@ -64,6 +62,16 @@ export default function InquiryRegisterForm(props: InquiryRegisterFormProps) {
     [onChangeForm]
   );
 
+  const handleOrderIdChange = useCallback(
+    (value: string) => {
+      onChangeForm(prev => ({ ...prev, orderId: value ? Number(value) : undefined }));
+    },
+    [onChangeForm]
+  );
+
+  // TODO: 주문번호 조회 API 연동 후 선택한 주문번호가 orderId로 설정되도록 변경 필요
+  const handlePressOrderSearch = useCallback(() => {}, []);
+
   return (
     <VStack gap={24} className="py-30 px-20">
       <SelectableButtonGroup
@@ -74,16 +82,29 @@ export default function InquiryRegisterForm(props: InquiryRegisterFormProps) {
         mode="single"
       />
       <LabeledComponent label="문의 유형">
-        <Dropdown
-          id="inquiry-detail"
+        <InquiryDetailDropdown
           items={detailItems}
           value={form.detailType}
           onChange={handleDetailChange}
-          placeholder="유형을 선택해 주세요"
-          disabled={!form.type}
+          hasCategory={!!form.type}
         />
       </LabeledComponent>
-      <LabeledComponent label="어떤 점이 좋으셨나요?">
+      <LabeledComponent label="주문 번호(필수)">
+        <HStack gap={8} className="items-stretch">
+          <View className="flex-1">
+            <Input
+              value={form.orderId?.toString() ?? ""}
+              onChangeText={handleOrderIdChange}
+              placeholder="주문 번호를 입력해 주세요"
+              numericOnly
+            />
+          </View>
+          <Button variant="primary" size="lg" className="px-15" onPress={handlePressOrderSearch}>
+            번호 조회
+          </Button>
+        </HStack>
+      </LabeledComponent>
+      <LabeledComponent label="문의 내용">
         <TextArea
           value={form.content}
           onChangeText={handleContentChange}

@@ -18,6 +18,7 @@ export interface InquiryRequest {
   detailType: string;
   content: string;
   imageUrls?: Array<string>;
+  orderId?: number;
 }
 
 export type InquiryHistoryParams = PageParams;
@@ -32,6 +33,7 @@ export interface InquiryHistory {
   detailTypeName: string;
   content: string;
   imageUrls: Array<string>;
+  orderId: number | null;
   status: InquiryHistoryStatus;
   answerContent: string | null;
   createdAt: string;

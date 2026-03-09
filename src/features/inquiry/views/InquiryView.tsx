@@ -11,6 +11,7 @@ import { useGetCategories } from "../hooks/useGetCategories";
 import { useGetInquiryDetail } from "../hooks/useGetInquiryDetail";
 import { useCreateInquiryMutation } from "../hooks/useInquiryMutation/useCreateInquiryMutation";
 import { useUpdateInquiryMutation } from "../hooks/useInquiryMutation/useUpdateInquiryMutation";
+import { InquiryRequest } from "../types/inquiry";
 
 import Divider from "@/common/components/Divider/Divider";
 import { useBottomTab } from "@/common/hooks/useBottomTab";
@@ -35,7 +36,7 @@ export default function InquiryView() {
     return () => showBottomTab();
   }, [hideBottomTab, showBottomTab]);
 
-  const [form, setForm] = useState({ type: "", detailType: "", content: "" });
+  const [form, setForm] = useState<InquiryRequest>({ type: "", detailType: "", content: "" });
   const { imageUrls, handleAddImage, handleRemoveImage, setImageUrls } = useImagePicker({
     maxCount: 10,
     allowsMultipleSelection: true,
@@ -47,6 +48,7 @@ export default function InquiryView() {
         type: inquiryDetail.type,
         detailType: inquiryDetail.detailType,
         content: inquiryDetail.content,
+        orderId: inquiryDetail.orderId ?? undefined,
       });
       setImageUrls(inquiryDetail.imageUrls || []);
     }
@@ -70,6 +72,7 @@ export default function InquiryView() {
       detailType: inquiryDetail.detailType,
       content: inquiryDetail.content,
       imageUrls: inquiryDetail.imageUrls,
+      orderId: inquiryDetail.orderId ?? undefined,
     };
 
     return !isDeepEqual(currentForm, originalForm) && !isUpdating;
@@ -77,6 +80,7 @@ export default function InquiryView() {
 
   const handlePressBack = useCallback(() => navigation.goBack(), [navigation]);
 
+  // TODO: 주문번호 조회 API 연동 후 handlePressOrderSearch에서 선택한 주문번호가 orderId로 설정되도록 변경 필요
   const handlePressSubmit = useCallback(async () => {
     try {
       const localUris = imageUrls.filter(url => url.startsWith("file://") || !url.startsWith("http"));

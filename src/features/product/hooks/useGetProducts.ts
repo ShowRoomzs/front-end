@@ -2,7 +2,7 @@ import { useInfiniteList } from "@/common/hooks/useInfiniteList";
 import { PRODUCT_QUERY_KEY } from "@/features/product/constants/queryKey";
 import { productService } from "@/features/product/services/productService";
 import { ProductListParams } from "@/features/product/types/params";
-import { ProductListResponse } from "@/features/product/types/product";
+import { Product, ProductListResponse } from "@/features/product/types/product";
 
 function parseProductListResponse(response: ProductListResponse): ProductListResponse {
   return {
@@ -17,7 +17,7 @@ function parseProductListResponse(response: ProductListResponse): ProductListRes
 }
 
 export function useGetProducts(params: ProductListParams) {
-  return useInfiniteList<ProductListResponse>({
+  return useInfiniteList<Product>({
     queryKey: [PRODUCT_QUERY_KEY.PRODUCTS, params],
     queryFn: async page => {
       const response = await productService.get({ ...params, page });

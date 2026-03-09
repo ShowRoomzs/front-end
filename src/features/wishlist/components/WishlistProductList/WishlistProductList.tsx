@@ -39,7 +39,7 @@ export default function WishlistProductList(props: WishlistProductListProps) {
     categoryId,
   });
 
-  const { products, pageInfo, isLoading, fetchNextPage } = useGetWishlist(params);
+  const { content: products, pageInfo, isLoading, fetchNextPage } = useGetWishlist(params);
 
   useEffect(() => {
     if (!cleanupFns?.length || !onUpdateCallback) {

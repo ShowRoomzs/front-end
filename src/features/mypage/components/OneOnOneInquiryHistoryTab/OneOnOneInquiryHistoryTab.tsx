@@ -17,7 +17,7 @@ const INITIAL_PARAMS: InquiryHistoryParams = {
 
 export default function OneOnOneInquiryHistoryTab() {
   const { params } = useParams<InquiryHistoryParams>(INITIAL_PARAMS);
-  const { inquiries, pageInfo, isFetching, fetchNextPage } = useGetInquiryHistory(params);
+  const { content: inquiries, pageInfo, isFetching, fetchNextPage } = useGetInquiryHistory(params);
   const { mutateAsync: deleteInquiry } = useDeleteInquiryMutation();
   const navigation = useMypageNavigation();
 

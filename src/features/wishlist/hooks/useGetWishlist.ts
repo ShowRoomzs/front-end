@@ -1,31 +1,12 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
-
-import { PageInfo } from "@/common/types/page";
+import { useInfiniteList } from "@/common/hooks/useInfiniteList";
 import { WISHLIST_QUERY_KEY } from "@/features/wishlist/constants/queryKey";
 import { wishlistService } from "@/features/wishlist/services/wishlistService";
 import { WishlistParams } from "@/features/wishlist/types/params";
-import { WishlistProductType, WishlistResponse } from "@/features/wishlist/types/wishlist";
+import { WishlistResponse } from "@/features/wishlist/types/wishlist";
 
 export function useGetWishlist(params: WishlistParams) {
-  const query = useInfiniteQuery({
+  return useInfiniteList<WishlistResponse>({
     queryKey: [WISHLIST_QUERY_KEY.WISHLIST, params],
-    queryFn: async ({ pageParam }) => {
-      const response = await wishlistService.get({ ...params, page: pageParam });
-
-      return response;
-    },
-    initialPageParam: 1,
-    getNextPageParam: (lastPage: WishlistResponse) =>
-      lastPage.pageInfo.hasNext ? lastPage.pageInfo.currentPage + 1 : undefined,
+    queryFn: page => wishlistService.get({ ...params, page }),
   });
-
-  const products: Array<WishlistProductType> = query.data?.pages.flatMap(page => page.content) ?? [];
-  const pageInfo: PageInfo | undefined = query.data?.pages.at(-1)?.pageInfo;
-
-  return {
-    ...query,
-    data: { products, pageInfo },
-    products,
-    pageInfo,
-  };
 }

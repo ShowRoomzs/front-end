@@ -38,7 +38,13 @@ export default function SearchDetailView() {
   const navigation = useCommonNavigation();
   const mainNavigation = useMainNavigation();
   const { data: filters } = useGetFilters();
-  const { products, pageInfo, isLoading, isFetchingNextPage, fetchNextPage } = useGetProducts(params);
+  const {
+    content: products,
+    pageInfo,
+    isLoading,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useGetProducts(params);
   const [selectedFilterId, setSelectedFilterId] = useState<number | null>(null);
   const isMounted = useRef(false);
 

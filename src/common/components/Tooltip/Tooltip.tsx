@@ -40,6 +40,7 @@ export interface TooltipProps {
   lockArrowPosition?: boolean;
   arrowOffset?: number;
   tooltipOffset?: number;
+  showArrow?: boolean;
 }
 
 export default function Tooltip(instance: TooltipInstance) {
@@ -53,6 +54,7 @@ export default function Tooltip(instance: TooltipInstance) {
     lockArrowPosition = false,
     arrowOffset = 0,
     tooltipOffset = 0,
+    showArrow = true,
   } = tooltipProps;
 
   const [arrowPosition, setArrowPosition] = useState<TooltipPosition>({
@@ -146,21 +148,23 @@ export default function Tooltip(instance: TooltipInstance) {
         <View className={cn(getDefaultWrapperClassName(), wrapperClassName)}>{content}</View>
       </Animated.View>
       {/* arrow */}
-      <Animated.View
-        style={[
-          {
-            left: arrowPosition.left,
-            top: arrowPosition.top,
-            transform: [{ rotate: `${getArrowRotate()}deg` }],
-          },
-          animatedStyle,
-        ]}
-        className="absolute w-[10px] h-[5px] flex justify-center items-center z-[9999]"
-      >
-        <View>
-          <Icon icon={COMMON_ASSETS.tooltipArrow} />
-        </View>
-      </Animated.View>
+      {showArrow && (
+        <Animated.View
+          style={[
+            {
+              left: arrowPosition.left,
+              top: arrowPosition.top,
+              transform: [{ rotate: `${getArrowRotate()}deg` }],
+            },
+            animatedStyle,
+          ]}
+          className="absolute w-[10px] h-[5px] flex justify-center items-center z-[9999]"
+        >
+          <View>
+            <Icon icon={COMMON_ASSETS.tooltipArrow} />
+          </View>
+        </Animated.View>
+      )}
     </Fragment>
   );
 }

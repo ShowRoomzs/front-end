@@ -1,4 +1,4 @@
-import { PageParams } from "@/common/types/page";
+import { LimitParams } from "@/common/types/page";
 
 export interface ProductInquiryCategoryDetail {
   key: string;
@@ -32,7 +32,7 @@ export interface ProductInquiryDetail {
   answeredAt: string | null;
 }
 
-export type ProductInquiryHistoryParams = PageParams;
+export type ProductInquiryHistoryParams = LimitParams;
 
 export type ProductInquiryHistoryStatus = "WAITING" | "ANSWERED";
 

@@ -35,7 +35,6 @@ const INITIAL_PARAMS: ProductListParams = {
   categoryId: null,
   marketId: null,
   filters: [],
-  page: 1,
   limit: 10,
 };
 

@@ -7,10 +7,8 @@ import { WishlistParams } from "@/features/wishlist/types/params";
 import { WishlistProductType, WishlistResponse } from "@/features/wishlist/types/wishlist";
 
 export function useGetWishlist(params: WishlistParams) {
-  const { page: _page, ...paramsWithoutPage } = params;
-
   const query = useInfiniteQuery({
-    queryKey: [WISHLIST_QUERY_KEY.WISHLIST, paramsWithoutPage],
+    queryKey: [WISHLIST_QUERY_KEY.WISHLIST, params],
     queryFn: async ({ pageParam }) => {
       const response = await wishlistService.get({ ...params, page: pageParam });
 

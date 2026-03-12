@@ -1,7 +1,7 @@
 import { createContext, ReactNode, useContext } from "react";
 import { SharedValue } from "react-native-reanimated";
 
-export type ToastType = "info" | "success" | "error" | "warning";
+export type ToastType = "info" | "success" | "error" | "warning" | "point";
 export type ToastPosition = "top" | "bottom" | "center";
 export type ToastOffset = {
   top?: number;
@@ -18,6 +18,7 @@ export interface ToastConfig {
   offset?: ToastOffset | number; // 기본 number타입은 상, 하 조정
   wrapperClassName?: string;
   labelClassName?: string;
+  fullWidth?: boolean;
 }
 
 export interface ToastContextValue {

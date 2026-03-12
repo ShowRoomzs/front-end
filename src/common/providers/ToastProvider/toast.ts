@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 import type { ToastConfig } from "./context";
 
 type ToastHandler = {
@@ -18,17 +20,20 @@ export const toast = {
       handler.hide();
     }
   },
-  info: (message: string, options?: Omit<ToastConfig, "message" | "type">) => {
+  info: (message: ReactNode, options?: Omit<ToastConfig, "message" | "type">) => {
     toast.show({ message, type: "info", ...options });
   },
-  success: (message: string, options?: Omit<ToastConfig, "message" | "type">) => {
+  success: (message: ReactNode, options?: Omit<ToastConfig, "message" | "type">) => {
     toast.show({ message, type: "success", ...options });
   },
-  error: (message: string, options?: Omit<ToastConfig, "message" | "type">) => {
+  error: (message: ReactNode, options?: Omit<ToastConfig, "message" | "type">) => {
     toast.show({ message, type: "error", ...options });
   },
-  warning: (message: string, options?: Omit<ToastConfig, "message" | "type">) => {
+  warning: (message: ReactNode, options?: Omit<ToastConfig, "message" | "type">) => {
     toast.show({ message, type: "warning", ...options });
+  },
+  point: (message: ReactNode, options?: Omit<ToastConfig, "message" | "type">) => {
+    toast.show({ message, type: "point", ...options });
   },
 };
 

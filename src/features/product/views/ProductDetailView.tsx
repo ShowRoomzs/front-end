@@ -56,6 +56,8 @@ export default function ProductDetailView() {
   const scrollViewRef = useRef<ScrollView>(null);
   // 낙관적 업데이트를 위한 상태
   const [localProduct, setLocalProduct] = useState<ProductDetail | undefined>(undefined);
+  const mainNavigation = useMainNavigation();
+  const commonNavigation = useCommonNavigation();
 
   useEffect(() => {
     if (productDetail && !isStale) {
@@ -85,6 +87,13 @@ export default function ProductDetailView() {
     updateFollowing(productDetail.marketId, newIsFollowing);
   });
 
+  const handlePressToast = useCallback(() => {
+    mainNavigation.navigate(ROOT_ROUTES.COMMON, {
+      screen: COMMON_ROUTES.CART,
+    });
+    toast.hide();
+  }, [mainNavigation]);
+
   const handlePressBottomSheetCart = usePermissionPress(async () => {
     const variants = selectedVariantsByProductId[productId];
 
@@ -97,7 +106,19 @@ export default function ProductDetailView() {
 
       await createCart(items);
 
-      toast.show("장바구니에 추가되었습니다.");
+      toast.show({
+        type: "point",
+        fullWidth: true,
+        offset: { bottom: 70 },
+        message: (
+          <View className="flex flex-row justify-between">
+            <Typography className="text-white text-13 font-medium">장바구니에 상품을 담았습니다</Typography>
+            <Typography onPress={handlePressToast} className="text-white text-13 font-semibold underline">
+              바로 가기
+            </Typography>
+          </View>
+        ),
+      });
       clearSelectedVariants(productId);
     } catch (error) {
       const axiosError = error as AxiosError<CustomErrorResponse<string, { message?: string }>>;
@@ -131,9 +152,6 @@ export default function ProductDetailView() {
     review: 0,
     inquiry: 0,
   });
-
-  const mainNavigation = useMainNavigation();
-  const commonNavigation = useCommonNavigation();
 
   const [isExpand, setIsExpand] = useState(false);
   const { bottom } = useSafeAreaInsets();

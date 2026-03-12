@@ -22,7 +22,6 @@ export default function RecommendedShowroom(props: RecommendedShowroomProps) {
   const { item, onPressFollow, onPressMore, onPressProduct, onPressProfile, containerClassName, isLoading } =
     props;
 
-  console.log(item);
   const [isFollowed, setIsFollowed] = useState(item?.isFollowing);
 
   useEffect(() => {

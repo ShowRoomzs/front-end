@@ -27,11 +27,9 @@ export default function ProductDetailBrandSection(props: ProductDetailBrandSecti
         onPress={onPressFollow}
         size="xs"
         className="px-10 py-6"
-        variant={isFollowed ? "secondary-black" : "outline"}
+        variant={isFollowed ? "secondary-black" : "primary"}
       >
-        <Typography className={`text-12 font-normal ${isFollowed ? "text-positiveColor" : "text-gray15"}`}>
-          {isFollowed ? "팔로잉" : "팔로우"}
-        </Typography>
+        {isFollowed ? "팔로잉" : "팔로우"}
       </Button>
     </View>
   );

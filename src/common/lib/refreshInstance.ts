@@ -12,7 +12,7 @@ refreshInstance.interceptors.response.use(
   res => res,
   async error => {
     // TODO : 리프레시 토큰 만료 시 처리
-    if (error.response.data.status === 401) {
+    if (error.response.status === 401) {
       const { clear } = useUserStore.getState();
 
       await SecureStore.deleteItemAsync(SECURE_STORE.REFRESH_TOKEN);

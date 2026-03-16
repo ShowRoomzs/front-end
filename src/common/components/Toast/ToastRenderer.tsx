@@ -23,6 +23,7 @@ export default function ToastRenderer() {
 
   const position = currentToast?.position ?? "bottom";
   const screenHeight = Dimensions.get("window").height;
+  const fullWidth = currentToast?.fullWidth ?? false;
 
   useEffect(() => {
     if (currentToast) {
@@ -140,6 +141,20 @@ export default function ToastRenderer() {
 
   const type = currentToast.type ?? "info";
 
+  const getTypeStyle = () => {
+    if (type === "point") {
+      return {
+        borderWidth: 1,
+        borderColor: "#EF4A37CC",
+        shadowColor: "#EF4A37",
+        shadowOffset: { width: 0, height: 5 },
+        shadowOpacity: 0.35,
+        shadowRadius: 7.5,
+        elevation: 8,
+      };
+    }
+  };
+
   const getPositionStyle = () => {
     const offset = currentToast.offset;
     const resolvedOffset =
@@ -181,7 +196,12 @@ export default function ToastRenderer() {
         pointerEvents="box-none"
         className={cn("absolute z-[9999] items-center", wrapperClassName)}
       >
-        <View className={cn("rounded-[6px] px-15 py-10", TYPE_STYLES[type])}>{renderContent()}</View>
+        <View
+          style={getTypeStyle()}
+          className={cn("rounded-[6px] px-15 py-10", TYPE_STYLES[type], fullWidth ? "w-full" : "")}
+        >
+          {renderContent()}
+        </View>
       </Animated.View>
     </GestureDetector>
   );

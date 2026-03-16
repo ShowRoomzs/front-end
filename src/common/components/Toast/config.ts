@@ -5,6 +5,7 @@ export const TYPE_STYLES: Record<ToastType, string> = {
   success: "bg-positiveColor",
   error: "bg-negativeColor",
   warning: "bg-pointColor",
+  point: "bg-pointColorOpacity80",
 };
 
 export const DEFAULT_OFFSET = {

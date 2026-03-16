@@ -87,7 +87,11 @@ export default function MarketDetailProfileSection(props: MarketDetailProfileSec
         </View>
       </View>
       <Typography className="text-13 text-gray10 font-normal">{shopDescription}</Typography>
-      <Button onPress={handlePressFollow} className="w-full" variant="primary">
+      <Button
+        onPress={handlePressFollow}
+        className="w-full"
+        variant={localIsFollowed ? "secondary-black" : "primary"}
+      >
         {localIsFollowed ? "팔로잉" : "팔로우"}
       </Button>
     </VStack>

@@ -21,6 +21,10 @@ import { CommonStackParamList } from "@/common/router/types";
 import { CustomErrorResponse } from "@/common/types/error";
 import { useCart } from "@/features/cart/hooks/useCart";
 import { useUpdateFollowing } from "@/features/following/hooks/useUpdateFollowing";
+import BenefitBottomSheet from "@/features/product/components/BenefitBottomSheet/BenefitBottomSheet";
+import { BENEFIT_BOTTOM_SHEET_SNAP_POINTS } from "@/features/product/components/BenefitBottomSheet/config";
+import { COUPON_DOWNLOAD_BOTTOM_SHEET_SNAP_POINTS } from "@/features/product/components/CouponDownloadBottomSheet/config";
+import CouponDownloadBottomSheet from "@/features/product/components/CouponDownloadBottomSheet/CouponDownloadBottomSheet";
 import ProductDetailActions from "@/features/product/components/ProductDetailActions/ProductDetailActions";
 import ProductDetailBenefitSection from "@/features/product/components/ProductDetailBenefitSection/ProductDetailBenefitSection";
 import ProductDetailBrandSection from "@/features/product/components/ProductDetailBrandSection/ProductDetailBrandSection";
@@ -58,6 +62,23 @@ export default function ProductDetailView() {
   const [localProduct, setLocalProduct] = useState<ProductDetail | undefined>(undefined);
   const mainNavigation = useMainNavigation();
   const commonNavigation = useCommonNavigation();
+
+  const { open: openBenefitBottomSheet } = useBottomSheet({
+    id: "benefit-bottom-sheet",
+    render: <BenefitBottomSheet />,
+    sheetProps: {
+      snapPoints: [BENEFIT_BOTTOM_SHEET_SNAP_POINTS],
+      handleIndicatorStyle: { display: "none" },
+    },
+  });
+
+  const { open: openCouponDownloadBottomSheet } = useBottomSheet({
+    id: "coupon-download-bottom-sheet",
+    render: <CouponDownloadBottomSheet productId={productId} />,
+    sheetProps: {
+      snapPoints: [COUPON_DOWNLOAD_BOTTOM_SHEET_SNAP_POINTS],
+    },
+  });
 
   useEffect(() => {
     if (productDetail && !isStale) {
@@ -259,10 +280,6 @@ export default function ProductDetailView() {
     commonNavigation.push(COMMON_ROUTES.MARKET_DETAIL, { marketId: productDetail.marketId });
   }, [commonNavigation, productDetail?.marketId]);
 
-  const handlePressCoupon = useCallback(() => {
-    console.log("coupon");
-  }, []);
-
   const renderTabHeader = useCallback(
     (item: ListRenderItemInfo<TabItemType>) => {
       return (
@@ -353,9 +370,13 @@ export default function ProductDetailView() {
             containerClassName="mt-10"
             regularPrice={productDetail?.regularPrice || 0}
             salePrice={productDetail?.salePrice || 0}
-            onPressCoupon={handlePressCoupon}
+            onPressCoupon={openCouponDownloadBottomSheet}
           />
-          <ProductDetailBenefitSection benefitPrice={103000} containerClassName="mt-20 mb-40" />
+          <ProductDetailBenefitSection
+            benefitPrice={103000}
+            containerClassName="mt-20 mb-40"
+            onPressTooltip={openBenefitBottomSheet}
+          />
           <ProductDetailShowroomSection />
           <ProductDetailDeliverySection
             deliveryEstimatedDays={productDetail?.deliveryEstimatedDays || 0}

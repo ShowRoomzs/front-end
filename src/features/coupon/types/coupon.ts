@@ -16,3 +16,15 @@ export interface Coupon {
 export interface CreateCouponRequest {
   code: string;
 }
+
+export interface ProductByCoupon {
+  couponId: number;
+  name: string;
+  discountType: DiscountType;
+  discountValue: number;
+  minimumOrderPrice: number;
+  validUntil: string;
+  isDownloaded: boolean;
+}
+
+export type ProductByCouponResponse = Array<ProductByCoupon>;

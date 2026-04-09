@@ -9,7 +9,7 @@ interface RecommendedProductListProps {
 }
 
 const INITIAL_PARAMS: Omit<RecommendationParams, "page"> = {
-  limit: 10,
+  size: 10,
   categoryId: null,
 };
 

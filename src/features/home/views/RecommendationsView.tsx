@@ -13,7 +13,7 @@ import RecommendedShowroom from "@/features/home/components/RecommendedShowroom/
 
 const RECOMMENDATION_MARKET_PARAMS: RecommendationParams = {
   page: 1,
-  limit: 10,
+  size: 10,
   categoryId: null,
 };
 

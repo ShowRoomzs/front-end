@@ -6,6 +6,6 @@ import { Coupon } from "@/features/coupon/types/coupon";
 export function useGetCoupons() {
   return useInfiniteList<Coupon>({
     queryKey: [COUPON_QUERY_KEY.COUPONS],
-    queryFn: page => couponService.getAll({ page, limit: 10 }),
+    queryFn: page => couponService.getAll({ page, size: 10 }),
   });
 }

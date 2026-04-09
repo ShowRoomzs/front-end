@@ -1,4 +1,4 @@
-import { LimitParams } from "@/common/types/page";
+import { SizeParams } from "@/common/types/page";
 
 export interface InquiryCategoryDetail {
   key: string;
@@ -21,7 +21,7 @@ export interface InquiryRequest {
   orderId?: number;
 }
 
-export type InquiryHistoryParams = LimitParams;
+export type InquiryHistoryParams = SizeParams;
 
 export type InquiryHistoryStatus = "WAITING" | "ANSWERED";
 

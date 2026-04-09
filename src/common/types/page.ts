@@ -1,8 +1,8 @@
-export interface LimitParams {
-  limit: number;
+export interface SizeParams {
+  size: number;
 }
 
-export interface PageParams extends LimitParams {
+export interface PageParams extends SizeParams {
   page: number;
 }
 

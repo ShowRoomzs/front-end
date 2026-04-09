@@ -12,7 +12,7 @@ import { InquiryHistory, InquiryHistoryParams } from "@/features/inquiry/types/i
 import OneOnOneInquiryHistoryItem from "@/features/mypage/components/OneOnOneInquiryHistoryItem/OneOnOneInquiryHistoryItem";
 
 const INITIAL_PARAMS: InquiryHistoryParams = {
-  limit: 10,
+  size: 10,
 };
 
 export default function OneOnOneInquiryHistoryTab() {

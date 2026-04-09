@@ -8,7 +8,7 @@ export function useGetRelatedProducts(productId: number) {
   // 연관상품이 페이징 처리가 필요한가?
   const params: PageParams = {
     page: 1,
-    limit: 4,
+    size: 4,
   };
 
   return useQuery({

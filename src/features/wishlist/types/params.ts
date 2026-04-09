@@ -1,5 +1,5 @@
-import { LimitParams } from "@/common/types/page";
+import { SizeParams } from "@/common/types/page";
 
-export interface WishlistParams extends LimitParams {
+export interface WishlistParams extends SizeParams {
   categoryId: number | null;
 }

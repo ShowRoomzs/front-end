@@ -35,7 +35,7 @@ const INITIAL_PARAMS: ProductListParams = {
   categoryId: null,
   marketId: null,
   filters: [],
-  limit: 10,
+  size: 10,
 };
 
 const MarketProductList = forwardRef<MarketProductListRef, MarketProductListProps>((props, ref) => {

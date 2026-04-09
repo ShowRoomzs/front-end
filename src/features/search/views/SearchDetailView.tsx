@@ -20,7 +20,7 @@ import { FilterParam, ProductListParams } from "@/features/product/types/params"
 import SearchHeader from "@/features/search/components/SearchHeader/SearchHeader";
 
 const INITIAL_PARAMS: ProductListParams = {
-  limit: 10,
+  size: 10,
   categoryId: null,
   marketId: null,
   filters: [],

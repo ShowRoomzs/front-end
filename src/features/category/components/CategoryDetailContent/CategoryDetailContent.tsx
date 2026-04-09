@@ -19,7 +19,7 @@ interface CategoryDetailContentProps {
 }
 
 const INITIAL_PARAMS: ProductListParams = {
-  limit: 10,
+  size: 10,
   q: "",
   categoryId: null,
   marketId: null,

@@ -9,7 +9,7 @@ import { PageInfo, PageResponse } from "@/common/types/page";
 export default function useGetNoticeList() {
   const query = useInfiniteQuery({
     queryKey: [NOTICE_QUERY_KEY.NOTICE_LIST],
-    queryFn: ({ pageParam }) => noticeService.getNoticeList({ page: pageParam, limit: 20 }),
+    queryFn: ({ pageParam }) => noticeService.getNoticeList({ page: pageParam, size: 20 }),
     initialPageParam: 1,
     getNextPageParam: (lastPage: PageResponse<NoticeListItem>) =>
       lastPage.pageInfo.hasNext ? lastPage.pageInfo.currentPage + 1 : undefined,

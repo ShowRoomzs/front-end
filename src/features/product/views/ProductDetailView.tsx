@@ -1,4 +1,5 @@
 import { RouteProp, useRoute } from "@react-navigation/native";
+import { AxiosError } from "axios";
 import { produce } from "immer";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LayoutChangeEvent, ListRenderItemInfo, ScrollView, Text, View } from "react-native";
@@ -13,23 +14,33 @@ import Typography from "@/common/components/Typography/Typography";
 import { useBottomSheet } from "@/common/hooks/useBottomSheet";
 import { usePermissionPress } from "@/common/hooks/usePermissionPress";
 import { useTabIndex } from "@/common/hooks/useTabIndex";
+import { toast } from "@/common/providers/ToastProvider";
 import { useCommonNavigation, useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
+import { CustomErrorResponse } from "@/common/types/error";
+import { useCart } from "@/features/cart/hooks/useCart";
+import { useUpdateFollowing } from "@/features/following/hooks/useUpdateFollowing";
+import BenefitBottomSheet from "@/features/product/components/BenefitBottomSheet/BenefitBottomSheet";
+import { BENEFIT_BOTTOM_SHEET_SNAP_POINTS } from "@/features/product/components/BenefitBottomSheet/config";
+import { COUPON_DOWNLOAD_BOTTOM_SHEET_SNAP_POINTS } from "@/features/product/components/CouponDownloadBottomSheet/config";
+import CouponDownloadBottomSheet from "@/features/product/components/CouponDownloadBottomSheet/CouponDownloadBottomSheet";
 import ProductDetailActions from "@/features/product/components/ProductDetailActions/ProductDetailActions";
 import ProductDetailBenefitSection from "@/features/product/components/ProductDetailBenefitSection/ProductDetailBenefitSection";
 import ProductDetailBrandSection from "@/features/product/components/ProductDetailBrandSection/ProductDetailBrandSection";
 import ProductDetailDeliverySection from "@/features/product/components/ProductDetailDeliverySection/ProductDetailDeliverySection";
 import ProductDetailHeader from "@/features/product/components/ProductDetailHeader/ProductDetailHeader";
 import ProductDetailInfo from "@/features/product/components/ProductDetailInfo/ProductDetailInfo";
+import ProductDetailInquiry from "@/features/product/components/ProductDetailInquiry/ProductDetailInquiry";
 import ProductDetailPriceSection from "@/features/product/components/ProductDetailPriceSection/ProductDetailPriceSection";
 import ProductDetailRelatedProducts from "@/features/product/components/ProductDetailRelatedProducts/ProductDetailRelatedProducts";
 import ProductDetailShowroomSection from "@/features/product/components/ProductDetailShowroomSection/ProductDetailShowroomSection";
-import { PRODUCT_OPTION_BOTTOM_SHEET_MAX_HEIGHT } from "@/features/product/components/ProductOptionBottomSheet/config";
 import ProductOptionBottomSheet from "@/features/product/components/ProductOptionBottomSheet/ProductOptionBottomSheet";
 import ProductThumbnailCarousel from "@/features/product/components/ProductThumbnailCarousel/ProductThumbnailCarousel";
+import { PRODUCT_OPTION_BOTTOM_SHEET_PROPS } from "@/features/product/constants/optionBottomSheet";
 import { useGetProductDetail } from "@/features/product/hooks/useGetProductDetail";
 import { useGetRelatedProducts } from "@/features/product/hooks/useGetRelatedProducts";
+import { useProductVariantSelection } from "@/features/product/stores/useProductVariantSelection";
 import { Product, ProductDetail } from "@/features/product/types/product";
 import { useUpdateWishlist } from "@/features/wishlist/hooks/useUpdateWishlist";
 
@@ -40,12 +51,34 @@ export default function ProductDetailView() {
   const { productId } = params;
   const { data: productDetail, isLoading, isStale } = useGetProductDetail(productId);
   const { data: relatedProducts } = useGetRelatedProducts(productId);
-  const { update: updateWishlist, cleanupFns } = useUpdateWishlist();
+  const { update: updateWishlist, cleanupFns: wishlistCleanupFns } = useUpdateWishlist();
+  const { update: updateFollowing, cleanupFns: followingCleanupFns } = useUpdateFollowing();
+  const { create: createCart } = useCart();
+  const { clearSelectedVariants, selectedVariantsByProductId } = useProductVariantSelection();
   const { selectedTabIndex, updateTabIndex } = useTabIndex(0);
   const [tabHeaderY, setTabHeaderY] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
   // 낙관적 업데이트를 위한 상태
   const [localProduct, setLocalProduct] = useState<ProductDetail | undefined>(undefined);
+  const mainNavigation = useMainNavigation();
+  const commonNavigation = useCommonNavigation();
+
+  const { open: openBenefitBottomSheet } = useBottomSheet({
+    id: "benefit-bottom-sheet",
+    render: <BenefitBottomSheet />,
+    sheetProps: {
+      snapPoints: [BENEFIT_BOTTOM_SHEET_SNAP_POINTS],
+      handleIndicatorStyle: { display: "none" },
+    },
+  });
+
+  const { open: openCouponDownloadBottomSheet } = useBottomSheet({
+    id: "coupon-download-bottom-sheet",
+    render: <CouponDownloadBottomSheet productId={productId} />,
+    sheetProps: {
+      snapPoints: [COUPON_DOWNLOAD_BOTTOM_SHEET_SNAP_POINTS],
+    },
+  });
 
   useEffect(() => {
     if (productDetail && !isStale) {
@@ -53,29 +86,93 @@ export default function ProductDetailView() {
     }
   }, [isStale, productDetail]);
 
+  // 팔로우 처리 (권한 체크 포함)
+  const handlePermissionFollow = usePermissionPress(() => {
+    if (!productDetail?.marketId) {
+      return;
+    }
+
+    const newIsFollowing = !localProduct?.isFollowing;
+
+    // UI 낙관적 업데이트
+    setLocalProduct(
+      produce(draft => {
+        if (!draft) {
+          return;
+        }
+        draft.isFollowing = newIsFollowing;
+      })
+    );
+
+    // API는 디바운스 처리 (500ms 후 최종 상태만 전송)
+    updateFollowing(productDetail.marketId, newIsFollowing);
+  });
+
+  const handlePressToast = useCallback(() => {
+    mainNavigation.navigate(ROOT_ROUTES.COMMON, {
+      screen: COMMON_ROUTES.CART,
+    });
+    toast.hide();
+  }, [mainNavigation]);
+
+  const handlePressBottomSheetCart = usePermissionPress(async () => {
+    const variants = selectedVariantsByProductId[productId];
+
+    try {
+      const items = variants.map(variant => ({
+        productId,
+        variantId: variant.variantId,
+        quantity: variant.count,
+      }));
+
+      await createCart(items);
+
+      toast.show({
+        type: "point",
+        fullWidth: true,
+        offset: { bottom: 70 },
+        message: (
+          <View className="flex flex-row justify-between">
+            <Typography className="text-white text-13 font-medium">장바구니에 상품을 담았습니다</Typography>
+            <Typography onPress={handlePressToast} className="text-white text-13 font-semibold underline">
+              바로 가기
+            </Typography>
+          </View>
+        ),
+      });
+      clearSelectedVariants(productId);
+    } catch (error) {
+      const axiosError = error as AxiosError<CustomErrorResponse<string, { message?: string }>>;
+
+      toast.show(axiosError.response?.data?.message || "장바구니에 추가에 실패했습니다.");
+    }
+  });
+
+  const handlePressBottomSheetBuy = usePermissionPress(() => {
+    const variants = selectedVariantsByProductId[productId];
+
+    console.log("variants", variants);
+  });
+
   const { open: openProductOptionBottomSheet } = useBottomSheet({
     id: "product-option",
     render: (
       <ProductOptionBottomSheet
+        productId={productId}
         optionGroups={productDetail?.optionGroups || []}
         variants={productDetail?.variants || []}
+        onPressCart={handlePressBottomSheetCart}
+        onPressBuy={handlePressBottomSheetBuy}
       />
     ),
-    sheetProps: {
-      enableDynamicSizing: true,
-      enableContentPanningGesture: false, // 내부 콘텐츠 패닝 금지
-      enableHandlePanningGesture: false, // 핸들 패닝 금지
-      snapPoints: ["80%"], // 최대 높이 화면 80%
-      maxDynamicContentSize: PRODUCT_OPTION_BOTTOM_SHEET_MAX_HEIGHT,
-    },
+    sheetProps: PRODUCT_OPTION_BOTTOM_SHEET_PROPS,
   });
+
   const [contentHeightMap, setContentHeightMap] = useState<Record<string, number>>({
     info: 0,
     review: 0,
     inquiry: 0,
   });
-  const mainNavigation = useMainNavigation();
-  const commonNavigation = useCommonNavigation();
 
   const [isExpand, setIsExpand] = useState(false);
   const { bottom } = useSafeAreaInsets();
@@ -100,6 +197,9 @@ export default function ProductDetailView() {
     });
   }, [mainNavigation]);
 
+  const handlePressFollow = useCallback(() => {
+    handlePermissionFollow();
+  }, [handlePermissionFollow]);
   // product detail 좋아요 처리 권한 체크
   const handlePermissionLike = usePermissionPress((productId: number, newIsWished: boolean) => {
     // ui 낙관적 업데이트 이후 좋아요 상태 업데이트
@@ -159,11 +259,7 @@ export default function ProductDetailView() {
       {
         id: "inquiry",
         label: "문의",
-        render: () => (
-          <View style={{ height: 500 }}>
-            <Text>문의</Text>
-          </View>
-        ),
+        render: () => <ProductDetailInquiry productId={productId} />,
       },
     ];
   }, [
@@ -173,20 +269,16 @@ export default function ProductDetailView() {
     isExpand,
     productDetail?.description,
     productDetail?.reviewCount,
+    productId,
     relatedProducts?.content,
   ]);
 
   const handlePressMarket = useCallback(() => {
-    console.log("market");
-  }, []);
-
-  const handlePressFollow = useCallback(() => {
-    console.log("follow");
-  }, []);
-
-  const handlePressCoupon = useCallback(() => {
-    console.log("coupon");
-  }, []);
+    if (!productDetail?.marketId) {
+      return;
+    }
+    commonNavigation.push(COMMON_ROUTES.MARKET_DETAIL, { marketId: productDetail.marketId });
+  }, [commonNavigation, productDetail?.marketId]);
 
   const renderTabHeader = useCallback(
     (item: ListRenderItemInfo<TabItemType>) => {
@@ -228,15 +320,25 @@ export default function ProductDetailView() {
     openProductOptionBottomSheet();
   }, [openProductOptionBottomSheet]);
 
+  const wishlistCleanupFnsRef = useRef(wishlistCleanupFns);
+  const followingCleanupFnsRef = useRef(followingCleanupFns);
+
+  wishlistCleanupFnsRef.current = wishlistCleanupFns;
+  followingCleanupFnsRef.current = followingCleanupFns;
+
   useEffect(() => {
     return () => {
-      if (!cleanupFns?.length) {
-        return;
-      }
-      console.log("ASDf");
-      cleanupFns.forEach((fn: () => void) => fn());
+      wishlistCleanupFnsRef.current?.forEach((fn: () => void) => fn());
+      followingCleanupFnsRef.current?.forEach((fn: () => void) => fn());
     };
-  }, [cleanupFns]);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      clearSelectedVariants(productId);
+    };
+  }, [clearSelectedVariants, productId]);
+
   return (
     <View className="flex-1">
       <ProductDetailHeader
@@ -244,7 +346,7 @@ export default function ProductDetailView() {
         onPressSearch={handlePressSearch}
         onPressCart={handlePressCart}
       />
-      {isLoading || isStale ? (
+      {isLoading ? (
         <View className="flex-1 items-center justify-center">
           <Spinner />
         </View>
@@ -257,6 +359,7 @@ export default function ProductDetailView() {
           <ProductThumbnailCarousel images={productDetail?.coverImageUrls || []} />
           <ProductDetailBrandSection
             marketName={productDetail?.marketName || ""}
+            isFollowed={localProduct?.isFollowing || false}
             onPressMarket={handlePressMarket}
             onPressFollow={handlePressFollow}
           />
@@ -267,9 +370,13 @@ export default function ProductDetailView() {
             containerClassName="mt-10"
             regularPrice={productDetail?.regularPrice || 0}
             salePrice={productDetail?.salePrice || 0}
-            onPressCoupon={handlePressCoupon}
+            onPressCoupon={openCouponDownloadBottomSheet}
           />
-          <ProductDetailBenefitSection benefitPrice={103000} containerClassName="mt-20 mb-40" />
+          <ProductDetailBenefitSection
+            benefitPrice={103000}
+            containerClassName="mt-20 mb-40"
+            onPressTooltip={openBenefitBottomSheet}
+          />
           <ProductDetailShowroomSection />
           <ProductDetailDeliverySection
             deliveryEstimatedDays={productDetail?.deliveryEstimatedDays || 0}

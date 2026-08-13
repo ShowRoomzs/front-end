@@ -26,8 +26,7 @@ interface WishlistProductListProps {
   onUpdateCallback?: (cleanupFns: Array<CleanupFn>) => void;
 }
 const INITIAL_PARAMS: WishlistParams = {
-  page: 1,
-  limit: 10,
+  size: 10,
   categoryId: null,
 };
 
@@ -40,7 +39,7 @@ export default function WishlistProductList(props: WishlistProductListProps) {
     categoryId,
   });
 
-  const { products, pageInfo, isLoading, fetchNextPage } = useGetWishlist(params);
+  const { content: products, pageInfo, isLoading, fetchNextPage } = useGetWishlist(params);
 
   useEffect(() => {
     if (!cleanupFns?.length || !onUpdateCallback) {

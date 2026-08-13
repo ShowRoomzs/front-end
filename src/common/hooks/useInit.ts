@@ -4,22 +4,18 @@ import { useCallback, useEffect, useState } from "react";
 
 import Pretendard from "@/common/assets/fonts/PretendardVariable.ttf";
 import { SECURE_STORE } from "@/common/constants/secureStore";
-import { useUserStore } from "@/common/stores/useUserStore";
-import { userService } from "@/features/user/services/userService";
+import { loadUser } from "@/common/utils/loadUser";
 
 export function useInit(): boolean {
   const [fontLoaded] = useFonts({ Pretendard });
   const [isReady, setIsReady] = useState(false);
-  const { setUser } = useUserStore();
 
   const initializeApp = useCallback(async () => {
     try {
       const accessToken = await SecureStore.getItemAsync(SECURE_STORE.ACCESS_TOKEN);
 
       if (accessToken) {
-        const userInfo = await userService.get();
-
-        setUser(userInfo);
+        await loadUser();
       }
     } catch (error) {
       // 토큰 만료 > 토큰 삭제 처리는 apiInstance에서 처리
@@ -27,7 +23,7 @@ export function useInit(): boolean {
     } finally {
       setIsReady(true);
     }
-  }, [setUser]);
+  }, []);
 
   useEffect(() => {
     initializeApp();

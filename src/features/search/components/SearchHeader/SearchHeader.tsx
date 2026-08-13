@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { TouchableOpacity } from "react-native";
 
 import Header from "@/common/components/Header/Header";
@@ -11,15 +11,21 @@ interface SearchHeaderProps {
   onPressBack: () => void;
   onSearch: (keyword: string) => void;
   wrapperClassName?: string;
-  initialKeyword?: string;
+  keyword: string;
+  onChangeKeyword?: (keyword: string) => void;
+  onPressSearch?: () => void;
+  readOnly?: boolean;
 }
 export default function SearchHeader(props: SearchHeaderProps) {
-  const { onPressBack, onSearch, wrapperClassName, initialKeyword } = props;
-  const [keyword, setKeyword] = useState(initialKeyword || "");
+  const { keyword, onPressBack, onSearch, wrapperClassName, onChangeKeyword, onPressSearch, readOnly } =
+    props;
 
-  const handleChangeKeyword = useCallback((text: string) => {
-    setKeyword(text);
-  }, []);
+  const handleChangeKeyword = useCallback(
+    (text: string) => {
+      onChangeKeyword?.(text);
+    },
+    [onChangeKeyword]
+  );
 
   const handleSubmitEditing = useCallback(() => {
     if (keyword.length === 0) {
@@ -36,6 +42,7 @@ export default function SearchHeader(props: SearchHeaderProps) {
           <Icon icon={COMMON_ASSETS.back} />
         </TouchableOpacity>
       }
+      centered={false}
       title={
         <Search
           renderPreFix={<Icon icon={COMMON_ASSETS.search} />}
@@ -45,6 +52,8 @@ export default function SearchHeader(props: SearchHeaderProps) {
           placeholder="검색어를 입력해 주세요"
           onSubmitEditing={handleSubmitEditing}
           maxLength={SEARCH_MAX_LENGTH}
+          onPressSearch={onPressSearch}
+          readOnly={readOnly}
         />
       }
     />

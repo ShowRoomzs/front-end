@@ -19,8 +19,7 @@ interface CategoryDetailContentProps {
 }
 
 const INITIAL_PARAMS: ProductListParams = {
-  page: 1,
-  limit: 10,
+  size: 10,
   q: "",
   categoryId: null,
   marketId: null,
@@ -34,7 +33,13 @@ export default function CategoryDetailContent(props: CategoryDetailContentProps)
     ...INITIAL_PARAMS,
     categoryId,
   });
-  const { products, pageInfo, isLoading, isFetchingNextPage, fetchNextPage } = useGetProducts(params);
+  const {
+    content: products,
+    pageInfo,
+    isLoading,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useGetProducts(params);
   const isMounted = useRef(false);
   const [selectedFilterId, setSelectedFilterId] = useState<number | null>(null);
   const { bottom } = useSafeAreaInsets();
@@ -68,7 +73,6 @@ export default function CategoryDetailContent(props: CategoryDetailContentProps)
   const handlePressApply = useCallback(
     (newFilters: Array<FilterParam>) => {
       updateParams("filters", newFilters);
-      updateParams("page", 1);
     },
     [updateParams]
   );
@@ -82,7 +86,7 @@ export default function CategoryDetailContent(props: CategoryDetailContentProps)
         appliedFilters={params.filters}
         filters={filters}
         selectedId={selectedFilterId}
-        previewParams={{ ...params, page: 1 }}
+        previewParams={params}
       />
     ),
     sheetProps: {

@@ -22,11 +22,17 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       supportsTablet: true,
       bundleIdentifier: "com.showroomz.app",
       infoPlist: {
+        NSPhotoLibraryUsageDescription: "이미지 업로드를 위해 사진 보관함 접근 권한이 필요합니다.",
+        NSCameraUsageDescription: "사진 촬영을 위해 카메라 접근이 필요합니다.",
         LSApplicationQueriesSchemes: [
           "naversearchapp",
           "naversearchthirdlogin",
           "kakaokompassauth",
           "kakaolink",
+          "instagram",
+          "youtube",
+          "tiktok",
+          "twitter",
         ],
         CFBundleURLTypes: [
           {

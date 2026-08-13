@@ -1,8 +1,9 @@
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { BottomTabBarProps, createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import BottomTabs from "@/common/components/BottomTabs/BottomTabs";
+import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { CATEGORY_ROUTES, HOME_ROUTES } from "@/common/router";
 import { CategoryStackParamList } from "@/common/router/types";
 import CategoryDetailView from "@/features/category/views/CategoryDetailView";
@@ -25,12 +26,17 @@ function CategoryNavigator() {
 }
 
 export default function HomeNavigator() {
+  const { setNavigation } = useBottomTab();
+
   return (
     <SafeAreaView edges={["top"]} className="flex-1">
       <Tab.Navigator
         initialRouteName={HOME_ROUTES.HOME}
         screenOptions={{ headerShown: false, tabBarStyle: { position: "absolute" } }}
-        tabBar={props => <BottomTabs {...props} />}
+        tabBar={(props: BottomTabBarProps) => {
+          setNavigation(props.navigation);
+          return <BottomTabs {...props} />;
+        }}
       >
         <Tab.Screen name={HOME_ROUTES.CATEGORY} component={CategoryNavigator} />
         <Tab.Screen name={HOME_ROUTES.FOLLOWING} component={FollowingView} />

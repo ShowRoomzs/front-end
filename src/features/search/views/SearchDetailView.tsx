@@ -5,8 +5,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useBottomSheet } from "@/common/hooks/useBottomSheet";
 import { useParams } from "@/common/hooks/useParams";
-import { useCommonNavigation } from "@/common/router";
-import { COMMON_ROUTES } from "@/common/router/routes";
+import { useCommonNavigation, useMainNavigation } from "@/common/router";
+import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
 import FilterBottomSheetView, {
   FILTER_BOTTOM_SHEET_HEIGHT,
@@ -20,8 +20,7 @@ import { FilterParam, ProductListParams } from "@/features/product/types/params"
 import SearchHeader from "@/features/search/components/SearchHeader/SearchHeader";
 
 const INITIAL_PARAMS: ProductListParams = {
-  page: 1,
-  limit: 10,
+  size: 10,
   categoryId: null,
   marketId: null,
   filters: [],
@@ -37,8 +36,15 @@ export default function SearchDetailView() {
     q: keyword,
   });
   const navigation = useCommonNavigation();
+  const mainNavigation = useMainNavigation();
   const { data: filters } = useGetFilters();
-  const { products, pageInfo, isLoading, isFetchingNextPage, fetchNextPage } = useGetProducts(params);
+  const {
+    content: products,
+    pageInfo,
+    isLoading,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useGetProducts(params);
   const [selectedFilterId, setSelectedFilterId] = useState<number | null>(null);
   const isMounted = useRef(false);
 
@@ -72,25 +78,20 @@ export default function SearchDetailView() {
   const handleSearch = useCallback(
     (newKeyword: string) => {
       updateParams("q", newKeyword);
-      updateParams("page", 1);
     },
     [updateParams]
   );
 
   const handlePressReset = useCallback(() => {
     updateParams("filters", []);
-    updateParams("page", 1);
   }, [updateParams]);
 
   const handlePressApply = useCallback(
     (newFilters: Array<FilterParam>) => {
       updateParams("filters", newFilters);
-      updateParams("page", 1);
     },
     [updateParams]
   );
-
-  const previewParams = useMemo(() => ({ ...params, page: 1 }), [params]);
 
   const renderBottomSheet = useMemo(
     () => (
@@ -100,10 +101,10 @@ export default function SearchDetailView() {
         appliedFilters={params.filters}
         filters={filterList}
         selectedId={selectedFilterId}
-        previewParams={previewParams}
+        previewParams={params}
       />
     ),
-    [handlePressReset, handlePressApply, params.filters, filterList, selectedFilterId, previewParams]
+    [handlePressReset, handlePressApply, params, filterList, selectedFilterId]
   );
 
   const { open } = useBottomSheet({
@@ -122,6 +123,15 @@ export default function SearchDetailView() {
     [open]
   );
 
+  const handlePressSearch = useCallback(() => {
+    mainNavigation.navigate(ROOT_ROUTES.COMMON, {
+      screen: COMMON_ROUTES.SEARCH,
+      params: {
+        keyword: keyword,
+      },
+    });
+  }, [keyword, mainNavigation]);
+
   const handleLoadMore = useCallback(() => {
     fetchNextPage();
   }, [fetchNextPage]);
@@ -133,10 +143,12 @@ export default function SearchDetailView() {
   return (
     <View className="flex-1">
       <SearchHeader
-        initialKeyword={keyword}
+        readOnly
+        keyword={keyword}
         onPressBack={handlePressBack}
         wrapperClassName="px-20"
         onSearch={handleSearch}
+        onPressSearch={handlePressSearch}
       />
       <FilterListView
         selectedFilterKeys={selectedFilterKeys}

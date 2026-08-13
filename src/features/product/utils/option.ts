@@ -1,5 +1,5 @@
 import { DropdownItem } from "@/common/components/Dropdown/Dropdown";
-import { OptionGroup, Variant } from "@/features/product/types/product";
+import { OptionGroup, Stock, Variant } from "@/features/product/types/product";
 
 // 특정한 option값들로 조합 가능한 variants 필터링 (사용자가 선택한 option값들로 조합 가능한 variants)
 export function getEnabledVariants(
@@ -14,12 +14,44 @@ export function getEnabledVariants(
   return variants.filter(variant => optionIds.every(optionId => variant.optionIds.includes(optionId)));
 }
 
-export function parseOption(optionGroup: OptionGroup, enabledVariants: Array<Variant>): Array<DropdownItem> {
-  return optionGroup.options.map(option => ({
-    label: `${option.name}${option.price > 0 ? ` (+${option.price.toLocaleString()}원)` : ""}`,
-    value: option.optionId.toString(),
-    disabled: !enabledVariants.some(variant => variant.optionIds.includes(option.optionId)),
-  }));
+function getLabelSuffix(price: number, disabledWithStock: boolean) {
+  if (disabledWithStock) {
+    return " (품절)";
+  }
+  if (price > 0) {
+    return ` (+${price.toLocaleString()}원)`;
+  }
+  return "";
+}
+
+export function parseOption(
+  optionGroup: OptionGroup,
+  enabledVariants: Array<Variant>,
+  stocks: Array<Stock>,
+  isLast: boolean
+): Array<DropdownItem> {
+  const filteredOptions = optionGroup.options.filter(option => {
+    // 조합 불가능한 옵션
+    const disabledWithCombination = !enabledVariants.some(variant =>
+      variant.optionIds.includes(option.optionId)
+    );
+
+    return !disabledWithCombination;
+  });
+
+  return filteredOptions.map(option => {
+    const targetVariant = enabledVariants.find(variant => variant.optionIds.includes(option.optionId));
+    const targetStock = stocks.find(stock => stock.variantId === targetVariant?.variantId);
+
+    // 품절 옵션(마지막 옵션 그룹인 경우 품절 옵션 적용)
+    const disabledWithStock = isLast ? targetStock?.isOutOfStock || targetStock?.isOutOfStockForced : false;
+
+    return {
+      label: `${option.name}${getLabelSuffix(option.price, disabledWithStock || false)}`,
+      value: option.optionId.toString(),
+      disabled: disabledWithStock,
+    };
+  });
 }
 
 export function getNextOptionGroupIds(

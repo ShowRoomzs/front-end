@@ -5,6 +5,8 @@ import { AddressSearchProvider } from "@/common/providers/AddressSearchProvider"
 import { BottomSheetProvider } from "@/common/providers/BottomSheetProvider";
 import BottomTabProvider from "@/common/providers/BottomTabProvider";
 import DropdownProvider from "@/common/providers/DropdownProvider/DropdownProvider";
+import { GlobalLoadingProvider } from "@/common/providers/GlobalLoadingProvider/GlobalLoadingProvider";
+import { ModalProvider } from "@/common/providers/ModalProvider";
 import TabsProvider from "@/common/providers/TabsProvider";
 import { ToastProvider } from "@/common/providers/ToastProvider";
 import { TooltipProvider } from "@/common/providers/TooltipProvider";
@@ -17,21 +19,25 @@ export default function PortalProvider(props: PortalProviderProps) {
   const { children } = props;
 
   return (
-    <TabsProvider>
-      <DropdownProvider>
-        <BottomTabProvider>
-          <TooltipProvider>
-            <BottomSheetProvider>
-              <AddressSearchProvider>
-                <ToastProvider>
-                  {children}
-                  <PortalHost />
-                </ToastProvider>
-              </AddressSearchProvider>
-            </BottomSheetProvider>
-          </TooltipProvider>
-        </BottomTabProvider>
-      </DropdownProvider>
-    </TabsProvider>
+    <GlobalLoadingProvider>
+      <TabsProvider>
+        <DropdownProvider>
+          <BottomTabProvider>
+            <TooltipProvider>
+              <BottomSheetProvider>
+                <AddressSearchProvider>
+                  <ToastProvider>
+                    <ModalProvider>
+                      {children}
+                      <PortalHost />
+                    </ModalProvider>
+                  </ToastProvider>
+                </AddressSearchProvider>
+              </BottomSheetProvider>
+            </TooltipProvider>
+          </BottomTabProvider>
+        </DropdownProvider>
+      </TabsProvider>
+    </GlobalLoadingProvider>
   );
 }

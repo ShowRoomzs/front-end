@@ -1,8 +1,8 @@
 import { useCallback, useState } from "react";
 
-import { PageParams } from "@/common/types/page";
+import { SizeParams } from "@/common/types/page";
 
-interface UseParamsResult<P extends PageParams> {
+interface UseParamsResult<P extends SizeParams> {
   params: P;
   localParams: P;
   updateLocalParams: (key: keyof P, value: P[keyof P]) => void;
@@ -11,7 +11,7 @@ interface UseParamsResult<P extends PageParams> {
   reset: () => void;
 }
 
-export function useParams<P extends PageParams>(initialParams: P): UseParamsResult<P> {
+export function useParams<P extends SizeParams>(initialParams: P): UseParamsResult<P> {
   const [params, setParams] = useState<P>(initialParams);
   const [localParams, setLocalParams] = useState<P>(initialParams);
 

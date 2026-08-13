@@ -1,0 +1,1 @@
+export const MARKET_DETAIL_HEADER_HEIGHT = 45;

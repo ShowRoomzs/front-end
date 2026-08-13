@@ -22,7 +22,8 @@ export interface UseInputValidationResult extends ValidationResult {
 
 export function useInputValidation(
   value: string,
-  validationOptions: Array<ValidateOption>
+  validationOptions: Array<ValidateOption>,
+  enabled: boolean = true
 ): UseInputValidationResult {
   const [validationResult, setValidationResult] = useState<ValidationResult | undefined>();
 
@@ -60,6 +61,13 @@ export function useInputValidation(
     validate(value);
   }, [value, validate]);
 
+  if (!enabled) {
+    return {
+      status: "default",
+      helperText: "",
+      isValid: true,
+    };
+  }
   return {
     status: validationResult?.status,
     helperText: validationResult?.helperText,

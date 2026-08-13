@@ -39,7 +39,7 @@ export interface Product {
   isDisplay: boolean;
   isRecommended: boolean;
   isWished: boolean;
-  likeCount: number;
+  wishCount: number;
   marketId: number;
   marketName: "number";
   name: string;
@@ -78,6 +78,10 @@ export interface Variant {
   optionIds: Array<number>;
 }
 
+export interface LocalVariant extends Variant {
+  count: number;
+}
+
 export interface ProductDetail extends Omit<Product, "price"> {
   coverImageUrls: Array<string>;
   regularPrice: number;
@@ -87,6 +91,14 @@ export interface ProductDetail extends Omit<Product, "price"> {
   variants: Array<Variant>;
   isFollowing: boolean;
 }
-
+export interface Stock {
+  productId: number;
+  variantId: number;
+  stock: number;
+  isOutOfStock: boolean;
+  isOutOfStockForced: boolean;
+  price: ProductPrice;
+}
+export type StockResponse = { variants: Array<Stock> };
 export type ProductDetailResponse = ProductDetail;
 export type ProductListResponse = PageResponse<Product>;

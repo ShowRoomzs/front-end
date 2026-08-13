@@ -6,11 +6,8 @@ import Stepper from "@/common/components/Stepper/Stepper";
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
 import { COMMON_ASSETS } from "@/common/utils/assets";
-import { LocalVariant } from "@/features/product/components/ProductOptionBottomSheet/ProductOptionBottomSheet";
-import {
-  VARIANT_CARD_MAX_COUNT,
-  VARIANT_CARD_MIN_COUNT,
-} from "@/features/product/components/VariantCard/config";
+import { VARIANT_CARD_MIN_COUNT } from "@/features/product/components/VariantCard/config";
+import { LocalVariant } from "@/features/product/types/product";
 
 interface VariantCardProps {
   variant: LocalVariant;
@@ -33,7 +30,7 @@ export default function VariantCard(props: VariantCardProps) {
       <View className="flex flex-row items-center justify-between">
         <Stepper
           min={VARIANT_CARD_MIN_COUNT}
-          max={VARIANT_CARD_MAX_COUNT}
+          max={variant.stock}
           value={variant.count}
           onChange={onChangeCount}
         />

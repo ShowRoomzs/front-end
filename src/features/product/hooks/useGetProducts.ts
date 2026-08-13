@@ -1,6 +1,4 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
-
-import { PageInfo } from "@/common/types/page";
+import { useInfiniteList } from "@/common/hooks/useInfiniteList";
 import { PRODUCT_QUERY_KEY } from "@/features/product/constants/queryKey";
 import { productService } from "@/features/product/services/productService";
 import { ProductListParams } from "@/features/product/types/params";
@@ -19,27 +17,12 @@ function parseProductListResponse(response: ProductListResponse): ProductListRes
 }
 
 export function useGetProducts(params: ProductListParams) {
-  const { page: _page, ...paramsWithoutPage } = params;
-
-  const query = useInfiniteQuery({
-    queryKey: [PRODUCT_QUERY_KEY.PRODUCTS, paramsWithoutPage],
-    queryFn: async ({ pageParam }) => {
-      const response = await productService.get({ ...params, page: pageParam });
+  return useInfiniteList<Product>({
+    queryKey: [PRODUCT_QUERY_KEY.PRODUCTS, params],
+    queryFn: async page => {
+      const response = await productService.get({ ...params, page });
 
       return parseProductListResponse(response);
     },
-    initialPageParam: 1,
-    getNextPageParam: (lastPage: ProductListResponse) =>
-      lastPage.pageInfo.hasNext ? lastPage.pageInfo.currentPage + 1 : undefined,
   });
-
-  const products: Array<Product> = query.data?.pages.flatMap(page => page.content) ?? [];
-  const pageInfo: PageInfo | undefined = query.data?.pages.at(-1)?.pageInfo;
-
-  return {
-    ...query,
-    data: { products, pageInfo },
-    products,
-    pageInfo,
-  };
 }

@@ -17,7 +17,7 @@ interface LocalRecentSearchItem extends Omit<RecentSearchItemResponse, "id"> {
 
 const INITIAL_RECENT_SEARCH_PARAMS: RecentSearchParams = {
   page: 1,
-  limit: 10,
+  size: 10,
 };
 
 export function useRecentSearch() {

@@ -4,8 +4,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { BOTTOM_TABS_HEIGHT } from "@/common/components/BottomTabs/config";
 import VStack from "@/common/components/VStack/VStack";
+import { usePermissionPress } from "@/common/hooks/usePermissionPress";
 import { useMainNavigation, useMypageNavigation } from "@/common/router";
-import { ROOT_ROUTES } from "@/common/router/routes";
+import { MYPAGE_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { useUserStore } from "@/common/stores/useUserStore";
 import AuthEntryBanner from "@/features/mypage/components/AuthEntryBanner/AuthEntryBanner";
 import MypageHeader from "@/features/mypage/components/MypageHeader/MypageHeader";
@@ -14,16 +15,16 @@ import MypageSection, {
   MypageSectionItem,
   MypageSectionProps,
 } from "@/features/mypage/components/MypageSection/MypageSection";
-import { MYPAGE_SECTIONS } from "@/features/mypage/constants/sections";
+import { MYPAGE_MENUS } from "@/features/mypage/constants/menus";
 
 export default function MypageView() {
   const { user } = useUserStore();
   const mainNavigation = useMainNavigation();
   const inset = useSafeAreaInsets();
   const mypageNavigation = useMypageNavigation();
-  const handlePressSetting = useCallback(() => {
-    console.log("setting");
-  }, []);
+  const handlePressSetting = usePermissionPress(() => {
+    mypageNavigation.navigate(MYPAGE_ROUTES.SETTINGS);
+  });
 
   const handlePressCart = useCallback(() => {
     console.log("cart");
@@ -46,12 +47,12 @@ export default function MypageView() {
   );
 
   const handlePressProfile = useCallback(() => {
-    console.log("profile");
-  }, []);
+    mypageNavigation.navigate(MYPAGE_ROUTES.SETTINGS);
+  }, [mypageNavigation]);
 
   const handlePressFollowing = useCallback(() => {
-    console.log("following");
-  }, []);
+    mypageNavigation.navigate(MYPAGE_ROUTES.FOLLOWING_LIST);
+  }, [mypageNavigation]);
 
   const renderItem = useCallback(
     ({ item }: ListRenderItemInfo<MypageSectionProps>) => {
@@ -60,6 +61,13 @@ export default function MypageView() {
     },
     [handlePressSectionItem]
   );
+  const handlePressCoupon = useCallback(() => {
+    mypageNavigation.navigate(MYPAGE_ROUTES.COUPON);
+  }, [mypageNavigation]);
+
+  const handlePressPoint = useCallback(() => {
+    mypageNavigation.navigate(MYPAGE_ROUTES.COUPON);
+  }, [mypageNavigation]);
 
   const renderListHeaderComponent = useCallback(() => {
     if (user) {
@@ -68,11 +76,13 @@ export default function MypageView() {
           user={user}
           onPressProfile={handlePressProfile}
           onPressFollowing={handlePressFollowing}
+          onPressPoint={handlePressPoint}
+          onPressCoupon={handlePressCoupon}
         />
       );
     }
     return <AuthEntryBanner onPressAuth={handlePressAuth} />;
-  }, [handlePressAuth, handlePressFollowing, handlePressProfile, user]);
+  }, [handlePressAuth, handlePressCoupon, handlePressFollowing, handlePressPoint, handlePressProfile, user]);
 
   return (
     <VStack style={{ paddingBottom: inset.bottom }} gap={20} className="flex-1">
@@ -87,7 +97,7 @@ export default function MypageView() {
         ListHeaderComponentStyle={{ marginBottom: 40 }}
         ListHeaderComponent={renderListHeaderComponent}
         ItemSeparatorComponent={() => <View className="h-25" />}
-        data={MYPAGE_SECTIONS}
+        data={MYPAGE_MENUS}
         renderItem={renderItem}
       />
     </VStack>

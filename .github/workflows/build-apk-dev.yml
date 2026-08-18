@@ -29,30 +29,33 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # --json 을 함께 주면 완료된 빌드 정보가 그대로 stdout 으로 나온다.
+      # 예전처럼 build:list 로 "방금 만든 빌드를 다시 찾는" 방식은 쓰지 않는다 —
+      # 호출이 한 번 더 필요할 뿐 아니라, 동시에 다른 빌드가 돌면 --limit 1 이
+      # 엉뚱한 빌드를 집어 Discord 에 잘못된 링크가 나간다.
       - name: Start EAS build (APK)
-        run: eas build --platform android --non-interactive --profile development --wait
+        run: |
+          eas build --platform android --non-interactive --profile development --wait --json > build.json
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
 
-      - name: Get latest build info
+      - name: Get build info
         id: build_info
         run: |
-          echo "Getting latest build info..."
+          # --json 출력은 빌드 배열이다. 형식이 바뀌어도 알아채도록 먼저 검증한다.
+          if ! jq -e 'type == "array" and length > 0' build.json > /dev/null; then
+            echo "::error::예상과 다른 eas build --json 출력입니다"
+            cat build.json
+            exit 1
+          fi
 
-          BUILD_JSON=$(eas build:list --limit 1 --platform android --status finished --non-interactive --json)
-
-          # Extract values
-          BUILD_URL=$(echo "$BUILD_JSON" | jq -r '.[0].artifacts.buildUrl')
-          APP_VERSION=$(echo "$BUILD_JSON" | jq -r '.[0].appVersion')
-          COMMIT_HASH=$(echo "$BUILD_JSON" | jq -r '.[0].gitCommitHash')
-          COMMIT_MSG=$(echo "$BUILD_JSON" | jq -r '.[0].gitCommitMessage')
-
-          echo "url=$BUILD_URL" >> $GITHUB_OUTPUT
-          echo "version=$APP_VERSION" >> $GITHUB_OUTPUT
-          echo "commit_hash=$COMMIT_HASH" >> $GITHUB_OUTPUT
-          echo "commit_msg=$COMMIT_MSG" >> $GITHUB_OUTPUT
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+          {
+            echo "url=$(jq -r '.[0].artifacts.buildUrl // empty' build.json)"
+            echo "version=$(jq -r '.[0].appVersion // empty' build.json)"
+            echo "commit_hash=$(jq -r '.[0].gitCommitHash // empty' build.json)"
+            # 커밋 메시지는 여러 줄일 수 있어 첫 줄만 쓴다 (GITHUB_OUTPUT 이 깨지지 않게)
+            echo "commit_msg=$(jq -r '.[0].gitCommitMessage // empty' build.json | head -1)"
+          } >> $GITHUB_OUTPUT
 
       - name: Send to Discord
         run: |

@@ -76,6 +76,14 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           android: {
             extraMavenRepos: ["https://devrepo.kakao.com/nexus/content/groups/public/"],
           },
+          ios: {
+            // RN 0.81의 프리빌트 ReactNativeDependencies.xcframework를 쓰지 않는다.
+            // 그 안의 glog/boost/folly 번들 Info.plist에 CFBundleSupportedPlatforms=[XRSimulator]가
+            // 박혀 있어 App Store Connect 업로드가 ITMS-90542로 거부된다(업스트림 버그).
+            // 소스 빌드로 돌리면 해당 프레임워크가 앱에 포함되지 않아 문제가 사라진다.
+            // 대가는 iOS 빌드 시간 증가다.
+            buildReactNativeFromSource: true,
+          },
         },
       ],
       [

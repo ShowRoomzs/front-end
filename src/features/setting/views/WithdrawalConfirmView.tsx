@@ -6,13 +6,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Button from "@/common/components/Button/Button";
 import Checkbox from "@/common/components/Checkbox/Checkbox";
 import HStack from "@/common/components/HStack/HStack";
+import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
 import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { modal } from "@/common/providers/ModalProvider";
 import { HOME_ROUTES, SETTINGS_ROUTES, SettingsStackParamList, useSettingsNavigation } from "@/common/router";
 import { useUserStore } from "@/common/stores/useUserStore";
-import SettingsHeader from "@/features/setting/components/SettingsHeader/SettingsHeader";
 import { useWithdrawlMutation } from "@/features/setting/hooks/useWithdrawlMutation";
 
 const WARNING_ITEMS = [
@@ -73,7 +73,7 @@ export default function WithdrawalConfirmView() {
 
   return (
     <View className="flex-1">
-      <SettingsHeader title="회원탈퇴" wrapperClassName="px-20" onPressBack={handlePressBack} />
+      <ScreenHeader title="회원탈퇴" onPressBack={handlePressBack} />
       <VStack className="pt-25" gap={15}>
         <VStack className="px-20" gap={0}>
           <Typography className="text-black text-20 font-semibold">

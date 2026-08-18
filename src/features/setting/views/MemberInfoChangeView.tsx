@@ -2,13 +2,13 @@ import { useEffect } from "react";
 import { View } from "react-native";
 
 import HStack from "@/common/components/HStack/HStack";
+import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import Typography from "@/common/components/Typography/Typography";
 import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { useSettingsNavigation } from "@/common/router";
 import { useUserStore } from "@/common/stores/useUserStore";
 import { cn } from "@/common/utils/cn";
 import MemberInfoChangeBottomAction from "@/features/setting/components/MemberInfoChangeBottomAction/MemberInfoChangeBottomAction";
-import SettingsHeader from "@/features/setting/components/SettingsHeader/SettingsHeader";
 import { User } from "@/features/user/types/user";
 
 const INFO_ITEMS: Array<{ label: string; key: keyof User; formatter?: (value: string) => string }> = [
@@ -39,7 +39,7 @@ export default function MemberInfoChangeView() {
 
   return (
     <View className="flex-1">
-      <SettingsHeader title="회원 정보" wrapperClassName="px-20" onPressBack={handlePressBack} />
+      <ScreenHeader title="회원 정보" onPressBack={handlePressBack} />
       <View className="px-20 pt-25">
         {INFO_ITEMS.map((item, ix) => {
           const value = user[item.key] ? user[item.key].toString() : "";

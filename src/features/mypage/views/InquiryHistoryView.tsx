@@ -1,11 +1,11 @@
 import { useCallback, useEffect } from "react";
 import { View } from "react-native";
 
+import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import { TabItemType } from "@/common/components/Tabs/Tabs";
 import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { useTabIndex } from "@/common/hooks/useTabIndex";
 import { useMypageNavigation } from "@/common/router";
-import InquiryHistoryHeader from "@/features/mypage/components/InquiryHistoryHeader/InquiryHistoryHeader";
 import InquiryHistoryTabs from "@/features/mypage/components/InquiryHistoryTabs/InquiryHistoryTabs";
 import OneOnOneInquiryHistoryTab from "@/features/mypage/components/OneOnOneInquiryHistoryTab/OneOnOneInquiryHistoryTab";
 import ProductInquiryHistoryTab from "@/features/mypage/components/ProductInquiryHistoryTab/ProductInquiryHistoryTab";
@@ -41,7 +41,7 @@ export default function InquiryHistoryView() {
 
   return (
     <View className="flex-1 bg-white">
-      <InquiryHistoryHeader wrapperClassName="px-20" onPressBack={handlePressBack} />
+      <ScreenHeader title="문의 내역" onPressBack={handlePressBack} />
       <InquiryHistoryTabs
         items={INQUIRY_HISTORY_TABS}
         selectedIndex={selectedTabIndex}

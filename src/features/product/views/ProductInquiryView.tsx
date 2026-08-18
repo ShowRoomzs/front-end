@@ -4,6 +4,7 @@ import { ScrollView, View } from "react-native";
 import { isDeepEqual } from "remeda";
 
 import Divider from "@/common/components/Divider/Divider";
+import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import { usePermissionPress } from "@/common/hooks/usePermissionPress";
 import { toast } from "@/common/providers/ToastProvider";
 import { useCommonNavigation } from "@/common/router";
@@ -11,7 +12,6 @@ import { COMMON_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
 import ProductInquiryActions from "@/features/product/components/ProductInquiryActions/ProductInquiryActions";
 import ProductInquiryForm from "@/features/product/components/ProductInquiryForm/ProductInquiryForm";
-import ProductInquiryHeader from "@/features/product/components/ProductInquiryHeader/ProductInquiryHeader";
 import ProductInquiryNotice from "@/features/product/components/ProductInquiryNotice/ProductInquiryNotice";
 import ProductInquiryProductDetail from "@/features/product/components/ProductInquiryProductDetail/ProductInquiryProductDetail";
 import { useCreateProductInquiryMutation } from "@/features/product/hooks/useCreateProductInquiryMutation";
@@ -82,7 +82,7 @@ export default function ProductInquiryView() {
   return (
     <View className="flex-1 bg-white">
       <ScrollView>
-        <ProductInquiryHeader wrapperClassName="px-20" onPressBack={handlePressBack} />
+        <ScreenHeader title="상품 문의하기" onPressBack={handlePressBack} />
         <ProductInquiryProductDetail product={productDetail} />
         <ProductInquiryForm
           type={form.type}

@@ -18,7 +18,7 @@ interface SpinnerProps {
 }
 
 export default function Spinner(props: SpinnerProps) {
-  const { size = 24, color = "#0D0C11", className, style } = props;
+  const { size = 24, color = "#0F0F0F", className, style } = props;
 
   const rotation = useSharedValue(0);
 

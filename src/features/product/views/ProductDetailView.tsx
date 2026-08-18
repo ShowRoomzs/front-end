@@ -1,117 +1,79 @@
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { AxiosError } from "axios";
-import { produce } from "immer";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { LayoutChangeEvent, ListRenderItemInfo, ScrollView, Text, View } from "react-native";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Linking, ScrollView, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
+import BusinessFooter from "@/common/components/BusinessFooter/BusinessFooter";
 import Spinner from "@/common/components/Spinner/Spinner";
-import StretchTabHeaderItem from "@/common/components/Tabs/StretchTabHeaderItem";
-import TabBody from "@/common/components/Tabs/TabBody";
-import TabHeader from "@/common/components/Tabs/TabHeader";
-import { TabItemType } from "@/common/components/Tabs/Tabs";
 import Typography from "@/common/components/Typography/Typography";
 import { useBottomSheet } from "@/common/hooks/useBottomSheet";
 import { usePermissionPress } from "@/common/hooks/usePermissionPress";
-import { useTabIndex } from "@/common/hooks/useTabIndex";
 import { toast } from "@/common/providers/ToastProvider";
 import { useCommonNavigation, useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
 import { CustomErrorResponse } from "@/common/types/error";
+import { formatPrice } from "@/common/utils/formatPrice";
 import { useCart } from "@/features/cart/hooks/useCart";
-import { useUpdateFollowing } from "@/features/following/hooks/useUpdateFollowing";
-import BenefitBottomSheet from "@/features/product/components/BenefitBottomSheet/BenefitBottomSheet";
-import { BENEFIT_BOTTOM_SHEET_SNAP_POINTS } from "@/features/product/components/BenefitBottomSheet/config";
-import { COUPON_DOWNLOAD_BOTTOM_SHEET_SNAP_POINTS } from "@/features/product/components/CouponDownloadBottomSheet/config";
-import CouponDownloadBottomSheet from "@/features/product/components/CouponDownloadBottomSheet/CouponDownloadBottomSheet";
-import ProductDetailActions from "@/features/product/components/ProductDetailActions/ProductDetailActions";
-import ProductDetailBenefitSection from "@/features/product/components/ProductDetailBenefitSection/ProductDetailBenefitSection";
+import ProductDeliveryBlock from "@/features/product/components/ProductDeliveryBlock/ProductDeliveryBlock";
 import ProductDetailBrandSection from "@/features/product/components/ProductDetailBrandSection/ProductDetailBrandSection";
-import ProductDetailDeliverySection from "@/features/product/components/ProductDetailDeliverySection/ProductDetailDeliverySection";
 import ProductDetailHeader from "@/features/product/components/ProductDetailHeader/ProductDetailHeader";
 import ProductDetailInfo from "@/features/product/components/ProductDetailInfo/ProductDetailInfo";
 import ProductDetailInquiry from "@/features/product/components/ProductDetailInquiry/ProductDetailInquiry";
-import ProductDetailPriceSection from "@/features/product/components/ProductDetailPriceSection/ProductDetailPriceSection";
-import ProductDetailRelatedProducts from "@/features/product/components/ProductDetailRelatedProducts/ProductDetailRelatedProducts";
-import ProductDetailShowroomSection from "@/features/product/components/ProductDetailShowroomSection/ProductDetailShowroomSection";
+import ProductGallery from "@/features/product/components/ProductGallery/ProductGallery";
+import ProductNoticeTable, {
+  NoticeRow,
+} from "@/features/product/components/ProductNoticeTable/ProductNoticeTable";
 import ProductOptionBottomSheet from "@/features/product/components/ProductOptionBottomSheet/ProductOptionBottomSheet";
-import ProductThumbnailCarousel from "@/features/product/components/ProductThumbnailCarousel/ProductThumbnailCarousel";
+import ProductPriceBlock from "@/features/product/components/ProductPriceBlock/ProductPriceBlock";
+import ProductSellerInfo from "@/features/product/components/ProductSellerInfo/ProductSellerInfo";
 import { PRODUCT_OPTION_BOTTOM_SHEET_PROPS } from "@/features/product/constants/optionBottomSheet";
 import { useGetProductDetail } from "@/features/product/hooks/useGetProductDetail";
-import { useGetRelatedProducts } from "@/features/product/hooks/useGetRelatedProducts";
 import { useProductVariantSelection } from "@/features/product/stores/useProductVariantSelection";
-import { Product, ProductDetail } from "@/features/product/types/product";
-import { useUpdateWishlist } from "@/features/wishlist/hooks/useUpdateWishlist";
+import { ProductDetail } from "@/features/product/types/product";
 
-const BOTTOM_TAB_HEIGHT = 59;
+/**
+ * C7 상품 상세 — 갤러리 · 탭 구조.
+ *
+ * 1:1 갤러리 → 브랜드 → 상품명·가격 → 배송 → 탭(상세정보 / 문의 / 판매자 정보), 하단 [구매하기] 고정.
+ *
+ * 찜(♥)이 없다. 찜은 게시물 단위이고 서버도 상품 상세에 그 필드를 내려주지 않는다 —
+ * 저장할 가치가 있는 것은 공구 게시물이지 그 안의 낱개 상품이 아니라는 판단이다.
+ *
+ * 가격 아래의 [공동구매 D-3 + 쇼룸] 줄은 아직 그리지 않는다. 서버가 groupBuyStatus(진행 단계)만
+ * 내려주고 마감일도 쇼룸도 주지 않아, 이 상품이 어느 공구에 붙어 있는지 알 수 없다.
+ */
+const BOTTOM_CTA_HEIGHT = 76;
+
+type ProductTabId = "info" | "inquiry" | "seller";
+
+const TABS: Array<{ id: ProductTabId; label: string }> = [
+  { id: "info", label: "상세정보" },
+  { id: "inquiry", label: "문의" },
+  { id: "seller", label: "판매자 정보" },
+];
 
 export default function ProductDetailView() {
   const { params } = useRoute<RouteProp<CommonStackParamList, typeof COMMON_ROUTES.PRODUCT_DETAIL>>();
   const { productId } = params;
-  const { data: productDetail, isLoading, isStale } = useGetProductDetail(productId);
-  const { data: relatedProducts } = useGetRelatedProducts(productId);
-  const { update: updateWishlist, cleanupFns: wishlistCleanupFns } = useUpdateWishlist();
-  const { update: updateFollowing, cleanupFns: followingCleanupFns } = useUpdateFollowing();
+  const { bottom } = useSafeAreaInsets();
+
+  const { data: productDetail, isLoading } = useGetProductDetail(productId);
   const { create: createCart } = useCart();
   const { clearSelectedVariants, selectedVariantsByProductId } = useProductVariantSelection();
-  const { selectedTabIndex, updateTabIndex } = useTabIndex(0);
-  const [tabHeaderY, setTabHeaderY] = useState(0);
-  const scrollViewRef = useRef<ScrollView>(null);
-  // 낙관적 업데이트를 위한 상태
-  const [localProduct, setLocalProduct] = useState<ProductDetail | undefined>(undefined);
+
   const mainNavigation = useMainNavigation();
   const commonNavigation = useCommonNavigation();
 
-  const { open: openBenefitBottomSheet } = useBottomSheet({
-    id: "benefit-bottom-sheet",
-    render: <BenefitBottomSheet />,
-    sheetProps: {
-      snapPoints: [BENEFIT_BOTTOM_SHEET_SNAP_POINTS],
-      handleIndicatorStyle: { display: "none" },
-    },
-  });
+  const [selectedTab, setSelectedTab] = useState<ProductTabId>("info");
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
-  const { open: openCouponDownloadBottomSheet } = useBottomSheet({
-    id: "coupon-download-bottom-sheet",
-    render: <CouponDownloadBottomSheet productId={productId} />,
-    sheetProps: {
-      snapPoints: [COUPON_DOWNLOAD_BOTTOM_SHEET_SNAP_POINTS],
-    },
-  });
-
-  useEffect(() => {
-    if (productDetail && !isStale) {
-      setLocalProduct(productDetail);
-    }
-  }, [isStale, productDetail]);
-
-  // 팔로우 처리 (권한 체크 포함)
-  const handlePermissionFollow = usePermissionPress(() => {
-    if (!productDetail?.marketId) {
-      return;
-    }
-
-    const newIsFollowing = !localProduct?.isFollowing;
-
-    // UI 낙관적 업데이트
-    setLocalProduct(
-      produce(draft => {
-        if (!draft) {
-          return;
-        }
-        draft.isFollowing = newIsFollowing;
-      })
-    );
-
-    // API는 디바운스 처리 (500ms 후 최종 상태만 전송)
-    updateFollowing(productDetail.marketId, newIsFollowing);
-  });
+  /** 전 옵션이 소진되면 상품 전체가 판매 종료로 올라간다 */
+  const isUnavailable = !!productDetail && isProductUnavailable(productDetail);
 
   const handlePressToast = useCallback(() => {
-    mainNavigation.navigate(ROOT_ROUTES.COMMON, {
-      screen: COMMON_ROUTES.CART,
-    });
+    mainNavigation.navigate(ROOT_ROUTES.COMMON, { screen: COMMON_ROUTES.CART });
     toast.hide();
   }, [mainNavigation]);
 
@@ -119,22 +81,22 @@ export default function ProductDetailView() {
     const variants = selectedVariantsByProductId[productId];
 
     try {
-      const items = variants.map(variant => ({
-        productId,
-        variantId: variant.variantId,
-        quantity: variant.count,
-      }));
-
-      await createCart(items);
+      await createCart(
+        variants.map(variant => ({
+          productId,
+          variantId: variant.variantId,
+          quantity: variant.count,
+        }))
+      );
 
       toast.show({
         type: "point",
         fullWidth: true,
         offset: { bottom: 70 },
         message: (
-          <View className="flex flex-row justify-between">
-            <Typography className="text-white text-13 font-medium">장바구니에 상품을 담았습니다</Typography>
-            <Typography onPress={handlePressToast} className="text-white text-13 font-semibold underline">
+          <View className="flex-row justify-between">
+            <Typography className="text-13 font-medium text-white">장바구니에 상품을 담았습니다</Typography>
+            <Typography onPress={handlePressToast} className="text-13 font-semibold text-white underline">
               바로 가기
             </Typography>
           </View>
@@ -148,10 +110,9 @@ export default function ProductDetailView() {
     }
   });
 
+  /** 주문·결제 API가 아직 없어 [바로 구매]는 장바구니 담기까지만 이어진다 */
   const handlePressBottomSheetBuy = usePermissionPress(() => {
-    const variants = selectedVariantsByProductId[productId];
-
-    console.log("variants", variants);
+    toast.show("주문·결제 기능을 준비하고 있어요. 장바구니에 담아 두시면 열릴 때 알려드릴게요.");
   });
 
   const { open: openProductOptionBottomSheet } = useBottomSheet({
@@ -168,170 +129,40 @@ export default function ProductDetailView() {
     sheetProps: PRODUCT_OPTION_BOTTOM_SHEET_PROPS,
   });
 
-  const [contentHeightMap, setContentHeightMap] = useState<Record<string, number>>({
-    info: 0,
-    review: 0,
-    inquiry: 0,
-  });
-
-  const [isExpand, setIsExpand] = useState(false);
-  const { bottom } = useSafeAreaInsets();
-
-  const handlePressExpand = useCallback(() => {
-    setIsExpand(!isExpand);
-  }, [isExpand]);
-
-  const handlePressBack = useCallback(() => {
-    mainNavigation.goBack();
-  }, [mainNavigation]);
-
-  const handlePressSearch = useCallback(() => {
-    mainNavigation.navigate(ROOT_ROUTES.COMMON, {
-      screen: COMMON_ROUTES.SEARCH,
-    });
-  }, [mainNavigation]);
-
-  const handlePressCart = useCallback(() => {
-    mainNavigation.navigate(ROOT_ROUTES.COMMON, {
-      screen: COMMON_ROUTES.CART,
-    });
-  }, [mainNavigation]);
-
-  const handlePressFollow = useCallback(() => {
-    handlePermissionFollow();
-  }, [handlePermissionFollow]);
-  // product detail 좋아요 처리 권한 체크
-  const handlePermissionLike = usePermissionPress((productId: number, newIsWished: boolean) => {
-    // ui 낙관적 업데이트 이후 좋아요 상태 업데이트
-    if (productId === productDetail?.id) {
-      setLocalProduct(
-        produce(draft => {
-          if (!draft) {
-            return;
-          }
-          draft.isWished = newIsWished;
-        })
-      );
-    }
-    updateWishlist(productId, newIsWished);
-  });
-
-  const handlePressProduct = useCallback(
-    (product: Product) => {
-      commonNavigation.push(COMMON_ROUTES.PRODUCT_DETAIL, { productId: product.id });
-    },
-    [commonNavigation]
-  );
-
-  const tabItems = useMemo((): Array<TabItemType> => {
-    const reviewCount = productDetail?.reviewCount || 0;
-    const reviewCountString = reviewCount > 999 ? "999+" : reviewCount;
-
-    return [
-      {
-        id: "info",
-        label: "정보",
-        render: () => (
-          <>
-            <ProductDetailInfo
-              description={productDetail?.description || ""}
-              isExpand={isExpand}
-              onPressExpand={handlePressExpand}
-            />
-            <ProductDetailRelatedProducts
-              containerClassName="mt-40"
-              items={relatedProducts?.content || []}
-              onPressProduct={handlePressProduct}
-              onPressLike={handlePermissionLike}
-            />
-          </>
-        ),
-      },
-      {
-        id: "review",
-        label: `리뷰 ${reviewCountString}`,
-        render: () => (
-          <View style={{ height: 500 }}>
-            <Text>리뷰</Text>
-          </View>
-        ),
-      },
-      {
-        id: "inquiry",
-        label: "문의",
-        render: () => <ProductDetailInquiry productId={productId} />,
-      },
-    ];
-  }, [
-    handlePermissionLike,
-    handlePressExpand,
-    handlePressProduct,
-    isExpand,
-    productDetail?.description,
-    productDetail?.reviewCount,
-    productId,
-    relatedProducts?.content,
-  ]);
-
-  const handlePressMarket = useCallback(() => {
-    if (!productDetail?.marketId) {
+  const handlePressBrandSite = useCallback(() => {
+    if (!productDetail?.brandSiteUrl) {
       return;
     }
-    commonNavigation.push(COMMON_ROUTES.MARKET_DETAIL, { marketId: productDetail.marketId });
-  }, [commonNavigation, productDetail?.marketId]);
+    void Linking.openURL(productDetail.brandSiteUrl);
+  }, [productDetail?.brandSiteUrl]);
 
-  const renderTabHeader = useCallback(
-    (item: ListRenderItemInfo<TabItemType>) => {
-      return (
-        <StretchTabHeaderItem
-          item={item.item}
-          itemCount={tabItems.length}
-          isActive={item.index === selectedTabIndex}
-        />
-      );
-    },
-    [selectedTabIndex, tabItems.length]
-  );
+  const noticeRows = useMemo((): Array<NoticeRow> => {
+    const notice = productDetail?.productNotice;
 
-  const handleLayoutTabBodyContent = useCallback((key: string, e: LayoutChangeEvent) => {
-    const height = e.nativeEvent.layout.height;
+    if (!notice) {
+      return [];
+    }
+    return Object.entries(notice)
+      .filter(([, value]) => !!value)
+      .map(([key, value]) => ({ key, value: String(value) }));
+  }, [productDetail?.productNotice]);
 
-    setContentHeightMap(
-      produce(draft => {
-        draft[key] = height;
-      })
-    );
-  }, []);
+  const deliveryRows = useMemo((): Array<NoticeRow> => {
+    const delivery = productDetail?.delivery;
 
-  const handleChangeSelectedIndex = useCallback(
-    (index: number) => {
-      updateTabIndex(index);
-      requestAnimationFrame(() => {
-        scrollViewRef.current?.scrollTo({
-          y: tabHeaderY,
-          animated: true,
-        });
-      });
-    },
-    [tabHeaderY, updateTabIndex]
-  );
-
-  const handlePressPurchase = useCallback(() => {
-    openProductOptionBottomSheet();
-  }, [openProductOptionBottomSheet]);
-
-  const wishlistCleanupFnsRef = useRef(wishlistCleanupFns);
-  const followingCleanupFnsRef = useRef(followingCleanupFns);
-
-  wishlistCleanupFnsRef.current = wishlistCleanupFns;
-  followingCleanupFnsRef.current = followingCleanupFns;
-
-  useEffect(() => {
-    return () => {
-      wishlistCleanupFnsRef.current?.forEach((fn: () => void) => fn());
-      followingCleanupFnsRef.current?.forEach((fn: () => void) => fn());
-    };
-  }, []);
+    if (!delivery) {
+      return [];
+    }
+    return [
+      { key: "배송비", value: `${formatPrice(delivery.deliveryFee)}원` },
+      ...(delivery.freeShippingThreshold
+        ? [{ key: "무료배송 기준", value: `${formatPrice(delivery.freeShippingThreshold)}원 이상` }]
+        : []),
+      { key: "도서산간 추가", value: `${formatPrice(delivery.remoteAreaSurcharge)}원` },
+      { key: "반품 배송비", value: `${formatPrice(delivery.returnFee)}원` },
+      { key: "교환 배송비", value: `${formatPrice(delivery.exchangeFee)}원` },
+    ];
+  }, [productDetail?.delivery]);
 
   useEffect(() => {
     return () => {
@@ -339,92 +170,124 @@ export default function ProductDetailView() {
     };
   }, [clearSelectedVariants, productId]);
 
+  const renderTabBody = () => {
+    switch (selectedTab) {
+      case "info":
+        return (
+          <View>
+            <ProductDetailInfo
+              description={productDetail?.description || ""}
+              isExpand={isDescriptionExpanded}
+              onPressExpand={() => setIsDescriptionExpanded(prev => !prev)}
+            />
+            <ProductNoticeTable title="상품 정보 제공 고시" rows={noticeRows} />
+            <BusinessFooter defaultExpanded />
+          </View>
+        );
+      case "inquiry":
+        return <ProductDetailInquiry productId={productId} />;
+      case "seller":
+        return (
+          <View>
+            <ProductNoticeTable title="배송 / 교환 / 반품 안내" rows={deliveryRows} />
+            <ProductSellerInfo sellerInfo={productDetail?.sellerInfo} />
+            <BusinessFooter defaultExpanded />
+          </View>
+        );
+    }
+  };
+
   return (
-    <View className="flex-1">
+    <View className="flex-1 bg-white">
       <ProductDetailHeader
-        onPressBack={handlePressBack}
-        onPressSearch={handlePressSearch}
-        onPressCart={handlePressCart}
+        onPressBack={commonNavigation.goBack}
+        onPressSearch={() =>
+          mainNavigation.navigate(ROOT_ROUTES.COMMON, {
+            screen: COMMON_ROUTES.SEARCH,
+            params: { keyword: "" },
+          })
+        }
+        onPressCart={() => mainNavigation.navigate(ROOT_ROUTES.COMMON, { screen: COMMON_ROUTES.CART })}
       />
-      {isLoading ? (
+
+      {isLoading || !productDetail ? (
         <View className="flex-1 items-center justify-center">
           <Spinner />
         </View>
       ) : (
         <ScrollView
-          ref={scrollViewRef}
-          stickyHeaderIndices={[7]}
-          contentContainerStyle={{ paddingBottom: bottom + BOTTOM_TAB_HEIGHT }}
+          stickyHeaderIndices={[5]}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: bottom + BOTTOM_CTA_HEIGHT }}
         >
-          <ProductThumbnailCarousel images={productDetail?.coverImageUrls || []} />
+          <ProductGallery
+            representativeImageUrl={productDetail.representativeImageUrl}
+            coverImageUrls={productDetail.coverImageUrls}
+          />
           <ProductDetailBrandSection
-            marketName={productDetail?.marketName || ""}
-            isFollowed={localProduct?.isFollowing || false}
-            onPressMarket={handlePressMarket}
-            onPressFollow={handlePressFollow}
+            marketName={productDetail.marketName}
+            brandSiteUrl={productDetail.brandSiteUrl}
+            onPressBrandSite={handlePressBrandSite}
           />
-          <Typography className="text-16 text-black font-medium mt-14 px-20">
-            {productDetail?.name}
-          </Typography>
-          <ProductDetailPriceSection
-            containerClassName="mt-10"
-            regularPrice={productDetail?.regularPrice || 0}
-            salePrice={productDetail?.salePrice || 0}
-            onPressCoupon={openCouponDownloadBottomSheet}
+          <ProductPriceBlock
+            name={productDetail.name}
+            regularPrice={productDetail.regularPrice}
+            discountRate={productDetail.discountRate}
+            salePrice={productDetail.salePrice}
+            isUnavailable={isUnavailable}
           />
-          <ProductDetailBenefitSection
-            benefitPrice={103000}
-            containerClassName="mt-20 mb-40"
-            onPressTooltip={openBenefitBottomSheet}
-          />
-          <ProductDetailShowroomSection />
-          <ProductDetailDeliverySection
-            deliveryEstimatedDays={productDetail?.deliveryEstimatedDays || 0}
-            deliveryFee={productDetail?.deliveryFee || 0}
-            deliveryType={productDetail?.deliveryType || ""}
-            containerClassName="mb-40"
-          />
-          <View onLayout={e => setTabHeaderY(e.nativeEvent.layout.y)}>
-            <TabHeader
-              wrapperClassName="bg-white border-b-[1px] border-gray2"
-              items={tabItems}
-              renderItem={renderTabHeader}
-              selectedIndex={selectedTabIndex}
-              keyExtractor={item => item.id}
-              onPressTab={handleChangeSelectedIndex}
-            />
+          <View className="mt-18 h-5 bg-band" />
+          <ProductDeliveryBlock delivery={productDetail.delivery} />
+
+          <View className="flex-row border-b-[0.5px] border-divider bg-white">
+            {TABS.map(tab => {
+              const isActive = tab.id === selectedTab;
+
+              return (
+                <TouchableOpacity
+                  key={tab.id}
+                  onPress={() => setSelectedTab(tab.id)}
+                  activeOpacity={0.7}
+                  className="h-46 flex-1 items-center justify-center"
+                  style={isActive ? { borderBottomWidth: 2, borderBottomColor: "#0F0F0F" } : undefined}
+                >
+                  <Typography
+                    style={{ fontSize: 14, fontWeight: isActive ? "600" : "400", lineHeight: 14 }}
+                    className={isActive ? "text-ink" : "text-gray55"}
+                  >
+                    {tab.label}
+                  </Typography>
+                </TouchableOpacity>
+              );
+            })}
           </View>
-          <TabBody
-            scrollable={false}
-            wrapperClassName="flex-1"
-            items={tabItems}
-            selectedIndex={selectedTabIndex}
-            onChangeIndex={handleChangeSelectedIndex}
-            onLayout={handleLayoutTabBodyContent}
-            style={{ height: contentHeightMap[tabItems[selectedTabIndex].id] }}
-            enableGesture={false}
-            enableTabTransitionAnimation={false}
-          />
+
+          {renderTabBody()}
         </ScrollView>
       )}
+
       <View
-        style={{
-          height: BOTTOM_TAB_HEIGHT + bottom,
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 0 },
-          shadowOpacity: 0.1,
-          shadowRadius: 20,
-          elevation: 10,
-        }}
-        className="p-10 bg-white absolute bottom-0 left-0 right-0 h-50"
+        className="absolute bottom-0 left-0 right-0 border-t-[0.5px] border-divider bg-white px-14 pt-12"
+        style={{ paddingBottom: bottom + 12 }}
       >
-        <ProductDetailActions
-          isWished={localProduct?.isWished || false}
-          likeCount="7.2천" // TODO : 좋아요 수 표시
-          onPressLike={(newIsWished: boolean) => handlePermissionLike(productId, newIsWished)}
-          onPressPurchase={handlePressPurchase}
-        />
+        <TouchableOpacity
+          onPress={openProductOptionBottomSheet}
+          disabled={isUnavailable}
+          activeOpacity={0.8}
+          className={`h-52 flex-row items-center justify-center rounded-base ${
+            isUnavailable ? "bg-fill" : "bg-rose"
+          }`}
+        >
+          <Typography variant="buttonPrimary" className={isUnavailable ? "text-gray62" : "text-white"}>
+            {isUnavailable ? "판매가 종료된 상품이에요" : "구매하기"}
+          </Typography>
+        </TouchableOpacity>
       </View>
     </View>
   );
+}
+
+/** 재고 품절이거나 운영자가 강제 품절로 내렸으면 살 수 없다 */
+function isProductUnavailable(product: ProductDetail): boolean {
+  return !!product.status?.isOutOfStock || !!product.status?.isOutOfStockForced;
 }

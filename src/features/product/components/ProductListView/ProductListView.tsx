@@ -125,7 +125,7 @@ export default function ProductListView(props: ProductListViewProps) {
         gap: GAP,
         paddingBlock: PADDING_BLOCK,
         borderBottomWidth: 1,
-        borderBottomColor: "#EAEAEF",
+        borderBottomColor: "#EFEFEF",
         paddingHorizontal: PADDING_HORIZONTAL,
       }}
     />

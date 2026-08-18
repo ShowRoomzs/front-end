@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { Switch, View } from "react-native";
 
+import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import Section from "@/common/components/Section/Section";
 import VStack from "@/common/components/VStack/VStack";
 import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { useSettingsNavigation } from "@/common/router";
 import { CleanupFn } from "@/common/types/cleanup";
-import SettingsHeader from "@/features/setting/components/SettingsHeader/SettingsHeader";
 import { useGetNotificationSettings } from "@/features/setting/hooks/useGetNotificationSettings";
 import { useUpdateNotificationSettings } from "@/features/setting/hooks/useUpdateNotificationSettings";
 import { NotificationSettings } from "@/features/setting/types/notification";
@@ -53,7 +53,7 @@ export default function NotificationSettingsView() {
         <Switch
           value={settings?.[item.field] ?? false}
           onValueChange={value => handleToggle(item.field, value)}
-          trackColor={{ false: "#E1E1E5", true: "#EF4A37" }}
+          trackColor={{ false: "#E3E3E5", true: "#F2456E" }}
           thumbColor="#FFFFFF"
         />
       ),
@@ -71,7 +71,7 @@ export default function NotificationSettingsView() {
 
   return (
     <View className="flex-1">
-      <SettingsHeader title="알림 설정" wrapperClassName="px-20" onPressBack={handlePressBack} />
+      <ScreenHeader title="알림 설정" onPressBack={handlePressBack} />
       <VStack className="px-20 pt-25" gap={25}>
         <Section title="혜택 및 이벤트 알림" items={buildSectionItems(SECTION_1_ITEMS)} />
         <Section title="브랜드 및 쇼룸 알림" items={buildSectionItems(SECTION_2_ITEMS)} />

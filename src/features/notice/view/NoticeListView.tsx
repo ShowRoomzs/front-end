@@ -1,43 +1,26 @@
 import { useCallback, useEffect } from "react";
 import { View } from "react-native";
 
-import NoticeListHeader from "../components/NoticeListHeader/NoticeListHeader";
-import NoticeListItem from "../components/NoticeListItem/NoticeListItem";
-import useGetNoticeList from "../hooks/useGetNoticeList";
-import { NoticeListItem as NoticeItemType } from "../types/notice";
-
-import Divider from "@/common/components/Divider/Divider";
 import PagingList from "@/common/components/PagingList/PagingList";
+import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { useMypageNavigation } from "@/common/router";
-import { MYPAGE_ROUTES } from "@/common/router/routes";
+import NoticeAccordion from "@/features/notice/components/NoticeAccordion/NoticeAccordion";
+import useGetNoticeList from "@/features/notice/hooks/useGetNoticeList";
+import { NoticeListItem } from "@/features/notice/types/notice";
 
+/**
+ * C17 공지사항 — 운영자 게시 정적 콘텐츠.
+ *
+ * 최신순에 [중요]가 상단 고정이고(정렬은 서버가 한다), 항목을 탭하면 본문이 그 자리에서 펼쳐진다.
+ * 목록에서 상세로 넘어가지 않는 이유는 공지가 대개 몇 문단이라, 화면을 옮길 만큼의 내용이 아니어서다.
+ */
 export default function NoticeListView() {
   const navigation = useMypageNavigation();
   const { show: showBottomTab, hide: hideBottomTab } = useBottomTab();
   const { notices, pageInfo, isFetching, fetchNextPage } = useGetNoticeList();
 
-  const handlePressBack = useCallback(() => {
-    navigation.goBack();
-  }, [navigation]);
-
-  const handleLoadMore = useCallback(() => {
-    fetchNextPage();
-  }, [fetchNextPage]);
-
-  const handlePressItem = useCallback(
-    (id: number) => {
-      navigation.navigate(MYPAGE_ROUTES.NOTICE_DETAIL, { noticeId: id });
-    },
-    [navigation]
-  );
-
-  const renderItem = useCallback(
-    ({ item }: { item: NoticeItemType }) => {
-      return <NoticeListItem item={item} onPress={handlePressItem} />;
-    },
-    [handlePressItem]
-  );
+  const renderItem = useCallback(({ item }: { item: NoticeListItem }) => <NoticeAccordion item={item} />, []);
 
   useEffect(() => {
     hideBottomTab();
@@ -48,14 +31,14 @@ export default function NoticeListView() {
 
   return (
     <View className="flex-1 bg-white">
-      <NoticeListHeader onPressBack={handlePressBack} wrapperClassName="px-20" />
-      <PagingList<NoticeItemType>
+      <ScreenHeader title="공지사항" onPressBack={navigation.goBack} />
+      <PagingList<NoticeListItem>
         data={notices}
         pageInfo={pageInfo}
         isLoading={isFetching}
-        onLoadMore={handleLoadMore}
+        onLoadMore={fetchNextPage}
         renderItem={renderItem}
-        ItemSeparatorComponent={() => <Divider height={1} wrapperClassName="bg-gray2" />}
+        showsVerticalScrollIndicator={false}
       />
     </View>
   );

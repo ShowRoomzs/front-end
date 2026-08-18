@@ -1,9 +1,14 @@
-// 하단 탭 네비게이션
+/**
+ * 하단 탭 — 디자인 확정안의 4탭이다(홈 · 팔로잉 · 좋아요 · 마이).
+ *
+ * 카테고리 탐색은 C14 쇼룸 검색 안으로, 상품 위시리스트는 마이 > 쇼핑 정보로 옮겼다.
+ * 좋아요(LIKE)는 상품이 아니라 게시물을 모아 보는 화면이다 — 서버 경로가 wishlist인 것은
+ * 앱이 쓰던 옛 계약을 그대로 둔 것뿐이다.
+ */
 export const HOME_ROUTES = {
-  CATEGORY: "category",
-  FOLLOWING: "following",
   HOME: "home",
-  WISHLIST: "wishlist",
+  FOLLOWING: "following",
+  LIKE: "like",
   MYPAGE: "mypage",
 } as const;
 
@@ -23,13 +28,14 @@ export const AUTH_ROUTES = {
 // 공통 스택 네베게이션
 export const COMMON_ROUTES = {
   SEARCH: "search",
-  SEARCH_DETAIL: "searchDetail",
   CART: "cart",
   NOTIFICATION: "notification",
-  SETTING: "setting",
   PRODUCT_DETAIL: "productDetail",
   PRODUCT_INQUIRY: "productInquiry",
-  MARKET_DETAIL: "marketDetail",
+  SHOWROOM_DETAIL: "showroomDetail",
+  POST_DETAIL: "postDetail",
+  CATEGORY: "commonCategory",
+  WISHLIST: "commonWishlist",
 } as const;
 
 // 설정 스택 네비게이션
@@ -51,14 +57,11 @@ export const MYPAGE_ROUTES = {
   CANCEL_AND_REFUND: "cancelAndRefund",
   ADDRESS_MANAGEMENT: "addressManagement",
   ADDRESS_FORM: "addressForm",
-  FOLLOWING_LIST: "followingList",
   INQUIRY_HISTORY: "inquiryHistory",
   INQUIRY_REGISTER: "inquiryRegister",
   CUSTOMER_CENTER: "customerCenter",
   NOTICE: "notice",
-  NOTICE_DETAIL: "noticeDetail",
   OPEN_LICENSE: "openLicense",
-  VERSION_INFO: "versionInfo",
   PRIVACY_POLICY: "privacyPolicy",
   SERVICE_AGREEMENT: "serviceAgreement",
   COUPON: "coupon",

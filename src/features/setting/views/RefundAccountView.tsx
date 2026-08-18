@@ -5,6 +5,7 @@ import Divider from "@/common/components/Divider/Divider";
 import Dropdown from "@/common/components/Dropdown/Dropdown";
 import LabeledComponent from "@/common/components/LabeledComponent/LabeledComponent";
 import LabeledInput from "@/common/components/LabeledInput/LabeledInput";
+import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
 import { useBottomTab } from "@/common/hooks/useBottomTab";
@@ -12,7 +13,6 @@ import { toast } from "@/common/providers/ToastProvider";
 import { useGetBank } from "@/common/queries/useGetBank";
 import { useSettingsNavigation } from "@/common/router";
 import RefundAccountBottomAction from "@/features/setting/components/RefundAccountBottomAction/RefundAccountBottomAction";
-import SettingsHeader from "@/features/setting/components/SettingsHeader/SettingsHeader";
 import { useGetRefundAccount } from "@/features/setting/hooks/useGetRefundAccount";
 import { useUpdateRefundAccountMutation } from "@/features/setting/hooks/useUpdateRefundAccountMutation";
 
@@ -69,7 +69,7 @@ export default function RefundAccountView() {
 
   return (
     <View className="flex-1">
-      <SettingsHeader title="환불 계좌" wrapperClassName="px-20" onPressBack={handlePressBack} />
+      <ScreenHeader title="환불 계좌" onPressBack={handlePressBack} />
       {refundAccount && (
         <View className="p-20 bg-gray0">
           <View className="border-[1px] border-gray2 bg-white p-15 rounded-[5px] flex flex-col">
@@ -104,17 +104,17 @@ export default function RefundAccountView() {
         <VStack gap={8} className="bg-gray1 border-[1px] border-gray2 rounded-[5px] p-15">
           {refundAccount && (
             <VStack gap={4}>
-              <Typography className="text-11 gray-12 font-normal" style={{ color: "#646466" }}>
+              <Typography className="text-11 gray-12 font-normal" style={{ color: "#737373" }}>
                 변경 된 환불 계좌는 새로운 주문건부터 적용됩니다
               </Typography>
-              <Typography className="text-11 gray-12 font-normal" style={{ color: "#646466" }}>
+              <Typography className="text-11 gray-12 font-normal" style={{ color: "#737373" }}>
                 이미 주문하신 건은 기존의 환불계좌로 환불됩니다
               </Typography>
             </VStack>
           )}
           {refundAccount && <Divider wrapperClassName="bg-gray2" height={1} />}
 
-          <Typography className="text-11 gray-12 font-normal" style={{ color: "#646466" }}>
+          <Typography className="text-11 gray-12 font-normal" style={{ color: "#737373" }}>
             추가하실 환불 계좌정보를 상세하게 확인하신 후 추가해주시기 바랍니다
           </Typography>
         </VStack>

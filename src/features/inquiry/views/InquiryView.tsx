@@ -5,7 +5,6 @@ import { isDeepEqual } from "remeda";
 
 import InquiryRegisterActions from "../components/InquiryRegisterActions/InquiryRegisterActions";
 import InquiryRegisterForm from "../components/InquiryRegisterForm/InquiryRegisterForm";
-import InquiryRegisterHeader from "../components/InquiryRegisterHeader/InquiryRegisterHeader";
 import InquiryRegisterNotice from "../components/InquiryRegisterNotice/InquiryRegisterNotice";
 import { useGetCategories } from "../hooks/useGetCategories";
 import { useGetInquiryDetail } from "../hooks/useGetInquiryDetail";
@@ -14,6 +13,7 @@ import { useUpdateInquiryMutation } from "../hooks/useInquiryMutation/useUpdateI
 import { InquiryRequest } from "../types/inquiry";
 
 import Divider from "@/common/components/Divider/Divider";
+import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { useImagePicker } from "@/common/hooks/useImagePicker";
 import { toast } from "@/common/providers/ToastProvider";
@@ -113,7 +113,7 @@ export default function InquiryView() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <View className="flex-1 bg-white">
         <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
-          <InquiryRegisterHeader wrapperClassName="px-20" onPressBack={handlePressBack} />
+          <ScreenHeader title="1:1 문의하기" onPressBack={handlePressBack} />
           <InquiryRegisterForm
             categories={categories}
             form={form}

@@ -14,10 +14,9 @@ import { TermsType } from "@/features/auth/views/TermsView";
 
 // 홈 하단 탭 파라미터
 export type HomeTabParamList = {
-  [HOME_ROUTES.CATEGORY]: undefined;
-  [HOME_ROUTES.FOLLOWING]: undefined;
   [HOME_ROUTES.HOME]: undefined;
-  [HOME_ROUTES.WISHLIST]: undefined;
+  [HOME_ROUTES.FOLLOWING]: undefined;
+  [HOME_ROUTES.LIKE]: undefined;
   [HOME_ROUTES.MYPAGE]: undefined;
 };
 
@@ -47,15 +46,16 @@ export type CommonStackParamList = {
   [COMMON_ROUTES.SEARCH]: {
     keyword: string;
   };
-  [COMMON_ROUTES.SEARCH_DETAIL]: {
-    keyword: string;
-  };
   [COMMON_ROUTES.CART]: undefined;
   [COMMON_ROUTES.NOTIFICATION]: undefined;
-  [COMMON_ROUTES.SETTING]: undefined;
-  [COMMON_ROUTES.MARKET_DETAIL]: {
-    marketId: number;
+  [COMMON_ROUTES.SHOWROOM_DETAIL]: {
+    showroomId: number;
   };
+  [COMMON_ROUTES.POST_DETAIL]: {
+    postId: number;
+  };
+  [COMMON_ROUTES.CATEGORY]: NavigatorScreenParams<CategoryStackParamList> | undefined;
+  [COMMON_ROUTES.WISHLIST]: undefined;
   [COMMON_ROUTES.PRODUCT_DETAIL]: {
     productId: number;
   };
@@ -104,18 +104,13 @@ export type MypageStackParamList = {
   [MYPAGE_ROUTES.ADDRESS_FORM]?: {
     addressId?: number;
   };
-  [MYPAGE_ROUTES.FOLLOWING_LIST]: undefined;
   [MYPAGE_ROUTES.INQUIRY_HISTORY]: undefined;
   [MYPAGE_ROUTES.INQUIRY_REGISTER]?: {
     inquiryId?: number;
   };
   [MYPAGE_ROUTES.NOTICE]: undefined;
-  [MYPAGE_ROUTES.NOTICE_DETAIL]?: {
-    noticeId?: number;
-  };
   [MYPAGE_ROUTES.CUSTOMER_CENTER]: undefined;
   [MYPAGE_ROUTES.OPEN_LICENSE]: undefined;
-  [MYPAGE_ROUTES.VERSION_INFO]: undefined;
   [MYPAGE_ROUTES.PRIVACY_POLICY]: undefined;
   [MYPAGE_ROUTES.SERVICE_AGREEMENT]: undefined;
   [MYPAGE_ROUTES.COUPON]: NavigatorScreenParams<CouponStackParamList> | undefined;

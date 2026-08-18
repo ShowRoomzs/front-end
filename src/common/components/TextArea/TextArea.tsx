@@ -31,7 +31,7 @@ export default function TextArea(props: TextAreaProps) {
           value={value}
           maxLength={maxLength}
           onChangeText={handleChangeText}
-          placeholderTextColor="#8D8D91"
+          placeholderTextColor="#8E8E8E"
           className={cn("text-14 text-black font-normal p-0 m-0", inputClassName)}
           {...inputProps}
         />

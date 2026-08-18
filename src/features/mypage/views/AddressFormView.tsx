@@ -11,13 +11,13 @@ import HStack from "@/common/components/HStack/HStack";
 import Input from "@/common/components/Input/Input";
 import LabeledComponent from "@/common/components/LabeledComponent/LabeledComponent";
 import LabeledInput from "@/common/components/LabeledInput/LabeledInput";
+import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import VStack from "@/common/components/VStack/VStack";
 import { useAddressSearch } from "@/common/providers/AddressSearchProvider";
 import { useMypageNavigation } from "@/common/router";
 import { MYPAGE_ROUTES } from "@/common/router/routes";
 import { MypageStackParamList } from "@/common/router/types";
 import { formatPhoneNumber } from "@/features/auth/utils/formatPhoneNumber";
-import AddressManagementHeader from "@/features/mypage/components/AddressManagementHeader/AddressManagementHeader";
 import { useAddressMutation } from "@/features/mypage/hooks/useAddressMutation/useAddressMutation";
 import { useGetAddressDetail } from "@/features/mypage/hooks/useGetAddressDetail";
 import { AddressRequest } from "@/features/mypage/types/address";
@@ -130,12 +130,7 @@ export default function AddressFormView() {
 
   return (
     <View className="flex-1">
-      <AddressManagementHeader
-        title={title}
-        wrapperClassName="px-20"
-        onBackPress={handleBackPress}
-        showAddButton={false}
-      />
+      <ScreenHeader title={title} onPressBack={handleBackPress} />
       <VStack gap={20} className="flex-1 py-25 px-20 pb-24">
         <LabeledInput
           label="이름"
@@ -177,7 +172,7 @@ export default function AddressFormView() {
         />
       </VStack>
       <View
-        className="absolute bottom-0 left-0 right-0 border-t border-gray-200 bg-white p-20"
+        className="absolute bottom-0 left-0 right-0 border-t-[0.5px] border-divider bg-white p-20"
         style={{ paddingBottom: 10 + inset.bottom }}
       >
         <Button size="xl" variant="primary" onPress={handleSubmit} disabled={!enableValidation}>

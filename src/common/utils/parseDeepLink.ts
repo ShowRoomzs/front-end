@@ -1,72 +1,26 @@
-import { SnsLink } from "@/features/market/types/market";
-
 interface ParseDeepLinkResult {
   appUrl: string;
   webUrl: string;
 }
-function parseInstagram(snsUrl: string): ParseDeepLinkResult {
-  const userName = snsUrl.split("/").pop();
+
+/**
+ * 인스타그램 딥링크.
+ *
+ * 쇼룸이 소비자에게 공개하는 채널은 인스타그램 하나다(§22-1) — 유튜브·틱톡·X 파서는
+ * 마켓 SNS 목록과 함께 사라졌다.
+ *
+ * 앱이 깔려 있으면 앱으로, 아니면 웹으로 연다. 파싱에 실패하면 받은 URL을 그대로 웹으로 연다 —
+ * 프로필 주소 형태가 조금 달라도 링크가 죽는 것보다 낫다.
+ */
+export function parseInstagramLink(instagramUrl: string): ParseDeepLinkResult {
+  const userName = instagramUrl.replace(/\/+$/, "").split("/").pop();
 
   if (!userName) {
-    throw new Error("Invalid Instagram URL");
+    return { appUrl: instagramUrl, webUrl: instagramUrl };
   }
+
   return {
     appUrl: `instagram://user?username=${userName}`,
     webUrl: `https://www.instagram.com/${userName}`,
   };
-}
-
-function parseYoutube(snsUrl: string): ParseDeepLinkResult {
-  const channelId = snsUrl.split("/").pop();
-
-  if (!channelId) {
-    throw new Error("Invalid Youtube URL");
-  }
-
-  return {
-    appUrl: `youtube://www.youtube.com/channel/${channelId}`,
-    webUrl: `https://www.youtube.com/channel/${channelId}`,
-  };
-}
-
-function parseTiktok(snsUrl: string): ParseDeepLinkResult {
-  const userName = snsUrl.split("/").pop();
-
-  if (!userName) {
-    throw new Error("Invalid Tiktok URL");
-  }
-  return {
-    appUrl: `tiktok://user/${userName}`,
-    webUrl: `https://www.tiktok.com/${userName}`,
-  };
-}
-
-function parseX(snsUrl: string): ParseDeepLinkResult {
-  const userName = snsUrl.split("/").pop();
-
-  if (!userName) {
-    throw new Error("Invalid X URL");
-  }
-  return {
-    appUrl: `twitter://user?screen_name=${userName}`,
-    webUrl: `https://x.com/${userName}`,
-  };
-}
-
-export function parseDeepLink(snsLink: SnsLink): ParseDeepLinkResult {
-  const { snsType, snsUrl } = snsLink;
-
-  // TODO : 각 플랫폼 실기기에서 테스트 필요
-  switch (snsType) {
-    case "INSTAGRAM":
-      return parseInstagram(snsUrl);
-    case "YOUTUBE":
-      return parseYoutube(snsUrl);
-    case "TIKTOK":
-      return parseTiktok(snsUrl);
-    case "X":
-      return parseX(snsUrl);
-    default:
-      throw new Error("Invalid SNS URL");
-  }
 }

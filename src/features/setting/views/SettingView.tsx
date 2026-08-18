@@ -1,12 +1,12 @@
 import { useCallback, useMemo } from "react";
-import { Image, Pressable, View } from "react-native";
+import { Image, ScrollView, TouchableOpacity, View } from "react-native";
 
 import defaultProfileImage from "@/common/assets/common/profile-default.png";
-import Button from "@/common/components/Button/Button";
+import GroupBand from "@/common/components/GroupBand/GroupBand";
 import HStack from "@/common/components/HStack/HStack";
-import Icon from "@/common/components/Icon/Icon";
+import MenuGroup, { MenuItem } from "@/common/components/MenuGroup/MenuGroup";
+import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import Typography from "@/common/components/Typography/Typography";
-import VStack from "@/common/components/VStack/VStack";
 import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { useGlobalLoading } from "@/common/hooks/useGlobalLoading";
 import { toast } from "@/common/providers/ToastProvider";
@@ -14,12 +14,8 @@ import { useUploadImagesMutation } from "@/common/queries/useUploadImagesMutatio
 import { SETTINGS_ROUTES, useMypageNavigation, useSettingsNavigation } from "@/common/router";
 import { HOME_ROUTES } from "@/common/router/routes";
 import { useUserStore } from "@/common/stores/useUserStore";
-import { COMMON_ASSETS } from "@/common/utils/assets";
-import { cn } from "@/common/utils/cn";
 import { useLogin } from "@/features/auth/hooks/useLogin";
 import ProfileImageSelectButton from "@/features/setting/components/ProfileImageSelectButton/ProfileImageSelectButton";
-import SettingsHeader from "@/features/setting/components/SettingsHeader/SettingsHeader";
-import { SETTING_MENUS } from "@/features/setting/constants/menus";
 import { useUpdateUserMutation } from "@/features/user/hooks/useUpdateUserMutation";
 import { UpdateUserRequest } from "@/features/user/types/user";
 
@@ -49,20 +45,44 @@ export default function SettingView() {
     mypageNavigation.goBack();
   }, [mypageNavigation]);
 
-  const settingMenus = useMemo(
-    () =>
-      SETTING_MENUS.map(menu => ({
-        ...menu,
-        onPress: () => {
-          if (menu.key === "logout") {
-            handleLogout();
-            return;
-          }
-          if (menu.routeName) {
-            settingsNavigation.navigate(menu.routeName);
-          }
-        },
-      })),
+  const accountItems = useMemo(
+    (): Array<MenuItem> => [
+      {
+        key: "memberInfoChange",
+        label: "회원 정보 변경",
+        onPress: () => settingsNavigation.navigate(SETTINGS_ROUTES.MEMBER_INFO_CHANGE),
+      },
+      {
+        key: "refundAccount",
+        label: "환불 계좌 관리",
+        onPress: () => settingsNavigation.navigate(SETTINGS_ROUTES.REFUND_ACCOUNT),
+      },
+    ],
+    [settingsNavigation]
+  );
+
+  const notificationItems = useMemo(
+    (): Array<MenuItem> => [
+      {
+        key: "notificationSettings",
+        label: "알림 설정",
+        onPress: () => settingsNavigation.navigate(SETTINGS_ROUTES.NOTIFICATION_SETTINGS),
+      },
+    ],
+    [settingsNavigation]
+  );
+
+  // 로그아웃과 탈퇴는 계정을 떠나는 액션이라 한 그룹으로 묶어 맨 아래에 둔다
+  const accountManageItems = useMemo(
+    (): Array<MenuItem> => [
+      { key: "logout", label: "로그아웃", isPassive: true, onPress: handleLogout },
+      {
+        key: "withdrawal",
+        label: "회원 탈퇴",
+        isPassive: true,
+        onPress: () => settingsNavigation.navigate(SETTINGS_ROUTES.WITHDRAWAL),
+      },
+    ],
     [handleLogout, settingsNavigation]
   );
 
@@ -101,45 +121,40 @@ export default function SettingView() {
   }
 
   return (
-    <View className="flex-1">
-      <SettingsHeader wrapperClassName="px-20" onPressBack={handlePressBack} />
-      <VStack className="px-20 pt-25" gap={25}>
-        <View className="flex flex-col" style={{ gap: 15 }}>
-          <HStack className="items-center" gap={10}>
+    <View className="flex-1 bg-white">
+      <ScreenHeader title="설정" onPressBack={handlePressBack} />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View className="px-14 pb-20 pt-18" style={{ gap: 15 }}>
+          <HStack className="items-center" gap={12}>
             <Image
               source={user.profileImageUrl ? { uri: user.profileImageUrl } : defaultProfileImage}
-              className="w-40 h-40 rounded-full"
+              className="h-50 w-50 rounded-full"
             />
-            <Typography className="text-black text-16 font-semibold">{user.nickname}</Typography>
+            <Typography variant="profileNameSmall" className="text-ink">
+              {user.nickname}
+            </Typography>
           </HStack>
-          <View style={{ flexDirection: "row", gap: 10 }}>
+          <View style={{ flexDirection: "row", gap: 8 }}>
             <ProfileImageSelectButton onSelect={handleSelectProfileImage} />
-            <Button
+            <TouchableOpacity
               onPress={handlePressNicknameChange}
-              className="flex-1"
-              size="md"
-              variant="secondary-black"
+              activeOpacity={0.6}
+              className="h-44 flex-1 flex-row items-center justify-center rounded-base border-[1px] border-borderButton"
             >
-              닉네임 변경
-            </Button>
+              <Typography variant="buttonInline" className="text-ink76">
+                닉네임 변경
+              </Typography>
+            </TouchableOpacity>
           </View>
         </View>
-        <VStack>
-          {settingMenus.map((menu, ix) => (
-            <Pressable
-              onPress={menu.onPress}
-              key={menu.key}
-              className={cn(
-                "flex flex-row justify-between items-center py-15 border-gray2",
-                ix !== settingMenus.length - 1 && "border-b-[1px]"
-              )}
-            >
-              <Typography className="text-black text-14 font-medium">{menu.title}</Typography>
-              <Icon icon={COMMON_ASSETS.arrowRight} />
-            </Pressable>
-          ))}
-        </VStack>
-      </VStack>
+
+        <GroupBand />
+        <MenuGroup title="계정" items={accountItems} />
+        <GroupBand />
+        <MenuGroup title="알림" items={notificationItems} />
+        <GroupBand />
+        <MenuGroup title="계정 관리" items={accountManageItems} />
+      </ScrollView>
     </View>
   );
 }

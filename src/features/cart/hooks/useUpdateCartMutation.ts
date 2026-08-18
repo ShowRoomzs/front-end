@@ -8,13 +8,16 @@ import { UpdateCartRequest } from "@/features/cart/types/cart";
 interface UpdateCartParams {
   cartId: number;
   data: UpdateCartRequest;
+  /** 선택 상태를 함께 보내야 서버가 같은 기준으로 합계를 다시 계산한다 */
+  selectedCartItemIds?: Array<number>;
 }
 
 export function useUpdateCartMutation() {
   return useMutation({
-    mutationFn: ({ cartId, data }: UpdateCartParams) => cartService.update(cartId, data),
+    mutationFn: ({ cartId, data, selectedCartItemIds }: UpdateCartParams) =>
+      cartService.update(cartId, data, selectedCartItemIds),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [CART_QUERY_KEY.CART] });
+      void queryClient.invalidateQueries({ queryKey: [CART_QUERY_KEY.CART] });
     },
   });
 }

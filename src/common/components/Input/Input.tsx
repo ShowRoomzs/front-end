@@ -135,7 +135,7 @@ const Input = forwardRef<TextInput, InputProps>((props, ref) => {
         <TextInput
           ref={ref}
           className={cn("flex-1", inputClassName)}
-          placeholderTextColor="#8D8D91"
+          placeholderTextColor="#8E8E8E"
           {...inputProps}
           onChangeText={handleChangeText}
         />

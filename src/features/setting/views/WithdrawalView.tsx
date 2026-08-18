@@ -3,11 +3,11 @@ import { Pressable, View } from "react-native";
 
 import HStack from "@/common/components/HStack/HStack";
 import Radio from "@/common/components/Radio/Radio";
+import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
 import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { SETTINGS_ROUTES, useSettingsNavigation } from "@/common/router";
-import SettingsHeader from "@/features/setting/components/SettingsHeader/SettingsHeader";
 import WithdrawalBottomAction from "@/features/setting/components/WithdrawalBottomAction/WithdrawalBottomAction";
 import { WITHDRAWAL_REASONS } from "@/features/setting/constants/withdraw";
 
@@ -34,7 +34,7 @@ export default function WithdrawalView() {
 
   return (
     <View className="flex-1">
-      <SettingsHeader title="회원탈퇴" wrapperClassName="px-20" onPressBack={handlePressBack} />
+      <ScreenHeader title="회원탈퇴" onPressBack={handlePressBack} />
       <VStack className="px-20 pt-25" gap={35}>
         <Typography className="text-black text-20 font-semibold">탈퇴하는 사유를 선택해 주세요</Typography>
         <VStack gap={0}>

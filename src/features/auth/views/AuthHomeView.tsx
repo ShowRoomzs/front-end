@@ -1,11 +1,13 @@
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { useCallback, useMemo } from "react";
-import { Platform, View } from "react-native";
+import { Platform, TouchableOpacity, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { runOnJS } from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
 
+import { CloseIcon } from "@/common/components/DsIcon/icons";
 import Icon from "@/common/components/Icon/Icon";
-import VStack from "@/common/components/VStack/VStack";
+import Typography from "@/common/components/Typography/Typography";
 import { AuthStackParamList, useAuthNavigation } from "@/common/router";
 import { AUTH_ROUTES } from "@/common/router/routes";
 import { COMMON_ASSETS } from "@/common/utils/assets";
@@ -78,16 +80,38 @@ export default function AuthHomeView() {
 
   return (
     <GestureDetector gesture={pan}>
-      <View className="bg-black flex-1 flex items-center justify-center">
-        <VStack gap={45} className="w-full">
-          <Icon icon={COMMON_ASSETS.logo} className="self-center" />
-          <VStack gap={20} className="w-full px-20">
-            {socialButtons.map(socialType => (
-              <SocialButton onPress={handlePressSocialButton} key={socialType} socialType={socialType} />
-            ))}
-          </VStack>
-        </VStack>
-      </View>
+      <SafeAreaView edges={["top", "bottom"]} className="flex-1 bg-white">
+        {/* 로그인은 흐름을 잠시 덮는 화면이라는 신호로 뒤로가기 대신 우측 상단 X를 둔다 */}
+        <View className="h-46 flex-row items-center justify-end px-8">
+          <TouchableOpacity onPress={navigation.goBack} activeOpacity={0.5} className="p-11">
+            <CloseIcon size={20} color="#0F0F0F" />
+          </TouchableOpacity>
+        </View>
+
+        <View className="flex-1 justify-center px-20">
+          <Icon icon={COMMON_ASSETS.logoBlack} className="self-start" />
+          <Typography
+            style={{ fontSize: 22, fontWeight: "700", lineHeight: 31, letterSpacing: -0.5, marginTop: 24 }}
+            className="text-ink"
+          >
+            {"팔로우한 쇼룸의 공구를\n놓치지 마세요"}
+          </Typography>
+          <Typography variant="promptBody" className="mt-10 text-gray45">
+            {"좋아하는 인플루언서의 공동구매를\n가장 먼저 알려드려요"}
+          </Typography>
+        </View>
+
+        <View className="px-20 pb-20" style={{ gap: 10 }}>
+          {socialButtons.map(socialType => (
+            <SocialButton onPress={handlePressSocialButton} key={socialType} socialType={socialType} />
+          ))}
+          <Typography variant="legal" className="mt-12 text-center text-gray45">
+            {
+              "계속하면 서비스 이용약관 및 개인정보 처리방침에\n동의하는 것으로 간주됩니다 · 만 14세 이상만 가입할 수 있어요"
+            }
+          </Typography>
+        </View>
+      </SafeAreaView>
     </GestureDetector>
   );
 }

@@ -18,28 +18,33 @@ export default function SocialButton(props: SocialButtonProps) {
   const { socialType, onPress } = props;
   const { login } = useSocialLogin(socialType);
 
-  // ---- wrapper ----
+  /**
+   * 높이 52 · R8로 통일한다. 브랜드 색은 유지하되 명도를 낮춰 형광 느낌을 덜어냈다 —
+   * 카카오 #F7DE23 · 네이버 #06B856 · Apple #1A1A1A. Google은 브랜드 가이드상
+   * 흰 배경 + 회색 테두리 + 컬러 G 마크가 표준이라 그대로 따른다.
+   *
+   * 로즈는 이 화면에 쓰지 않는다 — 공구 신호가 아니라 플랫폼 색이 주인공인 자리다.
+   */
   const getDefaultWrapperClassName = () => {
-    return "flex flex-row items-center w-full px-20 h-49 rounded-md";
+    return "flex w-full h-52 flex-row items-center rounded-base px-20";
   };
 
   const getWrapperClassNameByVariant = () => {
     switch (socialType) {
       case "NAVER":
-        return "bg-[#47BA1B]";
+        return "bg-[#06B856]";
       case "KAKAO":
-        return "bg-[#FAE100]";
+        return "bg-[#F7DE23]";
       case "GOOGLE":
-        return "bg-white";
+        return "border-[1px] border-borderButton bg-white";
       case "APPLE":
-        return "bg-black border-[1px] border-[#FFFFFF33]";
+        return "bg-[#1A1A1A]";
     }
   };
-  // ---- wrapper ----
 
   // ---- text ----
   const getDefaultTextClassName = () => {
-    return "flex-1 font-[600] text-center text-[16px]";
+    return "flex-1 text-center";
   };
 
   const getTextClassNameByVariant = () => {
@@ -49,7 +54,7 @@ export default function SocialButton(props: SocialButtonProps) {
       case "KAKAO":
         return "text-black";
       case "GOOGLE":
-        return "text-black";
+        return "text-ink";
       case "APPLE":
         return "text-white";
     }
@@ -59,13 +64,13 @@ export default function SocialButton(props: SocialButtonProps) {
   const getLabel = () => {
     switch (socialType) {
       case "NAVER":
-        return "네이버로 시작하기";
+        return "네이버로 계속하기";
       case "KAKAO":
-        return "카카오로 시작하기";
+        return "카카오로 계속하기";
       case "GOOGLE":
-        return "구글로 시작하기";
+        return "Google로 계속하기";
       case "APPLE":
-        return "애플로 시작하기";
+        return "Apple로 계속하기";
     }
   };
 
@@ -98,7 +103,10 @@ export default function SocialButton(props: SocialButtonProps) {
       className={cn(getDefaultWrapperClassName(), getWrapperClassNameByVariant())}
     >
       {getIcon()}
-      <Typography className={cn(getDefaultTextClassName(), getTextClassNameByVariant())}>
+      <Typography
+        variant="buttonPrimary"
+        className={cn(getDefaultTextClassName(), getTextClassNameByVariant())}
+      >
         {getLabel()}
       </Typography>
     </TouchableOpacity>

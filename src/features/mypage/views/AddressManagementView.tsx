@@ -1,11 +1,12 @@
 import { useCallback, useEffect } from "react";
-import { FlatList, View } from "react-native";
+import { FlatList, TouchableOpacity, View } from "react-native";
 
+import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
+import Typography from "@/common/components/Typography/Typography";
 import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { useMypageNavigation } from "@/common/router";
 import { MYPAGE_ROUTES } from "@/common/router/routes";
 import AddressCard from "@/features/mypage/components/AddressCard/AddressCard";
-import AddressManagementHeader from "@/features/mypage/components/AddressManagementHeader/AddressManagementHeader";
 import { useAddressMutation } from "@/features/mypage/hooks/useAddressMutation/useAddressMutation";
 import { useGetAddressList } from "@/features/mypage/hooks/useGetAddressList";
 import { Address } from "@/features/mypage/types/address";
@@ -72,11 +73,16 @@ export default function AddressManagementView() {
 
   return (
     <View className="flex-1">
-      <AddressManagementHeader
+      <ScreenHeader
         title="배송지 관리"
-        wrapperClassName="px-20"
-        onAddAddressPress={handleAddAddressPress}
-        onBackPress={handleBackPress}
+        onPressBack={handleBackPress}
+        renderRight={
+          <TouchableOpacity onPress={handleAddAddressPress} activeOpacity={0.6} className="px-4 py-8">
+            <Typography style={{ fontSize: 13, fontWeight: "600", lineHeight: 18 }} className="text-ink76">
+              추가
+            </Typography>
+          </TouchableOpacity>
+        }
       />
       <FlatList
         contentContainerStyle={{ padding: 20, gap: 10 }}

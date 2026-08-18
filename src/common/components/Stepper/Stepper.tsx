@@ -39,7 +39,7 @@ export default function Stepper(props: StepperProps) {
           isDisabledDecrease && "bg-gray2"
         )}
       >
-        <Icon icon={COMMON_ASSETS.minusIcon} stroke={isDisabledDecrease ? "#A8A8AD" : "#0D0C11"} />
+        <Icon icon={COMMON_ASSETS.minusIcon} stroke={isDisabledDecrease ? "#9E9E9E" : "#0F0F0F"} />
       </Pressable>
       <View className="flex items-center justify-center border-y-[1px] border-gray4 w-60 h-36">
         <Typography className="text-13 text-black font-medium">{value}</Typography>
@@ -51,7 +51,7 @@ export default function Stepper(props: StepperProps) {
           isDisabledIncrease && "bg-gray2"
         )}
       >
-        <Icon icon={COMMON_ASSETS.plusIcon} stroke={isDisabledIncrease ? "#A8A8AD" : "#0D0C11"} />
+        <Icon icon={COMMON_ASSETS.plusIcon} stroke={isDisabledIncrease ? "#9E9E9E" : "#0F0F0F"} />
       </Pressable>
     </View>
   );

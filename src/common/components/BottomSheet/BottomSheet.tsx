@@ -41,7 +41,7 @@ const BottomSheet = forwardRef<BottomSheetModalMethods, BottomSheetProps>((props
     <BottomSheetModal
       // eslint-disable-next-line react-native/no-color-literals
       handleIndicatorStyle={{
-        backgroundColor: "#E1E1E5",
+        backgroundColor: "#E3E3E5",
         width: 30,
         height: 3,
       }}

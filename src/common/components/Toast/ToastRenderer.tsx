@@ -145,8 +145,8 @@ export default function ToastRenderer() {
     if (type === "point") {
       return {
         borderWidth: 1,
-        borderColor: "#EF4A37CC",
-        shadowColor: "#EF4A37",
+        borderColor: "#F2456ECC",
+        shadowColor: "#F2456E",
         shadowOffset: { width: 0, height: 5 },
         shadowOpacity: 0.35,
         shadowRadius: 7.5,

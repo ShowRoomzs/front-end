@@ -14,16 +14,6 @@ export const productService = {
 
     return response;
   },
-  getRelated: async (productId: number, params: PageParams) => {
-    const { data: response } = await apiInstance.get<ProductListResponse>(
-      `/common/products/${productId}/related`,
-      {
-        params,
-      }
-    );
-
-    return response;
-  },
   getStock: async (productId: number, variantIds: Array<number>) => {
     const { data: response } = await apiInstance.get<StockResponse>(
       `/common/products/${productId}/variants`,

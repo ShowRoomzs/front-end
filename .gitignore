@@ -47,4 +47,5 @@ yarn-error.*
 .env
 
 #cursor
-.cursor/.idea/
+.cursor/
+.idea/

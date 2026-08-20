@@ -1,0 +1,6 @@
+npm warn exec The following package was not found and will be installed: eas-cli@16.32.0
+★ eas-cli@22.0.0 is now available.
+To upgrade, run:
+npm install -g eas-cli
+Proceeding with outdated version.
+

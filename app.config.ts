@@ -8,6 +8,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ...config,
     name: "showroomz",
     slug: "showroomz",
+    scheme: "showroomz",
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/icon.png",

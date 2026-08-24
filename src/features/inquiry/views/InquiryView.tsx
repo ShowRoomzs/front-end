@@ -14,7 +14,6 @@ import { InquiryRequest } from "../types/inquiry";
 
 import Divider from "@/common/components/Divider/Divider";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
-import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { useImagePicker } from "@/common/hooks/useImagePicker";
 import { toast } from "@/common/providers/ToastProvider";
 import { useUploadImagesMutation } from "@/common/queries/useUploadImagesMutation";
@@ -28,13 +27,7 @@ export default function InquiryView() {
   const inquiryId = params?.inquiryId;
   const isEdit = !!inquiryId;
 
-  const { hide: hideBottomTab, show: showBottomTab } = useBottomTab();
   const { data: inquiryDetail } = useGetInquiryDetail(inquiryId);
-
-  useEffect(() => {
-    hideBottomTab();
-    return () => showBottomTab();
-  }, [hideBottomTab, showBottomTab]);
 
   const [form, setForm] = useState<InquiryRequest>({ type: "", detailType: "", content: "" });
   const { imageUrls, handleAddImage, handleRemoveImage, setImageUrls } = useImagePicker({

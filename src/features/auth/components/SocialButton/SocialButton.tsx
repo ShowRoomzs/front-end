@@ -3,6 +3,7 @@ import { TouchableOpacity } from "react-native";
 
 import Icon from "@/common/components/Icon/Icon";
 import Typography from "@/common/components/Typography/Typography";
+import { toast } from "@/common/providers/ToastProvider";
 import { COMMON_ASSETS } from "@/common/utils/assets";
 import { cn } from "@/common/utils/cn";
 import { SocialLoginResponse, useSocialLogin } from "@/features/auth/hooks/useSocialLogin";
@@ -87,14 +88,32 @@ export default function SocialButton(props: SocialButtonProps) {
     }
   };
 
+  /**
+   * 소셜 SDK는 실패 사유를 예외로 던진다. 잡지 않으면 처리되지 않은 rejection 으로 사라져
+   * 화면에는 "버튼을 눌렀는데 아무 일도 안 일어남"으로만 보인다 — 키 해시 불일치나 스킴
+   * 불일치처럼 설정에서 오는 실패가 대부분이라, 사유를 보여 주지 않으면 원인을 좁힐 수 없다.
+   *
+   * 사용자가 로그인 창을 직접 닫은 경우는 실패가 아니므로 조용히 넘긴다.
+   */
   const handlePress = useCallback(async () => {
-    const res = await login();
+    try {
+      const res = await login();
 
-    if (!res) {
-      return;
+      if (!res) {
+        return;
+      }
+      onPress(res);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+
+      if (/CANCELLED|cancel|dismiss/i.test(message)) {
+        return;
+      }
+
+      console.error(`[social-login] ${socialType}`, error);
+      toast.show(`로그인에 실패했어요 (${message})`);
     }
-    onPress(res);
-  }, [login, onPress]);
+  }, [login, onPress, socialType]);
 
   return (
     <TouchableOpacity

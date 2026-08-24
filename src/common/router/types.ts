@@ -11,6 +11,7 @@ import {
   SETTINGS_ROUTES,
 } from "@/common/router/routes";
 import { TermsType } from "@/features/auth/views/TermsView";
+import { WithdrawalReasonCode } from "@/features/setting/types/withdrawal";
 
 // 홈 하단 탭 파라미터
 export type HomeTabParamList = {
@@ -31,6 +32,15 @@ export type CategoryStackParamList = {
 // 인증 스택 파라미터
 export type AuthStackParamList = {
   [AUTH_ROUTES.AUTH_HOME]: {
+    onSuccessLogin?: () => void;
+  };
+  [AUTH_ROUTES.IDENTITY_VERIFY]: {
+    registerToken: string;
+    onSuccessLogin?: () => void;
+  };
+  [AUTH_ROUTES.AGE_RESTRICTED]: undefined;
+  [AUTH_ROUTES.VERIFY_FAILED]: {
+    registerToken: string;
     onSuccessLogin?: () => void;
   };
   [AUTH_ROUTES.SIGN_UP]: {
@@ -87,11 +97,13 @@ export type SettingsStackParamList = {
   [SETTINGS_ROUTES.MAIN]: undefined;
   [SETTINGS_ROUTES.NICKNAME_CHANGE]: undefined;
   [SETTINGS_ROUTES.MEMBER_INFO_CHANGE]: undefined;
-  [SETTINGS_ROUTES.NOTIFICATION_SETTINGS]: undefined;
   [SETTINGS_ROUTES.REFUND_ACCOUNT]: undefined;
   [SETTINGS_ROUTES.WITHDRAWAL]: undefined;
   [SETTINGS_ROUTES.WITHDRAWAL_CONFIRM]: {
-    selectedReason: string;
+    /** C15-3에서 고른 이유. 선택 사항이라 null일 수 있다 */
+    reason: WithdrawalReasonCode | null;
+    /** 이유가 ETC일 때 자유 입력 */
+    customReason: string | null;
   };
 };
 

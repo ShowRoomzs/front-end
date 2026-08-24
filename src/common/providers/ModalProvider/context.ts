@@ -8,6 +8,13 @@ export interface ModalButton {
 }
 
 export interface ModalConfig {
+  /**
+   * 제목 위에 놓이는 아이콘. 원형 배경 안에 넣어 그린다 —
+   * 완료(중립 회색)·대기(로즈 틴트)처럼 성격을 색으로 먼저 알린다.
+   */
+  icon?: ReactNode;
+  /** 아이콘 원의 배경색. 지정하지 않으면 중립(#F4F4F5) */
+  iconBackgroundColor?: string;
   title?: string;
   message?: string | ReactNode;
   buttons?: Array<ModalButton>;

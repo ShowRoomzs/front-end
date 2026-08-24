@@ -1,9 +1,8 @@
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { FlatList, TouchableOpacity, View } from "react-native";
 
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import Typography from "@/common/components/Typography/Typography";
-import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { useMypageNavigation } from "@/common/router";
 import { MYPAGE_ROUTES } from "@/common/router/routes";
 import AddressCard from "@/features/mypage/components/AddressCard/AddressCard";
@@ -14,7 +13,6 @@ import { Address } from "@/features/mypage/types/address";
 export default function AddressManagementView() {
   const navigation = useMypageNavigation();
   const { data: addressList } = useGetAddressList();
-  const { show: showBottomTab, hide: hideBottomTab } = useBottomTab();
   const { defaultAddressMutation, deleteAddressMutation } = useAddressMutation();
 
   const handleBackPress = useCallback(() => {
@@ -24,13 +22,6 @@ export default function AddressManagementView() {
   const handleAddAddressPress = useCallback(() => {
     navigation.navigate(MYPAGE_ROUTES.ADDRESS_FORM);
   }, [navigation]);
-
-  useEffect(() => {
-    hideBottomTab();
-    return () => {
-      showBottomTab();
-    };
-  }, [hideBottomTab, showBottomTab]);
 
   const handlePressDefaultAddress = useCallback(
     (address: Address) => {

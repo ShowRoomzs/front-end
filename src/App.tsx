@@ -1,6 +1,7 @@
 import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { QueryClientProvider } from "@tanstack/react-query";
 import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -35,6 +36,11 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView className="flex-1">
         <SafeAreaProvider className="flex-1">
+          {/*
+            앱 배경이 흰색으로 통일돼 있어 상태바 아이콘은 항상 어둡게 둔다.
+            edgeToEdgeEnabled(app.config.ts)라 시스템이 자동으로 대비를 맞춰 주지 않는다.
+          */}
+          <StatusBar style="dark" />
           <SplashProvider isReady={isReady}>
             <NavigationContainer theme={THEME}>
               <PortalProvider>

@@ -28,6 +28,7 @@ import HomeBlackIcon from "@/common/assets/common/home-black.svg";
 import HomeDefaultIcon from "@/common/assets/common/home-default.svg";
 import InfoIcon from "@/common/assets/common/info-icon.svg";
 import InstagramIcon from "@/common/assets/common/instagram-black.svg";
+import InstagramGlyphIcon from "@/common/assets/common/instagram-glyph.svg";
 import KakaoIcon from "@/common/assets/common/kakao-icon.svg";
 import LikeActiveIcon from "@/common/assets/common/like-active.svg";
 import LikeBigFilledIcon from "@/common/assets/common/like-big-filled-icon.svg";
@@ -48,6 +49,8 @@ import QuestionIcon from "@/common/assets/common/question.svg";
 import ResetIcon from "@/common/assets/common/reset-icon.svg";
 import SearchIcon from "@/common/assets/common/search.svg";
 import SettingIcon from "@/common/assets/common/setting.svg";
+import WordmarkColorIcon from "@/common/assets/common/showroomz-wordmark-color.svg";
+import WordmarkDarkIcon from "@/common/assets/common/showroomz-wordmark-dark.svg";
 import TooltipArrowIcon from "@/common/assets/common/tooltip-arrow.svg";
 import YoutubeIcon from "@/common/assets/common/youtube-black.svg";
 
@@ -95,6 +98,17 @@ export const COMMON_ASSETS: Assets = {
   },
   logoBlack: {
     default: LogoBlackIcon,
+  },
+  /**
+   * 디자인 확정 워드마크. color는 로즈(#F2456E), dark는 잉크(#1A1B1F)이며 글자 형태는 같다.
+   * 밝은 배경에는 color, 어두운 배경에는 dark를 쓴다. 본문 서체(Pretendard)로 대체하지 않는다 —
+   * 워드마크는 Fredoka 기반이라 UI 폰트로 흉내 내면 자간·굵기가 달라진다.
+   */
+  wordmarkColor: {
+    default: WordmarkColorIcon,
+  },
+  wordmarkDark: {
+    default: WordmarkDarkIcon,
   },
   naver: {
     default: NaverIcon,
@@ -184,6 +198,10 @@ export const COMMON_ASSETS: Assets = {
   },
   instagram: {
     default: InstagramIcon,
+  },
+  /** 쇼룸 프로필의 인스타 채널 버튼 — 디자인이 지정한 글리프 */
+  instagramGlyph: {
+    default: InstagramGlyphIcon,
   },
   youtube: {
     default: YoutubeIcon,

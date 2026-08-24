@@ -95,7 +95,7 @@ export default function ShowroomProfile(props: ShowroomProfileProps) {
             activeOpacity={0.6}
             className="h-44 w-44 items-center justify-center rounded-base border-[1px] border-borderButton"
           >
-            <Icon icon={COMMON_ASSETS.instagram} width={22} height={22} />
+            <Icon icon={COMMON_ASSETS.instagramGlyph} width={22} height={22} />
             <Svg
               width={9}
               height={9}

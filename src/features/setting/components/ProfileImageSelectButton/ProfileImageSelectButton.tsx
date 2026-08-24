@@ -1,18 +1,22 @@
 import { MenuAction, NativeActionEvent } from "@react-native-menu/menu";
-import { useCallback, useMemo } from "react";
+import { ReactNode, useCallback, useMemo } from "react";
 import { Platform } from "react-native";
 
 import ActionMenu from "@/common/components/ActionMenu/ActionMenu";
-import Button from "@/common/components/Button/Button";
 import { useSelectFile } from "@/common/hooks/useSelectFile";
 import { useSelectImage } from "@/common/hooks/useSelectImage";
 import { useTakePhoto } from "@/common/hooks/useTakePhoto";
 
 interface ProfileImageSelectButtonProps {
   onSelect: (imageUrl: string) => void;
+  /**
+   * 탭 대상. C15 설정은 별도 버튼 없이 **아바타 자체를 탭**해 사진을 바꾼다 —
+   * 프로필 사진을 바꾸는 자리는 사진이지 그 아래 버튼이 아니다.
+   */
+  children: ReactNode;
 }
 export default function ProfileImageSelectButton(props: ProfileImageSelectButtonProps) {
-  const { onSelect } = props;
+  const { onSelect, children } = props;
   const { selectImage } = useSelectImage({
     allowsMultipleSelection: false,
   });
@@ -111,15 +115,8 @@ export default function ProfileImageSelectButton(props: ProfileImageSelectButton
   );
 
   return (
-    <ActionMenu
-      wrapperClassName="flex-1"
-      style={{ height: 36 }}
-      actions={profileImageActions}
-      onPressAction={handlePressProfileImageAction}
-    >
-      <Button size="md" variant="secondary-black">
-        프로필 이미지 변경
-      </Button>
+    <ActionMenu actions={profileImageActions} onPressAction={handlePressProfileImageAction}>
+      {children}
     </ActionMenu>
   );
 }

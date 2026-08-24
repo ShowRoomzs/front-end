@@ -1,91 +1,90 @@
-import { useEffect, useState } from "react";
-import { View } from "react-native";
+import { useCallback, useState } from "react";
+import { ScrollView, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import LabeledInput from "@/common/components/LabeledInput/LabeledInput";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
-import VStack from "@/common/components/VStack/VStack";
-import { useBottomTab } from "@/common/hooks/useBottomTab";
-import { useGlobalLoading } from "@/common/hooks/useGlobalLoading";
-import { useInputValidation } from "@/common/hooks/useInputValidation";
+import Typography from "@/common/components/Typography/Typography";
 import { toast } from "@/common/providers/ToastProvider";
 import { useSettingsNavigation } from "@/common/router";
 import { useUserStore } from "@/common/stores/useUserStore";
-import { NICKNAME_MAX_LENGTH, NICKNAME_VALIDATION_RULES } from "@/features/auth/constants/validation";
-import NicknameChangeBottomAction from "@/features/setting/components/NicknameChangeBottomAction/NicknameChangeBottomAction";
+import NicknameField from "@/features/user/components/NicknameField/NicknameField";
+import { useNicknameCheck } from "@/features/user/hooks/useNicknameCheck";
 import { useUpdateUserMutation } from "@/features/user/hooks/useUpdateUserMutation";
-import { UpdateUserRequest } from "@/features/user/types/user";
 
+/**
+ * C15-1 닉네임 변경 — 가입(C0-1)과 같은 규칙·문구·색을 쓴다.
+ *
+ * 가입과 다른 점은 [저장] 버튼의 활성 조건이다. 검증을 통과해야 로즈로 켜지고,
+ * **현재 닉네임 그대로**이거나 오류 상태면 계속 비활성이다 — 아무것도 바뀌지 않는 저장을
+ * 눌러 보게 만들 이유가 없다.
+ */
 export default function NicknameChangeView() {
-  const settingsNavigation = useSettingsNavigation();
+  const navigation = useSettingsNavigation();
+  const { bottom } = useSafeAreaInsets();
   const { user } = useUserStore();
   const { mutateAsync: updateUser, isPending } = useUpdateUserMutation();
-  const { hide, show } = useBottomTab();
-
-  useGlobalLoading({ condition: isPending });
-
-  useEffect(() => {
-    hide();
-    return () => {
-      show();
-    };
-  }, [hide, show]);
 
   const [nickname, setNickname] = useState(user?.nickname ?? "");
-  const isNicknameChanged = nickname !== user?.nickname;
-  const { status, helperText, isValid } = useInputValidation(
-    nickname,
-    NICKNAME_VALIDATION_RULES,
-    isNicknameChanged
-  );
+  const { isAvailable, isError, message } = useNicknameCheck(nickname === user?.nickname ? "" : nickname);
 
-  if (!user) {
-    return null;
-  }
+  const isUnchanged = nickname.trim() === (user?.nickname ?? "");
+  const canSave = isAvailable && !isUnchanged && !isPending;
 
-  const handlePressBack = () => {
-    settingsNavigation.goBack();
-  };
-
-  const handleSubmit = async () => {
-    if (!isValid) {
+  const handleSave = useCallback(async () => {
+    if (!user || !canSave) {
       return;
     }
-
-    const userData: UpdateUserRequest = {
-      nickname,
-      birthday: user.birthday,
-      gender: user.gender,
-      marketingAgree: user.marketingAgree,
-      profileImageUrl: user.profileImageUrl,
-      phoneNumber: user.phoneNumber,
-    };
-
     try {
-      await updateUser(userData);
-      toast.show("닉네임이 변경되었습니다.");
-      setTimeout(() => {
-        settingsNavigation.goBack();
-      }, 500);
-    } catch (error) {
-      console.error(error);
+      await updateUser({
+        nickname: nickname.trim(),
+        profileImageUrl: user.profileImageUrl,
+        birthday: user.birthday,
+        gender: user.gender,
+        marketingAgree: user.marketingAgree,
+        phoneNumber: user.phoneNumber,
+      });
+      toast.show("닉네임이 변경되었어요");
+      navigation.goBack();
+    } catch {
+      toast.show("닉네임 변경에 실패했어요. 잠시 후 다시 시도해 주세요");
     }
-  };
+  }, [canSave, navigation, nickname, updateUser, user]);
 
   return (
-    <View className="flex-1">
-      <ScreenHeader title="닉네임 변경" onPressBack={handlePressBack} />
-      <VStack className="px-20 pt-25" gap={20}>
-        <LabeledInput
-          label="닉네임"
-          placeholder="닉네임을 입력해주세요 (최대 10글자)"
-          value={nickname}
-          onChangeText={setNickname}
-          maxLength={NICKNAME_MAX_LENGTH}
-          status={status}
-          helperText={helperText}
-        />
-      </VStack>
-      <NicknameChangeBottomAction onPress={handleSubmit} disabled={!isValid || !isNicknameChanged} />
+    <View className="flex-1 bg-white">
+      <ScreenHeader title="닉네임 변경" onPressBack={navigation.goBack} />
+
+      <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+        <View className="px-14 pb-4 pt-22">
+          <NicknameField
+            value={nickname}
+            onChangeText={setNickname}
+            isError={isError}
+            isAvailable={isAvailable}
+            message={message}
+            placeholder="새 닉네임을 입력해 주세요"
+            autoFocus
+          />
+        </View>
+      </ScrollView>
+
+      <View
+        className="border-t-[0.5px] border-divider bg-white px-14 pt-12"
+        style={{ paddingBottom: bottom + 26 }}
+      >
+        <TouchableOpacity
+          onPress={handleSave}
+          disabled={!canSave}
+          activeOpacity={0.75}
+          className={`h-52 flex-row items-center justify-center rounded-base ${
+            canSave ? "bg-rose" : "bg-fill"
+          }`}
+        >
+          <Typography variant="buttonPrimary" className={canSave ? "text-white" : "text-gray71"}>
+            저장
+          </Typography>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }

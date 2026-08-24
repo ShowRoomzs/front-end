@@ -1,32 +1,35 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useMemo } from "react";
 import { View } from "react-native";
 
-import Typography from "@/common/components/Typography/Typography";
 import { AUTH_ROUTES } from "@/common/router/routes";
 import { AuthStackParamList } from "@/common/router/types";
+import TermsDocumentBody from "@/features/terms/components/TermsDocumentBody/TermsDocumentBody";
+import { TermsType as TermsDocumentType } from "@/features/terms/types/terms";
 
+/**
+ * 로그인·가입 흐름에서 여는 약관 원문 (모달).
+ *
+ * 헤더는 네비게이터의 TermsHeader(닫기 X)가 그리고, 본문은 마이의 문서 화면과 같은
+ * TermsDocumentBody를 쓴다 — 동의를 받기 전에 보여 주는 글과 가입 후에 다시 찾아보는 글이
+ * 다르면 안 된다.
+ */
 export type TermsType = "privacy" | "service" | "marketing";
+
+const TERMS_DOCUMENT_TYPE_MAP: Record<TermsType, TermsDocumentType> = {
+  service: "TERMS_OF_SERVICE",
+  privacy: "PRIVACY_POLICY",
+  marketing: "MARKETING_CONSENT",
+};
 
 export default function TermsView(
   props: NativeStackScreenProps<AuthStackParamList, typeof AUTH_ROUTES.TERMS>
 ) {
   const { route } = props;
   const { termsType } = route.params;
-  const content = useMemo(() => {
-    switch (termsType) {
-      case "marketing":
-        return <Typography>마케팅 목적의 개인정보 수집, 이용 동의</Typography>;
-      case "service":
-        return <Typography>서비스 이용 약관</Typography>;
-      case "privacy":
-        return <Typography>개인정보처리방침</Typography>;
-    }
-  }, [termsType]);
 
   return (
-    <View>
-      <Typography>{content}</Typography>
+    <View className="flex-1 bg-white">
+      <TermsDocumentBody termsType={TERMS_DOCUMENT_TYPE_MAP[termsType]} />
     </View>
   );
 }

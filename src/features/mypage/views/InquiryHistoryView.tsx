@@ -1,9 +1,8 @@
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { View } from "react-native";
 
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import { TabItemType } from "@/common/components/Tabs/Tabs";
-import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { useTabIndex } from "@/common/hooks/useTabIndex";
 import { useMypageNavigation } from "@/common/router";
 import InquiryHistoryTabs from "@/features/mypage/components/InquiryHistoryTabs/InquiryHistoryTabs";
@@ -25,19 +24,11 @@ const INQUIRY_HISTORY_TABS: Array<TabItemType> = [
 
 export default function InquiryHistoryView() {
   const navigation = useMypageNavigation();
-  const { show: showBottomTab, hide: hideBottomTab } = useBottomTab();
   const { selectedTabIndex, updateTabIndex } = useTabIndex(0);
 
   const handlePressBack = useCallback(() => {
     navigation.goBack();
   }, [navigation]);
-
-  useEffect(() => {
-    hideBottomTab();
-    return () => {
-      showBottomTab();
-    };
-  }, [hideBottomTab, showBottomTab]);
 
   return (
     <View className="flex-1 bg-white">

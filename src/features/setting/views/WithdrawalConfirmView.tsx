@@ -1,140 +1,285 @@
 import { RouteProp, useRoute } from "@react-navigation/native";
-import { useState } from "react";
-import { Pressable, View } from "react-native";
+import { useCallback, useState } from "react";
+import { ScrollView, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Svg, { Circle, Path } from "react-native-svg";
 
-import Button from "@/common/components/Button/Button";
-import Checkbox from "@/common/components/Checkbox/Checkbox";
-import HStack from "@/common/components/HStack/HStack";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
+import SectionLabel from "@/common/components/SectionLabel/SectionLabel";
+import Spinner from "@/common/components/Spinner/Spinner";
 import Typography from "@/common/components/Typography/Typography";
-import VStack from "@/common/components/VStack/VStack";
 import { useBottomTab } from "@/common/hooks/useBottomTab";
-import { modal } from "@/common/providers/ModalProvider";
-import { HOME_ROUTES, SETTINGS_ROUTES, SettingsStackParamList, useSettingsNavigation } from "@/common/router";
-import { useUserStore } from "@/common/stores/useUserStore";
+import { useModal } from "@/common/providers/ModalProvider";
+import { toast } from "@/common/providers/ToastProvider";
+import { HOME_ROUTES, SETTINGS_ROUTES, useSettingsNavigation } from "@/common/router";
+import { SettingsStackParamList } from "@/common/router/types";
+import { useLogin } from "@/features/auth/hooks/useLogin";
+import { useGetWithdrawalInfo } from "@/features/setting/hooks/useWithdrawal";
 import { useWithdrawlMutation } from "@/features/setting/hooks/useWithdrawlMutation";
 
-const WARNING_ITEMS = [
+/**
+ * C15-4 회원 탈퇴 2단계 — 확인.
+ *
+ * 차단 사유(있을 때) → 결과 고지 3가지 → 하단 동의 + [탈퇴하기].
+ *
+ * 삭제되는 것과 **법정 기간 보관되는 것**을 나눠 적는다. 전자상거래법상 거래 기록은 즉시
+ * 폐기할 수 없으므로 "모두 삭제된다"고만 쓰면 사실과 다르다.
+ *
+ * 하단은 [탈퇴하기](좌·중립 외곽선 — 로즈를 쓰지 않는다)와 [계속 사용하기](우·로즈)다.
+ * 파괴적 액션을 강조하지 않고, 오른손 엄지가 닿는 쪽을 머무르는 선택으로 둔다.
+ */
+const NOTICE_ICON_PROPS = {
+  stroke: "#0F0F0F",
+  strokeWidth: 1.6,
+  strokeLinejoin: "miter",
+} as const;
+
+/** 아이콘은 디자인의 각진 라인 세트를 그대로 쓴다 — 휴지통 · 문서 · 방패 */
+const WITHDRAWAL_NOTICES = [
   {
-    text: "동일한 이메일이나 휴대폰 번호로는 30일 동안 재가입 및 등록할 수 없습니다",
-    isHighlight: true,
+    key: "account",
+    title: "계정과 활동 기록이 삭제돼요",
+    description: "닉네임·프로필 사진·팔로잉·좋아요·장바구니가 모두 사라지고 되돌릴 수 없어요",
+    icon: (
+      <>
+        <Path d="M5.5 7.5h13l-1 12h-11z" {...NOTICE_ICON_PROPS} />
+        <Path d="M9.5 11v5" {...NOTICE_ICON_PROPS} />
+        <Path d="M14.5 11v5" {...NOTICE_ICON_PROPS} />
+        <Path d="M9 5h6" {...NOTICE_ICON_PROPS} />
+      </>
+    ),
   },
   {
-    text: "현재 보유 중인 쿠폰, 포인트는 모두 소멸되며 재가입 후에도 복구할 수 없습니다.",
-    isHighlight: false,
+    key: "order",
+    title: "주문·결제 기록은 일정 기간 보관돼요",
+    description: "전자상거래법에 따라 거래 기록은 법정 기간 동안 분리 보관 후 파기합니다",
+    icon: (
+      <>
+        <Path d="M6 4.5h9l3.5 3.5v11.5h-12.5z" {...NOTICE_ICON_PROPS} />
+        <Path d="M9 12.5h6" {...NOTICE_ICON_PROPS} />
+        <Path d="M9 16h4" {...NOTICE_ICON_PROPS} />
+      </>
+    ),
   },
   {
-    text: "유/무상 전용 포인트는 탈퇴 시 모두 소멸되며 재가입 후에도 복구할 수 없습니다.",
-    isHighlight: false,
+    key: "rejoin",
+    title: "같은 계정으로 다시 가입할 수 있어요",
+    description: "다만 이전 활동 기록은 복구되지 않고 새 계정으로 시작해요",
+    icon: (
+      <>
+        <Path d="M12 3.5l7.5 3v6c0 4.2-3 7-7.5 8-4.5-1-7.5-3.8-7.5-8v-6z" {...NOTICE_ICON_PROPS} />
+        <Path d="M12 9v4" {...NOTICE_ICON_PROPS} />
+        <Path d="M12 15.6v.2" {...NOTICE_ICON_PROPS} />
+      </>
+    ),
   },
 ];
 
 export default function WithdrawalConfirmView() {
-  const settingsNavigation = useSettingsNavigation();
   const route = useRoute<RouteProp<SettingsStackParamList, typeof SETTINGS_ROUTES.WITHDRAWAL_CONFIRM>>();
+  const navigation = useSettingsNavigation();
+  const { bottom } = useSafeAreaInsets();
   const { navigate } = useBottomTab();
-  const { selectedReason } = route.params;
-  const { mutateAsync: withdrawl } = useWithdrawlMutation();
-  const { user } = useUserStore();
-  const [isAgreed, setIsAgreed] = useState(false);
-  const insets = useSafeAreaInsets();
+  const { show: showModal } = useModal();
+  const { logout } = useLogin();
 
-  const handlePressBack = () => {
-    settingsNavigation.goBack();
-  };
+  const { reason, customReason } = route.params ?? {};
+  const { data: info, isLoading } = useGetWithdrawalInfo();
+  const { mutateAsync: withdraw, isPending } = useWithdrawlMutation();
 
-  const handlePressContinue = () => {
-    settingsNavigation.goBack();
-    settingsNavigation.goBack();
-  };
+  const [agreeConsent, setAgreeConsent] = useState(false);
 
-  const handlePressWithdraw = async () => {
+  const isBlocked = !!info && !info.withdrawable;
+  const canWithdraw = agreeConsent && !isBlocked && !isPending;
+
+  const handleComplete = useCallback(async () => {
+    await logout();
+    navigation.goBack();
+    setTimeout(() => {
+      navigate(HOME_ROUTES.HOME);
+    }, 500);
+  }, [logout, navigate, navigation]);
+
+  const handleWithdraw = useCallback(async () => {
     try {
-      await withdrawl({
-        agreeConsent: isAgreed,
-        reason: selectedReason,
-        customReason: null,
+      await withdraw({ agreeConsent: true, reason, customReason });
+      showModal({
+        iconBackgroundColor: "#F4F4F5",
+        icon: (
+          <Svg width={23} height={23} viewBox="0 0 24 24" fill="none">
+            <Path
+              d="M4.5 12.5l5 5 10-11"
+              stroke="#3C3C3C"
+              strokeWidth={2.4}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </Svg>
+        ),
+        title: "탈퇴가 완료되었습니다",
+        message: "그동안 쇼룸즈를 이용해 주셔서 감사했어요.",
+        buttons: [{ label: "확인", onPress: handleComplete }],
       });
-      modal.alert({
-        title: "회원 탈퇴",
-        message: "회원 탈퇴가 완료되었습니다.",
-        confirmLabel: "확인",
-        onConfirm: () => {
-          settingsNavigation.goBack();
-          settingsNavigation.goBack();
-          navigate(HOME_ROUTES.HOME);
-        },
-      });
-    } catch (error) {
-      console.error(error);
+    } catch {
+      toast.show("탈퇴 처리에 실패했어요. 잠시 후 다시 시도해 주세요");
     }
-  };
+  }, [customReason, handleComplete, reason, showModal, withdraw]);
+
+  const handlePressWithdraw = useCallback(() => {
+    if (!canWithdraw || !info) {
+      return;
+    }
+    showModal({
+      title: "정말 탈퇴하시겠어요?",
+      message: `팔로잉 ${info.followingCount}곳과 좋아요 ${info.wishlistCount}개가\n모두 삭제되고 되돌릴 수 없어요`,
+      buttons: [{ label: "탈퇴하기", variant: "outline", onPress: handleWithdraw }, { label: "취소" }],
+    });
+  }, [canWithdraw, handleWithdraw, info, showModal]);
+
+  if (isLoading || !info) {
+    return (
+      <View className="flex-1 bg-white">
+        <ScreenHeader title="회원 탈퇴" onPressBack={navigation.goBack} />
+        <View className="flex-1 items-center justify-center">
+          <Spinner />
+        </View>
+      </View>
+    );
+  }
 
   return (
-    <View className="flex-1">
-      <ScreenHeader title="회원탈퇴" onPressBack={handlePressBack} />
-      <VStack className="pt-25" gap={15}>
-        <VStack className="px-20" gap={0}>
-          <Typography className="text-black text-20 font-semibold">
-            {user?.nickname}님의{"\n"}모든 혜택이 사라져요!
-          </Typography>
-        </VStack>
-        <VStack className="bg-gray0 px-20 py-20" gap={10}>
-          <View className="flex-row justify-between items-center border-[1px] border-gray2 bg-white rounded-[5px] px-15 py-15">
-            <Typography className="text-gray10 text-14 font-normal">잔여 포인트.</Typography>
-            <Typography className="text-pointColor text-16 font-medium">{`${user?.point} P`}</Typography>
-          </View>
-          <View className="flex-row justify-between items-center border-[1px] border-gray2 bg-white rounded-[5px] px-15 py-15">
-            <Typography className="text-gray10 text-14 font-normal">잔여 쿠폰.</Typography>
-            <Typography className="text-pointColor text-16 font-medium">{`${user?.couponCount} 개`}</Typography>
-          </View>
-        </VStack>
-        <VStack className="px-20" gap={8}>
-          <Typography className="text-black text-13 font-medium">유의사항</Typography>
-          <VStack className="bg-gray0 border-[1px] border-gray2 rounded-[5px] px-15 py-15" gap={0}>
-            {WARNING_ITEMS.map((item, ix) => (
-              <View key={ix}>
-                <Typography
-                  className={`text-11 font-normal py-8 ${item.isHighlight ? "text-negativeColor" : "text-gray12"}`}
-                >
-                  {item.text}
-                </Typography>
-                {ix !== WARNING_ITEMS.length - 1 && <View className="h-[1px] bg-gray2" />}
-              </View>
-            ))}
-          </VStack>
-        </VStack>
-      </VStack>
-      <View
-        className="absolute bottom-0 left-0 right-0 border-t border-gray2 bg-white px-10 pt-15"
-        style={{ paddingBottom: insets.bottom + 15, gap: 16 }}
-      >
-        <Pressable onPress={() => setIsAgreed(prev => !prev)}>
-          <HStack className="items-center" gap={10}>
-            <Checkbox isChecked={isAgreed} onChange={setIsAgreed} />
-            <HStack className="items-center" gap={6}>
-              <Typography className="text-black text-13 font-medium">
-                위 내용을 숙지하셨으며 탈퇴에 동의합니다
-              </Typography>
-              <Typography className="text-gray9 text-13 font-normal">(필수)</Typography>
-            </HStack>
-          </HStack>
-        </Pressable>
-        <HStack gap={6}>
-          <Button className="flex-1" size="xl" variant="primary" onPress={handlePressContinue}>
-            계속 사용하기
-          </Button>
-          <Button
-            className="flex-1"
-            size="xl"
-            variant="secondary-black"
-            onPress={handlePressWithdraw}
-            disabled={!isAgreed}
+    <View className="flex-1 bg-white">
+      <ScreenHeader title="회원 탈퇴" onPressBack={navigation.goBack} />
+
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View className="px-14 pb-20 pt-24">
+          <Typography
+            style={{ fontSize: 18, fontWeight: "700", lineHeight: 27, letterSpacing: -0.5 }}
+            className="text-ink"
           >
-            회원 탈퇴하기
-          </Button>
-        </HStack>
+            {"탈퇴하기 전에\n아래 내용을 확인해 주세요"}
+          </Typography>
+        </View>
+
+        {isBlocked && (
+          <View className="mx-14 mb-20 overflow-hidden rounded-base border-[1px] border-roseBorder">
+            <View className="flex-row bg-roseTint p-14" style={{ gap: 9 }}>
+              <View style={{ marginTop: 1 }}>
+                <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+                  <Circle cx={12} cy={12} r={8.5} stroke="#CF3D61" strokeWidth={1.6} />
+                  <Path d="M12 7.6v5.2" stroke="#CF3D61" strokeWidth={2.2} strokeLinecap="round" />
+                  <Path d="M12 16.3v.2" stroke="#CF3D61" strokeWidth={2.2} strokeLinecap="round" />
+                </Svg>
+              </View>
+              <View className="min-w-0 flex-1">
+                <Typography
+                  style={{ fontSize: 14, fontWeight: "600", lineHeight: 20.3 }}
+                  className="text-roseText"
+                >
+                  진행 중인 주문이 있어 지금은 탈퇴할 수 없어요
+                </Typography>
+                <Typography style={{ fontSize: 12.5, lineHeight: 20, marginTop: 5 }} className="text-ink76">
+                  배송과 교환·환불이 모두 끝난 뒤 탈퇴할 수 있어요
+                </Typography>
+              </View>
+            </View>
+          </View>
+        )}
+
+        <SectionLabel label="탈퇴하면 이렇게 됩니다" className="pb-6 pt-0" />
+        <View className="px-14 pt-8" style={{ gap: 15 }}>
+          {WITHDRAWAL_NOTICES.map(notice => (
+            <View key={notice.key} className="flex-row" style={{ gap: 11 }}>
+              <View style={{ marginTop: 1 }}>
+                <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+                  {notice.icon}
+                </Svg>
+              </View>
+              <View className="min-w-0 flex-1">
+                <Typography
+                  style={{ fontSize: 14, fontWeight: "600", lineHeight: 19.6 }}
+                  className="text-ink"
+                >
+                  {notice.title}
+                </Typography>
+                <Typography style={{ fontSize: 12.5, lineHeight: 20, marginTop: 4 }} className="text-gray45">
+                  {notice.description}
+                </Typography>
+              </View>
+            </View>
+          ))}
+        </View>
+
+        <View className="h-26" />
+      </ScrollView>
+
+      <View
+        className="border-t-[0.5px] border-divider bg-white px-14 pt-14"
+        style={{ paddingBottom: bottom + 26 }}
+      >
+        <TouchableOpacity
+          onPress={() => !isBlocked && setAgreeConsent(prev => !prev)}
+          disabled={isBlocked}
+          activeOpacity={0.6}
+          className="flex-row items-start pb-14"
+          style={{ gap: 10, opacity: isBlocked ? 0.5 : 1 }}
+        >
+          <View
+            className="items-center justify-center rounded-full"
+            style={{
+              width: 21,
+              height: 21,
+              marginTop: 1,
+              borderWidth: 1.5,
+              borderColor: agreeConsent ? "#F2456E" : "#DEDEE0",
+              backgroundColor: agreeConsent ? "#F2456E" : "#FFFFFF",
+            }}
+          >
+            <Svg width={12} height={12} viewBox="0 0 24 24" fill="none">
+              <Path
+                d="M4.5 12.5l5 5 10-11"
+                stroke={agreeConsent ? "#FFFFFF" : "#DEDEE0"}
+                strokeWidth={3}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </Svg>
+          </View>
+          <Typography style={{ fontSize: 12.5, lineHeight: 20 }} className="min-w-0 flex-1 text-ink76">
+            <Typography style={{ fontWeight: "600" }} className="text-roseText">
+              [필수]
+            </Typography>{" "}
+            위 내용을 모두 확인했고, 계정과 활동 기록이 삭제되는 데 동의합니다
+          </Typography>
+        </TouchableOpacity>
+
+        <View className="flex-row" style={{ gap: 8 }}>
+          <TouchableOpacity
+            onPress={handlePressWithdraw}
+            disabled={!canWithdraw}
+            activeOpacity={0.6}
+            className="h-52 flex-1 flex-row items-center justify-center rounded-base"
+            style={{
+              borderWidth: 1,
+              borderColor: canWithdraw ? "#DCDCDE" : "transparent",
+              backgroundColor: canWithdraw ? "#FFFFFF" : "#F4F4F5",
+            }}
+          >
+            <Typography variant="buttonPrimary" className={canWithdraw ? "text-ink76" : "text-gray71"}>
+              탈퇴하기
+            </Typography>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={navigation.goBack}
+            activeOpacity={0.75}
+            className="h-52 flex-1 flex-row items-center justify-center rounded-base bg-rose"
+          >
+            <Typography variant="buttonPrimary" className="text-white">
+              계속 사용하기
+            </Typography>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );

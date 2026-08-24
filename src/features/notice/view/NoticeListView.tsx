@@ -1,9 +1,8 @@
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { View } from "react-native";
 
 import PagingList from "@/common/components/PagingList/PagingList";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
-import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { useMypageNavigation } from "@/common/router";
 import NoticeAccordion from "@/features/notice/components/NoticeAccordion/NoticeAccordion";
 import useGetNoticeList from "@/features/notice/hooks/useGetNoticeList";
@@ -17,17 +16,9 @@ import { NoticeListItem } from "@/features/notice/types/notice";
  */
 export default function NoticeListView() {
   const navigation = useMypageNavigation();
-  const { show: showBottomTab, hide: hideBottomTab } = useBottomTab();
   const { notices, pageInfo, isFetching, fetchNextPage } = useGetNoticeList();
 
   const renderItem = useCallback(({ item }: { item: NoticeListItem }) => <NoticeAccordion item={item} />, []);
-
-  useEffect(() => {
-    hideBottomTab();
-    return () => {
-      showBottomTab();
-    };
-  }, [hideBottomTab, showBottomTab]);
 
   return (
     <View className="flex-1 bg-white">

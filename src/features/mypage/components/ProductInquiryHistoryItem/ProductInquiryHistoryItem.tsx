@@ -2,11 +2,11 @@ import dayjs from "dayjs";
 import { useCallback, useMemo } from "react";
 import { Image, TouchableOpacity, View } from "react-native";
 
+import Badge from "@/common/components/Badge/Badge";
 import Divider from "@/common/components/Divider/Divider";
 import HStack from "@/common/components/HStack/HStack";
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
-import { cn } from "@/common/utils/cn";
 import InquiryBadge from "@/features/mypage/components/InquiryBadge/InquiryBadge";
 import { ProductInquiryHistory } from "@/features/product/types/productInquiry";
 
@@ -20,16 +20,16 @@ interface ProductInquiryHistoryItemProps {
 export default function ProductInquiryHistoryItem(props: ProductInquiryHistoryItemProps) {
   const { item, onPressEdit, onPressDelete, onPressProduct } = props;
 
+  /**
+   * 상태 배지 — 디자인 C12. **답변 대기가 로즈 채움**, 답변 완료가 중립 회색이다.
+   *
+   * 강조는 "아직 처리되지 않은 것"에 준다. 완료된 문의를 강조하면 목록이 완료 배지로 덮여
+   * 정작 기다리는 건이 묻힌다.
+   */
   const statusLabel = useMemo(() => {
-    const label = item.status === "WAITING" ? "답변 대기" : "답변 완료";
+    const isWaiting = item.status === "WAITING";
 
-    return (
-      <Typography
-        className={cn("text-13 font-semibold", item.status === "WAITING" ? "text-gray10" : "text-pointColor")}
-      >
-        {label}
-      </Typography>
-    );
+    return <Badge label={isWaiting ? "답변 대기" : "답변 완료"} variant={isWaiting ? "rose" : "neutral"} />;
   }, [item.status]);
 
   const handlePressEdit = useCallback(() => {

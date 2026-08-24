@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { View } from "react-native";
 
 import Divider from "@/common/components/Divider/Divider";
@@ -8,7 +8,6 @@ import LabeledInput from "@/common/components/LabeledInput/LabeledInput";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
-import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { toast } from "@/common/providers/ToastProvider";
 import { useGetBank } from "@/common/queries/useGetBank";
 import { useSettingsNavigation } from "@/common/router";
@@ -18,7 +17,6 @@ import { useUpdateRefundAccountMutation } from "@/features/setting/hooks/useUpda
 
 export default function RefundAccountView() {
   const settingsNavigation = useSettingsNavigation();
-  const { hide, show } = useBottomTab();
   const { data: banks } = useGetBank();
   const { data: refundAccount } = useGetRefundAccount();
   const { mutate: updateRefundAccount } = useUpdateRefundAccountMutation();
@@ -28,13 +26,6 @@ export default function RefundAccountView() {
   const handlePressBack = () => {
     settingsNavigation.goBack();
   };
-
-  useEffect(() => {
-    hide();
-    return () => {
-      show();
-    };
-  }, [hide, show]);
 
   const bankItems = useMemo(() => {
     if (!banks?.length || !banks) {

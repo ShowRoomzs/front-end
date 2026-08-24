@@ -27,8 +27,8 @@ export default function InquiryHistoryTabs(props: InquiryHistoryTabsProps) {
 
   return (
     <Tabs
-      headerClassName="min-h-[48px] border-b-[1px] border-gray2"
-      bodyClassName="min-h-screen"
+      headerClassName="border-b-[0.5px] border-divider bg-white"
+      bodyClassName="flex-1"
       items={items}
       renderItem={renderItem}
       selectedIndex={selectedIndex}

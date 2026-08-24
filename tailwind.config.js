@@ -26,7 +26,10 @@ module.exports = {
         // 로즈는 공구 신호에만 — D-day · 할인율 · 알림 점 · 장바구니 배지 ·
         // 공구 진행 중 쇼룸의 아바타 링. 그 외 어디에도 쓰지 않는다(탭바 활성 포함).
         rose: "#F2456E",
-        roseTint: "#FEF4F6", // 경고·차단 전용. 안내 배너에는 쓰지 않는다
+        roseTint: "#FEF4F6", // 로즈 틴트 배경 — 경고·차단, 선택된 항목, 기본 배송지 배지
+        roseText: "#CF3D61", // 틴트 위에 얹는 로즈 텍스트 · [필수] 태그 · 입력 오류 메시지
+        roseBorder: "#FBC0CE", // 로즈 틴트 블록의 테두리
+        success: "#0C9E4E", // 검증 통과 — 닉네임 사용 가능 등. 로즈의 반대 신호
         ink: "#0F0F0F", // 제목 · 가격 · 활성 탭
         ink80: "#2E2E2E", // 상품명
         ink76: "#3C3C3C", // 본문 · 버튼 라벨
@@ -39,6 +42,7 @@ module.exports = {
         divider: "#EFEFEF", // 게시물 구분 0.5px
         dividerProduct: "#F0F0F0", // 상품 행 구분 0.5px
         borderButton: "#E3E3E5", // 버튼 외곽선 1px
+        borderButtonStrong: "#DCDCDE", // 파괴적 액션의 중립 외곽선 (탈퇴하기 등)
         dotInactive: "#DEDEE0", // 캐러셀 비활성 도트
         heartClosed: "#C8C8CA", // 마감된 공구의 하트
         chevron: "#C7C7C7", // 셰브런 · 품절 취소선

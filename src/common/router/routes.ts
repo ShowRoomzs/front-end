@@ -19,8 +19,15 @@ export const CATEGORY_ROUTES = {
 } as const;
 
 // 인증 스택 네비게이션
+/**
+ * 가입 흐름은 C0 로그인 → C0-2 본인인증 → C0-1 회원가입 순서다.
+ * 본인인증 결과에 따라 만 14세 미만 차단(AGE_RESTRICTED) 또는 실패(VERIFY_FAILED)로 갈린다.
+ */
 export const AUTH_ROUTES = {
   AUTH_HOME: "authHome",
+  IDENTITY_VERIFY: "identityVerify",
+  AGE_RESTRICTED: "ageRestricted",
+  VERIFY_FAILED: "verifyFailed",
   SIGN_UP: "signUp",
   TERMS: "terms",
 } as const;
@@ -43,7 +50,6 @@ export const SETTINGS_ROUTES = {
   MAIN: "settingsMain",
   NICKNAME_CHANGE: "nicknameChange",
   MEMBER_INFO_CHANGE: "memberInfoChange",
-  NOTIFICATION_SETTINGS: "notificationSettings",
   REFUND_ACCOUNT: "refundAccount",
   WITHDRAWAL: "withdrawal",
   WITHDRAWAL_CONFIRM: "withdrawalConfirm",

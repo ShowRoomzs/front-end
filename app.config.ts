@@ -1,8 +1,15 @@
 import "dotenv/config";
 import { ExpoConfig, ConfigContext } from "expo/config";
 
+/**
+ * src/features/auth/constants/naver.ts 의 NAVER_URL_SCHEME 과 반드시 같은 값이어야 한다.
+ * app.config.ts는 src의 .ts 파일을 require할 수 없어(expo config 로더가 자기 파일만
+ * 트랜스파일한다) import로 묶지 못하고 값을 옮겨 적는다. 고칠 땐 두 곳을 함께 고칠 것.
+ */
+const NAVER_URL_SCHEME = "showroomznaver";
+
 export default ({ config }: ConfigContext): ExpoConfig => {
-  const { EXPO_PUBLIC_NAVER_CLIENT_ID, EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY } = process.env;
+  const { EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY } = process.env;
 
   return {
     ...config,
@@ -35,10 +42,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           "tiktok",
           "twitter",
         ],
+        // naver / kakao scheme은 각 config plugin이 직접 넣는다. 여기에 또 적으면
+        // Info.plist에 같은 scheme이 두 번 들어간다.
         CFBundleURLTypes: [
-          {
-            CFBundleURLSchemes: [`naver${EXPO_PUBLIC_NAVER_CLIENT_ID}`],
-          },
           {
             CFBundleURLSchemes: [`kakao${EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY}`],
           },
@@ -68,7 +74,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       [
         "@react-native-seoul/naver-login",
         {
-          urlScheme: `naver${EXPO_PUBLIC_NAVER_CLIENT_ID}`,
+          urlScheme: NAVER_URL_SCHEME,
         },
       ],
       [

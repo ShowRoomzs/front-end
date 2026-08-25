@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { EmptyPinIcon } from "@/common/components/DsIcon/icons";
 import EmptyState from "@/common/components/EmptyState/EmptyState";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
+import Spinner from "@/common/components/Spinner/Spinner";
 import Typography from "@/common/components/Typography/Typography";
 import { useModal } from "@/common/providers/ModalProvider";
 import { toast } from "@/common/providers/ToastProvider";
@@ -29,7 +30,7 @@ export default function AddressManagementView() {
   const navigation = useMypageNavigation();
   const { bottom } = useSafeAreaInsets();
   const { show: showModal } = useModal();
-  const { data: addressList } = useGetAddressList();
+  const { data: addressList, isLoading } = useGetAddressList();
   const { defaultAddressMutation, deleteAddressMutation } = useAddressMutation();
 
   const handlePressAdd = useCallback(() => {
@@ -102,12 +103,19 @@ export default function AddressManagementView() {
         showsVerticalScrollIndicator={false}
         ListFooterComponent={<View className="h-26" />}
         ListEmptyComponent={
-          <EmptyState
-            icon={<EmptyPinIcon size={50} />}
-            title="저장된 배송지가 없어요"
-            description={"배송지를 미리 등록해 두면\n주문할 때 주소를 다시 쓰지 않아도 돼요"}
-            paddingTop={120}
-          />
+          /* 로딩 중에는 빈 상태를 띄우지 않는다 — "없어요"가 잠깐 떴다 사라지면 오해가 남는다 */
+          isLoading ? (
+            <View className="pt-120 items-center">
+              <Spinner />
+            </View>
+          ) : (
+            <EmptyState
+              icon={<EmptyPinIcon size={50} />}
+              title="저장된 배송지가 없어요"
+              description={"배송지를 미리 등록해 두면\n주문할 때 주소를 다시 쓰지 않아도 돼요"}
+              paddingTop={120}
+            />
+          )
         }
       />
 

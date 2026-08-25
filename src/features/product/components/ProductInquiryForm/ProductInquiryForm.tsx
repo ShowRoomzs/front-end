@@ -6,6 +6,9 @@ import TextArea from "@/common/components/TextArea/TextArea";
 import VStack from "@/common/components/VStack/VStack";
 import { useGetProductInquiryCategory } from "@/features/product/hooks/useGetProductInquiryCategory";
 
+/** 서버가 250자에서 막는다 — 화면에서 더 받아 두면 등록 순간에야 실패한다 */
+const CONTENT_MAX_LENGTH = 250;
+
 interface ProductInquiryFormProps {
   type: string;
   content: string;
@@ -37,7 +40,7 @@ export default function ProductInquiryForm(props: ProductInquiryFormProps) {
           onChangeText={onChangeContent}
           placeholder="내용을 입력해 주세요"
           wrapperClassName="h-200"
-          maxLength={500}
+          maxLength={CONTENT_MAX_LENGTH}
         />
       </LabeledComponent>
     </VStack>

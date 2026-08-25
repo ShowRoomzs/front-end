@@ -1,3 +1,4 @@
+import { BottomSheetView } from "@gorhom/bottom-sheet";
 import { ReactNode } from "react";
 import { TouchableOpacity, View } from "react-native";
 
@@ -17,6 +18,10 @@ import Typography from "@/common/components/Typography/Typography";
  * 제목 정렬이 갈리는 이유는 역할이 달라서다. 값을 고르는 시트는 목록이 주인공이라
  * 제목이 가운데에서 이름표 노릇만 하고, 다음 단계로 넘어가는 시트는 제목이 질문이라
  * 본문처럼 좌측에서 읽힌다.
+ *
+ * ⚠️ 루트는 반드시 `BottomSheetView`다. 시트를 `enableDynamicSizing`으로 띄우므로 높이가
+ * **내용 측정값**에서 나오는데, 일반 View는 자기 높이를 시트에 보고하지 않는다. 그러면
+ * 내용 높이가 0으로 잡혀 시트가 열려도 화면에 아무것도 보이지 않는다.
  */
 export interface SheetListItem<T extends string> {
   value: T;
@@ -39,7 +44,7 @@ export default function SheetList<T extends string>(props: SheetListProps<T>) {
   const isSelect = mode === "select";
 
   return (
-    <View className="pb-24">
+    <BottomSheetView className="pb-24">
       {!!title && (
         <Typography
           style={{ fontSize: 15, fontWeight: "600", lineHeight: 21 }}
@@ -101,6 +106,6 @@ export default function SheetList<T extends string>(props: SheetListProps<T>) {
       })}
 
       {footer}
-    </View>
+    </BottomSheetView>
   );
 }

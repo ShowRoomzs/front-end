@@ -16,7 +16,7 @@ import { toast } from "@/common/providers/ToastProvider";
 import { useMypageNavigation } from "@/common/router";
 import { MYPAGE_ROUTES } from "@/common/router/routes";
 import { MypageStackParamList } from "@/common/router/types";
-import { formatPhoneNumber } from "@/features/auth/utils/formatPhoneNumber";
+import { formatPhoneNumber, formatPhoneNumberInput } from "@/features/auth/utils/formatPhoneNumber";
 import AddressFormField from "@/features/mypage/components/AddressFormField/AddressFormField";
 import {
   DELIVERY_MEMO_CUSTOM,
@@ -40,6 +40,8 @@ import { AddressRequest } from "@/features/mypage/types/address";
  */
 const MEMO_SHEET_ID = "delivery-memo";
 const PHONE_DIGITS = 11;
+/** 하이픈 2개가 더 들어간다 — 010-1234-5678 */
+const PHONE_INPUT_MAX_LENGTH = PHONE_DIGITS + 2;
 
 const INITIAL_ADDRESS: AddressRequest = {
   recipientName: "",
@@ -195,15 +197,16 @@ export default function AddressFormView() {
           </View>
 
           <View className="px-14 pt-18">
+            {/* 상태에는 숫자만 담고 화면에만 하이픈을 씌운다 — 비교·저장 로직이 형식에 흔들리지 않는다 */}
             <AddressFormField
               label="연락처"
-              value={form.phoneNumber}
-              placeholder="숫자만 입력해 주세요"
+              value={formatPhoneNumberInput(form.phoneNumber)}
+              placeholder="010-1234-5678"
               onChangeText={text =>
                 setForm(prev => ({ ...prev, phoneNumber: text.replace(/\D/g, "").slice(0, PHONE_DIGITS) }))
               }
               keyboardType="number-pad"
-              maxLength={PHONE_DIGITS}
+              maxLength={PHONE_INPUT_MAX_LENGTH}
             />
           </View>
 

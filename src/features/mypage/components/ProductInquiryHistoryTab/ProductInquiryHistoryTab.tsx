@@ -88,7 +88,10 @@ export default function ProductInquiryHistoryTab() {
 
   const { open: openMoreSheet } = useBottomSheet({
     id: MORE_SHEET_ID,
-    render: <SheetList items={MORE_ITEMS} onSelect={handleSelectMoreAction} />,
+    /* 다음 단계로 넘어가는 목록이 아니라 **행동을 고르는** 시트라 우측 셰브런을 두지 않는다 */
+    render: (
+      <SheetList title="문의 관리" items={MORE_ITEMS} mode="select" onSelect={handleSelectMoreAction} />
+    ),
     sheetProps: { enableDynamicSizing: true, snapPoints: undefined },
   });
 

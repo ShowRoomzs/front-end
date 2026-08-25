@@ -1,6 +1,7 @@
 import { BottomSheetView } from "@gorhom/bottom-sheet";
 import { ReactNode } from "react";
 import { TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { CheckIcon, ChevronRightIcon } from "@/common/components/DsIcon/icons";
 import Typography from "@/common/components/Typography/Typography";
@@ -22,6 +23,10 @@ import Typography from "@/common/components/Typography/Typography";
  * ⚠️ 루트는 반드시 `BottomSheetView`다. 시트를 `enableDynamicSizing`으로 띄우므로 높이가
  * **내용 측정값**에서 나오는데, 일반 View는 자기 높이를 시트에 보고하지 않는다. 그러면
  * 내용 높이가 0으로 잡혀 시트가 열려도 화면에 아무것도 보이지 않는다.
+ *
+ * 하단 여백은 **디자인의 24와 기기 하단 인셋 중 큰 값**이다. 시트는 화면 맨 아래까지 그려지므로
+ * 24만 주면 마지막 항목이 홈 인디케이터·제스처 바 밑으로 들어가 눌리지 않는다. 두 값을 더하지
+ * 않고 큰 쪽을 쓰는 이유는, 인셋이 이미 "비워 둬야 하는 영역"이라 더하면 빈 공간만 두 배가 되어서다.
  */
 export interface SheetListItem<T extends string> {
   value: T;
@@ -39,12 +44,15 @@ interface SheetListProps<T extends string> {
   footer?: ReactNode;
 }
 
+const MIN_BOTTOM_PADDING = 24;
+
 export default function SheetList<T extends string>(props: SheetListProps<T>) {
   const { title, description, items, mode = "navigate", selectedValue, onSelect, footer } = props;
+  const { bottom } = useSafeAreaInsets();
   const isSelect = mode === "select";
 
   return (
-    <BottomSheetView className="pb-24">
+    <BottomSheetView style={{ paddingBottom: Math.max(bottom, MIN_BOTTOM_PADDING) }}>
       {!!title && (
         <Typography
           style={{ fontSize: 15, fontWeight: "600", lineHeight: 21 }}

@@ -4,8 +4,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import Typography from "@/common/components/Typography/Typography";
-import { useMypageNavigation } from "@/common/router";
-import { MYPAGE_ROUTES } from "@/common/router/routes";
+import { toast } from "@/common/providers/ToastProvider";
+import { useMainNavigation, useMypageNavigation } from "@/common/router";
+import { COMMON_ROUTES, MYPAGE_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { useGetInquirySummary } from "@/features/inquiry/hooks/useGetInquirySummary";
 import InquiryHistoryTabs, {
   InquiryKind,
@@ -16,19 +17,30 @@ import ProductInquiryHistoryTab from "@/features/mypage/components/ProductInquir
 /**
  * C12 문의 내역 — 1:1 · 상품 두 탭.
  *
- * 하단 CTA는 **어느 탭에서든 [1:1 문의하기]**다. 상품 문의는 상품에서 출발해야 등록할 수 있어
- * (서버가 `productId`를 요구한다) 이 화면에서 시작할 수 없고, 내역을 보다 곧장 이어서 할 수 있는
- * 행동은 1:1 문의 하나뿐이다. 상품 문의로 가는 길은 상품 문의 탭의 빈 상태 문구가 안내한다.
+ * 하단 CTA는 **탭을 따라간다** — 상품 문의 탭에서 [1:1 문의하기]가 나오면, 상품에 대해 물으려던
+ * 사람이 엉뚱한 곳에 글을 남기게 된다.
+ *
+ * 다만 상품 문의는 **상품이 정해져야 등록할 수 있다**(서버가 `productId`를 요구한다). 그래서
+ * [상품 문의하기]는 작성 화면으로 바로 가지 않고 상품을 고르러 카테고리로 보낸다 — 상품 상세의
+ * 문의 탭이 실제 작성 입구다.
  */
 export default function InquiryHistoryView() {
   const navigation = useMypageNavigation();
+  const mainNavigation = useMainNavigation();
   const { bottom } = useSafeAreaInsets();
   const [kind, setKind] = useState<InquiryKind>("oneToOne");
   const { data: summary } = useGetInquirySummary();
 
-  const handlePressRegister = useCallback(() => {
+  const isProductTab = kind === "product";
+
+  const handlePressCta = useCallback(() => {
+    if (isProductTab) {
+      toast.show("문의할 상품을 골라 주세요");
+      mainNavigation.navigate(ROOT_ROUTES.COMMON, { screen: COMMON_ROUTES.CATEGORY });
+      return;
+    }
     navigation.navigate(MYPAGE_ROUTES.INQUIRY_REGISTER, {});
-  }, [navigation]);
+  }, [isProductTab, mainNavigation, navigation]);
 
   return (
     <View className="flex-1 bg-white">
@@ -42,7 +54,7 @@ export default function InquiryHistoryView() {
       />
 
       <View className="flex-1">
-        {kind === "oneToOne" ? <OneOnOneInquiryHistoryTab /> : <ProductInquiryHistoryTab />}
+        {isProductTab ? <ProductInquiryHistoryTab /> : <OneOnOneInquiryHistoryTab />}
       </View>
 
       <View
@@ -50,12 +62,12 @@ export default function InquiryHistoryView() {
         style={{ paddingBottom: bottom + 26 }}
       >
         <TouchableOpacity
-          onPress={handlePressRegister}
+          onPress={handlePressCta}
           activeOpacity={0.75}
           className="h-52 flex-row items-center justify-center rounded-base bg-rose"
         >
           <Typography variant="buttonPrimary" className="text-white">
-            1:1 문의하기
+            {isProductTab ? "상품 문의하기" : "1:1 문의하기"}
           </Typography>
         </TouchableOpacity>
       </View>

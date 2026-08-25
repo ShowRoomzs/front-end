@@ -19,6 +19,7 @@ import { useMypageNavigation } from "@/common/router";
 import { MYPAGE_ROUTES } from "@/common/router/routes";
 import { MypageStackParamList } from "@/common/router/types";
 import InquiryFieldLabel from "@/features/inquiry/components/InquiryFieldLabel/InquiryFieldLabel";
+import InquiryOrderField from "@/features/inquiry/components/InquiryOrderField/InquiryOrderField";
 import { useGetCategories } from "@/features/inquiry/hooks/useGetCategories";
 import { useGetInquiryDetail } from "@/features/inquiry/hooks/useGetInquiryDetail";
 import { useCreateInquiryMutation } from "@/features/inquiry/hooks/useInquiryMutation/useCreateInquiryMutation";
@@ -32,9 +33,8 @@ import { InquiryRequest } from "@/features/inquiry/types/inquiry";
  * 정보를 안내할 수 있기 때문이다. 유형은 고객센터 FAQ와 **같은 5종**(CsCategory)이라
  * 사용자가 같은 분류를 두 번 배우지 않는다.
  *
- * **관련 주문 연결은 아직 없다** — 서버가 `orderId`를 받고 목록·상세에 주문 요약을 내려주지만
- * 소비자 앱에 주문 목록 조회 API가 없어 고를 수가 없다. 눌러도 아무것도 없는 칸을 두면
- * 고장으로 읽히므로 블록째 빼 두고, 주문 API가 붙을 때 이 자리에 넣는다.
+ * **관련 주문은 아직 고를 수 없다** — 주문 목록 조회 API가 없어서다. 칸은 남기고 눌렀을 때
+ * 준비 중임을 알린다(자세한 사정은 `InquiryOrderField`).
  *
  * 등록 조건은 **유형 + 내용**이다. 사진은 선택이라 조건에서 제외한다.
  */
@@ -178,6 +178,10 @@ export default function InquiryView() {
               </Typography>
               <ChevronDownIcon size={14} color="#C7C7C7" />
             </TouchableOpacity>
+          </View>
+
+          <View className="px-14 pb-4 pt-16">
+            <InquiryOrderField />
           </View>
 
           <View className="px-14 pb-4 pt-16">

@@ -10,6 +10,7 @@ export function useDeleteInquiryMutation() {
     mutationFn: inquiryService.delete,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [INQUIRY_QUERY_KEY.INQUIRY_HISTORY] });
+      queryClient.invalidateQueries({ queryKey: [INQUIRY_QUERY_KEY.INQUIRY_SUMMARY] });
     },
   });
 }

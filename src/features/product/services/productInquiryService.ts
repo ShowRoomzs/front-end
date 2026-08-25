@@ -4,6 +4,7 @@ import {
   ProductInquiryCategoryResponse,
   ProductInquiryDetail,
   ProductInquiryHistory,
+  ProductInquiryHistoryParams,
   ProductInquiryRequest,
 } from "@/features/product/types/productInquiry";
 
@@ -32,7 +33,7 @@ export const productInquiryService = {
 
     return response;
   },
-  getHistory: async (params: PageParams) => {
+  getHistory: async (params: PageParams & ProductInquiryHistoryParams) => {
     const { data: response } = await apiInstance.get<PageResponse<ProductInquiryHistory>>(
       "/user/product-inquiries",
       { params }

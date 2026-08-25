@@ -1,97 +1,108 @@
 import dayjs from "dayjs";
-import { useCallback, useMemo } from "react";
-import { Image, TouchableOpacity, View } from "react-native";
+import { useCallback, useState } from "react";
+import { TouchableOpacity, View } from "react-native";
 
-import Badge from "@/common/components/Badge/Badge";
-import Divider from "@/common/components/Divider/Divider";
-import HStack from "@/common/components/HStack/HStack";
+import { ChevronDownIcon, MoreIcon } from "@/common/components/DsIcon/icons";
 import Typography from "@/common/components/Typography/Typography";
-import VStack from "@/common/components/VStack/VStack";
-import InquiryBadge from "@/features/mypage/components/InquiryBadge/InquiryBadge";
+import InquiryItemMetaRow from "@/features/mypage/components/InquiryItemMetaRow/InquiryItemMetaRow";
 import { ProductInquiryHistory } from "@/features/product/types/productInquiry";
 
+/**
+ * 상품 문의 한 건 (C12) — 답변이 있으면 **그 자리에서 펼친다**.
+ *
+ * 상세 화면으로 보내지 않는 이유는 상품 문의가 질문 하나와 답변 하나로 끝나 목록 안에서
+ * 다 읽히기 때문이다. 화면을 옮길 만큼의 내용이 아니다.
+ *
+ * **답변 대기는 펼치지 않는다** — 셰브런도 그리지 않는다. 펼칠 것이 없는데 화살표를 두면
+ * 눌러 보고 빈 안내만 확인하게 되고, "답변 대기"라는 상태 표기가 이미 같은 말을 하고 있다.
+ * 그 자리에는 대신 ⋯를 두어 수정·삭제로 이어 준다.
+ */
 interface ProductInquiryHistoryItemProps {
   item: ProductInquiryHistory;
-  onPressEdit: (id: number, productId: number) => void;
-  onPressDelete: (id: number) => void;
-  onPressProduct: (productId: number) => void;
+  onPressMore: (item: ProductInquiryHistory) => void;
 }
 
 export default function ProductInquiryHistoryItem(props: ProductInquiryHistoryItemProps) {
-  const { item, onPressEdit, onPressDelete, onPressProduct } = props;
+  const { item, onPressMore } = props;
+  const isAnswered = item.status === "ANSWERED";
+  const [isOpen, setIsOpen] = useState(false);
 
-  /**
-   * 상태 배지 — 디자인 C12. **답변 대기가 로즈 채움**, 답변 완료가 중립 회색이다.
-   *
-   * 강조는 "아직 처리되지 않은 것"에 준다. 완료된 문의를 강조하면 목록이 완료 배지로 덮여
-   * 정작 기다리는 건이 묻힌다.
-   */
-  const statusLabel = useMemo(() => {
-    const isWaiting = item.status === "WAITING";
+  const handlePress = useCallback(() => {
+    if (isAnswered) {
+      setIsOpen(prev => !prev);
+    }
+  }, [isAnswered]);
 
-    return <Badge label={isWaiting ? "답변 대기" : "답변 완료"} variant={isWaiting ? "rose" : "neutral"} />;
-  }, [item.status]);
-
-  const handlePressEdit = useCallback(() => {
-    onPressEdit(item.id, item.productId);
-  }, [item.id, item.productId, onPressEdit]);
-
-  const handlePressDelete = useCallback(() => {
-    onPressDelete(item.id);
-  }, [item.id, onPressDelete]);
-
-  const handlePressProduct = useCallback(() => {
-    onPressProduct(item.productId);
-  }, [item.productId, onPressProduct]);
+  const handlePressMore = useCallback(() => onPressMore(item), [item, onPressMore]);
 
   return (
-    <View style={{ gap: 15 }} className="flex flex-col p-20 bg-white">
-      <HStack gap={6}>
-        <InquiryBadge status="QUESTION" />
-        <VStack gap={10} className="flex flex-col flex-1">
-          <View className="flex flex-row justify-between items-center">
-            {statusLabel}
-            {item.status === "WAITING" && (
-              <HStack gap={10} className="items-center">
-                <Typography onPress={handlePressEdit} className="text-black text-12 font-medium underline">
-                  수정
-                </Typography>
-                <Typography onPress={handlePressDelete} className="text-black text-12 font-medium underline">
-                  삭제
-                </Typography>
-              </HStack>
-            )}
-          </View>
-          <Typography className="text-11 text-gray9 font-normal">{item.typeName}</Typography>
-          <Typography className="text-13 text-black font-medium">{item.content}</Typography>
-          <Typography className="text-11 text-gray7 font-normal">
-            {dayjs(item.createdAt).format("YYYY.MM.DD")}
+    <View className="bg-white">
+      <TouchableOpacity
+        onPress={handlePress}
+        activeOpacity={isAnswered ? 0.6 : 1}
+        disabled={!isAnswered}
+        className="px-14 py-15"
+      >
+        <InquiryItemMetaRow
+          status={item.status}
+          typeName={item.typeName}
+          date={dayjs(item.createdAt).format("YYYY.MM.DD")}
+        />
+
+        <Typography
+          style={{ fontSize: 11.5, lineHeight: 14.95, marginTop: 9 }}
+          className="text-gray45"
+          numberOfLines={1}
+        >
+          {`${item.shopName} · ${item.productName}`}
+        </Typography>
+
+        <View className="flex-row items-start" style={{ gap: 8, marginTop: 9 }}>
+          <Typography
+            style={{ fontSize: 14.5, fontWeight: "500", lineHeight: 21 }}
+            className="min-w-0 flex-1 text-ink"
+            numberOfLines={isOpen ? 8 : 2}
+          >
+            {item.content}
           </Typography>
-        </VStack>
-      </HStack>
-      <TouchableOpacity onPress={handlePressProduct} activeOpacity={0.7}>
-        <HStack gap={10} className="p-10 items-center border-[1px] border-gray1 rounded-[5px]">
-          <Image source={{ uri: item.productImageUrl }} className="w-30 h-30" />
-          <VStack gap={5}>
-            <Typography className="text-10 text-gray10 font-normal">{item.shopName}</Typography>
-            <Typography className="text-13 text-black font-medium">{item.productName}</Typography>
-          </VStack>
-        </HStack>
+
+          {isAnswered ? (
+            <View style={{ marginTop: 4 }}>
+              <ChevronDownIcon
+                size={14}
+                color="#C7C7C7"
+                style={{ transform: [{ rotate: isOpen ? "180deg" : "0deg" }] }}
+              />
+            </View>
+          ) : (
+            <TouchableOpacity onPress={handlePressMore} activeOpacity={0.5} hitSlop={10}>
+              <MoreIcon size={20} />
+            </TouchableOpacity>
+          )}
+        </View>
       </TouchableOpacity>
-      {item.status === "ANSWERED" && (
-        <>
-          <Divider height={1} wrapperClassName="bg-gray2" />
-          <HStack gap={6}>
-            <InquiryBadge status="ANSWER" />
-            <VStack gap={10} className="flex flex-col flex-1">
-              <Typography className="text-12 text-black font-semibold">{`${item.shopName} 담당자`}</Typography>
-              <Typography className="text-13 text-black font-medium">{item.answerContent}</Typography>
-              <Typography className="text-11 text-gray7 font-normal">
-                {dayjs(item.answeredAt).format("YYYY.MM.DD")}
+
+      {isOpen && (
+        <View className="px-14 pb-15">
+          <View className="rounded-base bg-band p-13">
+            <View className="flex-row items-baseline" style={{ gap: 6 }}>
+              <Typography
+                style={{ fontSize: 12, fontWeight: "600", lineHeight: 12 }}
+                className="min-w-0 flex-1 text-ink76"
+                numberOfLines={1}
+              >
+                {item.shopName}
               </Typography>
-            </VStack>
-          </HStack>
-        </>
+              <Typography style={{ fontSize: 11, lineHeight: 11 }} className="text-gray55">
+                {item.answeredAt ? dayjs(item.answeredAt).format("YYYY.MM.DD") : ""}
+              </Typography>
+            </View>
+
+            <Typography style={{ fontSize: 13.5, lineHeight: 22.95, marginTop: 8 }} className="text-ink76">
+              {item.answerContent}
+            </Typography>
+          </View>
+        </View>
       )}
     </View>
   );

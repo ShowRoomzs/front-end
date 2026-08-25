@@ -227,7 +227,7 @@ export function CloseIcon(props: DsIconProps) {
   );
 }
 
-/** 체크 — 시트 선택(로즈 19) · 흰 체크 */
+/** 체크 — 시트 선택(로즈 19 · stroke 2.6) · 흰 체크 */
 export function CheckIcon(props: DsIconProps) {
   const { size, color, rest } = base({ ...props, size: props.size ?? 19, color: props.color ?? "#F2456E" });
 
@@ -236,7 +236,7 @@ export function CheckIcon(props: DsIconProps) {
       <Path
         d="M4.5 12.5l5 5 10-11"
         stroke={color}
-        strokeWidth={2.2}
+        strokeWidth={2.6}
         strokeLinecap="round"
         strokeLinejoin="round"
       />
@@ -271,6 +271,44 @@ export function EmptyBagIcon(props: DsIconProps) {
       />
       <Path d="M5 10.8V20h14v-9.2" stroke={color} strokeWidth={1.2} strokeLinejoin="miter" />
       <Path d="M9.6 20v-5.4h4.8V20" stroke={color} strokeWidth={1.2} strokeLinejoin="miter" />
+    </Svg>
+  );
+}
+
+/**
+ * 말풍선 — 문의 답변 신호 (C12).
+ *
+ * 목록의 답변 미리보기(14 · #737373)와 빈 상태 일러스트(50 · #D8D8DA)가 같은 글리프를 쓴다.
+ * "답변"이라는 한 가지 개념을 두 크기로 반복해, 비어 있는 화면도 무엇이 채워질 자리인지 말한다.
+ */
+export function SpeechBubbleIcon(props: DsIconProps) {
+  const { size, color, rest } = base({ ...props, size: props.size ?? 14, color: props.color ?? "#737373" });
+
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...rest}>
+      <Path
+        d="M4.5 5.5h15v11h-9l-4 3.5z"
+        stroke={color}
+        strokeWidth={props.size && props.size >= 40 ? 1.2 : 1.8}
+        strokeLinejoin="miter"
+      />
+    </Svg>
+  );
+}
+
+/** 빈 상태 일러스트 — 배송지(50) · 지도 핀 */
+export function EmptyPinIcon(props: DsIconProps) {
+  const { size, color, rest } = base({ ...props, size: props.size ?? 50, color: props.color ?? "#D8D8DA" });
+
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...rest}>
+      <Path
+        d="M12 21c4.5-4.8 7-8 7-11a7 7 0 1 0-14 0c0 3 2.5 6.2 7 11z"
+        stroke={color}
+        strokeWidth={1.2}
+        strokeLinejoin="miter"
+      />
+      <Circle cx={12} cy={10} r={2.6} stroke={color} strokeWidth={1.2} />
     </Svg>
   );
 }

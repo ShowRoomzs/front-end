@@ -19,6 +19,7 @@ export default function PagingList<T>(props: PagingListProps<T>) {
     pageInfo,
     onLoadMore,
     isLoading,
+    ListEmptyComponent,
     onEndReachedThreshold = DEFAULT_ON_END_REACHED_THRESHOLD,
     ...flatListProps
   } = props;
@@ -49,7 +50,11 @@ export default function PagingList<T>(props: PagingListProps<T>) {
       onEndReachedThreshold={onEndReachedThreshold}
       onEndReached={handleEndReached}
       removeClippedSubviews
-      ListEmptyComponent={<EmptyComponent isLoading={isLoading} hasItems={(data?.length || 0) > 0} />}
+      // 화면마다 빈 상태 문구가 달라야 하므로 부르는 쪽이 넘기면 그걸 쓰고,
+      // 안 넘기면(=로딩 중이거나 문구를 안 정한 목록) 공용 스피너·기본 문구로 떨어진다
+      ListEmptyComponent={
+        ListEmptyComponent ?? <EmptyComponent isLoading={isLoading} hasItems={(data?.length || 0) > 0} />
+      }
       ListFooterComponent={<FooterComponent isLoading={isLoading} hasItems={(data?.length || 0) > 0} />}
     />
   );

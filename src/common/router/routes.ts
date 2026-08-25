@@ -64,6 +64,7 @@ export const MYPAGE_ROUTES = {
   ADDRESS_MANAGEMENT: "addressManagement",
   ADDRESS_FORM: "addressForm",
   INQUIRY_HISTORY: "inquiryHistory",
+  INQUIRY_DETAIL: "inquiryDetail",
   INQUIRY_REGISTER: "inquiryRegister",
   CUSTOMER_CENTER: "customerCenter",
   NOTICE: "notice",

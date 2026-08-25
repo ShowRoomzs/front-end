@@ -12,6 +12,7 @@ export function useUpdateInquiryMutation(inquiryId: number) {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [INQUIRY_QUERY_KEY.INQUIRY_HISTORY] });
+      queryClient.invalidateQueries({ queryKey: [INQUIRY_QUERY_KEY.INQUIRY_SUMMARY] });
       queryClient.invalidateQueries({ queryKey: [INQUIRY_QUERY_KEY.INQUIRY_DETAIL, inquiryId] });
     },
   });

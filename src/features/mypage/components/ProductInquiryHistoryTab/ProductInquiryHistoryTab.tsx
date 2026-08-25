@@ -1,8 +1,13 @@
 import { useCallback, useMemo, useState } from "react";
 import { View } from "react-native";
 
+import { SpeechBubbleIcon } from "@/common/components/DsIcon/icons";
+import EmptyState from "@/common/components/EmptyState/EmptyState";
 import PagingList from "@/common/components/PagingList/PagingList";
-import { useParams } from "@/common/hooks/useParams";
+import SheetList from "@/common/components/SheetList/SheetList";
+import { useBottomSheet } from "@/common/hooks/useBottomSheet";
+import { useBottomSheetContext } from "@/common/providers/BottomSheetProvider";
+import { useModal } from "@/common/providers/ModalProvider";
 import { toast } from "@/common/providers/ToastProvider";
 import { useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
@@ -10,94 +15,125 @@ import InquiryListHeader from "@/features/mypage/components/InquiryListHeader/In
 import ProductInquiryHistoryItem from "@/features/mypage/components/ProductInquiryHistoryItem/ProductInquiryHistoryItem";
 import { useDeleteInquiryMutation } from "@/features/product/hooks/useDeleteInquiryMutation";
 import { useGetProductInquiryHistory } from "@/features/product/hooks/useGetProductInquiryHistory";
-import { ProductInquiryHistory, ProductInquiryHistoryParams } from "@/features/product/types/productInquiry";
+import { ProductInquiryHistory } from "@/features/product/types/productInquiry";
 
-const INITIAL_PARAMS: ProductInquiryHistoryParams = {
-  size: 10,
-};
+/**
+ * 상품 문의 탭 (C12) — 1:1 탭과 같은 규칙을 쓴다.
+ *
+ * 다른 점은 답변을 목록 안에서 펼친다는 것 하나뿐이고, 필터·카운트·빈 상태·⋯ 메뉴는
+ * 두 탭이 같은 골격을 공유한다.
+ */
+const PAGE_SIZE = 10;
+const MORE_SHEET_ID = "product-inquiry-more";
+
+type MoreAction = "edit" | "delete";
+
+const MORE_ITEMS: Array<{ value: MoreAction; label: string }> = [
+  { value: "edit", label: "문의 수정" },
+  { value: "delete", label: "문의 삭제" },
+];
 
 export default function ProductInquiryHistoryTab() {
-  const { params } = useParams<ProductInquiryHistoryParams>(INITIAL_PARAMS);
+  const mainNavigation = useMainNavigation();
+  const { show: showModal } = useModal();
+  const { close: closeMoreSheet } = useBottomSheetContext();
+  const [isWaitingOnly, setIsWaitingOnly] = useState(false);
+  const [moreTarget, setMoreTarget] = useState<ProductInquiryHistory | null>(null);
+
+  const params = useMemo(
+    () => ({ size: PAGE_SIZE, ...(isWaitingOnly ? { status: "WAITING" as const } : null) }),
+    [isWaitingOnly]
+  );
   const { content: inquiries, pageInfo, isFetching, fetchNextPage } = useGetProductInquiryHistory(params);
   const { mutateAsync: deleteInquiry } = useDeleteInquiryMutation();
-  const mainNavigation = useMainNavigation();
-  const [isWaitingOnly, setIsWaitingOnly] = useState(false);
 
-  const handleLoadMore = useCallback(() => {
-    fetchNextPage();
-  }, [fetchNextPage]);
+  const handleSelectMoreAction = useCallback(
+    async (action: MoreAction) => {
+      const target = moreTarget;
 
-  const handlePressEdit = useCallback(
-    (id: number, productId: number) => {
-      mainNavigation.navigate(ROOT_ROUTES.COMMON, {
-        screen: COMMON_ROUTES.PRODUCT_INQUIRY,
-        params: {
-          productId: productId,
-          inquiryId: id,
-        },
-      });
-    },
-    [mainNavigation]
-  );
-
-  const handlePressDelete = useCallback(
-    async (id: number) => {
-      try {
-        await deleteInquiry(id);
-        toast.show("문의가 삭제되었습니다.");
-      } catch (error) {
-        console.error(error);
+      closeMoreSheet();
+      if (!target) {
+        return;
       }
-    },
-    [deleteInquiry]
-  );
 
-  const handlePressProduct = useCallback(
-    (productId: number) => {
-      mainNavigation.navigate(ROOT_ROUTES.COMMON, {
-        screen: COMMON_ROUTES.PRODUCT_DETAIL,
-        params: {
-          productId,
-        },
+      if (action === "edit") {
+        mainNavigation.navigate(ROOT_ROUTES.COMMON, {
+          screen: COMMON_ROUTES.PRODUCT_INQUIRY,
+          params: { productId: target.productId, inquiryId: target.id },
+        });
+        return;
+      }
+
+      showModal({
+        title: "문의를 삭제할까요?",
+        message: "삭제하면 되돌릴 수 없어요",
+        buttons: [
+          { label: "취소", variant: "outline" },
+          {
+            label: "삭제하기",
+            onPress: async () => {
+              try {
+                await deleteInquiry(target.id);
+                toast.show("문의가 삭제되었습니다");
+              } catch {
+                toast.show("문의를 삭제하지 못했어요");
+              }
+            },
+          },
+        ],
       });
     },
-    [mainNavigation]
+    [closeMoreSheet, deleteInquiry, mainNavigation, moreTarget, showModal]
+  );
+
+  const { open: openMoreSheet } = useBottomSheet({
+    id: MORE_SHEET_ID,
+    render: <SheetList items={MORE_ITEMS} onSelect={handleSelectMoreAction} />,
+    sheetProps: { enableDynamicSizing: true, snapPoints: undefined },
+  });
+
+  const handlePressMore = useCallback(
+    (item: ProductInquiryHistory) => {
+      setMoreTarget(item);
+      openMoreSheet();
+    },
+    [openMoreSheet]
   );
 
   const renderItem = useCallback(
-    ({ item }: { item: ProductInquiryHistory }) => {
-      return (
-        <ProductInquiryHistoryItem
-          item={item}
-          onPressEdit={handlePressEdit}
-          onPressDelete={handlePressDelete}
-          onPressProduct={handlePressProduct}
-        />
-      );
-    },
-    [handlePressEdit, handlePressDelete, handlePressProduct]
+    ({ item }: { item: ProductInquiryHistory }) => (
+      <ProductInquiryHistoryItem item={item} onPressMore={handlePressMore} />
+    ),
+    [handlePressMore]
   );
 
-  /** 서버에 상태 파라미터가 없어 받아 둔 목록에서 거른다 (1:1 문의 탭과 같은 규칙) */
-  const visibleInquiries = useMemo(
-    () => (isWaitingOnly ? inquiries.filter(item => item.status === "WAITING") : inquiries),
-    [inquiries, isWaitingOnly]
-  );
+  const total = pageInfo?.totalElements ?? inquiries.length;
 
   return (
     <PagingList<ProductInquiryHistory>
-      data={visibleInquiries}
+      data={inquiries}
       pageInfo={pageInfo}
       ItemSeparatorComponent={() => <View className="h-0.5 bg-dividerProduct" />}
       isLoading={isFetching}
-      onLoadMore={handleLoadMore}
+      onLoadMore={fetchNextPage}
       renderItem={renderItem}
       ListHeaderComponent={
         <InquiryListHeader
-          countLabel={`상품 문의 ${pageInfo?.totalElements ?? inquiries.length}`}
+          countLabel={`${isWaitingOnly ? "답변 대기" : "전체"} ${total}건`}
           isWaitingOnly={isWaitingOnly}
           onToggleWaitingOnly={() => setIsWaitingOnly(prev => !prev)}
         />
+      }
+      ListEmptyComponent={
+        isFetching ? undefined : (
+          <EmptyState
+            icon={<SpeechBubbleIcon size={50} color="#D8D8DA" />}
+            title={isWaitingOnly ? "답변 대기 중인 문의가 없어요" : "상품 문의 내역이 없어요"}
+            description={
+              isWaitingOnly ? "모든 문의에 답변이 등록되었어요" : "상품 상세에서 궁금한 점을 물어보세요"
+            }
+          />
+        )
       }
     />
   );

@@ -117,9 +117,6 @@ export type MypageStackParamList = {
     addressId?: number;
   };
   [MYPAGE_ROUTES.INQUIRY_HISTORY]: undefined;
-  [MYPAGE_ROUTES.INQUIRY_DETAIL]: {
-    inquiryId: number;
-  };
   [MYPAGE_ROUTES.INQUIRY_REGISTER]?: {
     inquiryId?: number;
   };

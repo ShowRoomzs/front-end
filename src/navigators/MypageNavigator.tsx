@@ -7,7 +7,6 @@ import AddressFormView from "@/features/mypage/views/AddressFormView";
 import AddressManagementView from "@/features/mypage/views/AddressManagementView";
 import CancelAndRefundView from "@/features/mypage/views/CancelAndRefundView";
 import CustomerCenterView from "@/features/mypage/views/CustomerCenterView";
-import InquiryDetailView from "@/features/mypage/views/InquiryDetailView";
 import InquiryHistoryView from "@/features/mypage/views/InquiryHistoryView";
 import MypageView from "@/features/mypage/views/MypageView";
 import OpenLicenseView from "@/features/mypage/views/OpenLicenseView";
@@ -27,7 +26,6 @@ export default function MypageNavigator() {
       <Stack.Screen name={MYPAGE_ROUTES.ADDRESS_MANAGEMENT} component={AddressManagementView} />
       <Stack.Screen name={MYPAGE_ROUTES.ADDRESS_FORM} component={AddressFormView} />
       <Stack.Screen name={MYPAGE_ROUTES.INQUIRY_HISTORY} component={InquiryHistoryView} />
-      <Stack.Screen name={MYPAGE_ROUTES.INQUIRY_DETAIL} component={InquiryDetailView} />
       <Stack.Screen name={MYPAGE_ROUTES.COUPON} component={CouponNavigator} />
       <Stack.Screen name={MYPAGE_ROUTES.SETTINGS} component={SettingsNavigator} />
       <Stack.Screen name={MYPAGE_ROUTES.INQUIRY_REGISTER} component={InquiryView} />

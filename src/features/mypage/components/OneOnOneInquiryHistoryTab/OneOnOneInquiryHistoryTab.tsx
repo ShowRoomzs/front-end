@@ -22,6 +22,9 @@ import OneOnOneInquiryHistoryItem from "@/features/mypage/components/OneOnOneInq
  *
  * [답변 대기만]은 **서버에 status를 넘겨** 거른다. 받아 둔 페이지에서만 거르면 다음 페이지에
  * 있는 대기 건이 보이지 않아, 필터를 켠 사람이 정작 찾던 것을 놓친다.
+ *
+ * 답변이 달린 문의는 상세 화면으로 보내지 않고 **목록에서 바로 펼친다** — 상품 문의와 같은 규칙이다.
+ * 문의 하나에 답변 하나로 끝나는 구조라 화면을 옮길 만큼의 내용이 아니다.
  */
 const PAGE_SIZE = 10;
 const MORE_SHEET_ID = "one-on-one-inquiry-more";
@@ -47,13 +50,6 @@ export default function OneOnOneInquiryHistoryTab() {
   );
   const { content: inquiries, pageInfo, isFetching, fetchNextPage } = useGetInquiryHistory(params);
   const { mutateAsync: deleteInquiry } = useDeleteInquiryMutation();
-
-  const handlePressItem = useCallback(
-    (inquiryId: number) => {
-      navigation.navigate(MYPAGE_ROUTES.INQUIRY_DETAIL, { inquiryId });
-    },
-    [navigation]
-  );
 
   const handleSelectMoreAction = useCallback(
     async (action: MoreAction) => {
@@ -111,9 +107,9 @@ export default function OneOnOneInquiryHistoryTab() {
 
   const renderItem = useCallback(
     ({ item }: { item: InquiryHistory }) => (
-      <OneOnOneInquiryHistoryItem item={item} onPress={handlePressItem} onPressMore={handlePressMore} />
+      <OneOnOneInquiryHistoryItem item={item} onPressMore={handlePressMore} />
     ),
-    [handlePressItem, handlePressMore]
+    [handlePressMore]
   );
 
   const total = pageInfo?.totalElements ?? inquiries.length;

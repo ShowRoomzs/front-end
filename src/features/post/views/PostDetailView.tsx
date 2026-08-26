@@ -1,115 +1,158 @@
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { ScrollView, TouchableOpacity, useWindowDimensions, View } from "react-native";
-import Svg, { Path } from "react-native-svg";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Avatar from "@/common/components/Avatar/Avatar";
 import { MoreIcon } from "@/common/components/DsIcon/icons";
+import HeaderActions from "@/common/components/HeaderActions/HeaderActions";
 import LikeButton from "@/common/components/LikeButton/LikeButton";
 import MediaCarousel from "@/common/components/MediaCarousel/MediaCarousel";
+import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import Spinner from "@/common/components/Spinner/Spinner";
 import Typography from "@/common/components/Typography/Typography";
 import { useCommonNavigation } from "@/common/router";
 import { COMMON_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
 import { formatRelativeTime } from "@/common/utils/formatRelativeTime";
+import PostBadgeRow from "@/features/post/components/PostBadgeRow/PostBadgeRow";
+import PostProductList from "@/features/post/components/PostProductList/PostProductList";
 import { useFeedActions } from "@/features/post/hooks/useFeedActions";
 import { useGetPostDetail } from "@/features/post/hooks/useGetPostDetail";
 
 /**
- * 게시물 상세 — 피드·쇼룸의 카드를 탭하면 열린다.
+ * C5 게시물 상세 — 피드·쇼룸의 카드를 탭하면 열린다.
  *
- * 카드가 요약이라면 여기서는 본문을 접지 않고 전부 편다. 사진도 잘리지 않은 원래 비율로 보여준다.
+ * 카드가 요약이라면 여기서는 **본문을 접지 않고 전부 편다.** 자세한 설명을 보러 들어온 화면에서
+ * 다시 [더 보기]를 누르게 하면 목적이 무너진다. 상품도 접지 않고 전부 펼친다.
  *
- * C5 공구 게시물 상세(D-day · 상품 묶음 · 판매자 고지)는 서버에 공구 게시물이 아직 없어
- * 여기 붙지 않는다. 일반 게시물은 이 화면이 그대로 상세다.
+ * **좋아요는 맨 아래다.** 글과 상품을 다 보고 난 뒤에 누르는 동작이라, 글 위에 두면 판단하기 전에
+ * 결정을 요구하는 셈이 된다(피드 카드에서 미디어 바로 아래에 두는 것과 반대 이유다).
+ *
+ * ⋯는 **세로**다 — 목록 안의 항목 메뉴(가로 ⋯)와 화면 하나에 대한 메뉴를 방향으로 구분한다.
+ *
+ * 배송비·마감 같은 거래 조건은 상품 상세(C7)가 채우므로 게시물에서 중복해 적지 않는다.
  */
 export default function PostDetailView() {
   const route = useRoute<RouteProp<CommonStackParamList, typeof COMMON_ROUTES.POST_DETAIL>>();
   const { postId } = route.params;
   const navigation = useCommonNavigation();
   const { width } = useWindowDimensions();
+  // 스택 네비게이터는 상단 인셋만 잡는다 — 아래로 끝까지 흐르는 화면은 각자 하단을 비운다
+  const { bottom } = useSafeAreaInsets();
 
   const { data: post, isLoading } = useGetPostDetail(postId);
-  const { handlePressShowroom, handlePressLike, handlePressMore } = useFeedActions();
+  const { handlePressShowroom, handlePressProduct, handlePressLike, handlePressMore } = useFeedActions();
 
-  return (
-    <View className="flex-1 bg-white">
-      <View className="border-b-[0.5px] border-divider bg-white">
-        <View className="h-46 flex-row items-center" style={{ paddingLeft: 2, paddingRight: 12 }}>
-          <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.4} className="p-11">
-            <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
-              <Path
-                d="M15 5l-7 7 7 7"
-                stroke="#0F0F0F"
-                strokeWidth={1.8}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </Svg>
-          </TouchableOpacity>
-          <Typography
-            style={{ fontSize: 16, fontWeight: "600", lineHeight: 16, letterSpacing: -0.3 }}
-            className="flex-1"
-            numberOfLines={1}
-          >
-            게시물
-          </Typography>
-        </View>
-      </View>
-
-      {isLoading || !post ? (
+  if (isLoading || !post) {
+    return (
+      <View className="flex-1 bg-white">
+        <ScreenHeader title="게시물" onPressBack={navigation.goBack} renderRight={<HeaderActions />} />
         <View className="flex-1 items-center justify-center">
           <Spinner />
         </View>
-      ) : (
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 32 }}>
-          <View className="flex-row items-center px-14 pb-10 pt-12" style={{ gap: 10 }}>
-            <TouchableOpacity
-              onPress={() => handlePressShowroom(post.showroomId)}
-              activeOpacity={0.7}
-              className="min-w-0 flex-1 flex-row items-center"
-              style={{ gap: 10 }}
-            >
-              <Avatar imageUrl={post.showroomImageUrl} size={36} />
-              <View className="min-w-0 flex-1 flex-row items-center" style={{ gap: 5 }}>
-                <Typography variant="handle" className="shrink text-ink" numberOfLines={1}>
-                  {post.showroomName}
-                </Typography>
-                <Typography style={{ fontSize: 13, lineHeight: 16.9 }} className="flex-none text-gray55">
-                  · {formatRelativeTime(post.publishedAt)}
-                </Typography>
-              </View>
-            </TouchableOpacity>
+      </View>
+    );
+  }
 
-            <TouchableOpacity
-              onPress={() => handlePressMore(post.postId)}
-              activeOpacity={0.4}
-              style={{ padding: 12, margin: -12 }}
-            >
-              <MoreIcon size={20} />
-            </TouchableOpacity>
-          </View>
+  const { groupBuy } = post;
+  const hasMedia = post.imageUrls.length > 0;
 
-          {post.imageUrls.length > 0 && (
+  return (
+    <View className="flex-1 bg-white">
+      <ScreenHeader title="게시물" onPressBack={navigation.goBack} renderRight={<HeaderActions />} />
+
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: bottom + 30 }}>
+        <View className="flex-row items-center px-14 py-13" style={{ gap: 10 }}>
+          <TouchableOpacity
+            onPress={() => handlePressShowroom(post.showroomId)}
+            activeOpacity={0.7}
+            className="min-w-0 flex-1 flex-row items-center"
+            style={{ gap: 10 }}
+          >
+            <Avatar imageUrl={post.showroomImageUrl} size={36} hasOngoingGroupBuy={!!groupBuy} />
+            <View className="min-w-0 flex-1 flex-row items-center" style={{ gap: 5 }}>
+              <Typography variant="handle" className="shrink text-ink" numberOfLines={1}>
+                {post.showroomName}
+              </Typography>
+              <Typography style={{ fontSize: 13, lineHeight: 16.9 }} className="flex-none text-gray55">
+                · {formatRelativeTime(post.publishedAt)}
+              </Typography>
+            </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => handlePressMore(post.postId)}
+            activeOpacity={0.4}
+            style={{ padding: 11, margin: -11 }}
+          >
+            <MoreIcon size={20} color="#8E8E8E" vertical />
+          </TouchableOpacity>
+        </View>
+
+        {!!groupBuy && <PostBadgeRow groupBuy={groupBuy} className="px-14 pt-4" />}
+
+        {!!groupBuy && (
+          <Typography
+            style={{
+              fontSize: 17,
+              fontWeight: "700",
+              lineHeight: 24.65,
+              letterSpacing: -0.4,
+              paddingTop: 11,
+            }}
+            className="px-14 text-ink"
+          >
+            {groupBuy.title}
+          </Typography>
+        )}
+
+        {!!post.content && (
+          <Typography
+            style={{ fontSize: 14, lineHeight: 24.5, marginTop: groupBuy ? 9 : 11 }}
+            className="px-14 text-ink76"
+          >
+            {post.content}
+          </Typography>
+        )}
+
+        {hasMedia && (
+          <View style={{ marginTop: 14 }}>
             <MediaCarousel imageUrls={post.imageUrls} width={width} aspectRatio={post.aspectRatio} />
-          )}
-
-          <View className="flex-row px-14" style={{ paddingTop: post.imageUrls.length > 0 ? 4 : 10 }}>
-            <LikeButton
-              isLiked={post.isLiked}
-              likeCount={post.likeCount}
-              likeLocked={post.likeLocked}
-              onPress={() => handlePressLike(post.postId, post.isLiked)}
-            />
           </View>
+        )}
 
-          {!!post.content && (
-            <Typography variant="body" style={{ lineHeight: 20.9 }} className="px-14 pt-9 text-ink">
-              <Typography style={{ fontWeight: "600" }}>{post.showroomName}</Typography> {post.content}
-            </Typography>
-          )}
-        </ScrollView>
-      )}
+        {!!groupBuy && groupBuy.products.length > 0 && (
+          <>
+            <View className="flex-row items-baseline px-14 pb-10 pt-20" style={{ gap: 7 }}>
+              <Typography
+                style={{ fontSize: 15, fontWeight: "700", lineHeight: 15, letterSpacing: -0.2 }}
+                className="text-ink"
+              >
+                공구 상품
+              </Typography>
+              <Typography style={{ fontSize: 15, fontWeight: "700", lineHeight: 15 }} className="text-gray45">
+                {groupBuy.products.length}
+              </Typography>
+            </View>
+
+            <PostProductList
+              products={groupBuy.products}
+              isClosed={groupBuy.status === "CLOSED"}
+              expandedByDefault
+              onPressProduct={handlePressProduct}
+            />
+          </>
+        )}
+
+        <View className="flex-row px-14" style={{ paddingTop: 14 }}>
+          <LikeButton
+            isLiked={post.isLiked}
+            likeCount={post.likeCount}
+            likeLocked={post.likeLocked || groupBuy?.status === "CLOSED"}
+            onPress={() => handlePressLike(post.postId, post.isLiked)}
+          />
+        </View>
+      </ScrollView>
     </View>
   );
 }

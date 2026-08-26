@@ -1,8 +1,10 @@
-import { useCallback, useMemo, useState } from "react";
-import { ListRenderItemInfo, View } from "react-native";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { FlatList, ListRenderItemInfo, RefreshControl, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { BOTTOM_TABS_HEIGHT } from "@/common/components/BottomTabs/config";
+import { EmptyBagIcon } from "@/common/components/DsIcon/icons";
+import EmptyState from "@/common/components/EmptyState/EmptyState";
 import ListHeaderBar from "@/common/components/ListHeaderBar/ListHeaderBar";
 import LoginPrompt from "@/common/components/LoginPrompt/LoginPrompt";
 import PagingList from "@/common/components/PagingList/PagingList";
@@ -44,19 +46,32 @@ export default function FollowingView() {
   /** 이 화면에 머무는 동안 언팔로우한 쇼룸 — 행은 남기고 버튼만 되돌린다 */
   const [unfollowedIds, setUnfollowedIds] = useState<Set<number>>(new Set());
 
-  const { content, pageInfo, isLoading, isFetchingNextPage, fetchNextPage } = useGetFollowingShowrooms(
-    sort,
-    !!user
-  );
+  const { content, pageInfo, isLoading, isFetchingNextPage, fetchNextPage, refetch } =
+    useGetFollowingShowrooms(sort, !!user);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const listRef = useRef<FlatList<FollowingShowroom>>(null);
   const { toggle: toggleFollow } = useUpdateShowroomFollow(true);
 
   const handleSelectSort = useCallback(
     (value: string) => {
       setSort(value as FollowingShowroomSort);
       closeSheet();
+      // 정렬을 바꾸면 목록의 처음으로 되돌린다 — 스크롤이 남으면 새 순서의 중간부터 보인다
+      listRef.current?.scrollToOffset({ offset: 0, animated: false });
     },
     [closeSheet]
   );
+
+  /** 당겨서 새로고침 — 이 화면에서 언팔로우한 쇼룸이 실제로 목록에서 빠지는 시점이다 */
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      await refetch();
+      setUnfollowedIds(new Set());
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [refetch]);
 
   const sortItems = useMemo(
     () =>
@@ -72,7 +87,7 @@ export default function FollowingView() {
     id: SORT_SHEET_ID,
     render: (
       <SheetList
-        title="정렬"
+        title="정렬 기준"
         items={sortItems}
         mode="select"
         selectedValue={sort}
@@ -91,6 +106,13 @@ export default function FollowingView() {
     },
     [navigation]
   );
+
+  const handlePressSearch = useCallback(() => {
+    navigation.navigate(ROOT_ROUTES.COMMON, {
+      screen: COMMON_ROUTES.SEARCH,
+      params: { keyword: "" },
+    });
+  }, [navigation]);
 
   const handlePressFollow = useCallback(
     (showroomId: number, isFollowing: boolean) => {
@@ -140,6 +162,7 @@ export default function FollowingView() {
     <View className="flex-1 bg-white">
       <ScreenHeaderBar title="팔로잉" />
       <PagingList
+        ref={listRef}
         data={content}
         pageInfo={pageInfo}
         isLoading={isLoading || isFetchingNextPage}
@@ -152,6 +175,21 @@ export default function FollowingView() {
             sortLabel={FOLLOWING_SHOWROOM_SORT_LABEL[sort]}
             onPressSort={openSortSheet}
           />
+        }
+        ListEmptyComponent={
+          isLoading ? undefined : (
+            <EmptyState
+              icon={<EmptyBagIcon size={52} />}
+              title="아직 팔로우한 쇼룸이 없어요"
+              description={"쇼룸을 팔로우하면 새 공구와 게시물을\n홈 피드에서 확인할 수 있어요"}
+              paddingTop={120}
+              actionLabel="쇼룸 검색하기"
+              onPressAction={handlePressSearch}
+            />
+          )
+        }
+        refreshControl={
+          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} tintColor="#F2456E" />
         }
         contentContainerStyle={{ paddingBottom: inset.bottom + BOTTOM_TABS_HEIGHT }}
         showsVerticalScrollIndicator={false}

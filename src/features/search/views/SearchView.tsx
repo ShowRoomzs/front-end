@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ListRenderItemInfo, TouchableOpacity, View } from "react-native";
 
 import { SearchIcon } from "@/common/components/DsIcon/icons";
+import EmptyState from "@/common/components/EmptyState/EmptyState";
 import PagingList from "@/common/components/PagingList/PagingList";
 import SectionLabel from "@/common/components/SectionLabel/SectionLabel";
 import Typography from "@/common/components/Typography/Typography";
@@ -26,19 +27,28 @@ import { ShowroomSearchItem } from "@/features/showroom/types/showroom";
  * 검색 결과에는 팔로우 버튼을 두지 않는다 — 행 전체가 C4 쇼룸으로 가는 단일 액션이고,
  * 팔로우는 쇼룸을 확인한 뒤 그곳에서 하는 것이 자연스럽다.
  */
+const SEARCH_DEBOUNCE_MS = 300;
+
 export default function SearchView() {
   const route = useRoute<RouteProp<CommonStackParamList, typeof COMMON_ROUTES.SEARCH>>();
   const navigation = useCommonNavigation();
   const mainNavigation = useMainNavigation();
 
   const [keyword, setKeyword] = useState(route.params?.keyword ?? "");
-  /** 입력 중에는 결과를 그리지 않는다 — 확정한 검색어만 서버로 보낸다 */
+  /**
+   * 실제로 서버에 나가는 검색어.
+   *
+   * 입력 중에도 결과를 보여주되, 글자마다 요청을 보내면 한 단어에 열 번씩 나간다.
+   * 타이핑이 멈춘 뒤에만 반영하고, 검색 버튼(엔터)을 누르면 기다리지 않고 즉시 반영한다.
+   */
   const [submittedKeyword, setSubmittedKeyword] = useState(route.params?.keyword ?? "");
 
-  const { data: recentSearches, create, remove, sync } = useRecentSearch();
+  const { data: recentSearches, create, createShowroom, remove, removeAll, sync } = useRecentSearch();
   const { content, pageInfo, isLoading, isFetchingNextPage, fetchNextPage } =
     useSearchShowrooms(submittedKeyword);
-  const hasNoResult = submittedKeyword.length > 0 && !isLoading && content.length === 0;
+  /** 아직 반영되지 않은 타이핑 — 이 사이에 "결과가 없어요"를 띄우면 글자마다 깜빡인다 */
+  const isTypingAhead = keyword.trim() !== submittedKeyword;
+  const hasNoResult = submittedKeyword.length > 0 && !isLoading && !isTypingAhead && content.length === 0;
   const { data: activeShowrooms } = useGetActiveShowrooms(hasNoResult);
 
   useEffect(() => {
@@ -46,6 +56,29 @@ export default function SearchView() {
     void sync();
   }, [sync]);
 
+  useEffect(() => {
+    const trimmed = keyword.trim();
+
+    if (trimmed === submittedKeyword) {
+      return;
+    }
+    // 지우는 즉시 최근 검색으로 돌아간다 — 빈 검색어를 기다릴 이유가 없다
+    if (trimmed.length === 0) {
+      setSubmittedKeyword("");
+      return;
+    }
+
+    const timer = setTimeout(() => setSubmittedKeyword(trimmed), SEARCH_DEBOUNCE_MS);
+
+    return () => clearTimeout(timer);
+  }, [keyword, submittedKeyword]);
+
+  /**
+   * 검색 확정 — 엔터를 누르거나 최근 검색어를 탭했을 때.
+   *
+   * **기록은 여기서만 남긴다.** 타이핑 중간값까지 저장하면 "브", "브라", "브라이"가 전부
+   * 최근 검색에 쌓인다.
+   */
   const handleSearch = useCallback(
     async (nextKeyword: string) => {
       const trimmed = nextKeyword.trim();
@@ -62,19 +95,19 @@ export default function SearchView() {
 
   const handleChangeKeyword = useCallback((next: string) => {
     setKeyword(next);
-    if (next.length === 0) {
-      setSubmittedKeyword("");
-    }
   }, []);
 
   const handlePressShowroom = useCallback(
     (showroomId: number) => {
+      // 검색에서 쇼룸으로 들어간 사실을 기록에 남긴다 — 최근 검색의 아바타 행이 여기서 쌓인다.
+      // 이동을 막지 않도록 기다리지 않는다(기록이 실패해도 쇼룸은 열려야 한다)
+      void createShowroom(showroomId);
       mainNavigation.navigate(ROOT_ROUTES.COMMON, {
         screen: COMMON_ROUTES.SHOWROOM_DETAIL,
         params: { showroomId },
       });
     },
-    [mainNavigation]
+    [createShowroom, mainNavigation]
   );
 
   const renderItem = useCallback(
@@ -103,7 +136,7 @@ export default function SearchView() {
                 최근 검색
               </Typography>
               <TouchableOpacity
-                onPress={() => recentSearches.forEach(item => remove(item.id))}
+                onPress={removeAll}
                 activeOpacity={0.6}
                 style={{ paddingVertical: 10, marginVertical: -10 }}
               >
@@ -116,7 +149,12 @@ export default function SearchView() {
               </TouchableOpacity>
             </View>
           )}
-          <RecentSearchList items={recentSearches} onPressKeyword={handleSearch} onDeleteKeyword={remove} />
+          <RecentSearchList
+            items={recentSearches}
+            onPressKeyword={handleSearch}
+            onPressShowroom={handlePressShowroom}
+            onDeleteKeyword={remove}
+          />
         </View>
       );
     }
@@ -125,22 +163,14 @@ export default function SearchView() {
     if (hasNoResult) {
       return (
         <View className="flex-1">
-          <View className="items-center px-30 pb-24 pt-56">
-            <SearchIcon size={32} color="#C7C7C7" />
-            <Typography
-              style={{ fontSize: 14, fontWeight: "600", lineHeight: 21, marginTop: 14 }}
-              className="text-center text-ink"
-            >
-              {`'${submittedKeyword}' 검색 결과가 없어요`}
-            </Typography>
-            <Typography
-              variant="caption"
-              style={{ lineHeight: 20, marginTop: 5 }}
-              className="text-center text-gray45"
-            >
-              쇼룸 이름의 일부만 입력해도 찾을 수 있어요
-            </Typography>
-          </View>
+          {/* 검색어를 문구에 그대로 넣어 오타를 스스로 확인하게 한다 */}
+          <EmptyState
+            icon={<SearchIcon size={50} color="#D8D8DA" />}
+            title={`'${submittedKeyword}' 검색 결과가 없어요`}
+            description="쇼룸 이름의 일부만 입력해도 찾을 수 있어요"
+            paddingTop={52}
+          />
+          <View className="h-34" />
 
           {!!activeShowrooms?.length && (
             <>

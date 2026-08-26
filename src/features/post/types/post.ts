@@ -9,11 +9,48 @@
 /**
  * 콘텐츠 타입 판별자.
  *
- * 현재 서버는 `GENERAL`만 내려준다 — 공구 게시물(`GROUP_BUY`)은 아직 만들어지지 않았고,
- * 게시물에 붙는 상품 목록 필드도 DTO에 없다. 값을 미리 두는 이유는 공구 게시물이 들어올 때
- * 응답 구조를 바꾸지 않고 확장하기 위해서다.
+ * 서버는 아직 `GENERAL`만 내려준다 — 공구 게시물(`GROUP_BUY`)과 게시물에 붙는 상품 목록 필드가
+ * `PostDto`에 없다. 화면은 목업으로 먼저 그려 두었고(`mocks/groupBuyMock.ts`), 실물 필드가
+ * 생기면 그 파일만 지우면 된다.
  */
 export type PostContentType = "GENERAL" | "GROUP_BUY";
+
+/** 공구 진행 상태 — 마감되면 하트·상품이 모두 죽은 표기로 바뀐다 */
+export type GroupBuyStatus = "OPEN" | "CLOSED";
+
+/**
+ * 게시물에 묶인 상품 한 건.
+ *
+ * 정가는 단위를 생략하고(38,000) 실제로 낼 금액에만 "원"을 붙인다 — 디자인 시스템 02.
+ */
+export interface PostProduct {
+  productId: number;
+  name: string;
+  imageUrl: string | null;
+  /** 정가 — 취소선 */
+  listPrice: number;
+  /** 공구가 */
+  price: number;
+  /** 할인율(%) — 가격과 같은 크기(700/15)로 로즈다 */
+  discountRate: number;
+  soldOut: boolean;
+}
+
+/**
+ * 공구 게시물에만 붙는 묶음. 일반 게시물은 이 값이 null이다.
+ *
+ * D-day 배지는 **콘텐츠 카드에서만 로즈 채움**이다(디자인 시스템 §05 D-day 3형태).
+ * 대가관계 표시(`isPaidAd`)는 규정상 항상 중립 배지이고 로즈를 쓰지 않는다.
+ */
+export interface GroupBuyInfo {
+  /** 공구 게시물의 제목 — 일반 게시물에는 제목이 없다 */
+  title: string;
+  /** 마감까지 남은 일수 */
+  dday: number;
+  status: GroupBuyStatus;
+  isPaidAd: boolean;
+  products: Array<PostProduct>;
+}
 
 export interface PostListItem {
   postId: number;
@@ -38,6 +75,8 @@ export interface PostListItem {
   /** true면 해제만 된다(마감된 공구). 품절은 제한하지 않는다 */
   likeLocked: boolean;
   publishedAt: string;
+  /** 공구 게시물이 아니면 null */
+  groupBuy: GroupBuyInfo | null;
 }
 
 export interface FeedItem {
@@ -60,6 +99,8 @@ export interface PostDetail {
   likeLocked: boolean;
   publishedAt: string;
   modifiedAt: string;
+  /** 공구 게시물이 아니면 null */
+  groupBuy: GroupBuyInfo | null;
 }
 
 /**
@@ -96,4 +137,12 @@ export const LIKED_POST_SORT_LABEL: Record<LikedPostSort, string> = {
   LIKED_OLDEST: "좋아요한 날짜 : 오래된순",
   MOST_LIKED: "좋아요 많은순",
   GROUP_BUY_FIRST: "공구 게시물 먼저",
+};
+
+/** 라벨만으로는 무엇이 기준인지 알 수 없다 — C2 팔로잉 시트와 같은 규격으로 설명을 함께 둔다 */
+export const LIKED_POST_SORT_DESCRIPTION: Record<LikedPostSort, string> = {
+  DEFAULT: "최근에 좋아요한 순서",
+  LIKED_OLDEST: "가장 먼저 좋아요한 게시물부터",
+  MOST_LIKED: "많은 사람이 좋아한 게시물부터",
+  GROUP_BUY_FIRST: "진행 중 공구를 위로 모아서",
 };

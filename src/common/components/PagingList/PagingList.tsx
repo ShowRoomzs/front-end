@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { forwardRef, ReactElement, Ref, useCallback } from "react";
 import { FlatList, FlatListProps } from "react-native";
 
 import { DEFAULT_ON_END_REACHED_THRESHOLD } from "@/common/components/PagingList/config";
@@ -13,7 +13,11 @@ interface PagingListProps<T> extends Omit<FlatListProps<T>, "data"> {
   isLoading: boolean;
 }
 
-export default function PagingList<T>(props: PagingListProps<T>) {
+/**
+ * ref를 넘길 수 있게 열어 둔다 — 정렬이 바뀌었을 때 목록의 처음으로 되돌리는 것처럼,
+ * 부르는 쪽만 아는 시점에 스크롤을 조작해야 하는 경우가 있다.
+ */
+function PagingListInner<T>(props: PagingListProps<T>, ref: Ref<FlatList<T>>) {
   const {
     data,
     pageInfo,
@@ -45,6 +49,7 @@ export default function PagingList<T>(props: PagingListProps<T>) {
 
   return (
     <FlatList
+      ref={ref}
       {...flatListProps}
       data={data || []}
       onEndReachedThreshold={onEndReachedThreshold}
@@ -59,3 +64,10 @@ export default function PagingList<T>(props: PagingListProps<T>) {
     />
   );
 }
+
+// forwardRef가 제네릭을 지워 버리므로 캐스팅으로 되살린다
+const PagingList = forwardRef(PagingListInner) as <T>(
+  props: PagingListProps<T> & { ref?: Ref<FlatList<T>> }
+) => ReactElement;
+
+export default PagingList;

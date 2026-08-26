@@ -23,7 +23,7 @@ interface ShowroomRowProps {
   handle?: string | null;
   onPress: (showroomId: number) => void;
   /**
-   * 검색어 — 넘기면 이름과 아이디의 일치 구간을 로즈로 하이라이트한다.
+   * 검색어 — 넘기면 이름과 아이디의 일치 구간을 로즈 텍스트(#CF3D61)로 하이라이트한다.
    * 왜 이 행이 걸렸는지(이름이 맞았는지 아이디가 맞았는지) 보이게 하기 위해서다.
    */
   keyword?: string;
@@ -64,7 +64,7 @@ export default function ShowroomRow(props: ShowroomRowProps) {
           className="text-ink"
           numberOfLines={1}
           keyword={keyword ?? ""}
-          highlightClassName="text-rose"
+          highlightClassName="text-roseText"
         >
           {showroomName}
         </HighlightTypo>
@@ -74,7 +74,7 @@ export default function ShowroomRow(props: ShowroomRowProps) {
             className="text-gray45"
             numberOfLines={1}
             keyword={keyword ?? ""}
-            highlightClassName="text-rose"
+            highlightClassName="text-roseText"
           >
             {handleLabel}
           </HighlightTypo>

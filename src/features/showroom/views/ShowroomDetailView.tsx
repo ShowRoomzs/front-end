@@ -40,7 +40,8 @@ export default function ShowroomDetailView() {
   const { data: showroom } = useGetShowroomDetail(showroomId);
   const { content, pageInfo, isLoading, isFetchingNextPage, fetchNextPage } = useGetShowroomPosts(showroomId);
   const { toggle: toggleFollow } = useUpdateShowroomFollow();
-  const { handlePressPost, handlePressShowroom, handlePressLike, handlePressMore } = useFeedActions();
+  const { handlePressPost, handlePressShowroom, handlePressProduct, handlePressLike, handlePressMore } =
+    useFeedActions();
   const { handleViewableItemsChanged, viewabilityConfig } = usePostImpressions();
 
   // 쇼룸 방문은 크리에이터에게 나가는 지표다 — 같은 사람이 30분 안에 다시 와도 서버가 접는다
@@ -62,10 +63,18 @@ export default function ShowroomDetailView() {
         onPressShowroom={handlePressShowroom}
         onPressFollow={handlePressFollow}
         onPressLike={handlePressLike}
+        onPressProduct={handlePressProduct}
         onPressMore={handlePressMore}
       />
     ),
-    [handlePressFollow, handlePressLike, handlePressMore, handlePressPost, handlePressShowroom]
+    [
+      handlePressFollow,
+      handlePressLike,
+      handlePressMore,
+      handlePressPost,
+      handlePressProduct,
+      handlePressShowroom,
+    ]
   );
 
   return (

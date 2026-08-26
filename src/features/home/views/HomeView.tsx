@@ -1,5 +1,5 @@
-import { useCallback, useMemo } from "react";
-import { ListRenderItemInfo, View } from "react-native";
+import { useCallback, useMemo, useState } from "react";
+import { ListRenderItemInfo, RefreshControl, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { BOTTOM_TABS_HEIGHT } from "@/common/components/BottomTabs/config";
@@ -48,8 +48,26 @@ export default function HomeView() {
   const recommendedFeed = useGetRecommendedFeed();
   const cartItemCount = useCartItemCount();
 
-  const { handlePressPost, handlePressShowroom, handlePressLike, handlePressFollow, handlePressMore } =
-    useFeedActions();
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  /** 당겨서 새로고침 — 두 피드가 한 목록으로 이어져 있어 함께 받아 온다 */
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      await Promise.all([followingFeed.refetch(), recommendedFeed.refetch()]);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [followingFeed, recommendedFeed]);
+
+  const {
+    handlePressPost,
+    handlePressShowroom,
+    handlePressProduct,
+    handlePressLike,
+    handlePressFollow,
+    handlePressMore,
+  } = useFeedActions();
   const { handleViewableItemsChanged, viewabilityConfig } = usePostImpressions();
 
   const hasFollowingPosts = followingFeed.content.length > 0;
@@ -135,6 +153,7 @@ export default function HomeView() {
               onPressShowroom={handlePressShowroom}
               onPressFollow={handlePressFollow}
               onPressLike={handlePressLike}
+              onPressProduct={handlePressProduct}
               onPressMore={handlePressMore}
             />
           );
@@ -157,6 +176,7 @@ export default function HomeView() {
       handlePressLike,
       handlePressMore,
       handlePressPost,
+      handlePressProduct,
       handlePressSearch,
       handlePressShowroom,
     ]
@@ -187,6 +207,9 @@ export default function HomeView() {
         renderItem={renderItem}
         onViewableItemsChanged={handleViewableItemsChanged}
         viewabilityConfig={viewabilityConfig}
+        refreshControl={
+          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} tintColor="#F2456E" />
+        }
         contentContainerStyle={{ paddingBottom: inset.bottom + BOTTOM_TABS_HEIGHT }}
         showsVerticalScrollIndicator={false}
       />

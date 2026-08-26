@@ -56,6 +56,17 @@ export function useFeedActions() {
     [navigation]
   );
 
+  /** 공구 게시물의 상품 행 — 게시물이 아니라 상품 상세로 간다 */
+  const handlePressProduct = useCallback(
+    (productId: number) => {
+      navigation.navigate(ROOT_ROUTES.COMMON, {
+        screen: COMMON_ROUTES.PRODUCT_DETAIL,
+        params: { productId },
+      });
+    },
+    [navigation]
+  );
+
   const handlePressLike = usePermissionPress((postId: number, isLiked: boolean) => {
     toggleLike(postId, isLiked);
   });
@@ -75,6 +86,7 @@ export function useFeedActions() {
   return {
     handlePressPost,
     handlePressShowroom,
+    handlePressProduct,
     handlePressLike,
     handlePressFollow,
     handlePressMore,

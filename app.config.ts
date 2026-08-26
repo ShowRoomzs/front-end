@@ -9,7 +9,22 @@ import { ExpoConfig, ConfigContext } from "expo/config";
 const NAVER_URL_SCHEME = "showroomznaver";
 
 export default ({ config }: ConfigContext): ExpoConfig => {
-  const { EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY } = process.env;
+  const { EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY, EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID } = process.env;
+
+  /**
+   * 구글 iOS 리다이렉트 스킴 = 클라이언트 ID를 뒤집은 값.
+   * "495703171100-xxx.apps.googleusercontent.com" → "com.googleusercontent.apps.495703171100-xxx"
+   *
+   * 카카오·네이버는 각자 SDK가 스킴을 알아서 쓰지만 구글(expo-auth-session)은 이 값이
+   * Info.plist에 없으면 로그인 창은 정상적으로 뜨고 계정 선택까지 되는데 앱으로 돌아오지 못한다 —
+   * 에러가 아니라 "아무 일도 일어나지 않은 것"처럼 보여서 원인을 찾기 어렵다.
+   */
+  const googleIosUrlScheme = EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID
+    ? `com.googleusercontent.apps.${EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID.replace(
+        ".apps.googleusercontent.com",
+        ""
+      )}`
+    : undefined;
 
   return {
     ...config,
@@ -44,12 +59,15 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           "tiktok",
           "twitter",
         ],
-        // naver / kakao scheme은 각 config plugin이 직접 넣는다. 여기에 또 적으면
-        // Info.plist에 같은 scheme이 두 번 들어간다.
+        // naver scheme은 naver-login 플러그인이 넣으므로 여기 적지 않는다(중복 방지).
+        // kakao scheme은 남겨 둔다 — kakao 플러그인도 넣지만 이미 있으면 건너뛰므로 중복되지 않고,
+        // 플러그인 설정이 흔들려도 scheme만은 살아 있게 하는 보험이다.
         CFBundleURLTypes: [
           {
             CFBundleURLSchemes: [`kakao${EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY}`],
           },
+          // 값이 없으면 항목 자체를 넣지 않는다 — 빈 스킴이 박히면 iOS가 그 URL 타입을 무시한다
+          ...(googleIosUrlScheme ? [{ CFBundleURLSchemes: [googleIosUrlScheme] }] : []),
         ],
       },
     },
@@ -105,6 +123,13 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           nativeAppKey: EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY,
           android: {
             authCodeHandlerActivity: true,
+          },
+          // ios 키가 없으면 플러그인이 `if (ios)`에서 걸러 **withIos를 아예 실행하지 않는다**.
+          // 그러면 AppDelegate의 application(_:open:options:)에 KakaoSDK 핸들러가 주입되지 않아,
+          // 카카오톡에서 인증을 마치고 kakao{key}://oauth 로 돌아와도 SDK가 그 URL을 받지 못한다 —
+          // 로그인 Promise가 영영 풀리지 않고 화면은 "갔다 왔는데 아무 일도 없음"이 된다.
+          ios: {
+            handleKakaoOpenUrl: true,
           },
         },
       ],

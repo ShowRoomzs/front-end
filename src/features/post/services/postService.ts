@@ -1,5 +1,7 @@
 import { apiInstance } from "@/common/lib/apiInstance";
 import { PageParams, PageResponse } from "@/common/types/page";
+// ⚠️ 임시 — 서버가 공구 게시물 필드를 내려주면 아래 5번의 호출과 함께 지운다
+import { withGroupBuyDetailMock, withGroupBuyMock } from "@/features/post/mocks/groupBuyMock";
 import {
   FeedItem,
   LikedPostSort,
@@ -13,21 +15,21 @@ export const postService = {
   getFollowingFeed: async (params: PageParams) => {
     const { data } = await apiInstance.get<PageResponse<FeedItem>>("/user/feed/following", { params });
 
-    return data;
+    return withGroupBuyMock(data);
   },
 
   /** 팔로우하지 않은 쇼룸의 게시물 — "회원님을 위한 추천" · 팔로잉 0일 때의 발견 피드 */
   getRecommendedFeed: async (params: PageParams) => {
     const { data } = await apiInstance.get<PageResponse<FeedItem>>("/user/feed/recommended", { params });
 
-    return data;
+    return withGroupBuyMock(data);
   },
 
   /** 좋아요한 게시물 (C3). 경로는 앱이 쓰던 옛 계약을 그대로 둔 것이라 wishlist다 */
   getLikedPosts: async (params: PageParams & { sort?: LikedPostSort }) => {
     const { data } = await apiInstance.get<PageResponse<FeedItem>>("/user/wishlist/contents", { params });
 
-    return data;
+    return withGroupBuyMock(data);
   },
 
   /** 특정 쇼룸의 게시물 (C4) */
@@ -36,13 +38,13 @@ export const postService = {
       params,
     });
 
-    return data;
+    return withGroupBuyMock(data);
   },
 
   getPostDetail: async (postId: number) => {
     const { data } = await apiInstance.get<PostDetail>(`/user/showrooms/posts/${postId}`);
 
-    return data;
+    return withGroupBuyDetailMock(data);
   },
 
   like: async (postId: number) => {

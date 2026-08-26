@@ -181,14 +181,28 @@ export function ProfileIcon(props: DsIconProps & { active?: boolean }) {
 }
 
 /** 게시물 ⋯ — 신고 시트를 연다. 20×20 채움 */
-export function MoreIcon(props: DsIconProps) {
-  const { size, color, rest } = base({ ...props, size: props.size ?? 20 });
+export function MoreIcon(props: DsIconProps & { vertical?: boolean }) {
+  const { vertical = false, ...iconProps } = props;
+  const { size, color, rest } = base({ ...iconProps, size: props.size ?? 20 });
+  // 피드 카드는 가로(⋯), 게시물 상세는 세로(⋮)다 — 목록 안의 항목 메뉴와
+  // 화면 하나에 대한 메뉴를 방향으로 구분한다
+  const dots: Array<[number, number]> = vertical
+    ? [
+        [12, 5.5],
+        [12, 12],
+        [12, 18.5],
+      ]
+    : [
+        [5.5, 12],
+        [12, 12],
+        [18.5, 12],
+      ];
 
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...rest}>
-      <Circle cx={5.5} cy={12} r={1.6} fill={color} />
-      <Circle cx={12} cy={12} r={1.6} fill={color} />
-      <Circle cx={18.5} cy={12} r={1.6} fill={color} />
+      {dots.map(([cx, cy]) => (
+        <Circle key={`${cx}-${cy}`} cx={cx} cy={cy} r={1.6} fill={color} />
+      ))}
     </Svg>
   );
 }

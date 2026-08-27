@@ -5,6 +5,8 @@ import { Linking, ScrollView, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import BusinessFooter from "@/common/components/BusinessFooter/BusinessFooter";
+import HeaderActions from "@/common/components/HeaderActions/HeaderActions";
+import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import Spinner from "@/common/components/Spinner/Spinner";
 import Typography from "@/common/components/Typography/Typography";
 import { useBottomSheet } from "@/common/hooks/useBottomSheet";
@@ -18,7 +20,6 @@ import { formatPrice } from "@/common/utils/formatPrice";
 import { useCart } from "@/features/cart/hooks/useCart";
 import ProductDeliveryBlock from "@/features/product/components/ProductDeliveryBlock/ProductDeliveryBlock";
 import ProductDetailBrandSection from "@/features/product/components/ProductDetailBrandSection/ProductDetailBrandSection";
-import ProductDetailHeader from "@/features/product/components/ProductDetailHeader/ProductDetailHeader";
 import ProductDetailInfo from "@/features/product/components/ProductDetailInfo/ProductDetailInfo";
 import ProductDetailInquiry from "@/features/product/components/ProductDetailInquiry/ProductDetailInquiry";
 import ProductGallery from "@/features/product/components/ProductGallery/ProductGallery";
@@ -199,16 +200,7 @@ export default function ProductDetailView() {
 
   return (
     <View className="flex-1 bg-white">
-      <ProductDetailHeader
-        onPressBack={commonNavigation.goBack}
-        onPressSearch={() =>
-          mainNavigation.navigate(ROOT_ROUTES.COMMON, {
-            screen: COMMON_ROUTES.SEARCH,
-            params: { keyword: "" },
-          })
-        }
-        onPressCart={() => mainNavigation.navigate(ROOT_ROUTES.COMMON, { screen: COMMON_ROUTES.CART })}
-      />
+      <ScreenHeader onPressBack={commonNavigation.goBack} renderRight={<HeaderActions />} />
 
       {isLoading || !productDetail ? (
         <View className="flex-1 items-center justify-center">

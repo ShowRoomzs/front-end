@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { isDeepEqual } from "remeda";
 
 import { ChevronDownIcon } from "@/common/components/DsIcon/icons";
+import FieldLabel from "@/common/components/FieldLabel/FieldLabel";
 import GroupBand from "@/common/components/GroupBand/GroupBand";
 import ImageUploader from "@/common/components/ImageUploader/ImageUploader";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
@@ -18,7 +19,6 @@ import { useUploadImagesMutation } from "@/common/queries/useUploadImagesMutatio
 import { useMypageNavigation } from "@/common/router";
 import { MYPAGE_ROUTES } from "@/common/router/routes";
 import { MypageStackParamList } from "@/common/router/types";
-import InquiryFieldLabel from "@/features/inquiry/components/InquiryFieldLabel/InquiryFieldLabel";
 import InquiryOrderField from "@/features/inquiry/components/InquiryOrderField/InquiryOrderField";
 import { useGetCategories } from "@/features/inquiry/hooks/useGetCategories";
 import { useGetInquiryDetail } from "@/features/inquiry/hooks/useGetInquiryDetail";
@@ -163,7 +163,7 @@ export default function InquiryView() {
 
         <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
           <View className="px-14 pb-4 pt-20">
-            <InquiryFieldLabel label="문의 유형" />
+            <FieldLabel label="문의 유형" />
             <TouchableOpacity
               onPress={openTypeSheet}
               activeOpacity={0.6}
@@ -185,7 +185,7 @@ export default function InquiryView() {
           </View>
 
           <View className="px-14 pb-4 pt-16">
-            <InquiryFieldLabel label="문의 내용" right={`${form.content.length}/${CONTENT_MAX_LENGTH}`} />
+            <FieldLabel label="문의 내용" right={`${form.content.length}/${CONTENT_MAX_LENGTH}`} />
             <View
               className="rounded-base border-[1px] border-borderButton p-13"
               style={{ marginTop: 9, minHeight: 150 }}
@@ -204,7 +204,7 @@ export default function InquiryView() {
           </View>
 
           <View className="px-14 pb-4 pt-8">
-            <InquiryFieldLabel label="사진 첨부" optional />
+            <FieldLabel label="사진 첨부" optional />
             <View style={{ marginTop: 10 }}>
               <ImageUploader
                 imageUrls={imageUrls}

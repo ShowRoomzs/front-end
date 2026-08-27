@@ -1,5 +1,5 @@
 import { forwardRef, ReactElement, Ref, useCallback } from "react";
-import { FlatList, FlatListProps } from "react-native";
+import { FlatList, FlatListProps, View } from "react-native";
 
 import { DEFAULT_ON_END_REACHED_THRESHOLD } from "@/common/components/PagingList/config";
 import EmptyComponent from "@/common/components/PagingList/EmptyComponent";
@@ -24,6 +24,7 @@ function PagingListInner<T>(props: PagingListProps<T>, ref: Ref<FlatList<T>>) {
     onLoadMore,
     isLoading,
     ListEmptyComponent,
+    ListFooterComponent,
     onEndReachedThreshold = DEFAULT_ON_END_REACHED_THRESHOLD,
     ...flatListProps
   } = props;
@@ -60,7 +61,14 @@ function PagingListInner<T>(props: PagingListProps<T>, ref: Ref<FlatList<T>>) {
       ListEmptyComponent={
         ListEmptyComponent ?? <EmptyComponent isLoading={isLoading} hasItems={(data?.length || 0) > 0} />
       }
-      ListFooterComponent={<FooterComponent isLoading={isLoading} hasItems={(data?.length || 0) > 0} />}
+      // 다음 페이지 스피너는 언제나 마지막 항목 바로 뒤에 붙고, 부르는 쪽이 넘긴 꼬리말은
+      // 그 아래로 간다 — 둘 중 하나를 고르게 하면 목록 끝에 고지를 붙일 수가 없다
+      ListFooterComponent={
+        <View>
+          <FooterComponent isLoading={isLoading} hasItems={(data?.length || 0) > 0} />
+          {ListFooterComponent as ReactElement}
+        </View>
+      }
     />
   );
 }

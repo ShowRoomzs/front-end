@@ -1,58 +1,78 @@
 import { useCallback } from "react";
-import { View } from "react-native";
+import { TouchableOpacity, View } from "react-native";
 
-import Button from "@/common/components/Button/Button";
-import Icon from "@/common/components/Icon/Icon";
+import { ChevronRightIcon, SpeechBubbleIcon } from "@/common/components/DsIcon/icons";
+import EmptyState from "@/common/components/EmptyState/EmptyState";
 import Typography from "@/common/components/Typography/Typography";
+import { usePermissionPress } from "@/common/hooks/usePermissionPress";
 import { useCommonNavigation } from "@/common/router";
 import { COMMON_ROUTES } from "@/common/router/routes";
-import { COMMON_ASSETS } from "@/common/utils/assets";
 
+/**
+ * C7 상품 상세의 문의 탭.
+ *
+ * **목록은 아직 그리지 못한다.** 서버에 상품별 공개 문의를 내려주는 API가 없다 —
+ * `/v1/user/product-inquiries`는 로그인한 사람의 **자기 문의**만 주고, 응답에 작성자 이름도
+ * 없어 디자인의 `수민** · 2026.08.08` 표기를 만들 수 없다. 남의 문의가 안 보이는 목록에
+ * "상품 문의 12" 같은 건수를 붙이면 그 숫자가 거짓이 된다.
+ *
+ * 그래서 **건수를 적지 않고** 목록 자리는 준비 중으로 둔다. 대신 [문의하기]는 살려 둔다 —
+ * 작성(C7-1)은 서버가 완전히 지원하므로 지금도 묻고 답을 받을 수 있다.
+ *
+ * 서버에 `GET /products/{id}/inquiries`(+ 마스킹된 작성자명)가 생기면 이 컴포넌트만 갈아 끼우면
+ * 되고, 머리의 [문의하기] 줄은 그대로 쓴다.
+ */
 interface ProductDetailInquiryProps {
   productId: number;
 }
+
 export default function ProductDetailInquiry(props: ProductDetailInquiryProps) {
   const { productId } = props;
-
   const navigation = useCommonNavigation();
-  const handlePressInquiry = useCallback(() => {
-    // TODO : navigate to 1:1문의
-  }, []);
 
-  const handlePressProductInquiry = useCallback(() => {
-    navigation.navigate(COMMON_ROUTES.PRODUCT_INQUIRY, {
-      productId,
-    });
-  }, [navigation, productId]);
+  const handlePressWrite = usePermissionPress(() => {
+    navigation.navigate(COMMON_ROUTES.PRODUCT_INQUIRY, { productId });
+  });
+
+  const handlePressHeaderWrite = useCallback(() => handlePressWrite(), [handlePressWrite]);
 
   return (
-    <View className="flex flex-col">
-      <View className="mt-25 flex flex-col items-center">
-        <Icon icon={COMMON_ASSETS.gift} />
-        <Typography className="mt-20 text-black text-16 font-semibold">
-          상품에 대해 궁금하신 것이 있으신가요?
+    <View>
+      {/*
+        머리의 [문의하기]는 외곽선 버튼이 아니라 회색 텍스트 + 셰브런이다 — 목록의 머리에서
+        버튼이 제목과 무게를 다투면 어느 쪽이 이 섹션의 주인인지 흐려진다.
+      */}
+      <View className="flex-row items-center px-14 py-18" style={{ gap: 12 }}>
+        <Typography
+          style={{ fontSize: 15, fontWeight: "700", lineHeight: 15, letterSpacing: -0.2 }}
+          className="min-w-0 flex-1 text-ink"
+        >
+          상품 문의
         </Typography>
-        <Typography className="mt-10 text-gray9 text-13 font-normal">
-          상품 관련 문의는
-          <Typography className="mt-10 text-gray11 text-13 font-normal">판매자가 상세히 답변</Typography>
-          드립니다.
-        </Typography>
-        <Typography className="mt-4 text-gray9 text-13 font-normal">
-          답변은
-          <Typography
-            onPress={handlePressInquiry}
-            className="mt-10 text-gray11 text-13 font-normal underline"
-          >
-            {"마이페이지 > 1:1문의"}
+
+        <TouchableOpacity
+          onPress={handlePressHeaderWrite}
+          activeOpacity={0.5}
+          className="flex-row items-center"
+          style={{ gap: 3, paddingVertical: 10, paddingHorizontal: 4, margin: -10 }}
+        >
+          <Typography style={{ fontSize: 12.5, fontWeight: "600", lineHeight: 12.5 }} className="text-gray45">
+            문의하기
           </Typography>
-          에서 확인하실 수 있습니다.
-        </Typography>
-        <View className="mt-25">
-          <Button onPress={handlePressProductInquiry} size="lg" className="px-72" variant="primary">
-            상품 문의하기
-          </Button>
-        </View>
+          <ChevronRightIcon size={13} color="#C7C7C7" />
+        </TouchableOpacity>
       </View>
+
+      <EmptyState
+        icon={<SpeechBubbleIcon size={50} color="#D8D8DA" />}
+        title="문의 목록을 준비하고 있어요"
+        description={"지금도 문의를 남기실 수 있고,\n답변이 등록되면 알림으로 알려드려요"}
+        paddingTop={40}
+        actionLabel="상품 문의하기"
+        onPressAction={handlePressWrite}
+      />
+
+      <View className="h-40" />
     </View>
   );
 }

@@ -3,10 +3,10 @@ import { TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ChevronRightIcon, EmptyBagIcon } from "@/common/components/DsIcon/icons";
+import FieldLabel from "@/common/components/FieldLabel/FieldLabel";
 import Typography from "@/common/components/Typography/Typography";
 import { useBottomSheet } from "@/common/hooks/useBottomSheet";
 import { useBottomSheetContext } from "@/common/providers/BottomSheetProvider";
-import InquiryFieldLabel from "@/features/inquiry/components/InquiryFieldLabel/InquiryFieldLabel";
 
 /**
  * C12 문의 작성의 [관련 주문 (선택)] — **아직 고를 수 없다.**
@@ -32,7 +32,7 @@ export default function InquiryOrderField() {
 
   return (
     <View>
-      <InquiryFieldLabel label="관련 주문" optional />
+      <FieldLabel label="관련 주문" optional />
 
       <TouchableOpacity
         onPress={open}

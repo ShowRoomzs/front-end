@@ -12,6 +12,7 @@ import {
 } from "@/common/router/routes";
 import { TermsType } from "@/features/auth/views/TermsView";
 import { WithdrawalReasonCode } from "@/features/setting/types/withdrawal";
+import { TermsType as TermsDocumentType } from "@/features/terms/types/terms";
 
 // 홈 하단 탭 파라미터
 export type HomeTabParamList = {
@@ -54,6 +55,7 @@ export type AuthStackParamList = {
 
 export type CommonStackParamList = {
   [COMMON_ROUTES.SEARCH]: {
+    /** 헤더의 돋보기처럼 빈 필드로 열 때는 빈 문자열을 넘긴다 */
     keyword: string;
   };
   [COMMON_ROUTES.CART]: undefined;
@@ -73,6 +75,10 @@ export type CommonStackParamList = {
     productId: number;
     inquiryId?: number;
   };
+  /** C4 쇼룸 하단 고지에서 여는 약관 — 마이 탭을 거치지 않고 이 스택에서 바로 연다 */
+  [COMMON_ROUTES.TERMS_DOCUMENT]: {
+    termsType: TermsDocumentType;
+  };
 };
 
 export type RootStackParamList = {
@@ -82,10 +88,9 @@ export type RootStackParamList = {
       onSuccessLogin?: () => void;
     };
   };
-  [ROOT_ROUTES.COMMON]: {
-    screen: keyof CommonStackParamList;
-    params?: CommonStackParamList[keyof CommonStackParamList];
-  };
+  // 딥링크 설정이 이 스택을 중첩으로 읽어야 하므로 네비게이션이 이해하는 형태로 둔다 —
+  // 직접 {screen, params}로 적으면 화면별 파라미터 검사도 함께 사라진다
+  [ROOT_ROUTES.COMMON]: NavigatorScreenParams<CommonStackParamList>;
 };
 
 export type CouponStackParamList = {

@@ -36,9 +36,11 @@ export default function CartItemRow(props: CartItemRowProps) {
   return (
     <View className="flex-row px-14 py-12" style={{ gap: 10 }}>
       <View className="pt-2">
+        {/* 살 수 없는 항목은 체크를 지우지 않고 회색으로 낮춘다 — 자리가 사라지면 왜 못 고르는지 모른다 */}
         <Checkbox
           isChecked={isSelected && !isUnavailable}
-          onChange={() => !isUnavailable && onToggleSelect(item.cartId)}
+          disabled={isUnavailable}
+          onChange={() => onToggleSelect(item.cartId)}
         />
       </View>
 

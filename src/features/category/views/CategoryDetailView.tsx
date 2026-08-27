@@ -51,6 +51,7 @@ export default function CategoryDetailView() {
   const handlePressSearch = useCallback(() => {
     rootNavigation.navigate(ROOT_ROUTES.COMMON, {
       screen: COMMON_ROUTES.SEARCH,
+      params: { keyword: "" },
     });
   }, [rootNavigation]);
 

@@ -57,10 +57,6 @@ export default function MypageView() {
   const handlePressOrders = usePermissionPress(() => goMypage(MYPAGE_ROUTES.ORDER_AND_DELIVERY_SEARCH));
   const handlePressAddress = usePermissionPress(() => goMypage(MYPAGE_ROUTES.ADDRESS_MANAGEMENT));
   const handlePressInquiryHistory = usePermissionPress(() => goMypage(MYPAGE_ROUTES.INQUIRY_HISTORY));
-  const handlePressWishlist = usePermissionPress(() => {
-    mainNavigation.navigate(ROOT_ROUTES.COMMON, { screen: COMMON_ROUTES.WISHLIST });
-  });
-  const handlePressCoupon = usePermissionPress(() => goMypage(MYPAGE_ROUTES.COUPON));
 
   const handlePressCart = useCallback(() => {
     mainNavigation.navigate(ROOT_ROUTES.COMMON, { screen: COMMON_ROUTES.CART });
@@ -72,14 +68,19 @@ export default function MypageView() {
     []
   );
 
+  /**
+   * 쇼핑 정보는 **주문 내역 · 배송지 관리** 둘뿐이다.
+   *
+   * 찜한 상품은 좋아요 탭(C3)이 이미 같은 일을 하고, 쿠폰함은 이 화면에 자리가 없다.
+   * 두 화면과 라우트는 그대로 살아 있어 딥링크·다른 화면에서 계속 열린다 — 여기서 뺀 것은
+   * **진입점 하나**이고, 쓰임이 정리되면 이 배열에 한 줄 되돌리면 된다.
+   */
   const shoppingItems = useMemo(
     (): Array<MenuItem> => [
       { key: "orders", label: "주문 내역", onPress: handlePressOrders },
-      { key: "wishlist", label: "찜한 상품", onPress: handlePressWishlist },
-      { key: "coupon", label: "쿠폰함", onPress: handlePressCoupon },
       { key: "address", label: "배송지 관리", onPress: handlePressAddress },
     ],
-    [handlePressAddress, handlePressCoupon, handlePressOrders, handlePressWishlist]
+    [handlePressAddress, handlePressOrders]
   );
 
   const inquiryItems = useMemo(

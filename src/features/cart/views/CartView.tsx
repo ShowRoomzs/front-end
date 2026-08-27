@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Checkbox from "@/common/components/Checkbox/Checkbox";
 import { EmptyBagIcon } from "@/common/components/DsIcon/icons";
+import EmptyState from "@/common/components/EmptyState/EmptyState";
 import GroupBand from "@/common/components/GroupBand/GroupBand";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import SectionLabel from "@/common/components/SectionLabel/SectionLabel";
@@ -13,6 +14,7 @@ import Typography from "@/common/components/Typography/Typography";
 import { useBottomSheet } from "@/common/hooks/useBottomSheet";
 import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { SheetApi } from "@/common/providers/BottomSheetProvider/context";
+import { useModal } from "@/common/providers/ModalProvider/context";
 import { toast } from "@/common/providers/ToastProvider";
 import { HOME_ROUTES, useCommonNavigation, useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
@@ -44,6 +46,7 @@ export default function CartView() {
   const navigation = useCommonNavigation();
   const mainNavigation = useMainNavigation();
   const { navigate } = useBottomTab();
+  const { show: showModal } = useModal();
   const { user } = useUserStore();
 
   /** null이면 "아직 손대지 않음" — 서버가 기본 선택(구매 가능한 전체)을 정한다 */
@@ -125,6 +128,26 @@ export default function CartView() {
     },
     [deleteCartItems, selectedIdList, selectedIds]
   );
+
+  /**
+   * [선택 삭제]는 되돌릴 수 없고 여러 건을 한 번에 지우므로 한 단계 확인을 둔다.
+   *
+   * 항목 우측의 X는 무엇을 지우는지 손가락이 이미 가리키고 있어 확인 없이 바로 지운다 —
+   * 같은 일에 확인을 두 형태로 두면 어느 쪽이 위험한 조작인지가 흐려진다.
+   */
+  const handlePressRemoveSelected = useCallback(() => {
+    if (selectedCount === 0) {
+      return;
+    }
+    showModal({
+      title: "선택한 상품을 삭제할까요?",
+      message: `${selectedCount}개 상품이 장바구니에서 빠집니다`,
+      buttons: [
+        { label: "취소", variant: "outline" },
+        { label: "삭제하기", onPress: () => handleRemove(Array.from(effectiveSelectedIds)) },
+      ],
+    });
+  }, [effectiveSelectedIds, handleRemove, selectedCount, showModal]);
 
   const handleChangeQuantity = useCallback(
     async (cartId: number, quantity: number) => {
@@ -228,29 +251,14 @@ export default function CartView() {
         contentContainerStyle={{ paddingBottom: isEmpty ? 24 : bottom + BOTTOM_CTA_HEIGHT }}
       >
         {isEmpty ? (
-          <View className="items-center px-30 pb-28 pt-56">
-            <EmptyBagIcon size={52} />
-            <Typography
-              style={{ fontSize: 15, fontWeight: "600", lineHeight: 22.5, marginTop: 16 }}
-              className="text-ink"
-            >
-              장바구니가 비어 있어요
-            </Typography>
-            <Typography
-              variant="caption"
-              style={{ lineHeight: 20, marginTop: 6 }}
-              className="text-center text-gray45"
-            >
-              {"진행 중인 공동구매를 둘러보고\n마음에 드는 상품을 담아보세요"}
-            </Typography>
-            <TouchableOpacity onPress={handlePressBrowse} activeOpacity={0.8} className="mt-18">
-              <View className="h-45 flex-row items-center justify-center rounded-base bg-rose px-28">
-                <Typography variant="buttonInline" className="text-white">
-                  공동구매 둘러보기
-                </Typography>
-              </View>
-            </TouchableOpacity>
-          </View>
+          <EmptyState
+            icon={<EmptyBagIcon size={52} />}
+            title="장바구니가 비어 있어요"
+            description={"진행 중인 공동구매를 둘러보고\n마음에 드는 상품을 담아보세요"}
+            paddingTop={110}
+            actionLabel="공동구매 둘러보기"
+            onPressAction={handlePressBrowse}
+          />
         ) : (
           <>
             <View className="flex-row items-center justify-between border-b-[0.5px] border-divider px-14 py-12">
@@ -267,7 +275,7 @@ export default function CartView() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={() => handleRemove(Array.from(effectiveSelectedIds))}
+                onPress={handlePressRemoveSelected}
                 disabled={selectedCount === 0}
                 activeOpacity={0.6}
                 style={{ paddingVertical: 8, marginVertical: -8 }}

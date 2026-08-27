@@ -12,6 +12,7 @@ import ProductDetailView from "@/features/product/views/ProductDetailView";
 import ProductInquiryView from "@/features/product/views/ProductInquiryView";
 import SearchView from "@/features/search/views/SearchView";
 import ShowroomDetailView from "@/features/showroom/views/ShowroomDetailView";
+import CommonTermsDocumentView from "@/features/terms/views/CommonTermsDocumentView";
 import WishlistView from "@/features/wishlist/views/WishlistView";
 
 const Stack = createNativeStackNavigator<CommonStackParamList>();
@@ -44,6 +45,7 @@ export default function CommonNavigator() {
         <Stack.Screen name={COMMON_ROUTES.POST_DETAIL} component={PostDetailView} />
         <Stack.Screen name={COMMON_ROUTES.CATEGORY} component={CategoryNavigator} />
         <Stack.Screen name={COMMON_ROUTES.WISHLIST} component={WishlistView} />
+        <Stack.Screen name={COMMON_ROUTES.TERMS_DOCUMENT} component={CommonTermsDocumentView} />
       </Stack.Navigator>
     </SafeAreaView>
   );

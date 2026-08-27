@@ -43,6 +43,7 @@ export const COMMON_ROUTES = {
   POST_DETAIL: "postDetail",
   CATEGORY: "commonCategory",
   WISHLIST: "commonWishlist",
+  TERMS_DOCUMENT: "commonTermsDocument",
 } as const;
 
 // 설정 스택 네비게이션

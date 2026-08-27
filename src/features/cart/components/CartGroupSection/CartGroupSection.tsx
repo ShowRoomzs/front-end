@@ -38,11 +38,17 @@ export default function CartGroupSection(props: CartGroupSectionProps) {
   const selectableIds = group.items.filter(item => item.availability.isPurchasable).map(item => item.cartId);
   const selectedCount = selectableIds.filter(id => selectedIds.has(id)).length;
   const isAllSelected = selectableIds.length > 0 && selectedCount === selectableIds.length;
+  /** 일부만 골랐으면 중립 회색 — 로즈로 채우면 "이 공구는 다 골랐다"로 읽힌다 */
+  const isPartiallySelected = selectedCount > 0 && !isAllSelected;
 
   return (
     <View className="bg-white">
       <View className="flex-row items-center px-14 pb-4 pt-14" style={{ gap: 10 }}>
-        <Checkbox isChecked={isAllSelected} onChange={() => onToggleGroup(selectableIds, !isAllSelected)} />
+        <Checkbox
+          isChecked={isAllSelected}
+          isPartial={isPartiallySelected}
+          onChange={() => onToggleGroup(selectableIds, !isAllSelected)}
+        />
         <Avatar imageUrl={group.marketImageUrl} size={26} />
         <Typography
           style={{ fontSize: 13.5, fontWeight: "600", lineHeight: 17.55 }}

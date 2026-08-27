@@ -1,8 +1,8 @@
 import dayjs from "dayjs";
 import { useCallback, useState } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { Image, ScrollView, TouchableOpacity, View } from "react-native";
 
-import { ChevronDownIcon, MoreIcon } from "@/common/components/DsIcon/icons";
+import { ChevronDownIcon, LockIcon, MoreIcon } from "@/common/components/DsIcon/icons";
 import Typography from "@/common/components/Typography/Typography";
 import InquiryItemMetaRow from "@/features/mypage/components/InquiryItemMetaRow/InquiryItemMetaRow";
 import { ProductInquiryHistory } from "@/features/product/types/productInquiry";
@@ -16,6 +16,9 @@ import { ProductInquiryHistory } from "@/features/product/types/productInquiry";
  * **답변 대기는 펼치지 않는다** — 셰브런도 그리지 않는다. 펼칠 것이 없는데 화살표를 두면
  * 눌러 보고 빈 안내만 확인하게 되고, "답변 대기"라는 상태 표기가 이미 같은 말을 하고 있다.
  * 그 자리에는 대신 ⋯를 두어 수정·삭제로 이어 준다.
+ *
+ * **비밀글은 자물쇠만 붙이고 내용은 그대로 보여준다.** 상품 상세의 공개 목록에서는 남의 비밀글을
+ * 대체 문구로 가리지만, 여기는 내가 쓴 글만 모인 자리라 나에게까지 가릴 이유가 없다.
  */
 interface ProductInquiryHistoryItemProps {
   item: ProductInquiryHistory;
@@ -58,6 +61,12 @@ export default function ProductInquiryHistoryItem(props: ProductInquiryHistoryIt
         </Typography>
 
         <View className="flex-row items-start" style={{ gap: 8, marginTop: 9 }}>
+          {item.secret && (
+            <View style={{ marginTop: 3 }}>
+              <LockIcon size={15} />
+            </View>
+          )}
+
           <Typography
             style={{ fontSize: 14.5, fontWeight: "500", lineHeight: 21 }}
             className="min-w-0 flex-1 text-ink"
@@ -81,6 +90,25 @@ export default function ProductInquiryHistoryItem(props: ProductInquiryHistoryIt
           )}
         </View>
       </TouchableOpacity>
+
+      {/* 첨부 사진은 펼쳤을 때만 — 접힌 목록에 썸네일이 끼면 한 화면에 보이는 건수가 줄어든다 */}
+      {isOpen && item.imageUrls?.length > 0 && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          className="px-14"
+          contentContainerStyle={{ gap: 8, paddingBottom: 13 }}
+        >
+          {item.imageUrls.map(url => (
+            <Image
+              key={url}
+              source={{ uri: url }}
+              style={{ width: 72, height: 72, borderRadius: 8 }}
+              className="bg-fill"
+            />
+          ))}
+        </ScrollView>
+      )}
 
       {isOpen && (
         <View className="px-14 pb-15">

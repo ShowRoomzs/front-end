@@ -5,6 +5,7 @@ import { Linking, ScrollView, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import BusinessFooter from "@/common/components/BusinessFooter/BusinessFooter";
+import CollapsibleSection from "@/common/components/CollapsibleSection/CollapsibleSection";
 import HeaderActions from "@/common/components/HeaderActions/HeaderActions";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import Spinner from "@/common/components/Spinner/Spinner";
@@ -16,13 +17,14 @@ import { useCommonNavigation, useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
 import { CustomErrorResponse } from "@/common/types/error";
-import { formatPrice } from "@/common/utils/formatPrice";
 import { useCart } from "@/features/cart/hooks/useCart";
 import ProductDeliveryBlock from "@/features/product/components/ProductDeliveryBlock/ProductDeliveryBlock";
+import ProductDeliveryPolicy from "@/features/product/components/ProductDeliveryPolicy/ProductDeliveryPolicy";
 import ProductDetailBrandSection from "@/features/product/components/ProductDetailBrandSection/ProductDetailBrandSection";
 import ProductDetailInfo from "@/features/product/components/ProductDetailInfo/ProductDetailInfo";
 import ProductDetailInquiry from "@/features/product/components/ProductDetailInquiry/ProductDetailInquiry";
 import ProductGallery from "@/features/product/components/ProductGallery/ProductGallery";
+import ProductGroupBuyRow from "@/features/product/components/ProductGroupBuyRow/ProductGroupBuyRow";
 import ProductNoticeTable, {
   NoticeRow,
 } from "@/features/product/components/ProductNoticeTable/ProductNoticeTable";
@@ -45,7 +47,11 @@ import { ProductDetail } from "@/features/product/types/product";
  * 가격 아래의 [공동구매 D-3 + 쇼룸] 줄은 아직 그리지 않는다. 서버가 groupBuyStatus(진행 단계)만
  * 내려주고 마감일도 쇼룸도 주지 않아, 이 상품이 어느 공구에 붙어 있는지 알 수 없다.
  */
-const BOTTOM_CTA_HEIGHT = 76;
+/** 상단 여백 12 + 버튼 52 + 하단 여백 26 — 본문이 이 아래로 숨지 않게 같은 값을 비운다 */
+const BOTTOM_CTA_HEIGHT = 90;
+
+/** 상세정보 탭 요약 표에 보여줄 고시 항목 수 */
+const SPEC_ROW_COUNT = 5;
 
 type ProductTabId = "info" | "inquiry" | "seller";
 
@@ -130,6 +136,16 @@ export default function ProductDetailView() {
     sheetProps: PRODUCT_OPTION_BOTTOM_SHEET_PROPS,
   });
 
+  const handlePressShowroom = useCallback(
+    (showroomId: number) => {
+      mainNavigation.navigate(ROOT_ROUTES.COMMON, {
+        screen: COMMON_ROUTES.SHOWROOM_DETAIL,
+        params: { showroomId },
+      });
+    },
+    [mainNavigation]
+  );
+
   const handlePressBrandSite = useCallback(() => {
     if (!productDetail?.brandSiteUrl) {
       return;
@@ -148,22 +164,13 @@ export default function ProductDetailView() {
       .map(([key, value]) => ({ key, value: String(value) }));
   }, [productDetail?.productNotice]);
 
-  const deliveryRows = useMemo((): Array<NoticeRow> => {
-    const delivery = productDetail?.delivery;
-
-    if (!delivery) {
-      return [];
-    }
-    return [
-      { key: "배송비", value: `${formatPrice(delivery.deliveryFee)}원` },
-      ...(delivery.freeShippingThreshold
-        ? [{ key: "무료배송 기준", value: `${formatPrice(delivery.freeShippingThreshold)}원 이상` }]
-        : []),
-      { key: "도서산간 추가", value: `${formatPrice(delivery.remoteAreaSurcharge)}원` },
-      { key: "반품 배송비", value: `${formatPrice(delivery.returnFee)}원` },
-      { key: "교환 배송비", value: `${formatPrice(delivery.exchangeFee)}원` },
-    ];
-  }, [productDetail?.delivery]);
+  /**
+   * 상세정보 탭의 요약 표 — 고시 전체에서 **구매 판단에 바로 쓰이는 항목만** 앞에서 다섯 줄.
+   *
+   * 열두 항목을 여기에 다 펼치면 상세 이미지 아래에서 읽는 흐름이 끊긴다. 전체는 판매자 정보
+   * 탭의 [상품 정보 제공 고시]가 맡는다.
+   */
+  const specRows = useMemo((): Array<NoticeRow> => noticeRows.slice(0, SPEC_ROW_COUNT), [noticeRows]);
 
   useEffect(() => {
     return () => {
@@ -181,17 +188,34 @@ export default function ProductDetailView() {
               isExpand={isDescriptionExpanded}
               onPressExpand={() => setIsDescriptionExpanded(prev => !prev)}
             />
-            <ProductNoticeTable title="상품 정보 제공 고시" rows={noticeRows} />
+            <View className="px-14 pb-20 pt-16">
+              <ProductNoticeTable rows={specRows} variant="spec" />
+            </View>
             <BusinessFooter defaultExpanded />
           </View>
         );
       case "inquiry":
         return <ProductDetailInquiry productId={productId} />;
       case "seller":
+        /*
+          세 섹션을 모두 접어 두면 탭에 들어왔을 때 빈 목록처럼 보이므로 첫 항목만 펼쳐 둔다.
+          순서는 **구매 판단에 쓰이는 순**이다 — 고시가 가장 자주 확인되고, 판매자 신원 확인은
+          빈도가 낮아 맨 아래다.
+        */
         return (
           <View>
-            <ProductNoticeTable title="배송 / 교환 / 반품 안내" rows={deliveryRows} />
-            <ProductSellerInfo sellerInfo={productDetail?.sellerInfo} />
+            <CollapsibleSection title="상품 정보 제공 고시" defaultExpanded>
+              <ProductNoticeTable rows={noticeRows} variant="notice" />
+            </CollapsibleSection>
+
+            <CollapsibleSection title="배송 / 교환 / 반품 안내" bodyStyle={{ paddingTop: 16 }}>
+              <ProductDeliveryPolicy delivery={productDetail?.delivery} />
+            </CollapsibleSection>
+
+            <CollapsibleSection title="판매자 정보" bodyStyle={{ paddingTop: 6 }}>
+              <ProductSellerInfo sellerInfo={productDetail?.sellerInfo} />
+            </CollapsibleSection>
+
             <BusinessFooter defaultExpanded />
           </View>
         );
@@ -227,11 +251,23 @@ export default function ProductDetailView() {
             discountRate={productDetail.discountRate}
             salePrice={productDetail.salePrice}
             isUnavailable={isUnavailable}
+            belowPrice={
+              productDetail.groupBuy ? (
+                <ProductGroupBuyRow groupBuy={productDetail.groupBuy} onPressShowroom={handlePressShowroom} />
+              ) : null
+            }
           />
           <View className="mt-18 h-5 bg-band" />
           <ProductDeliveryBlock delivery={productDetail.delivery} />
 
-          <View className="flex-row border-b-[0.5px] border-divider bg-white">
+          {/*
+            상세정보 본문이 WebView라, 안드로이드에서는 네이티브 뷰 순서상 WebView가 이 줄 위로
+            올라와 탭이 눌리지 않는다. zIndex(iOS)와 elevation(Android)으로 위에 고정한다.
+          */}
+          <View
+            className="flex-row border-b-[0.5px] border-divider bg-white"
+            style={{ zIndex: 2, elevation: 2 }}
+          >
             {TABS.map(tab => {
               const isActive = tab.id === selectedTab;
 
@@ -260,7 +296,7 @@ export default function ProductDetailView() {
 
       <View
         className="absolute bottom-0 left-0 right-0 border-t-[0.5px] border-divider bg-white px-14 pt-12"
-        style={{ paddingBottom: bottom + 12 }}
+        style={{ paddingBottom: bottom + 26 }}
       >
         <TouchableOpacity
           onPress={openProductOptionBottomSheet}

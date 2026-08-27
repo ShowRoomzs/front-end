@@ -105,6 +105,15 @@ export interface LocalVariant extends Variant {
 /** 공구 상태 — 공구에 연결된 상품만 조회되므로 NOT_CONNECTED는 내려오지 않는다 */
 export type GroupBuyStatus = "PREPARING" | "READY" | "IN_PROGRESS";
 
+/** 이 상품이 붙어 있는 공구 — "누가 연 공구인지"와 "언제까지인지"가 한 줄로 읽혀야 한다 */
+export interface ProductGroupBuy {
+  dday: number;
+  isClosed: boolean;
+  showroomId: number;
+  showroomName: string;
+  showroomImageUrl: string | null;
+}
+
 /**
  * C7 상품 상세 (`GET /v1/common/products/{productId}`).
  *
@@ -130,6 +139,14 @@ export interface ProductDetail {
   discountRate: number;
   salePrice: number;
   groupBuyStatus: GroupBuyStatus;
+  /**
+   * ⚠️ 서버 미제공 — 지금은 `mocks/productMock.ts`만 채운다.
+   *
+   * `groupBuyStatus`는 진행 단계 문자열 하나뿐이라 **어느 공구인지도, 언제 끝나는지도** 알 수
+   * 없다. 가격 아래 [공동구매 D-3 + 쇼룸] 줄을 그리려면 이 두 가지가 함께 필요하다.
+   * 서버가 내려주기 시작하면 이 주석만 지우면 된다.
+   */
+  groupBuy?: ProductGroupBuy | null;
   /** 하단 CTA를 [구매하기]와 판매 종료 상태로 가르는 값 */
   status: ProductStockStatus;
   delivery: DeliveryInfo;

@@ -83,7 +83,7 @@ function PostCard(props: PostCardProps) {
 
       {groupBuy ? (
         <>
-          <PostBadgeRow groupBuy={groupBuy} className="px-14 pb-8" />
+          <PostBadgeRow groupBuy={groupBuy} style={{ paddingBottom: 8 }} />
 
           <TouchableWithoutFeedback onPress={() => onPressPost(post.postId)}>
             <View className="px-14">

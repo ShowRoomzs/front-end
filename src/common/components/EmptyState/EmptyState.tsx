@@ -20,15 +20,17 @@ interface EmptyStateProps {
   title: string;
   description?: string;
   paddingTop?: number;
+  /** `flex-1`을 넘기면 남는 세로 공간을 차지한다 — 뒤따르는 고지·푸터를 화면 아래로 민다 */
+  className?: string;
   actionLabel?: string;
   onPressAction?: () => void;
 }
 
 export default function EmptyState(props: EmptyStateProps) {
-  const { icon, title, description, paddingTop = 100, actionLabel, onPressAction } = props;
+  const { icon, title, description, paddingTop = 100, className, actionLabel, onPressAction } = props;
 
   return (
-    <View className="items-center px-40" style={{ paddingTop }}>
+    <View className={`items-center px-40 ${className ?? ""}`} style={{ paddingTop }}>
       {icon}
 
       <Typography

@@ -39,7 +39,8 @@ import { CartItem } from "@/features/cart/types/cart";
  * 선택 상태는 서버로 보낸다 — 무료배송 조건이 공구 단위라 클라이언트가 따로 계산하면 어긋난다.
  */
 const OPTION_SHEET_ID = "cartOptionSheet";
-const BOTTOM_CTA_HEIGHT = 132;
+/** 요약 3줄 + 버튼 52 + 상하 여백 — 본문이 이 아래로 숨지 않게 같은 값을 비운다 */
+const BOTTOM_CTA_HEIGHT = 146;
 
 export default function CartView() {
   const { bottom } = useSafeAreaInsets();
@@ -359,7 +360,7 @@ export default function CartView() {
       {!isEmpty && (
         <View
           className="absolute bottom-0 left-0 right-0 border-t-[0.5px] border-divider bg-white px-14 pt-12"
-          style={{ paddingBottom: bottom + 12 }}
+          style={{ paddingBottom: bottom + 26 }}
         >
           <SummaryRow label="상품 금액" value={`${formatPrice(cart?.summary.saleTotal ?? 0)}원`} />
           <SummaryRow label="배송비" value={`${formatPrice(cart?.summary.deliveryFeeTotal ?? 0)}원`} />

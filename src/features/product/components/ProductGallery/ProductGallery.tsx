@@ -1,6 +1,7 @@
 import { useWindowDimensions, View } from "react-native";
 
 import MediaCarousel from "@/common/components/MediaCarousel/MediaCarousel";
+import Typography from "@/common/components/Typography/Typography";
 
 /**
  * C7 갤러리 — 1:1 정방형. 도트는 이미지 안 하단(흰 도트 + 옅은 그림자)이다.
@@ -20,8 +21,15 @@ export default function ProductGallery(props: ProductGalleryProps) {
 
   const images = [representativeImageUrl, ...coverImageUrls].filter(Boolean) as Array<string>;
 
+  // 빈 회색만 두면 로딩 중인지 사진이 없는 상품인지 알 수 없다
   if (images.length === 0) {
-    return <View className="bg-fill" style={{ width, height: width }} />;
+    return (
+      <View className="items-center justify-center bg-fill" style={{ width, height: width }}>
+        <Typography style={{ fontSize: 12, lineHeight: 12 }} className="text-gray62">
+          상품 이미지
+        </Typography>
+      </View>
+    );
   }
 
   return <MediaCarousel imageUrls={images} width={width} aspectRatio={1} dotsPlacement="inside" />;

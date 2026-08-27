@@ -277,14 +277,63 @@ export function EmptyBagIcon(props: DsIconProps) {
 
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...rest}>
+      <Path d="M4.4 7.5h15.2l-1.1 12.3H5.5z" stroke={color} strokeWidth={1.2} strokeLinejoin="miter" />
+      <Path d="M8.8 10V6.6a3.2 3.2 0 0 1 6.4 0V10" stroke={color} strokeWidth={1.2} strokeLinejoin="miter" />
+    </Svg>
+  );
+}
+
+/**
+ * 자물쇠 — 비밀글 표시(C7 문의 목록 · C12 문의 내역).
+ *
+ * 비밀글은 목록에서 **지우지 않고 자물쇠로 자리를 남긴다.** 숨겨 버리면 목록의 건수가 어긋나고,
+ * 글을 쓴 사람도 자기 문의가 접수됐는지 확인할 수 없다.
+ */
+export function LockIcon(props: DsIconProps) {
+  const { size, color, rest } = base({ ...props, size: props.size ?? 15, color: props.color ?? "#8E8E8E" });
+
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...rest}>
+      <Path d="M5.5 10.5h13v9h-13z" stroke={color} strokeWidth={1.8} strokeLinejoin="miter" />
+      <Path d="M8.5 10.5V7.8a3.5 3.5 0 0 1 7 0v2.7" stroke={color} strokeWidth={1.8} strokeLinejoin="miter" />
+    </Svg>
+  );
+}
+
+/**
+ * 쇼핑백(토트) — 안내 배너의 아이콘. 디자인 시스템 §05의 "진행 중인 공구가 없어요" 블록이
+ * 물음표·느낌표가 아니라 이 그림을 쓴다 — 안내의 내용이 "살 것"에 대한 것이기 때문이다.
+ */
+export function ShoppingBagIcon(props: DsIconProps) {
+  const { size, color, rest } = base({ ...props, size: props.size ?? 18, color: props.color ?? "#8E8E8E" });
+
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...rest}>
       <Path
         d="M4 4.5h16l1.4 4.2a3 3 0 0 1-5.8 1 3 3 0 0 1-5.6 0 3 3 0 0 1-5.8-1z"
         stroke={color}
-        strokeWidth={1.2}
+        strokeWidth={1.5}
         strokeLinejoin="miter"
       />
-      <Path d="M5 10.8V20h14v-9.2" stroke={color} strokeWidth={1.2} strokeLinejoin="miter" />
-      <Path d="M9.6 20v-5.4h4.8V20" stroke={color} strokeWidth={1.2} strokeLinejoin="miter" />
+      <Path d="M5 10.8V20h14v-9.2" stroke={color} strokeWidth={1.5} strokeLinejoin="miter" />
+    </Svg>
+  );
+}
+
+/**
+ * 빈 상자 — **게시물이 아직 없는 쇼룸**(C4 1b).
+ *
+ * 장바구니의 빈 상태(가방)와 다른 그림을 쓴다. 가방은 "담을 것"을, 상자는 "아직 열지 않은 것"을
+ * 가리킨다 — 첫 공구를 기다리는 쇼룸에는 뒤쪽이 맞다.
+ */
+export function EmptyBoxIcon(props: DsIconProps) {
+  const { size, color, rest } = base({ ...props, size: props.size ?? 50, color: props.color ?? "#D8D8DA" });
+
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...rest}>
+      <Path d="M4.5 8.5h15v11h-15z" stroke={color} strokeWidth={1.2} strokeLinejoin="miter" />
+      <Path d="M4.5 8.5 7 4.5h10l2.5 4" stroke={color} strokeWidth={1.2} strokeLinejoin="miter" />
+      <Path d="M9.2 12.2h5.6" stroke={color} strokeWidth={1.2} strokeLinejoin="miter" />
     </Svg>
   );
 }

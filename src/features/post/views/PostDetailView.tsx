@@ -89,7 +89,7 @@ export default function PostDetailView() {
           </TouchableOpacity>
         </View>
 
-        {!!groupBuy && <PostBadgeRow groupBuy={groupBuy} className="px-14 pt-4" />}
+        {!!groupBuy && <PostBadgeRow groupBuy={groupBuy} style={{ paddingTop: 4 }} />}
 
         {!!groupBuy && (
           <Typography

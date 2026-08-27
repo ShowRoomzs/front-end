@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo } from "react";
 import { ListRenderItemInfo, TouchableOpacity, View } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
-import { EmptyBagIcon } from "@/common/components/DsIcon/icons";
+import { EmptyBoxIcon } from "@/common/components/DsIcon/icons";
 import EmptyState from "@/common/components/EmptyState/EmptyState";
 import HeaderActions from "@/common/components/HeaderActions/HeaderActions";
 import InfoBanner from "@/common/components/InfoBanner/InfoBanner";
@@ -137,6 +137,9 @@ export default function ShowroomDetailView() {
         onViewableItemsChanged={handleViewableItemsChanged}
         viewabilityConfig={viewabilityConfig}
         showsVerticalScrollIndicator={false}
+        // 게시물이 없으면 내용이 짧아 하단 고지가 프로필 바로 밑에 붙는다.
+        // 목록을 화면 높이만큼 늘리고 빈 자리를 빈 상태가 차지하게 해 고지를 아래로 민다
+        contentContainerStyle={{ flexGrow: 1 }}
         ListHeaderComponent={
           showroom ? (
             <View>
@@ -173,7 +176,8 @@ export default function ShowroomDetailView() {
           // 게시물이 전부 고정 영역으로 올라가 아래만 빈 경우와, 정말 글이 없는 쇼룸을 구분한다
           isLoading || hasPosts ? undefined : (
             <EmptyState
-              icon={<EmptyBagIcon size={50} />}
+              className="flex-1"
+              icon={<EmptyBoxIcon size={50} />}
               title="아직 올라온 게시물이 없어요"
               description={"팔로우해 두면 첫 공구가 열릴 때\n가장 먼저 알려드려요"}
               paddingTop={70}

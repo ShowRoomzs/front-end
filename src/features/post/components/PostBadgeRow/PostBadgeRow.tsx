@@ -1,4 +1,4 @@
-import { View } from "react-native";
+import { StyleProp, View, ViewStyle } from "react-native";
 
 import Badge from "@/common/components/Badge/Badge";
 import { GroupBuyInfo } from "@/features/post/types/post";
@@ -15,11 +15,14 @@ import { GroupBuyInfo } from "@/features/post/types/post";
  */
 interface PostBadgeRowProps {
   groupBuy: GroupBuyInfo;
-  className?: string;
+  /** 위아래 여백만 부르는 쪽이 정한다 — 좌우 14는 게시물 본문과 같은 축이라 여기서 고정한다 */
+  style?: StyleProp<ViewStyle>;
 }
 
+const HORIZONTAL_PADDING = 14;
+
 export default function PostBadgeRow(props: PostBadgeRowProps) {
-  const { groupBuy, className } = props;
+  const { groupBuy, style } = props;
   const isClosed = groupBuy.status === "CLOSED";
   const isAllSoldOut = groupBuy.products.length > 0 && groupBuy.products.every(product => product.soldOut);
 
@@ -34,7 +37,7 @@ export default function PostBadgeRow(props: PostBadgeRowProps) {
   };
 
   return (
-    <View className={`flex-row ${className ?? ""}`} style={{ gap: 6 }}>
+    <View className="flex-row" style={[{ gap: 6, paddingHorizontal: HORIZONTAL_PADDING }, style]}>
       {getStatusBadge()}
       {groupBuy.isPaidAd && <Badge label="유료 광고 포함" variant="neutral" />}
     </View>

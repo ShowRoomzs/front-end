@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import { View } from "react-native";
 
 import Typography from "@/common/components/Typography/Typography";
@@ -17,10 +18,12 @@ interface ProductPriceBlockProps {
   discountRate: number;
   salePrice: number;
   isUnavailable?: boolean;
+  /** 가격 바로 아래 붙는 [공동구매 D-3 + 쇼룸] 줄 — 마감 시점이 가격과 한 덩어리로 읽혀야 한다 */
+  belowPrice?: ReactNode;
 }
 
 export default function ProductPriceBlock(props: ProductPriceBlockProps) {
-  const { name, regularPrice, discountRate, salePrice, isUnavailable = false } = props;
+  const { name, regularPrice, discountRate, salePrice, isUnavailable = false, belowPrice } = props;
 
   const hasDiscount = discountRate > 0 && regularPrice > salePrice;
 
@@ -58,6 +61,8 @@ export default function ProductPriceBlock(props: ProductPriceBlockProps) {
           {formatPrice(salePrice)}원
         </Typography>
       </View>
+
+      {belowPrice}
     </View>
   );
 }

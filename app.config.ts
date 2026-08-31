@@ -9,28 +9,21 @@ import { ExpoConfig, ConfigContext } from "expo/config";
 const NAVER_URL_SCHEME = "showroomznaver";
 
 export default ({ config }: ConfigContext): ExpoConfig => {
-  const { EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY, EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID } = process.env;
+  const { EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY } = process.env;
 
-  /**
-   * 구글 iOS 리다이렉트 스킴 = 클라이언트 ID를 뒤집은 값.
-   * "495703171100-xxx.apps.googleusercontent.com" → "com.googleusercontent.apps.495703171100-xxx"
-   *
-   * 카카오·네이버는 각자 SDK가 스킴을 알아서 쓰지만 구글(expo-auth-session)은 이 값이
-   * Info.plist에 없으면 로그인 창은 정상적으로 뜨고 계정 선택까지 되는데 앱으로 돌아오지 못한다 —
-   * 에러가 아니라 "아무 일도 일어나지 않은 것"처럼 보여서 원인을 찾기 어렵다.
-   */
-  const googleIosUrlScheme = EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID
-    ? `com.googleusercontent.apps.${EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID.replace(
-        ".apps.googleusercontent.com",
-        ""
-      )}`
-    : undefined;
 
   return {
     ...config,
     name: "showroomz",
     slug: "showroomz",
-    scheme: "showroomz",
+    /*
+      두 번째 스킴은 구글 로그인 전용이다.
+      expo-auth-session의 Google provider는 리다이렉트를 `${Application.applicationId}:/oauthredirect`로
+      만든다(providers/Google.js) — applicationId는 안드로이드 패키지명이자 iOS 번들 ID라
+      양쪽 다 `com.showroomz.app`이다. 이 스킴이 등록돼 있지 않으면 구글이 인증을 마치고
+      되돌려 보낸 주소를 받을 앱이 없어, 계정을 고른 뒤 브라우저가 구글 화면에 그대로 멈춘다.
+    */
+    scheme: ["showroomz", "com.showroomz.app"],
     version: "1.0.0",
     orientation: "portrait",
     // 아이콘 원본은 assets/appicon-*.svg. PNG는 거기서 1024×1024로 구운 결과물이다
@@ -66,8 +59,12 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           {
             CFBundleURLSchemes: [`kakao${EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY}`],
           },
-          // 값이 없으면 항목 자체를 넣지 않는다 — 빈 스킴이 박히면 iOS가 그 URL 타입을 무시한다
-          ...(googleIosUrlScheme ? [{ CFBundleURLSchemes: [googleIosUrlScheme] }] : []),
+          // 구글 로그인 리다이렉트(`com.showroomz.app:/oauthredirect`)를 받는 스킴.
+          // 위 scheme 배열에도 넣었지만 introspect 결과 iOS Info.plist에는 반영되지 않아 여기 직접 적는다 —
+          // 없으면 계정을 고른 뒤 브라우저가 구글 화면에 멈추고 앱으로 돌아오지 못한다.
+          {
+            CFBundleURLSchemes: ["com.showroomz.app"],
+          },
         ],
       },
     },

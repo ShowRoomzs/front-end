@@ -127,9 +127,12 @@ export default function ProductInquiryHistoryTab() {
           onToggleWaitingOnly={() => setIsWaitingOnly(prev => !prev)}
         />
       }
+      // 빈 안내가 남는 세로 공간을 차지해야 가운데 정렬이 의미를 갖는다
+      contentContainerStyle={{ flexGrow: 1 }}
       ListEmptyComponent={
         isFetching ? undefined : (
           <EmptyState
+            fill
             icon={<SpeechBubbleIcon size={50} color="#D8D8DA" />}
             title={isWaitingOnly ? "답변 대기 중인 문의가 없어요" : "상품 문의 내역이 없어요"}
             description={

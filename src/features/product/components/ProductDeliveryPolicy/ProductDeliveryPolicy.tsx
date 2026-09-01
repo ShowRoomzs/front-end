@@ -34,8 +34,8 @@ export default function ProductDeliveryPolicy(props: ProductDeliveryPolicyProps)
 
   const policies = [
     { key: "배송", value: shippingLine },
-    { key: "발송 시점", value: `공구 마감 후 영업일 ${delivery.shippingLeadDays}일 내 순차 발송` },
-    { key: "교환 · 반품", value: "배송 완료 후 7일 이내 주문 내역에서 신청" },
+    { key: "발송 예정", value: `공구 마감 후 영업일 ${delivery.shippingLeadDays}일 내 순차 발송` },
+    { key: "교환 · 반품", value: "배송완료 후 7일 이내 주문 내역에서 신청 · 문 앞 회수" },
     {
       key: "반송비",
       value: `반품 ${formatPrice(delivery.returnFee)}원 · 교환 ${formatPrice(delivery.exchangeFee)}원`,

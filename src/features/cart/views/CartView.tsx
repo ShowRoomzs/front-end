@@ -249,14 +249,14 @@ export default function CartView() {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: isEmpty ? 24 : bottom + BOTTOM_CTA_HEIGHT }}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: isEmpty ? 24 : bottom + BOTTOM_CTA_HEIGHT }}
       >
         {isEmpty ? (
           <EmptyState
+            fill
             icon={<EmptyBagIcon size={52} />}
             title="장바구니가 비어 있어요"
             description={"진행 중인 공동구매를 둘러보고\n마음에 드는 상품을 담아보세요"}
-            paddingTop={110}
             actionLabel="공동구매 둘러보기"
             onPressAction={handlePressBrowse}
           />

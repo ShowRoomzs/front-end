@@ -26,8 +26,14 @@ export default function SocialButton(props: SocialButtonProps) {
    *
    * 로즈는 이 화면에 쓰지 않는다 — 공구 신호가 아니라 플랫폼 색이 주인공인 자리다.
    */
+  /**
+   * 아이콘과 라벨을 **한 덩어리로 가운데** 둔다(시안 C0 — `justify-content:center; gap:9px`).
+   *
+   * 아이콘을 왼쪽 끝에 붙이고 라벨만 남은 칸에서 가운데 정렬하면, 글자가 버튼 중심보다
+   * 아이콘 폭만큼 오른쪽으로 밀려 버튼 세 개의 글자 축이 서로 어긋난다.
+   */
   const getDefaultWrapperClassName = () => {
-    return "flex w-full h-52 flex-row items-center rounded-base px-20";
+    return "h-52 w-full flex-row items-center justify-center rounded-base";
   };
 
   const getWrapperClassNameByVariant = () => {
@@ -37,27 +43,23 @@ export default function SocialButton(props: SocialButtonProps) {
       case "KAKAO":
         return "bg-[#F7DE23]";
       case "GOOGLE":
-        return "border-[1px] border-borderButton bg-white";
+        return "border-[1px] border-borderButtonStrong bg-white";
       case "APPLE":
         return "bg-[#1A1A1A]";
     }
   };
 
   // ---- text ----
-  const getDefaultTextClassName = () => {
-    return "flex-1 text-center";
-  };
-
-  const getTextClassNameByVariant = () => {
+  const getTextColor = () => {
     switch (socialType) {
       case "NAVER":
-        return "text-white";
+        return "#FFFFFF";
       case "KAKAO":
-        return "text-black";
+        return "#191919";
       case "GOOGLE":
-        return "text-ink";
+        return "#2E2E2E";
       case "APPLE":
-        return "text-white";
+        return "#FFFFFF";
     }
   };
   // ---- text ----
@@ -75,16 +77,17 @@ export default function SocialButton(props: SocialButtonProps) {
     }
   };
 
+  /** 마크마다 글자에 대한 시각적 무게가 달라 크기를 한 값으로 맞추지 않는다(시안 C0) */
   const getIcon = () => {
     switch (socialType) {
       case "NAVER":
-        return <Icon icon={COMMON_ASSETS.naver} />;
+        return <Icon icon={COMMON_ASSETS.naver} width={17} height={17} />;
       case "KAKAO":
-        return <Icon icon={COMMON_ASSETS.kakao} />;
+        return <Icon icon={COMMON_ASSETS.kakao} width={19} height={19} />;
       case "GOOGLE":
-        return <Icon icon={COMMON_ASSETS.google} />;
+        return <Icon icon={COMMON_ASSETS.google} width={18} height={18} />;
       case "APPLE":
-        return <Icon icon={COMMON_ASSETS.apple} />;
+        return <Icon icon={COMMON_ASSETS.apple} width={18} height={18} />;
     }
   };
 
@@ -120,12 +123,10 @@ export default function SocialButton(props: SocialButtonProps) {
       activeOpacity={0.8}
       onPress={handlePress}
       className={cn(getDefaultWrapperClassName(), getWrapperClassNameByVariant())}
+      style={{ gap: 9 }}
     >
       {getIcon()}
-      <Typography
-        variant="buttonPrimary"
-        className={cn(getDefaultTextClassName(), getTextClassNameByVariant())}
-      >
+      <Typography style={{ fontSize: 15, fontWeight: "600", lineHeight: 15, color: getTextColor() }}>
         {getLabel()}
       </Typography>
     </TouchableOpacity>

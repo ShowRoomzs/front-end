@@ -9,10 +9,12 @@ import Typography from "@/common/components/Typography/Typography";
  */
 interface ScreenHeaderBarProps {
   title: string;
+  /** 비로그인 화면은 장바구니를 숨긴다 — 시안 C2 1c · C3 1b */
+  showCart?: boolean;
 }
 
 export default function ScreenHeaderBar(props: ScreenHeaderBarProps) {
-  const { title } = props;
+  const { title, showCart } = props;
 
   return (
     <View className="border-b-[0.5px] border-divider bg-white">
@@ -21,7 +23,7 @@ export default function ScreenHeaderBar(props: ScreenHeaderBarProps) {
           {title}
         </Typography>
         <View className="flex-1" />
-        <HeaderActions />
+        <HeaderActions showCart={showCart} />
       </View>
     </View>
   );

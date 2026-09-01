@@ -230,13 +230,18 @@ export function ChevronRightIcon(props: DsIconProps) {
 }
 
 /** 닫기 X — 최근 검색 개별 삭제(14) · 검색 필드 지우기 안쪽(9, 흰색) */
-export function CloseIcon(props: DsIconProps) {
-  const { size, color, rest } = base({ ...props, size: props.size ?? 14, color: props.color ?? "#C7C7C7" });
+export function CloseIcon(props: DsIconProps & { thickness?: number }) {
+  const { thickness = 2.4, ...iconProps } = props;
+  const { size, color, rest } = base({
+    ...iconProps,
+    size: iconProps.size ?? 14,
+    color: iconProps.color ?? "#C7C7C7",
+  });
 
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...rest}>
-      <Path d="M6 6l12 12" stroke={color} strokeWidth={2.4} strokeLinecap="round" />
-      <Path d="M18 6L6 18" stroke={color} strokeWidth={2.4} strokeLinecap="round" />
+      <Path d="M6 6l12 12" stroke={color} strokeWidth={thickness} strokeLinecap="round" />
+      <Path d="M18 6L6 18" stroke={color} strokeWidth={thickness} strokeLinecap="round" />
     </Svg>
   );
 }
@@ -272,6 +277,29 @@ export function InfoIcon(props: DsIconProps) {
 }
 
 /** 빈 상태 일러스트 — 장바구니(52) · 쇼핑백 */
+/**
+ * 차양 달린 상점 — 팔로우할 **쓰룸**을 가리키는 빈 상태 아이콘 (C2 팔로잉 1b · 1c).
+ *
+ * 사람 아이콘을 쓰지 않는다 — 팔로우는 계정이 아니라 공구를 여는 쓰룸에 거는 것이고,
+ * 장바구니(가방)도 아니다 — 그건 담은 물건을 가리키는 그림이다.
+ */
+export function StorefrontIcon(props: DsIconProps) {
+  const { size, color, rest } = base({ ...props, size: props.size ?? 52, color: props.color ?? "#D8D8DA" });
+
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...rest}>
+      <Path
+        d="M4 4.5h16l1.4 4.2a3 3 0 0 1-5.8 1 3 3 0 0 1-5.6 0 3 3 0 0 1-5.8-1z"
+        stroke={color}
+        strokeWidth={1.2}
+        strokeLinejoin="miter"
+      />
+      <Path d="M5 10.8V20h14v-9.2" stroke={color} strokeWidth={1.2} strokeLinejoin="miter" />
+      <Path d="M9.6 20v-5.4h4.8V20" stroke={color} strokeWidth={1.2} strokeLinejoin="miter" />
+    </Svg>
+  );
+}
+
 export function EmptyBagIcon(props: DsIconProps) {
   const { size, color, rest } = base({ ...props, size: props.size ?? 52, color: props.color ?? "#D8D8DA" });
 

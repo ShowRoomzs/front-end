@@ -13,6 +13,8 @@ export function useCreateProductInquiryMutation() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [PRODUCT_INQUIRY_QUERY_KEY.INQUIRY_HISTORY] });
       queryClient.invalidateQueries({ queryKey: [INQUIRY_QUERY_KEY.INQUIRY_SUMMARY] });
+      // 문의 탭의 공개 목록과 머리의 건수도 방금 쓴 글을 반영해야 한다
+      queryClient.invalidateQueries({ queryKey: [PRODUCT_INQUIRY_QUERY_KEY.PUBLIC_INQUIRIES] });
     },
   });
 }

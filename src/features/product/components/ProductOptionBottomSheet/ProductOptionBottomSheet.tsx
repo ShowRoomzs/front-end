@@ -1,17 +1,15 @@
 import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { produce } from "immer";
-import { useCallback, useMemo, useState } from "react";
-import { View } from "react-native";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import Button from "@/common/components/Button/Button";
-import HStack from "@/common/components/HStack/HStack";
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
 import { SheetApi } from "@/common/providers/BottomSheetProvider/context";
-import { toast } from "@/common/providers/ToastProvider";
 import {
   BOTTOM_SHEET_GAP,
+  OPTION_SHEET_ITEM_GAP,
   PRODUCT_OPTION_BOTTOM_SHEET_PADDING,
 } from "@/features/product/components/ProductOptionBottomSheet/config";
 import ProductOptionDropdown from "@/features/product/components/ProductOptionDropdown/ProductOptionDropdown";
@@ -25,6 +23,8 @@ import { getEnabledVariants } from "@/features/product/utils/option";
 interface ProductOptionBottomSheetProps {
   sheetApi?: SheetApi;
   productId: number;
+  /** 옵션이 없는 상품의 유일한 줄에 적는 이름 — 그 상품은 고를 것이 없어 조합명이 없다 */
+  productName: string;
   optionGroups: Array<OptionGroup>;
   variants: Array<Variant>;
   onPressCart: (sheetApi?: SheetApi) => void;
@@ -32,16 +32,39 @@ interface ProductOptionBottomSheetProps {
 }
 
 export default function ProductOptionBottomSheet(props: ProductOptionBottomSheetProps) {
-  const { productId, optionGroups, variants, sheetApi, onPressCart, onPressBuy } = props;
+  const { productId, productName, optionGroups, variants, sheetApi, onPressCart, onPressBuy } = props;
   const { bottom } = useSafeAreaInsets();
   const { selectedVariantsByProductId, setSelectedVariants } = useProductVariantSelection();
-  const { selectedOptions, handleChangeOption } = useOptionSelection({ optionGroups });
+  const { selectedOptions, openGroupId, handleToggleGroup, handleChangeOption } = useOptionSelection({
+    optionGroups,
+  });
   const [footerHeight, setFooterHeight] = useState(0);
 
   const selectedVariants = useMemo(
     () => selectedVariantsByProductId[productId] || [],
     [selectedVariantsByProductId, productId]
   );
+
+  const hasOptionGroups = optionGroups.length > 0;
+
+  /**
+   * 옵션이 없는 상품 — 드롭다운을 하나도 그리지 않고 **상품명 + 수량 스테퍼만** 띄운다.
+   *
+   * 고를 것이 없는데 "옵션을 선택하세요" 칸을 하나 세우면 무엇을 해야 하는지 잠시 멈추게 된다.
+   * 열자마자 담을 수 있어야 하므로 대표 조합을 미리 한 줄 올려 둔다 — 그러면 두 버튼도 바로 활성이다.
+   */
+  useEffect(() => {
+    if (hasOptionGroups || selectedVariants.length > 0) {
+      return;
+    }
+
+    const onlyVariant = variants.find(variant => variant.isRepresentative) ?? variants[0];
+
+    if (!onlyVariant) {
+      return;
+    }
+    setSelectedVariants(productId, [{ ...onlyVariant, name: productName, count: 1 }]);
+  }, [hasOptionGroups, selectedVariants.length, variants, productId, productName, setSelectedVariants]);
 
   const handleChangeOptionInternal = useCallback(
     (optionGroupId: number, optionId: number) => {
@@ -97,23 +120,21 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
 
   const hasSelectedVariants = useMemo(() => selectedVariants.length > 0, [selectedVariants]);
 
+  /**
+   * 미선택이면 **버튼 자체가 비활성**이다(시안 C7).
+   *
+   * 눌렀을 때 토스트로 알리던 방식은 "누를 수 있는데 거절당했다"로 읽힌다. 시안은 고를 것이
+   * 남아 있는 동안 두 버튼을 회색으로 잠가, 아직 할 일이 위에 있다는 걸 버튼 모양으로 말한다.
+   */
   const handlePressCart = useCallback(() => {
-    if (!hasSelectedVariants) {
-      toast.show("옵션을 선택해 주세요.");
-      return;
-    }
     sheetApi?.close();
     onPressCart(sheetApi);
-  }, [hasSelectedVariants, onPressCart, sheetApi]);
+  }, [onPressCart, sheetApi]);
 
   const handlePressBuy = useCallback(() => {
-    if (!hasSelectedVariants) {
-      toast.show("옵션을 선택해 주세요.");
-      return;
-    }
     sheetApi?.close();
     onPressBuy();
-  }, [hasSelectedVariants, onPressBuy, sheetApi]);
+  }, [onPressBuy, sheetApi]);
 
   return (
     <View style={{ maxHeight: PRODUCT_OPTION_BOTTOM_SHEET_MAX_HEIGHT }}>
@@ -122,7 +143,7 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
           paddingBottom: BOTTOM_SHEET_GAP + footerHeight,
         }}
       >
-        <VStack gap={BOTTOM_SHEET_GAP} className="px-20">
+        <VStack gap={OPTION_SHEET_ITEM_GAP} className="px-20">
           {optionGroups.map((optionGroup, ix) => (
             <ProductOptionDropdown
               key={optionGroup.optionGroupId}
@@ -131,6 +152,8 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
               optionGroups={optionGroups}
               variants={variants}
               selectedOptions={selectedOptions}
+              openGroupId={openGroupId}
+              onToggleGroup={handleToggleGroup}
               onChangeOption={handleChangeOptionInternal}
               productId={productId}
             />
@@ -139,6 +162,7 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
             <VariantCard
               key={variant.variantId}
               variant={variant}
+              canRemove={hasOptionGroups}
               onRemove={() => handleRemoveVariant(variant.variantId)}
               onChangeCount={count => handleChangeVariantCount(variant.variantId, count)}
             />
@@ -150,22 +174,52 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
         className="absolute bottom-0 left-0 right-0 bg-white"
         style={{ paddingBottom: bottom + PRODUCT_OPTION_BOTTOM_SHEET_PADDING }}
       >
+        {/* 고르기 전에는 총액 줄 자체를 그리지 않는다 — 0원을 보여주면 무료로 읽힌다 */}
         {hasSelectedVariants && (
-          <View className="px-10 p-20 border-t-[1px] border-gray2 flex flex-row items-center justify-between">
-            <Typography className="text-14 text-gray10 font-normal">총 결제 금액.</Typography>
-            <Typography className="text-black text-16 font-semibold">
-              ₩ {totalPrice.toLocaleString()}
+          <View className="flex-row items-baseline justify-between px-20 pt-14">
+            <Typography style={{ fontSize: 13, fontWeight: "600", lineHeight: 13 }} className="text-ink76">
+              총 결제 금액
+            </Typography>
+            <Typography
+              style={{ fontSize: 21, fontWeight: "700", lineHeight: 21, letterSpacing: -0.6 }}
+              className="text-ink"
+            >
+              {`${totalPrice.toLocaleString()}원`}
             </Typography>
           </View>
         )}
-        <HStack gap={6} className="px-10 flex flex-row items-center pt-10">
-          <Button onPress={handlePressCart} size="xl" variant="secondary" className="py-15 flex-1">
-            장바구니
-          </Button>
-          <Button onPress={handlePressBuy} size="xl" variant="primary" className="py-15 flex-1">
-            구매하기
-          </Button>
-        </HStack>
+
+        <View className="flex-row px-20 pt-14" style={{ gap: 8 }}>
+          <TouchableOpacity
+            onPress={handlePressCart}
+            disabled={!hasSelectedVariants}
+            activeOpacity={hasSelectedVariants ? 0.75 : 1}
+            className="h-52 flex-1 flex-row items-center justify-center rounded-base border bg-white"
+            style={{ borderColor: hasSelectedVariants ? "#E3E3E5" : "#F4F4F5" }}
+          >
+            <Typography
+              style={{ fontSize: 15, fontWeight: "600", lineHeight: 15 }}
+              className={hasSelectedVariants ? "text-ink76" : "text-gray8"}
+            >
+              장바구니
+            </Typography>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={handlePressBuy}
+            disabled={!hasSelectedVariants}
+            activeOpacity={hasSelectedVariants ? 0.75 : 1}
+            className="h-52 flex-1 flex-row items-center justify-center rounded-base"
+            style={{ backgroundColor: hasSelectedVariants ? "#F2456E" : "#F4F4F5" }}
+          >
+            <Typography
+              style={{ fontSize: 15, fontWeight: "600", lineHeight: 15 }}
+              className={hasSelectedVariants ? "text-white" : "text-gray8"}
+            >
+              바로 구매
+            </Typography>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );

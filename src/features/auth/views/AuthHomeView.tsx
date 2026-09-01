@@ -117,7 +117,7 @@ export default function AuthHomeView() {
         {/* 로그인은 흐름을 잠시 덮는 화면이라는 신호로 뒤로가기 대신 우측 상단 X를 둔다 */}
         <View className="h-46 flex-row items-center justify-end px-8">
           <TouchableOpacity onPress={navigation.goBack} activeOpacity={0.5} className="p-11">
-            <CloseIcon size={20} color="#0F0F0F" />
+            <CloseIcon size={23} thickness={1.9} color="#0F0F0F" />
           </TouchableOpacity>
         </View>
 

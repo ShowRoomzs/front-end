@@ -26,7 +26,7 @@ export default function OrderStatusCard(props: OrderStatusCardProps) {
   const { items, onPressStatus } = props;
 
   return (
-    <View className="mx-14 flex-row rounded-base border-[1px] border-borderButton bg-white py-16">
+    <View className="mx-14 flex-row rounded-base border-[1px] border-divider bg-white py-16">
       {items.map(item => {
         const isEmpty = item.count === 0;
 
@@ -39,14 +39,14 @@ export default function OrderStatusCard(props: OrderStatusCardProps) {
             className="flex-1 items-center"
           >
             <Typography
-              style={{ fontSize: 18, fontWeight: "700", lineHeight: 22 }}
-              className={isEmpty ? "text-gray62" : "text-ink"}
+              style={{ fontSize: 19, fontWeight: "700", lineHeight: 19 }}
+              className={isEmpty ? "text-gray7" : "text-ink"}
             >
               {item.count}
             </Typography>
             <Typography
-              style={{ fontSize: 12, lineHeight: 18, marginTop: 3 }}
-              className={isEmpty ? "text-gray62" : "text-ink76"}
+              style={{ fontSize: 11.5, lineHeight: 11.5, marginTop: 5 }}
+              className={isEmpty ? "text-gray7" : "text-gray55"}
             >
               {item.label}
             </Typography>

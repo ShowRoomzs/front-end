@@ -18,4 +18,11 @@ export const BUSINESS_INFO = {
   intermediaryNotice:
     "쇼룸즈는 통신판매중개자로서 공동구매의 거래 당사자가 아니며, 상품의 정보·거래·배송·환불에 대한 책임은 각 판매자에게 있습니다.",
   copyright: "© 2026 Showroomz Inc.",
+  /**
+   * 공정거래위원회 통신판매사업자 조회 — 푸터의 [사업자정보확인]이 여는 주소.
+   *
+   * ⚠️ `wrkr_no`는 위의 사업자등록번호와 같은 **가만 값**이다. 실제 번호가 나오면
+   * 둘을 함께 고쳐야 한다 — 번호가 틀리면 조회 페이지가 빈 결과로 열린다.
+   */
+  ftcLookupUrl: "https://www.ftc.go.kr/bizCommPop.do?wrkr_no=0000000000",
 } as const;

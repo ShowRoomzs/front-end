@@ -33,7 +33,10 @@ export default function FeedHeader(props: FeedHeaderProps) {
   const badgeCount = Math.min(cartCount, CART_BADGE_MAX);
 
   return (
-    <View className="flex-row items-center bg-white pb-12 pt-2" style={{ gap: 12, paddingHorizontal: 16 }}>
+    <View
+      className="flex-row items-center border-b-[0.5px] border-divider bg-white pb-12 pt-2"
+      style={{ gap: 12, paddingHorizontal: 16 }}
+    >
       <TouchableOpacity
         onPress={onPressSearch}
         activeOpacity={0.7}

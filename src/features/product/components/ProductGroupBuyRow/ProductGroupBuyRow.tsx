@@ -5,6 +5,7 @@ import Badge from "@/common/components/Badge/Badge";
 import { ChevronRightIcon } from "@/common/components/DsIcon/icons";
 import Typography from "@/common/components/Typography/Typography";
 import { ProductGroupBuy } from "@/features/product/types/product";
+import { ProductSaleState, saleStateBadgeLabel } from "@/features/product/utils/saleState";
 
 /**
  * 가격 아래 한 줄 — [공동구매 D-3] + 쇼룸. 탭하면 C4 쇼룸으로 간다.
@@ -18,11 +19,18 @@ import { ProductGroupBuy } from "@/features/product/types/product";
  */
 interface ProductGroupBuyRowProps {
   groupBuy: ProductGroupBuy;
+  /**
+   * 배지를 가르는 것은 공구의 마감 여부만이 아니다 — 공구가 열려 있어도 **품절**이면
+   * 살 수 없고, 그때도 로즈 D-day를 남기면 배지만 살아 있는 공구처럼 읽힌다(시안 `closedBadge`).
+   */
+  saleState: ProductSaleState;
   onPressShowroom: (showroomId: number) => void;
 }
 
 export default function ProductGroupBuyRow(props: ProductGroupBuyRowProps) {
-  const { groupBuy, onPressShowroom } = props;
+  const { groupBuy, saleState, onPressShowroom } = props;
+
+  const isUnavailable = saleState !== "ON_SALE";
 
   return (
     <TouchableOpacity
@@ -31,8 +39,8 @@ export default function ProductGroupBuyRow(props: ProductGroupBuyRowProps) {
       className="flex-row items-center"
       style={{ gap: 7, marginTop: 12 }}
     >
-      {groupBuy.isClosed ? (
-        <Badge label="공구 마감" variant="closed" />
+      {isUnavailable ? (
+        <Badge label={saleStateBadgeLabel(saleState)} variant="closed" />
       ) : (
         <Badge label={`공동구매 D-${groupBuy.dday}`} variant="rose" />
       )}
@@ -43,7 +51,7 @@ export default function ProductGroupBuyRow(props: ProductGroupBuyRowProps) {
 
       <Typography
         style={{ fontSize: 12.5, fontWeight: "600", lineHeight: 16.25 }}
-        className={`min-w-0 shrink ${groupBuy.isClosed ? "text-gray45" : "text-ink"}`}
+        className={`min-w-0 shrink ${isUnavailable ? "text-gray45" : "text-ink"}`}
         numberOfLines={1}
       >
         {groupBuy.showroomName}

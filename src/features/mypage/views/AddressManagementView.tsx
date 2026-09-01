@@ -101,19 +101,21 @@ export default function AddressManagementView() {
         keyExtractor={item => String(item.id)}
         renderItem={renderItem}
         showsVerticalScrollIndicator={false}
+        // 빈 안내가 남는 세로 공간을 차지해야 가운데 정렬이 의미를 갖는다
+        contentContainerStyle={{ flexGrow: 1 }}
         ListFooterComponent={<View className="h-26" />}
         ListEmptyComponent={
           /* 로딩 중에는 빈 상태를 띄우지 않는다 — "없어요"가 잠깐 떴다 사라지면 오해가 남는다 */
           isLoading ? (
-            <View className="pt-120 items-center">
+            <View className="flex-1 items-center justify-center">
               <Spinner />
             </View>
           ) : (
             <EmptyState
+              fill
               icon={<EmptyPinIcon size={50} />}
               title="저장된 배송지가 없어요"
               description={"배송지를 미리 등록해 두면\n주문할 때 주소를 다시 쓰지 않아도 돼요"}
-              paddingTop={120}
             />
           )
         }

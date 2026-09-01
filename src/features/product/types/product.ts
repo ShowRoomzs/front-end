@@ -158,6 +158,23 @@ export interface ProductDetail {
   sellerInfo: SellerInfo;
 }
 
+/**
+ * 같은 공구에 묶여 있는 다른 상품 — C7 상세정보 탭 맨 아래 가로 목록.
+ *
+ * 일반 추천이 아니라 **같은 주문에 묶이는 상품**이라 정가가 아닌 할인율·공구가만 적는다.
+ *
+ * ⚠️ 서버 미제공 — `groupBuy`가 아직 목업이라 어느 공구에 묶여 있는지를 알 길이 없다.
+ * `mocks/productMock.ts`의 `buildBundleMock`이 채운다.
+ */
+export interface BundleProduct {
+  id: number;
+  name: string;
+  thumbnailUrl: string | null;
+  /** 할인율(%) — 공구가와 같은 크기(700/13.5)로 로즈다 */
+  discountRate: number;
+  salePrice: number;
+}
+
 export interface Stock {
   productId: number;
   variantId: number;

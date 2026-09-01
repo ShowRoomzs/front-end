@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { TouchableOpacity, View } from "react-native";
 
 import Typography from "@/common/components/Typography/Typography";
+import { cn } from "@/common/utils/cn";
 
 /**
  * 빈 목록 안내 — 아이콘 50~52(#D8D8DA) · 제목 15.5/600 · 설명 13/1.7 #737373.
@@ -20,17 +21,32 @@ interface EmptyStateProps {
   title: string;
   description?: string;
   paddingTop?: number;
-  /** `flex-1`을 넘기면 남는 세로 공간을 차지한다 — 뒤따르는 고지·푸터를 화면 아래로 민다 */
+  /**
+   * 목록이 통째로 비어 **화면에 이 안내밖에 없는** 경우 — 남는 세로 공간을 차지하고
+   * 가운데 정렬한다. 위쪽에 붙여 두면 아래가 통채로 빈 화면이 되어 안내가 떠 보인다.
+   *
+   * 반대로 **아래에 다른 내용이 이어지는** 자리에는 주지 않는다(검색 결과 없음 → 추천 쇼룸,
+   * 상품 상세의 문의 탭) — 가운데로 밀면 뒤따르는 내용이 한 화면 밖으로 밀려난다.
+   *
+   * 스크롤 목록 안에서 쓸 때는 부모에 `contentContainerStyle={{ flexGrow: 1 }}`이 함께 필요하다 —
+   * 그게 없으면 내용 높이만큼만 잡혀 채울 공간이 생기지 않는다.
+   */
+  fill?: boolean;
   className?: string;
   actionLabel?: string;
   onPressAction?: () => void;
 }
 
 export default function EmptyState(props: EmptyStateProps) {
-  const { icon, title, description, paddingTop = 100, className, actionLabel, onPressAction } = props;
+  const { icon, title, description, paddingTop, fill, className, actionLabel, onPressAction } = props;
+
+  const resolvedPaddingTop = paddingTop ?? (fill ? 0 : 100);
 
   return (
-    <View className={`items-center px-40 ${className ?? ""}`} style={{ paddingTop }}>
+    <View
+      className={cn("items-center px-40", fill && "flex-1 justify-center", className)}
+      style={{ paddingTop: resolvedPaddingTop }}
+    >
       {icon}
 
       <Typography

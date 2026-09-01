@@ -75,6 +75,11 @@ export type CommonStackParamList = {
     productId: number;
     inquiryId?: number;
   };
+  /** C7-2 문의 전체 — 답변 블록에 판매자 이름을 적어야 해 상세가 가지고 있는 값을 넘긴다 */
+  [COMMON_ROUTES.PRODUCT_INQUIRY_LIST]: {
+    productId: number;
+    sellerName: string;
+  };
   /** C4 쇼룸 하단 고지에서 여는 약관 — 마이 탭을 거치지 않고 이 스택에서 바로 연다 */
   [COMMON_ROUTES.TERMS_DOCUMENT]: {
     termsType: TermsDocumentType;

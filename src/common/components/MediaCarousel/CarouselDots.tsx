@@ -35,7 +35,7 @@ const DOT_GAP = 5;
  */
 function getDotColor(placement: "below" | "inside", state: { isActive: boolean; isShrunk: boolean }): string {
   if (placement === "inside") {
-    return state.isActive ? "#FFFFFF" : "rgba(255,255,255,0.5)";
+    return state.isActive ? "#FFFFFF" : "rgba(255,255,255,0.45)";
   }
   if (state.isActive) {
     return "#0F0F0F";
@@ -62,9 +62,14 @@ export default function CarouselDots(props: CarouselDotsProps) {
     <View
       className={cn(
         "flex-row items-center justify-center",
-        placement === "inside" && "absolute bottom-0 left-0 right-0"
+        placement === "inside" && "absolute left-0 right-0"
       )}
-      style={{ gap: DOT_GAP, paddingTop: 11, paddingBottom: 3 }}
+      style={
+        placement === "inside"
+          ? // 이미지 안 하단 14 — 아래 여백을 먹지 않고 사진 위에 얹힌다(시안 C7)
+            { gap: DOT_GAP, bottom: 14 }
+          : { gap: DOT_GAP, paddingTop: 11, paddingBottom: 3 }
+      }
     >
       {Array.from({ length: visibleCount }).map((_, position) => {
         const index = windowStart + position;
@@ -82,11 +87,12 @@ export default function CarouselDots(props: CarouselDotsProps) {
               height: size,
               borderRadius: size / 2,
               backgroundColor,
+              // 어떤 사진 위에서도 보이게 — 방향 없는 옥은 그림자(시안 `0 0 3px`)
               ...(placement === "inside" && {
                 shadowColor: "#000",
-                shadowOpacity: 0.18,
-                shadowRadius: 2,
-                shadowOffset: { width: 0, height: 1 },
+                shadowOpacity: isActive ? 0.25 : 0.18,
+                shadowRadius: 3,
+                shadowOffset: { width: 0, height: 0 },
               }),
             }}
           />

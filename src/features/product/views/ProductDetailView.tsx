@@ -18,6 +18,7 @@ import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
 import { CustomErrorResponse } from "@/common/types/error";
 import { useCart } from "@/features/cart/hooks/useCart";
+import ProductBundleSection from "@/features/product/components/ProductBundleSection/ProductBundleSection";
 import ProductDeliveryBlock from "@/features/product/components/ProductDeliveryBlock/ProductDeliveryBlock";
 import ProductDeliveryPolicy from "@/features/product/components/ProductDeliveryPolicy/ProductDeliveryPolicy";
 import ProductDetailBrandSection from "@/features/product/components/ProductDetailBrandSection/ProductDetailBrandSection";
@@ -31,10 +32,13 @@ import ProductNoticeTable, {
 import ProductOptionBottomSheet from "@/features/product/components/ProductOptionBottomSheet/ProductOptionBottomSheet";
 import ProductPriceBlock from "@/features/product/components/ProductPriceBlock/ProductPriceBlock";
 import ProductSellerInfo from "@/features/product/components/ProductSellerInfo/ProductSellerInfo";
+import PurchaseBlockedModal from "@/features/product/components/PurchaseBlockedModal/PurchaseBlockedModal";
 import { PRODUCT_OPTION_BOTTOM_SHEET_PROPS } from "@/features/product/constants/optionBottomSheet";
 import { useGetProductDetail } from "@/features/product/hooks/useGetProductDetail";
+// ⚠️ 임시 — 공구가 목업이라 묶음 상품도 서버가 알 길이 없다
+import { buildBundleMock } from "@/features/product/mocks/productMock";
 import { useProductVariantSelection } from "@/features/product/stores/useProductVariantSelection";
-import { ProductDetail } from "@/features/product/types/product";
+import { ProductSaleState, resolveSaleState, saleStateMessage } from "@/features/product/utils/saleState";
 
 /**
  * C7 상품 상세 — 갤러리 · 탭 구조.
@@ -66,7 +70,7 @@ export default function ProductDetailView() {
   const { productId } = params;
   const { bottom } = useSafeAreaInsets();
 
-  const { data: productDetail, isLoading } = useGetProductDetail(productId);
+  const { data: productDetail, isLoading, refetch: refetchProductDetail } = useGetProductDetail(productId);
   const { create: createCart } = useCart();
   const { clearSelectedVariants, selectedVariantsByProductId } = useProductVariantSelection();
 
@@ -76,8 +80,13 @@ export default function ProductDetailView() {
   const [selectedTab, setSelectedTab] = useState<ProductTabId>("info");
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
-  /** 전 옵션이 소진되면 상품 전체가 판매 종료로 올라간다 */
-  const isUnavailable = !!productDetail && isProductUnavailable(productDetail);
+  /** 판매중 / 공구 마감 / 품절 — 갤러리 딤·배지·하단 CTA·차단 모달이 모두 이 값에서 갈린다 */
+  const saleState = productDetail ? resolveSaleState(productDetail) : "ON_SALE";
+  const isUnavailable = saleState !== "ON_SALE";
+
+  /** 결제 직전 차단 — 판정은 서버가 하고, 화면은 결과만 띄운다 */
+  const [blockedBy, setBlockedBy] = useState<Exclude<ProductSaleState, "ON_SALE"> | null>(null);
+  const [blockedOptionLabel, setBlockedOptionLabel] = useState<string>("");
 
   const handlePressToast = useCallback(() => {
     mainNavigation.navigate(ROOT_ROUTES.COMMON, { screen: COMMON_ROUTES.CART });
@@ -117,8 +126,27 @@ export default function ProductDetailView() {
     }
   });
 
-  /** 주문·결제 API가 아직 없어 [바로 구매]는 장바구니 담기까지만 이어진다 */
-  const handlePressBottomSheetBuy = usePermissionPress(() => {
+  /**
+   * [바로 구매] — 누른 시점에 **상품을 다시 읽어** 아직 살 수 있는지 확인한다.
+   *
+   * 상세는 5분 동안 캐시되므로 화면을 열어 둔 사이에 공구가 마감되거나 마지막 수량이 팔릴 수
+   * 있다. 그 상태로 결제로 넘기면 "결제는 됐는데 주문은 없는" 구간이 생긴다. 판정은 서버가
+   * 내려준 값으로만 하고(클라이언트 재고 캐시로 미리 막지 않는다), 막힌 이유를 모달로 알린다.
+   *
+   * 주문·결제 API가 아직 없어, 통과한 경우는 안내 토스트까지만 이어진다.
+   */
+  const handlePressBottomSheetBuy = usePermissionPress(async () => {
+    const variants = selectedVariantsByProductId[productId] ?? [];
+    const { data: latest } = await refetchProductDetail();
+    const latestState = latest ? resolveSaleState(latest) : saleState;
+
+    if (latestState !== "ON_SALE") {
+      // 무엇이 사라졌는지 되짚어 주려면 방금 고른 조합의 이름이 필요하다
+      setBlockedOptionLabel(variants.at(-1)?.name ?? "");
+      setBlockedBy(latestState);
+      return;
+    }
+
     toast.show("주문·결제 기능을 준비하고 있어요. 장바구니에 담아 두시면 열릴 때 알려드릴게요.");
   });
 
@@ -127,6 +155,7 @@ export default function ProductDetailView() {
     render: (
       <ProductOptionBottomSheet
         productId={productId}
+        productName={productDetail?.name ?? ""}
         optionGroups={productDetail?.optionGroups || []}
         variants={productDetail?.variants || []}
         onPressCart={handlePressBottomSheetCart}
@@ -135,6 +164,17 @@ export default function ProductDetailView() {
     ),
     sheetProps: PRODUCT_OPTION_BOTTOM_SHEET_PROPS,
   });
+
+  /**
+   * 시트를 닫으면 고른 것은 사라진다(시안 C7 `closeOptions`) — 열 때 비워 같은 결과를 만든다.
+   *
+   * 닫힐 때 지우지 않는 이유는 [장바구니]가 시트를 먼저 닫고 그 목록으로 담기 때문이다 —
+   * 닫는 순간 비우면 담기서 읽을 것이 사라진다.
+   */
+  const handleOpenOptionSheet = useCallback(() => {
+    clearSelectedVariants(productId);
+    openProductOptionBottomSheet();
+  }, [clearSelectedVariants, openProductOptionBottomSheet, productId]);
 
   const handlePressShowroom = useCallback(
     (showroomId: number) => {
@@ -146,12 +186,45 @@ export default function ProductDetailView() {
     [mainNavigation]
   );
 
+  /**
+   * 판매가 끝난 화면의 유일한 다음 행동.
+   *
+   * 여기서 바로 팔로우 API를 부르지 않고 쇼룸으로 보내는 이유는, 팔로우가 "이 쇼룸을 계속
+   * 보겠다"는 결정이라 무엇을 파는 곳인지 확인할 자리가 함께 있어야 하기 때문이다.
+   */
+  const handlePressFollowShowroom = useCallback(() => {
+    const showroomId = productDetail?.groupBuy?.showroomId;
+
+    if (showroomId === undefined) {
+      return;
+    }
+    handlePressShowroom(showroomId);
+  }, [handlePressShowroom, productDetail]);
+
   const handlePressBrandSite = useCallback(() => {
     if (!productDetail?.brandSiteUrl) {
       return;
     }
     void Linking.openURL(productDetail.brandSiteUrl);
   }, [productDetail?.brandSiteUrl]);
+
+  /**
+   * 같은 공구의 다른 상품.
+   *
+   * ⚠️ 서버 미제공 — 상세는 이 상품이 어느 공구에 묶여 있는지를 알려주지 않는다.
+   * 공구 자체가 목업이라 묶음도 목업으로 둔다 — `groupBuy`가 없으면 섹션 자체를 그리지 않는다.
+   */
+  const bundleProducts = useMemo(
+    () => (productDetail?.groupBuy ? buildBundleMock(productId) : []),
+    [productDetail?.groupBuy, productId]
+  );
+
+  const handlePressBundleProduct = useCallback(
+    (targetProductId: number) => {
+      commonNavigation.push(COMMON_ROUTES.PRODUCT_DETAIL, { productId: targetProductId });
+    },
+    [commonNavigation]
+  );
 
   const noticeRows = useMemo((): Array<NoticeRow> => {
     const notice = productDetail?.productNotice;
@@ -187,15 +260,28 @@ export default function ProductDetailView() {
               description={productDetail?.description || ""}
               isExpand={isDescriptionExpanded}
               onPressExpand={() => setIsDescriptionExpanded(prev => !prev)}
+              beforeExpandButton={
+                <View className="px-14 pt-16">
+                  <ProductNoticeTable rows={specRows} variant="spec" />
+                </View>
+              }
             />
-            <View className="px-14 pb-20 pt-16">
-              <ProductNoticeTable rows={specRows} variant="spec" />
-            </View>
+
+            <View className="h-5 bg-band" />
+
+            <ProductBundleSection
+              products={bundleProducts}
+              showroomImageUrl={productDetail?.groupBuy?.showroomImageUrl}
+              onPressProduct={handlePressBundleProduct}
+            />
+
+            <View className="h-30" />
+
             <BusinessFooter defaultExpanded />
           </View>
         );
       case "inquiry":
-        return <ProductDetailInquiry productId={productId} />;
+        return <ProductDetailInquiry productId={productId} sellerName={productDetail?.marketName ?? ""} />;
       case "seller":
         /*
           세 섹션을 모두 접어 두면 탭에 들어왔을 때 빈 목록처럼 보이므로 첫 항목만 펼쳐 둔다.
@@ -208,7 +294,10 @@ export default function ProductDetailView() {
               <ProductNoticeTable rows={noticeRows} variant="notice" />
             </CollapsibleSection>
 
-            <CollapsibleSection title="배송 / 교환 / 반품 안내" bodyStyle={{ paddingTop: 16 }}>
+            <CollapsibleSection
+              title="배송 / 교환 / 반품 안내"
+              bodyStyle={{ paddingTop: 16, paddingBottom: 16 }}
+            >
               <ProductDeliveryPolicy delivery={productDetail?.delivery} />
             </CollapsibleSection>
 
@@ -216,7 +305,12 @@ export default function ProductDetailView() {
               <ProductSellerInfo sellerInfo={productDetail?.sellerInfo} />
             </CollapsibleSection>
 
-            <BusinessFooter defaultExpanded />
+            {/*
+              사업자 푸터는 이 탭에 두지 않는다(시안 C7) — 바로 위의 [판매자 정보]와
+              항목이 거의 같아서, 둘을 거듭 놓으면 어느 쪽이 이 상품을 파는 사람인지 헷갈린다.
+              고지는 상세정보 탭 맨 아래에서 한 번 닿는다.
+            */}
+            <View className="h-26" />
           </View>
         );
     }
@@ -232,7 +326,7 @@ export default function ProductDetailView() {
         </View>
       ) : (
         <ScrollView
-          stickyHeaderIndices={[5]}
+          stickyHeaderIndices={[6]}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: bottom + BOTTOM_CTA_HEIGHT }}
         >
@@ -253,12 +347,18 @@ export default function ProductDetailView() {
             isUnavailable={isUnavailable}
             belowPrice={
               productDetail.groupBuy ? (
-                <ProductGroupBuyRow groupBuy={productDetail.groupBuy} onPressShowroom={handlePressShowroom} />
+                <ProductGroupBuyRow
+                  groupBuy={productDetail.groupBuy}
+                  saleState={saleState}
+                  onPressShowroom={handlePressShowroom}
+                />
               ) : null
             }
           />
           <View className="mt-18 h-5 bg-band" />
           <ProductDeliveryBlock delivery={productDetail.delivery} />
+          {/* 배송 블록과 탭 사이에도 밴드가 들어간다 — 상품 정보와 탭은 읽는 단위가 다르다(시안 C7) */}
+          <View className="h-5 bg-band" />
 
           {/*
             상세정보 본문이 WebView라, 안드로이드에서는 네이티브 뷰 순서상 WebView가 이 줄 위로
@@ -298,24 +398,54 @@ export default function ProductDetailView() {
         className="absolute bottom-0 left-0 right-0 border-t-[0.5px] border-divider bg-white px-14 pt-12"
         style={{ paddingBottom: bottom + 26 }}
       >
-        <TouchableOpacity
-          onPress={openProductOptionBottomSheet}
-          disabled={isUnavailable}
-          activeOpacity={0.8}
-          className={`h-52 flex-row items-center justify-center rounded-base ${
-            isUnavailable ? "bg-fill" : "bg-rose"
-          }`}
-        >
-          <Typography variant="buttonPrimary" className={isUnavailable ? "text-gray62" : "text-white"}>
-            {isUnavailable ? "판매가 종료된 상품이에요" : "구매하기"}
-          </Typography>
-        </TouchableOpacity>
+        {isUnavailable ? (
+          /*
+            살 수 없다고 화면을 막고 끝내지 않는다 — 이 공구는 끝났어도 같은 쇼룸의 다음 공구가
+            남아 있고, 그때 알림을 받을 유일한 방법이 팔로우다(시안 C7 판매 종료).
+          */
+          <View style={{ gap: 9 }}>
+            <View className="h-38 flex-row items-center justify-center">
+              <Typography
+                style={{ fontSize: 12.5, fontWeight: "500", lineHeight: 12.5 }}
+                className="text-gray45"
+              >
+                {saleStateMessage(saleState)}
+              </Typography>
+            </View>
+            <TouchableOpacity
+              onPress={handlePressFollowShowroom}
+              activeOpacity={0.75}
+              className="h-52 flex-row items-center justify-center rounded-base bg-rose"
+              style={{ gap: 7 }}
+            >
+              <Typography variant="buttonPrimary" className="text-white">
+                쇼룸 팔로우하고 다음 공구 받기
+              </Typography>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <TouchableOpacity
+            onPress={handleOpenOptionSheet}
+            activeOpacity={0.8}
+            className="h-52 flex-row items-center justify-center rounded-base bg-rose"
+          >
+            <Typography variant="buttonPrimary" className="text-white">
+              구매하기
+            </Typography>
+          </TouchableOpacity>
+        )}
       </View>
+
+      <PurchaseBlockedModal
+        blockedBy={blockedBy}
+        optionLabel={blockedOptionLabel}
+        onClose={() => setBlockedBy(null)}
+        onPickAnotherOption={() => {
+          setBlockedBy(null);
+          clearSelectedVariants(productId);
+          openProductOptionBottomSheet();
+        }}
+      />
     </View>
   );
-}
-
-/** 재고 품절이거나 운영자가 강제 품절로 내렸으면 살 수 없다 */
-function isProductUnavailable(product: ProductDetail): boolean {
-  return !!product.status?.isOutOfStock || !!product.status?.isOutOfStockForced;
 }

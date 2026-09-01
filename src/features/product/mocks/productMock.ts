@@ -1,4 +1,4 @@
-import { ProductDetail, StockResponse } from "@/features/product/types/product";
+import { BundleProduct, ProductDetail, StockResponse } from "@/features/product/types/product";
 
 /**
  * ⚠️ 임시 목업 — C7 상품 상세를 실물 데이터 없이 확인하기 위한 자리다.
@@ -126,6 +126,33 @@ export function buildProductMock(productId: number): ProductDetail {
     variants,
     sellerInfo: SELLER,
   };
+}
+
+/**
+ * 같은 공구의 다른 상품 (C7 상세정보 탭 맨 아래 [이 공구에서 함께 판매 중]).
+ *
+ * ⚠️ 서버 미제공 — 상품 상세는 `groupBuyStatus` 문자열 하나만 주고, 이 상품이 어느
+ * 공구에 묶여 있는지도 그 공구에 다른 상품이 있는지도 알 수 없다. 공구 자체가 목업이라
+ * 묶음도 목업으로 둔다.
+ *
+ * **삭제하는 법** — 공구가 실제 데이터로 바뀌면 `ProductBundleSection`에 서버 목록을
+ * 넣고 이 함수만 지우면 된다.
+ */
+const BUNDLE = [
+  { name: "진정 토너 패드 60매", discountRate: 33, salePrice: 17500 },
+  { name: "배리어 크림 50ml 대용량 리뉴얼", discountRate: 32, salePrice: 21900 },
+  { name: "마일드 클렌징 폼 150ml", discountRate: 26, salePrice: 14000 },
+];
+
+export function buildBundleMock(productId: number): Array<BundleProduct> {
+  return BUNDLE.map((item, index) => ({
+    ...item,
+    // 지금 보고 있는 상품과 아이디가 겹치면 자기 자신으로 돌아오는 카드가 생긴다.
+    // 그 아이디도 서버에는 없으므로 눌러 들어가면 `buildProductMock`이 다시 받는다 —
+    // 목적지의 이름·가격은 카드와 다르다. 목업끼리 어꺋나는 것이지 버그가 아니다.
+    id: productId + index + 1,
+    thumbnailUrl: null,
+  }));
 }
 
 function buildOptions(source: Array<{ optionId: number; name: string; extra: number }>) {

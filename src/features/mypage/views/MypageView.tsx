@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { ScrollView, TouchableOpacity, View } from "react-native";
+import { Linking, ScrollView, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { BOTTOM_TABS_HEIGHT } from "@/common/components/BottomTabs/config";
@@ -10,6 +10,7 @@ import Icon from "@/common/components/Icon/Icon";
 import LoginPrompt from "@/common/components/LoginPrompt/LoginPrompt";
 import MenuGroup, { MenuItem } from "@/common/components/MenuGroup/MenuGroup";
 import Typography from "@/common/components/Typography/Typography";
+import { BUSINESS_INFO } from "@/common/constants/business";
 import { usePermissionPress } from "@/common/hooks/usePermissionPress";
 import { useMainNavigation, useMypageNavigation } from "@/common/router";
 import { COMMON_ROUTES, MYPAGE_ROUTES, MyPageRouteName, ROOT_ROUTES } from "@/common/router/routes";
@@ -117,9 +118,27 @@ export default function MypageView() {
     [goMypage]
   );
 
+  /**
+   * 푸터 링크 — 위 [도움말] 그룹과 중복하지만 푸터 관례상 함께 둔다(시안 C 마이).
+   *
+   * [사업자정보확인]은 앵 안 화면이 아니라 공정거래위원회 조회 페이지로 나간다 —
+   * 통신판매업 신고 사실을 확인해 주는 곳이 거기뿐이다.
+   */
+  const footerLinks = useMemo(
+    () => [
+      { label: "이용약관", onPress: () => goMypage(MYPAGE_ROUTES.SERVICE_AGREEMENT) },
+      { label: "개인정보 처리방침", onPress: () => goMypage(MYPAGE_ROUTES.PRIVACY_POLICY) },
+      { label: "사업자정보확인", onPress: () => void Linking.openURL(BUSINESS_INFO.ftcLookupUrl) },
+    ],
+    [goMypage]
+  );
+
   return (
     <View className="flex-1 bg-white">
-      <View className="flex-row items-center bg-white pb-12 pt-2" style={{ paddingHorizontal: 16 }}>
+      <View
+        className="flex-row items-center border-b-[0.5px] border-divider bg-white pb-12 pt-2"
+        style={{ paddingHorizontal: 16 }}
+      >
         <Typography style={{ fontSize: 18, fontWeight: "700", lineHeight: 18, letterSpacing: -0.5 }}>
           마이
         </Typography>
@@ -155,24 +174,28 @@ export default function MypageView() {
         {user ? (
           <>
             <MypageProfileCard user={user} onPressProfile={handlePressSetting} />
-            <View className="pb-18">
-              <OrderStatusCard items={orderStatusItems} onPressStatus={handlePressOrders} />
-            </View>
+            <OrderStatusCard items={orderStatusItems} onPressStatus={handlePressOrders} />
           </>
         ) : (
           <LoginPrompt
             title={"로그인하고\n공구 소식을 받아보세요"}
             description={"팔로우한 쇼룸의 새 공구와 주문 내역을\n한곳에서 확인할 수 있어요"}
+            buttonLabel="회원가입 하고 3초 만에 시작하기"
           />
         )}
 
-        <GroupBand />
+        {/*
+          위에 무엇이 있었느냐에 따라 구분이 다르다(시안 C 마이).
+          로그인: 주문 현황 카드 아래는 **흰 여백 8** — 같은 내 정보라 끝을 그을 이유가 없다.
+          비로그인: 로그인 유도 블록 아래는 **회색 밴드 5** — 성격이 다른 블록이 시작된다.
+        */}
+        {user ? <View className="h-8 bg-white" /> : <GroupBand />}
         <MenuGroup title="쇼핑 정보" items={shoppingItems} />
-        <GroupBand />
+        <GroupBand marginTop={10} />
         <MenuGroup title="문의" items={inquiryItems} />
-        <GroupBand />
+        <GroupBand marginTop={10} />
         <MenuGroup title="도움말" items={helpItems} />
-        <BusinessFooter />
+        <BusinessFooter marginTop={10} links={footerLinks} />
       </ScrollView>
     </View>
   );

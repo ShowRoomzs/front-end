@@ -63,7 +63,7 @@ export const FOLLOWING_SHOWROOM_SORT_LABEL: Record<FollowingShowroomSort, string
 };
 
 export const FOLLOWING_SHOWROOM_SORT_DESCRIPTION: Record<FollowingShowroomSort, string> = {
-  DEFAULT: "최근에 게시물을 올린 쇼룸부터",
-  FOLLOW_LATEST: "최근에 팔로우한 쇼룸부터",
-  FOLLOW_OLDEST: "먼저 팔로우한 쇼룸부터",
+  DEFAULT: "최근에 게시물을 올린 순서",
+  FOLLOW_LATEST: "가장 최근에 팔로우한 쇼룸부터",
+  FOLLOW_OLDEST: "가장 먼저 팔로우한 쇼룸부터",
 };

@@ -26,7 +26,7 @@ export default function RoleBadge(props: RoleBadgeProps) {
 
   if (!isInfluencer) {
     return (
-      <View className="self-start rounded-base bg-fill px-8 py-4">
+      <View className="self-start rounded-base bg-fill px-9 py-4">
         <Typography variant="badge" style={{ letterSpacing: 0.3 }} className="text-gray45">
           USER
         </Typography>
@@ -39,7 +39,7 @@ export default function RoleBadge(props: RoleBadgeProps) {
       colors={INFLUENCER_TINT}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 0 }}
-      style={{ alignSelf: "flex-start", borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4 }}
+      style={{ alignSelf: "flex-start", borderRadius: 8, paddingHorizontal: 9, paddingVertical: 4 }}
     >
       <Typography variant="badge" style={{ color: "#6B48CC", letterSpacing: 0.3 }}>
         INFLUENCER

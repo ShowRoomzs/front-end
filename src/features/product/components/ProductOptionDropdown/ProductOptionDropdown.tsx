@@ -1,8 +1,8 @@
 import { produce } from "immer";
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 
-import Dropdown from "@/common/components/Dropdown/Dropdown";
-import { toast } from "@/common/providers/ToastProvider";
+import { withObjectParticle } from "@/common/utils/withObjectParticle";
+import ProductOptionSelect from "@/features/product/components/ProductOptionSelect/ProductOptionSelect";
 import { useGetStock } from "@/features/product/hooks/useGetStock";
 import { OptionGroup, Variant } from "@/features/product/types/product";
 import { getEnabledVariants, getNextOptionGroupIds, parseOption } from "@/features/product/utils/option";
@@ -13,12 +13,26 @@ interface ProductOptionDropdownProps {
   optionGroups: Array<OptionGroup>;
   variants: Array<Variant>;
   selectedOptions: Record<number, number>;
+  /** 지금 펼쳐져 있는 그룹 — 하나만 열린다 */
+  openGroupId: number | null;
+  onToggleGroup: (optionGroupId: number) => void;
   onChangeOption: (optionGroupId: number, optionId: number) => void;
   productId: number;
 }
 
 export default function ProductOptionDropdown(props: ProductOptionDropdownProps) {
-  const { optionGroup, index, optionGroups, variants, selectedOptions, onChangeOption, productId } = props;
+  const {
+    optionGroup,
+    index,
+    optionGroups,
+    variants,
+    selectedOptions,
+    openGroupId,
+    onToggleGroup,
+    onChangeOption,
+    productId,
+  } = props;
+
   const isLast = index === optionGroups.length - 1;
   const nextIds = getNextOptionGroupIds(optionGroups, optionGroup.optionGroupId);
   const selectedOptionsExcludingSelf = produce(selectedOptions, draft => {
@@ -34,38 +48,28 @@ export default function ProductOptionDropdown(props: ProductOptionDropdownProps)
   const enabledVariantIds = useMemo(() => enabledVariants.map(v => v.variantId), [enabledVariants]);
   const { data: stockResponse } = useGetStock(productId, enabledVariantIds, isLast);
 
-  const isDisabled = index > 0 && Object.keys(selectedOptions).length === 0;
+  /**
+   * 잠금은 **직전 그룹 하나**만 본다(시안 C7).
+   *
+   * 이전 구현은 "선택이 하나도 없으면 2번째부터 전부 잠금"이라, 1번을 고른 순간 3번까지
+   * 함께 열려 2번을 건너뛴 조합을 만들 수 있었다.
+   */
+  const isLocked = index > 0 && selectedOptions[optionGroups[index - 1].optionGroupId] === undefined;
 
-  const dropdownItems = useMemo(
+  const items = useMemo(
     () => parseOption(optionGroup, enabledVariants, stockResponse?.variants ?? [], isLast),
     [enabledVariants, optionGroup, stockResponse, isLast]
   );
 
-  const handleChangeOption = useCallback(
-    (optionIdStr: string) => {
-      const optionId = Number(optionIdStr);
-      const targetItem = dropdownItems.find(item => item.value === optionIdStr);
-
-      // TODO : 조합 불가능한 옵션 및 품절 옵션 선택 시 표출 정책 논의
-      if (targetItem?.disabled) {
-        toast.show("선택할 수 없는 옵션입니다.");
-        return;
-      }
-      onChangeOption(optionGroup.optionGroupId, optionId);
-    },
-    [dropdownItems, onChangeOption, optionGroup.optionGroupId]
-  );
-
   return (
-    <Dropdown
-      id={optionGroup.optionGroupId.toString()}
-      placeholder={`(${optionGroup.name})옵션을 선택해 보세요`}
-      value={selectedOptions[optionGroup.optionGroupId]?.toString() || ""}
-      onChange={handleChangeOption}
-      key={optionGroup.optionGroupId}
-      items={dropdownItems}
-      disabled={isDisabled}
-      closeOnDisabled={false}
+    <ProductOptionSelect
+      placeholder={`${withObjectParticle(optionGroup.name)} 선택해 주세요`}
+      items={items}
+      selectedOptionId={selectedOptions[optionGroup.optionGroupId]}
+      isOpen={openGroupId === optionGroup.optionGroupId && !isLocked}
+      isLocked={isLocked}
+      onToggle={() => onToggleGroup(optionGroup.optionGroupId)}
+      onSelect={optionId => onChangeOption(optionGroup.optionGroupId, optionId)}
     />
   );
 }

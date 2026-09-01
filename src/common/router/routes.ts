@@ -39,6 +39,7 @@ export const COMMON_ROUTES = {
   NOTIFICATION: "notification",
   PRODUCT_DETAIL: "productDetail",
   PRODUCT_INQUIRY: "productInquiry",
+  PRODUCT_INQUIRY_LIST: "productInquiryList",
   SHOWROOM_DETAIL: "showroomDetail",
   POST_DETAIL: "postDetail",
   CATEGORY: "commonCategory",

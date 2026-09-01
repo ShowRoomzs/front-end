@@ -19,19 +19,20 @@ export default function MypageProfileCard(props: MypageProfileCardProps) {
     <TouchableOpacity
       onPress={onPressProfile}
       activeOpacity={0.7}
-      className="flex-row items-center bg-white px-14 py-18"
-      style={{ gap: 12 }}
+      className="flex-row items-center bg-white px-14 py-20"
+      style={{ gap: 14 }}
     >
       <Avatar imageUrl={user.profileImageUrl} size={50} />
       <View className="min-w-0 flex-1">
         <Typography variant="profileNameSmall" className="text-ink" numberOfLines={1}>
           {user.nickname}
         </Typography>
-        <View className="mt-6">
+        {/* 칩을 -4만큼 내미는 것은 칩 안쪽 여백(9) 때문에 글자가 닉네임보다 안으로 밀려 보이기 때문이다 */}
+        <View style={{ marginTop: 4, marginLeft: -4 }}>
           <RoleBadge roleType={user.roleType} />
         </View>
       </View>
-      <ChevronRightIcon size={16} />
+      <ChevronRightIcon size={17} />
     </TouchableOpacity>
   );
 }

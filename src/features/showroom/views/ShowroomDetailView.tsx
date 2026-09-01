@@ -176,11 +176,10 @@ export default function ShowroomDetailView() {
           // 게시물이 전부 고정 영역으로 올라가 아래만 빈 경우와, 정말 글이 없는 쇼룸을 구분한다
           isLoading || hasPosts ? undefined : (
             <EmptyState
-              className="flex-1"
+              fill
               icon={<EmptyBoxIcon size={50} />}
               title="아직 올라온 게시물이 없어요"
               description={"팔로우해 두면 첫 공구가 열릴 때\n가장 먼저 알려드려요"}
-              paddingTop={70}
             />
           )
         }

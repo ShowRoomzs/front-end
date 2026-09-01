@@ -7,7 +7,9 @@ import Typography from "@/common/components/Typography/Typography";
 /**
  * 메뉴 그룹 — 마이(C 마이)와 설정(C15)이 함께 쓴다.
  *
- * 그룹 안에서 액션 항목은 15/500, 열람만 하는 도움말은 14.5/400 회색으로 낮춘다.
+ * 그룹 안에서 액션 항목은 15/500 잉크, 열람만 하는 도움말은 14.5/400 #3C3C3C로 낮춘다.
+ * 도움말을 **크기·굵기로만** 낮추고 색은 잉크76에 세워 두는 이유는, 약관·처리방침이 읽으라고
+ * 둔 법정 링크이기 때문이다 — 보조 텍스트 회색(#737373)까지 내리면 명도차가 부족해진다.
  *
  * 로그인이 필요한 항목도 일반 항목과 동일하게 표시한다 — 회색 처리·"로그인 필요" 꼬리표·
  * 비활성 스타일을 쓰지 않고, 탭하면 로그인으로 보낸 뒤 원래 목적지로 복귀시킨다.
@@ -33,25 +35,25 @@ export default function MenuGroup(props: MenuGroupProps) {
 
   return (
     <View className="bg-white">
-      <SectionLabel label={title} className="pb-2 pt-16" />
+      <SectionLabel label={title} className="pb-6 pt-18" />
       {items.map(item => (
         <TouchableOpacity
           key={item.key}
           onPress={item.onPress}
           disabled={!item.onPress}
           activeOpacity={0.6}
-          className="flex-row items-center justify-between px-14 py-13"
+          className="flex-row items-center justify-between px-14"
+          /* 액션 행은 15, 열람만 하는 도움말은 14 — 높이로도 위계가 갈린다(시안 C 마이) */
+          style={{ paddingVertical: item.isPassive ? 14 : 15 }}
         >
           <Typography
             variant={item.isPassive ? "menuPassive" : "menuAction"}
-            className={item.isPassive ? "text-gray45" : "text-ink"}
+            className={item.isPassive ? "text-ink76" : "text-ink"}
           >
             {item.label}
           </Typography>
           {item.value ? (
-            <Typography style={{ fontSize: 13, lineHeight: 18 }} className="text-gray55">
-              {item.value}
-            </Typography>
+            <Typography style={{ fontSize: 13, lineHeight: 13, color: "#A9A9A9" }}>{item.value}</Typography>
           ) : (
             !!item.onPress && <ChevronRightIcon size={16} />
           )}

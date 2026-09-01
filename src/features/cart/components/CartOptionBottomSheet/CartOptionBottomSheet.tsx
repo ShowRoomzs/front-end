@@ -62,7 +62,7 @@ export default function CartOptionBottomSheet(props: CartOptionBottomSheetProps)
     return options;
   }, [productDetail, variantId]);
 
-  const { selectedOptions, handleChangeOption } = useOptionSelection({
+  const { selectedOptions, openGroupId, handleToggleGroup, handleChangeOption } = useOptionSelection({
     optionGroups: productDetail?.optionGroups ?? [],
     initialSelectedOptions,
   });
@@ -174,6 +174,8 @@ export default function CartOptionBottomSheet(props: CartOptionBottomSheetProps)
               optionGroups={productDetail.optionGroups}
               variants={productDetail.variants}
               selectedOptions={selectedOptions}
+              openGroupId={openGroupId}
+              onToggleGroup={handleToggleGroup}
               onChangeOption={handleChangeOptionInternal}
               productId={productId}
             />

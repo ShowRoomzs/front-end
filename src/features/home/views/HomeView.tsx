@@ -207,10 +207,18 @@ export default function HomeView() {
         renderItem={renderItem}
         onViewableItemsChanged={handleViewableItemsChanged}
         viewabilityConfig={viewabilityConfig}
+        /*
+          팔로우도 없고 추천도 비었을 때 — 목록 행이 하나도 없어 `emptyFollowing` 줄이 들어가지
+          못하는 경우다. 이때만은 밑에 이어질 피드가 없으므로 안내를 가운데로 둔다 —
+          위쪽에 붙여 두면 아래가 통째로 빈 화면이 된다.
+        */
+        ListEmptyComponent={
+          isLoading ? undefined : <FollowingEmptyState fill onPressSearch={handlePressSearch} />
+        }
         refreshControl={
           <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} tintColor="#F2456E" />
         }
-        contentContainerStyle={{ paddingBottom: inset.bottom + BOTTOM_TABS_HEIGHT }}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: inset.bottom + BOTTOM_TABS_HEIGHT }}
         showsVerticalScrollIndicator={false}
       />
     </View>

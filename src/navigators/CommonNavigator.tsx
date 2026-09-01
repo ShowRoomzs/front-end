@@ -9,6 +9,7 @@ import CategoryView from "@/features/category/views/CategoryView";
 import NotificationView from "@/features/notification/views/NotificationView";
 import PostDetailView from "@/features/post/views/PostDetailView";
 import ProductDetailView from "@/features/product/views/ProductDetailView";
+import ProductInquiryListView from "@/features/product/views/ProductInquiryListView";
 import ProductInquiryView from "@/features/product/views/ProductInquiryView";
 import SearchView from "@/features/search/views/SearchView";
 import ShowroomDetailView from "@/features/showroom/views/ShowroomDetailView";
@@ -41,6 +42,7 @@ export default function CommonNavigator() {
         <Stack.Screen name={COMMON_ROUTES.NOTIFICATION} component={NotificationView} />
         <Stack.Screen name={COMMON_ROUTES.PRODUCT_DETAIL} component={ProductDetailView} />
         <Stack.Screen name={COMMON_ROUTES.PRODUCT_INQUIRY} component={ProductInquiryView} />
+        <Stack.Screen name={COMMON_ROUTES.PRODUCT_INQUIRY_LIST} component={ProductInquiryListView} />
         <Stack.Screen name={COMMON_ROUTES.SHOWROOM_DETAIL} component={ShowroomDetailView} />
         <Stack.Screen name={COMMON_ROUTES.POST_DETAIL} component={PostDetailView} />
         <Stack.Screen name={COMMON_ROUTES.CATEGORY} component={CategoryNavigator} />

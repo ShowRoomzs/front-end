@@ -80,6 +80,8 @@ export default function LikeView() {
     }
   }, [refetch]);
 
+  const isEmpty = !isLoading && content.length === 0;
+
   const sortItems = useMemo(
     () =>
       SORT_OPTIONS.map(option => ({
@@ -129,10 +131,13 @@ export default function LikeView() {
   if (!user) {
     return (
       <View className="flex-1 bg-white">
-        <ScreenHeaderBar title="좋아요" />
+        <ScreenHeaderBar showCart={false} title="좋아요" />
         <LoginPrompt
-          title={"로그인하고\n좋아한 게시물을 모아보세요"}
-          description={"마음에 든 공구와 게시물을\n한곳에 저장해 둘 수 있어요"}
+          fill
+          icon={<HeartIcon size={52} color="#D8D8DA" />}
+          title={"마음에 든 게시물을\n모아 보려면 로그인하세요"}
+          description={"좋아요를 누른 공구·게시물이\n이 탭에 쌓여요"}
+          buttonLabel="3초 만에 시작하기"
         />
       </View>
     );
@@ -149,27 +154,32 @@ export default function LikeView() {
         onLoadMore={fetchNextPage}
         keyExtractor={item => String(item.post.postId)}
         renderItem={renderItem}
+        /* 비어 있을 때는 개수·정렬 줄을 그리지 않는다(시안 C3 — `hasLikes`) */
         ListHeaderComponent={
-          <ListHeaderBar
-            countLabel={`좋아요한 게시물 ${pageInfo?.totalElements ?? content.length}`}
-            sortLabel={LIKED_POST_SORT_LABEL[sort]}
-            onPressSort={openSortSheet}
-          />
+          isEmpty ? null : (
+            <ListHeaderBar
+              countLabel={`좋아요한 게시물 ${pageInfo?.totalElements ?? content.length}`}
+              sortLabel={LIKED_POST_SORT_LABEL[sort]}
+              paddingBottom={4}
+              onPressSort={openSortSheet}
+            />
+          )
         }
         ListEmptyComponent={
           isLoading ? undefined : (
             <EmptyState
+              fill
               icon={<HeartIcon size={52} color="#D8D8DA" />}
               title="아직 좋아요한 게시물이 없어요"
               description={"마음에 드는 게시물의 하트를 누르면\n여기에 모여요"}
-              paddingTop={120}
             />
           )
         }
         refreshControl={
           <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} tintColor="#F2456E" />
         }
-        contentContainerStyle={{ paddingBottom: inset.bottom + BOTTOM_TABS_HEIGHT }}
+        // 빈 안내가 남는 세로 공간을 차지해야 가운데 정렬이 의미를 갖는다
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: inset.bottom + BOTTOM_TABS_HEIGHT }}
         showsVerticalScrollIndicator={false}
       />
     </View>

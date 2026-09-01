@@ -3,7 +3,7 @@ import { FlatList, ListRenderItemInfo, RefreshControl, View } from "react-native
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { BOTTOM_TABS_HEIGHT } from "@/common/components/BottomTabs/config";
-import { EmptyBagIcon } from "@/common/components/DsIcon/icons";
+import { StorefrontIcon } from "@/common/components/DsIcon/icons";
 import EmptyState from "@/common/components/EmptyState/EmptyState";
 import ListHeaderBar from "@/common/components/ListHeaderBar/ListHeaderBar";
 import LoginPrompt from "@/common/components/LoginPrompt/LoginPrompt";
@@ -72,6 +72,8 @@ export default function FollowingView() {
       setIsRefreshing(false);
     }
   }, [refetch]);
+
+  const isEmpty = !isLoading && content.length === 0;
 
   const sortItems = useMemo(
     () =>
@@ -149,10 +151,13 @@ export default function FollowingView() {
   if (!user) {
     return (
       <View className="flex-1 bg-white">
-        <ScreenHeaderBar title="팔로잉" />
+        <ScreenHeaderBar showCart={false} title="팔로잉" />
         <LoginPrompt
-          title={"로그인하고\n공구 소식을 받아보세요"}
-          description={"팔로우한 쇼룸의 새 공구와 주문 내역을\n한곳에서 확인할 수 있어요"}
+          fill
+          icon={<StorefrontIcon size={52} />}
+          title={"팔로우한 쇼룸을\n한곳에서 보려면 로그인하세요"}
+          description={"팔로우하면 새 공구와 게시물이\n이 탭에 모여요"}
+          buttonLabel="3초 만에 시작하기"
         />
       </View>
     );
@@ -169,20 +174,23 @@ export default function FollowingView() {
         onLoadMore={fetchNextPage}
         keyExtractor={item => String(item.showroomId)}
         renderItem={renderItem}
+        /* 비어 있을 때는 개수·정렬 줄을 그리지 않는다 — 정렬할 것이 없는 줄이다(시안 C2 1b) */
         ListHeaderComponent={
-          <ListHeaderBar
-            countLabel={`팔로잉 쇼룸 ${pageInfo?.totalElements ?? content.length}`}
-            sortLabel={FOLLOWING_SHOWROOM_SORT_LABEL[sort]}
-            onPressSort={openSortSheet}
-          />
+          isEmpty ? null : (
+            <ListHeaderBar
+              countLabel={`팔로잉 쇼룸 ${pageInfo?.totalElements ?? content.length}`}
+              sortLabel={FOLLOWING_SHOWROOM_SORT_LABEL[sort]}
+              onPressSort={openSortSheet}
+            />
+          )
         }
         ListEmptyComponent={
           isLoading ? undefined : (
             <EmptyState
-              icon={<EmptyBagIcon size={52} />}
+              fill
+              icon={<StorefrontIcon size={52} />}
               title="아직 팔로우한 쇼룸이 없어요"
               description={"쇼룸을 팔로우하면 새 공구와 게시물을\n홈 피드에서 확인할 수 있어요"}
-              paddingTop={120}
               actionLabel="쇼룸 검색하기"
               onPressAction={handlePressSearch}
             />
@@ -191,7 +199,7 @@ export default function FollowingView() {
         refreshControl={
           <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} tintColor="#F2456E" />
         }
-        contentContainerStyle={{ paddingBottom: inset.bottom + BOTTOM_TABS_HEIGHT }}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: inset.bottom + BOTTOM_TABS_HEIGHT }}
         showsVerticalScrollIndicator={false}
       />
     </View>

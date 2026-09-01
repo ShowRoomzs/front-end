@@ -53,6 +53,13 @@ function PostCard(props: PostCardProps) {
 
   const { groupBuy } = post;
   const hasMedia = post.imageUrls.length > 0;
+  /**
+   * 끝난 공구는 헤더와 본문을 50%로 낮춘다(시안 C3).
+   *
+   * 배지와 좋아요 줄은 그대로 둔다 — 배지는 **왜** 흐려졌는지를 설명하는 유일한 글자고,
+   * 좋아요는 끝난 뒤에도 해제할 수 있어야 해서 누를 수 있음이 보여야 한다.
+   */
+  const dimmedStyle = groupBuy?.status === "CLOSED" ? { opacity: 0.5 } : undefined;
 
   const likeRow = (
     <View className="flex-row px-14" style={{ paddingTop: hasMedia && !groupBuy ? 4 : 14 }}>
@@ -67,44 +74,48 @@ function PostCard(props: PostCardProps) {
 
   return (
     <View className="border-b-[0.5px] border-divider bg-white pb-14 pt-12">
-      <PostCardHeader
-        showroomId={post.showroomId}
-        showroomName={post.showroomName}
-        showroomImageUrl={post.showroomImageUrl}
-        hasOngoingGroupBuy={post.hasOngoingGroupBuy}
-        isFollowing={post.isFollowing}
-        publishedAt={post.publishedAt}
-        hideRing={hideRing}
-        hideFollowButton={hideFollowButton}
-        onPressShowroom={onPressShowroom}
-        onPressFollow={onPressFollow}
-        onPressMore={() => onPressMore(post.postId)}
-      />
+      <View style={dimmedStyle}>
+        <PostCardHeader
+          showroomId={post.showroomId}
+          showroomName={post.showroomName}
+          showroomImageUrl={post.showroomImageUrl}
+          hasOngoingGroupBuy={post.hasOngoingGroupBuy}
+          isFollowing={post.isFollowing}
+          publishedAt={post.publishedAt}
+          hideRing={hideRing}
+          hideFollowButton={hideFollowButton}
+          onPressShowroom={onPressShowroom}
+          onPressFollow={onPressFollow}
+          onPressMore={() => onPressMore(post.postId)}
+        />
+      </View>
 
       {groupBuy ? (
         <>
           <PostBadgeRow groupBuy={groupBuy} style={{ paddingBottom: 8 }} />
 
-          <TouchableWithoutFeedback onPress={() => onPressPost(post.postId)}>
-            <View className="px-14">
-              <Typography
-                style={{ fontSize: 16, fontWeight: "700", lineHeight: 23.2, letterSpacing: -0.4 }}
-                className="text-ink"
-              >
-                {groupBuy.title}
-              </Typography>
-            </View>
-          </TouchableWithoutFeedback>
+          <View style={dimmedStyle}>
+            <TouchableWithoutFeedback onPress={() => onPressPost(post.postId)}>
+              <View className="px-14">
+                <Typography
+                  style={{ fontSize: 16, fontWeight: "700", lineHeight: 23.2, letterSpacing: -0.4 }}
+                  className="text-ink"
+                >
+                  {groupBuy.title}
+                </Typography>
+              </View>
+            </TouchableWithoutFeedback>
 
-          {!!post.content && (
-            <PostCaption
-              content={post.content}
-              className="px-14"
-              style={{ marginTop: 4 }}
-              color="text-ink76"
-              lineHeight={21.6}
-            />
-          )}
+            {!!post.content && (
+              <PostCaption
+                content={post.content}
+                className="px-14"
+                style={{ marginTop: 4 }}
+                color="text-ink76"
+                lineHeight={21.6}
+              />
+            )}
+          </View>
 
           <View style={{ marginTop: 14 }}>
             <PostProductList

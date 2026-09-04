@@ -7,7 +7,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Button from "@/common/components/Button/Button";
 import HStack from "@/common/components/HStack/HStack";
 import Typography from "@/common/components/Typography/Typography";
-import VStack from "@/common/components/VStack/VStack";
 import { SheetApi } from "@/common/providers/BottomSheetProvider/context";
 import { toast } from "@/common/providers/ToastProvider";
 import {
@@ -165,7 +164,7 @@ export default function CartOptionBottomSheet(props: CartOptionBottomSheetProps)
           paddingBottom: BOTTOM_SHEET_GAP + footerHeight,
         }}
       >
-        <VStack gap={BOTTOM_SHEET_GAP} className="px-20">
+        <View style={{ paddingHorizontal: 20, gap: BOTTOM_SHEET_GAP }}>
           {productDetail.optionGroups.map((optionGroup, ix) => (
             <ProductOptionDropdown
               key={optionGroup.optionGroupId}
@@ -188,7 +187,7 @@ export default function CartOptionBottomSheet(props: CartOptionBottomSheetProps)
               onChangeCount={count => handleChangeVariantCount(variant.variantId, count)}
             />
           ))}
-        </VStack>
+        </View>
       </BottomSheetScrollView>
       <View
         onLayout={e => setFooterHeight(e.nativeEvent.layout.height)}

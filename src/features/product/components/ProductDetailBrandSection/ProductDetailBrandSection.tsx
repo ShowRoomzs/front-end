@@ -25,7 +25,15 @@ export default function ProductDetailBrandSection(props: ProductDetailBrandSecti
   return (
     <View
       className="flex-row items-center justify-between border-b-[0.5px] border-divider px-14"
-      style={{ gap: 10, paddingTop: 16, paddingBottom: 14 }}
+      /*
+       * 줄 전체 높이를 50으로 맞춰 둔다(9 + 버튼 32 + 9).
+       *
+       * 시안은 여백 16/14에 본문 높이를 20으로 묶어 두고 32짜리 버튼이 그 밖으로
+       * 넘치게 했다. RN은 안드로이드에서 넘친 자식을 잘라 내므로 그대로 옮길 수 없고,
+       * 넘치지 않게 여백을 줄여 **같은 50px**을 만든다. 여백을 그대로 두면 62가 되어
+       * 브랜드 줄이 가격 블록보다 무거워 보인다.
+       */
+      style={{ gap: 10, paddingTop: 9, paddingBottom: 9 }}
     >
       <Typography
         style={{ fontSize: 13, fontWeight: "600", lineHeight: 16.9 }}

@@ -5,7 +5,6 @@ import { TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Typography from "@/common/components/Typography/Typography";
-import VStack from "@/common/components/VStack/VStack";
 import { SheetApi } from "@/common/providers/BottomSheetProvider/context";
 import {
   BOTTOM_SHEET_GAP,
@@ -143,7 +142,11 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
           paddingBottom: BOTTOM_SHEET_GAP + footerHeight,
         }}
       >
-        <VStack gap={OPTION_SHEET_ITEM_GAP} className="px-20">
+        {/*
+          VStack을 쓰지 않는다 — VStack은 자식을 각각 감싸서 여백을 주므로 드롭다운처럼
+          펼쳐졌다 접혔다 하는 자식이 있을 때 랩퍼 층이 한 겹 더 끼어 측정이 어긋난다.
+        */}
+        <View style={{ paddingHorizontal: 20, gap: OPTION_SHEET_ITEM_GAP }}>
           {optionGroups.map((optionGroup, ix) => (
             <ProductOptionDropdown
               key={optionGroup.optionGroupId}
@@ -167,7 +170,7 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
               onChangeCount={count => handleChangeVariantCount(variant.variantId, count)}
             />
           ))}
-        </VStack>
+        </View>
       </BottomSheetScrollView>
       <View
         onLayout={e => setFooterHeight(e.nativeEvent.layout.height)}

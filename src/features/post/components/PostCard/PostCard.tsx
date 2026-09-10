@@ -117,13 +117,16 @@ function PostCard(props: PostCardProps) {
             )}
           </View>
 
-          <View style={{ marginTop: 14 }}>
-            <PostProductList
-              products={groupBuy.products}
-              isClosed={groupBuy.status === "CLOSED"}
-              onPressProduct={onPressProduct}
-            />
-          </View>
+          {/* 끝난 공구처럼 상품 묶음이 비어 있으면 자리만 차지하는 여백이 남는다 */}
+          {groupBuy.products.length > 0 && (
+            <View style={{ marginTop: 14 }}>
+              <PostProductList
+                products={groupBuy.products}
+                isClosed={groupBuy.status === "CLOSED"}
+                onPressProduct={onPressProduct}
+              />
+            </View>
+          )}
 
           {likeRow}
         </>

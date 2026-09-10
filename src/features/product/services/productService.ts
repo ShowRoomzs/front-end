@@ -1,11 +1,13 @@
 import { apiInstance } from "@/common/lib/apiInstance";
 import { PageParams } from "@/common/types/page";
+import { IS_DEMO } from "@/demo/config";
+import { demoProductService } from "@/demo/services/product";
 import { buildProductMock, buildStockMock } from "@/features/product/mocks/productMock";
 import { ProductListParams } from "@/features/product/types/params";
 // ⚠️ 임시 — 서버에 없는 상품(목업 공구의 상품)만 샘플로 채운다
 import { ProductDetailResponse, ProductListResponse, StockResponse } from "@/features/product/types/product";
 
-export const productService = {
+const realProductService = {
   get: async (params: ProductListParams & Pick<PageParams, "page">) => {
     const { data: response } = await apiInstance.get<ProductListResponse>("/common/products", { params });
 
@@ -41,3 +43,13 @@ export const productService = {
     }
   },
 };
+
+/**
+ * 데모 모드에서는 서버 대신 `src/demo`의 구현을 쓴다.
+ *
+ * 타입을 `typeof realProductService`로 묶어 두어 데모 구현이 실제 계약에서 벗어나면
+ * 컴파일이 잡는다 — 화면 코드는 지금과 하나도 달라지지 않는다.
+ */
+export const productService: typeof realProductService = IS_DEMO
+  ? { ...realProductService, ...demoProductService }
+  : realProductService;

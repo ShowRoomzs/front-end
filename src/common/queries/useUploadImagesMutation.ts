@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 
 import { apiInstance } from "@/common/lib/apiInstance";
+import { IS_DEMO } from "@/demo/config";
 
 interface UploadImagesParams {
   localUris: Array<string>;
@@ -11,6 +12,10 @@ interface UploadImagesParams {
 export function useUploadImagesMutation() {
   return useMutation({
     mutationFn: async ({ localUris, type }: UploadImagesParams) => {
+      // 데모에서는 서버가 없다 — 고른 사진을 그대로 화면에 되돌려 업로드된 것처럼 보인다
+      if (IS_DEMO) {
+        return localUris;
+      }
       const uploadPromises = localUris.map(async localUri => {
         if (localUri.startsWith("http")) {
           return localUri;

@@ -59,7 +59,7 @@ export default function FeedHeader(props: FeedHeaderProps) {
           {hasUnreadNotification && (
             <View
               className="absolute rounded-full border-[1.5px] border-white bg-rose"
-              style={{ top: 1, right: 1, width: 7, height: 7 }}
+              style={{ top: 6, right: 6, width: 7, height: 7 }}
             />
           )}
         </TouchableOpacity>
@@ -73,7 +73,7 @@ export default function FeedHeader(props: FeedHeaderProps) {
           {badgeCount > 0 && (
             <View
               className="absolute flex-row items-center justify-center rounded-full border-[1.5px] border-white bg-rose"
-              style={{ top: -5, right: -7, minWidth: 18, height: 18, paddingHorizontal: 3 }}
+              style={{ top: 6, right: 6, minWidth: 18, height: 18, paddingHorizontal: 3 }}
             >
               <Typography style={{ fontSize: 10, lineHeight: 10 }} className="text-white">
                 {badgeCount}

@@ -90,29 +90,35 @@ export default function CartItemRow(props: CartItemRowProps) {
           </TouchableOpacity>
         </View>
 
-        <View className="mt-4 flex-row items-center" style={{ gap: 6 }}>
-          <Typography
-            style={{ fontSize: 12, lineHeight: 18 }}
-            className={`min-w-0 shrink ${isUnavailable ? "text-chevron" : "text-gray45"}`}
-            numberOfLines={1}
-          >
-            {item.optionName}
-          </Typography>
-          {!isUnavailable && (
-            <TouchableOpacity
-              onPress={() => onPressChangeOption(item)}
-              activeOpacity={0.5}
-              style={{ paddingVertical: 6, marginVertical: -6 }}
+        {/*
+          옵션이 없는 상품은 이 줄을 통째로 생략한다 — 빈 자리에 [변경]만 남으면
+          누를 수 있어 보이는데 정작 고를 것이 없는 시트가 열린다.
+        */}
+        {!!item.optionName && (
+          <View className="mt-4 flex-row items-center" style={{ gap: 6 }}>
+            <Typography
+              style={{ fontSize: 12, lineHeight: 18 }}
+              className={`min-w-0 shrink ${isUnavailable ? "text-chevron" : "text-gray45"}`}
+              numberOfLines={1}
             >
-              <Typography
-                style={{ fontSize: 12, fontWeight: "600", lineHeight: 18, textDecorationLine: "underline" }}
-                className="text-ink76"
+              {item.optionName}
+            </Typography>
+            {!isUnavailable && (
+              <TouchableOpacity
+                onPress={() => onPressChangeOption(item)}
+                activeOpacity={0.5}
+                style={{ paddingVertical: 6, marginVertical: -6 }}
               >
-                변경
-              </Typography>
-            </TouchableOpacity>
-          )}
-        </View>
+                <Typography
+                  style={{ fontSize: 12, fontWeight: "600", lineHeight: 18, textDecorationLine: "underline" }}
+                  className="text-ink76"
+                >
+                  변경
+                </Typography>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
 
         {isUnavailable ? (
           <Typography

@@ -1,5 +1,7 @@
 import { apiInstance } from "@/common/lib/apiInstance";
 import { PageParams, PageResponse } from "@/common/types/page";
+import { IS_DEMO } from "@/demo/config";
+import { demoShowroomService } from "@/demo/services/showroom";
 import {
   FollowingShowroom,
   FollowingShowroomSort,
@@ -8,7 +10,7 @@ import {
   ShowroomSearchItem,
 } from "@/features/showroom/types/showroom";
 
-export const showroomService = {
+const realShowroomService = {
   getList: async (params: PageParams & { keyword?: string }) => {
     const { data } = await apiInstance.get<PageResponse<ShowroomListItem>>("/user/showrooms", { params });
 
@@ -61,3 +63,13 @@ export const showroomService = {
     return data;
   },
 };
+
+/**
+ * 데모 모드에서는 서버 대신 `src/demo`의 구현을 쓴다.
+ *
+ * 타입을 `typeof realShowroomService`로 묶어 두어 데모 구현이 실제 계약에서 벗어나면
+ * 컴파일이 잡는다 — 화면 코드는 지금과 하나도 달라지지 않는다.
+ */
+export const showroomService: typeof realShowroomService = IS_DEMO
+  ? { ...realShowroomService, ...demoShowroomService }
+  : realShowroomService;

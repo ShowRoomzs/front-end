@@ -14,7 +14,6 @@
         "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "@EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID",
         "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "@EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID",
         "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "@EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID",
-
         "EXPO_PUBLIC_API_HOST": "@EXPO_PUBLIC_API_HOST",
         "EXPO_PUBLIC_PROTOCOL": "@EXPO_PUBLIC_PROTOCOL"
       }
@@ -24,6 +23,22 @@
     },
     "production": {
       "autoIncrement": true
+    },
+    "demo": {
+      "extends": "production",
+      "distribution": "store",
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_DEMO_MODE": "true"
+      }
+    },
+    "demo-apk": {
+      "extends": "demo",
+      "distribution": "internal",
+      "autoIncrement": false,
+      "android": {
+        "buildType": "apk"
+      }
     }
   },
   "submit": {

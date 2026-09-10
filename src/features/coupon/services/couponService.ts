@@ -1,8 +1,10 @@
 import { apiInstance } from "@/common/lib/apiInstance";
 import { PageParams, PageResponse } from "@/common/types/page";
+import { IS_DEMO } from "@/demo/config";
+import { demoCouponService } from "@/demo/services/settings";
 import { Coupon, CreateCouponRequest, ProductByCouponResponse } from "@/features/coupon/types/coupon";
 
-export const couponService = {
+const realCouponService = {
   getAll: async (params: PageParams): Promise<PageResponse<Coupon>> => {
     const { data: response } = await apiInstance.get("/user/coupons", { params });
 
@@ -21,3 +23,8 @@ export const couponService = {
     return response;
   },
 };
+
+/** 데모 모드에서는 서버 대신 `src/demo`의 구현을 쓴다 */
+export const couponService: typeof realCouponService = IS_DEMO
+  ? { ...realCouponService, ...demoCouponService }
+  : realCouponService;

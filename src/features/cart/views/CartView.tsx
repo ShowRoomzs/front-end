@@ -39,11 +39,21 @@ import { CartItem } from "@/features/cart/types/cart";
  * 선택 상태는 서버로 보낸다 — 무료배송 조건이 공구 단위라 클라이언트가 따로 계산하면 어긋난다.
  */
 const OPTION_SHEET_ID = "cartOptionSheet";
-/** 요약 3줄 + 버튼 52 + 상하 여백 — 본문이 이 아래로 숨지 않게 같은 값을 비운다 */
-const BOTTOM_CTA_HEIGHT = 146;
+/**
+ * 하단 바가 실제로 그려지기 전에 쓸 **첫 추정값**.
+ *
+ * 예전에는 이 상수 하나로 본문 아래 여백을 잡았는데, 요약 줄이나 버튼이 바뀔 때마다 값이
+ * 어긋나 마지막 줄이 바 아래로 숨었다(추천 상품 이름 두 번째 줄이 잘렸다).
+ * 지금은 `onLayout`으로 **바를 직접 재서** 그 높이만큼 비운다 — 문구가 바뀌어도 따라간다.
+ */
+const BOTTOM_CTA_ESTIMATE = 190;
+
+/** 마지막 줄이 바에 딱 붙지 않도록 두는 숨 */
+const BOTTOM_CTA_GAP = 16;
 
 export default function CartView() {
   const { bottom } = useSafeAreaInsets();
+  const [ctaHeight, setCtaHeight] = useState(BOTTOM_CTA_ESTIMATE);
   const navigation = useCommonNavigation();
   const mainNavigation = useMainNavigation();
   const { navigate } = useBottomTab();
@@ -249,7 +259,7 @@ export default function CartView() {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ flexGrow: 1, paddingBottom: isEmpty ? 24 : bottom + BOTTOM_CTA_HEIGHT }}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: isEmpty ? 24 : ctaHeight + BOTTOM_CTA_GAP }}
       >
         {isEmpty ? (
           <EmptyState
@@ -361,6 +371,7 @@ export default function CartView() {
         <View
           className="absolute bottom-0 left-0 right-0 border-t-[0.5px] border-divider bg-white px-14 pt-12"
           style={{ paddingBottom: bottom + 26 }}
+          onLayout={event => setCtaHeight(event.nativeEvent.layout.height)}
         >
           <SummaryRow label="상품 금액" value={`${formatPrice(cart?.summary.saleTotal ?? 0)}원`} />
           <SummaryRow label="배송비" value={`${formatPrice(cart?.summary.deliveryFeeTotal ?? 0)}원`} />

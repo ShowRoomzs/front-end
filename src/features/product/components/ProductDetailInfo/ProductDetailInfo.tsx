@@ -1,6 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { ReactNode, useCallback, useMemo, useState } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { Image, TouchableOpacity, useWindowDimensions, View } from "react-native";
 import { WebView, WebViewMessageEvent } from "react-native-webview";
 
 import { ChevronDownIcon } from "@/common/components/DsIcon/icons";
@@ -17,6 +17,9 @@ const COLLAPSED_HEIGHT = 620;
 /** 페이드는 **아래 90px에만** 건다 — 전체에 깔면 접힌 내용이 통째로 흐려져 읽히지 않는다 */
 const FADE_HEIGHT = 90;
 
+/** 상세 이미지 세로 비율(1080×2000) — 받기 전에 높이를 잡아야 접힘 계산이 흔들리지 않는다 */
+const DETAIL_IMAGE_RATIO = 2000 / 1080;
+
 interface ProductDetailInfoProps {
   description: string; // html 형태
   isExpand: boolean;
@@ -28,11 +31,23 @@ interface ProductDetailInfoProps {
    * 펼치든 아니든 항상 같은 자리에 있어야 하는 값이라 버튼보다 위에 둔다.
    */
   beforeExpandButton?: ReactNode;
+  /**
+   * 본문 위에 깔리는 상세 이미지 — **WebView가 아니라 네이티브로** 그린다.
+   *
+   * 번들에 담긴 파일을 WebView에서 열려면 iOS에서 경로 권한 문제가 생긴다.
+   * 서버가 주는 상세는 지금처럼 HTML 본문에 이미지가 섞여 오므로, 이 프롭은 비워 둔다.
+   */
+  detailImageUrls?: Array<string>;
 }
 
 export default function ProductDetailInfo(props: ProductDetailInfoProps) {
-  const { description, isExpand, onPressExpand, beforeExpandButton } = props;
+  const { description, isExpand, onPressExpand, beforeExpandButton, detailImageUrls } = props;
   const [height, setHeight] = useState(0);
+  const { width } = useWindowDimensions();
+
+  const imageHeight = width * DETAIL_IMAGE_RATIO;
+  const imagesTotalHeight = (detailImageUrls?.length ?? 0) * imageHeight;
+  const contentHeight = imagesTotalHeight + height;
 
   const htmlContent = useMemo(
     () =>
@@ -69,11 +84,14 @@ export default function ProductDetailInfo(props: ProductDetailInfoProps) {
     setHeight(height);
   }, []);
 
-  const shouldDisplayExpandButton = useMemo(() => height > COLLAPSED_HEIGHT, [height]);
+  const shouldDisplayExpandButton = useMemo(() => contentHeight > COLLAPSED_HEIGHT, [contentHeight]);
 
   return (
     <View>
-      <View style={{ height: isExpand ? height : COLLAPSED_HEIGHT, overflow: "hidden" }}>
+      <View style={{ height: isExpand ? contentHeight : COLLAPSED_HEIGHT, overflow: "hidden" }}>
+        {detailImageUrls?.map(url => (
+          <Image key={url} source={{ uri: url }} style={{ width, height: imageHeight }} resizeMode="cover" />
+        ))}
         <WebView
           source={{ html: htmlContent }}
           injectedJavaScript={injectedJS}

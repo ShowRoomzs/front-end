@@ -21,6 +21,15 @@ import { useCartItemCount } from "@/features/cart/hooks/useGetCart";
 const ICON_HIT_SLOP_PADDING = 9;
 const CART_BADGE_MAX = 99;
 
+/**
+ * 배지를 아이콘 모서리에 얹는 좌표(터치 영역 기준).
+ *
+ * 터치 영역이 아이콘보다 사방 9px 크므로 이 값이 6이면 **아이콘 위·오른쪽으로 3px**만 삐져나온다.
+ * 예전 값(-5 / -7)은 14px이나 올라가 헤더 바깥으로 나갔고, 안드로이드에서 잘려 보였다.
+ * 헤더마다 아이콘 위 여유가 다르므로(마이 5 · 홈 8.5 · 공용 5) 3px을 넘기면 안 된다.
+ */
+const BADGE_INSET = 6;
+
 interface HeaderActionsProps {
   /** 기본 true — 비로그인 상태에서만 끈다 */
   showCart?: boolean;
@@ -58,7 +67,7 @@ export default function HeaderActions(props: HeaderActionsProps) {
           {cartCount > 0 && (
             <View
               className="absolute flex-row items-center justify-center rounded-full border-[1.5px] border-white bg-rose"
-              style={{ top: -5, right: -7, minWidth: 18, height: 18, paddingHorizontal: 3 }}
+              style={{ top: BADGE_INSET, right: BADGE_INSET, minWidth: 18, height: 18, paddingHorizontal: 3 }}
             >
               <Typography style={{ fontSize: 10, lineHeight: 10 }} className="text-white">
                 {cartCount}

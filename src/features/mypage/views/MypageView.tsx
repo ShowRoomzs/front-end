@@ -136,7 +136,8 @@ export default function MypageView() {
   return (
     <View className="flex-1 bg-white">
       <View
-        className="flex-row items-center border-b-[0.5px] border-divider bg-white pb-12 pt-2"
+        // 위 여유가 2px뿐이면 장바구니 배지가 헤더 밖으로 나가 잘린다. 총 높이는 그대로 두고 위만 넓혔다
+        className="flex-row items-center border-b-[0.5px] border-divider bg-white pb-9 pt-5"
         style={{ paddingHorizontal: 16 }}
       >
         <Typography style={{ fontSize: 18, fontWeight: "700", lineHeight: 18, letterSpacing: -0.5 }}>
@@ -156,7 +157,7 @@ export default function MypageView() {
             {cartItemCount > 0 && (
               <View
                 className="absolute flex-row items-center justify-center rounded-full border-[1.5px] border-white bg-rose"
-                style={{ top: -5, right: -7, minWidth: 18, height: 18, paddingHorizontal: 3 }}
+                style={{ top: 6, right: 6, minWidth: 18, height: 18, paddingHorizontal: 3 }}
               >
                 <Typography style={{ fontSize: 10, lineHeight: 10 }} className="text-white">
                   {Math.min(cartItemCount, 99)}

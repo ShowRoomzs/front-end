@@ -17,6 +17,9 @@ import { useCommonNavigation, useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
 import { CustomErrorResponse } from "@/common/types/error";
+import { IS_DEMO } from "@/demo/config";
+import { demoBundleProducts } from "@/demo/data/groupBuys";
+import { demoDetailImageUrls } from "@/demo/data/products";
 import { useCart } from "@/features/cart/hooks/useCart";
 import ProductBundleSection from "@/features/product/components/ProductBundleSection/ProductBundleSection";
 import ProductDeliveryBlock from "@/features/product/components/ProductDeliveryBlock/ProductDeliveryBlock";
@@ -214,10 +217,12 @@ export default function ProductDetailView() {
    * ⚠️ 서버 미제공 — 상세는 이 상품이 어느 공구에 묶여 있는지를 알려주지 않는다.
    * 공구 자체가 목업이라 묶음도 목업으로 둔다 — `groupBuy`가 없으면 섹션 자체를 그리지 않는다.
    */
-  const bundleProducts = useMemo(
-    () => (productDetail?.groupBuy ? buildBundleMock(productId) : []),
-    [productDetail?.groupBuy, productId]
-  );
+  const bundleProducts = useMemo(() => {
+    if (IS_DEMO) {
+      return demoBundleProducts(productId);
+    }
+    return productDetail?.groupBuy ? buildBundleMock(productId) : [];
+  }, [productDetail?.groupBuy, productId]);
 
   const handlePressBundleProduct = useCallback(
     (targetProductId: number) => {
@@ -258,6 +263,7 @@ export default function ProductDetailView() {
           <View>
             <ProductDetailInfo
               description={productDetail?.description || ""}
+              detailImageUrls={IS_DEMO ? demoDetailImageUrls(productId) : undefined}
               isExpand={isDescriptionExpanded}
               onPressExpand={() => setIsDescriptionExpanded(prev => !prev)}
               beforeExpandButton={

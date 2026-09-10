@@ -40,6 +40,14 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       supportsTablet: true,
       bundleIdentifier: "com.showroomz.app",
       infoPlist: {
+        /*
+          업로드할 때마다 App Store Connect가 "암호화를 쓰나요"를 묻고, 답하기 전까지 빌드가
+          '규정 준수 정보 누락'으로 멈춰 테스터에게 나가지 않는다. 여기서 미리 답해 두면 그 단계가 없어진다.
+
+          이 앱은 HTTPS(TLS)만 쓴다 — 애플이 면제로 보는 표준 암호화라 false가 맞다.
+          자체 암호화 알고리즘을 넣거나 통신을 직접 암호화하게 되면 이 값을 다시 판단해야 한다.
+        */
+        ITSAppUsesNonExemptEncryption: false,
         NSPhotoLibraryUsageDescription: "이미지 업로드를 위해 사진 보관함 접근 권한이 필요합니다.",
         NSCameraUsageDescription: "사진 촬영을 위해 카메라 접근이 필요합니다.",
         LSApplicationQueriesSchemes: [

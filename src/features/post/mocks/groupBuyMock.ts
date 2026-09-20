@@ -1,3 +1,4 @@
+import { isMockPostId } from "@/features/post/mocks/mockPosts";
 import { FeedItem, GroupBuyInfo, PostDetail, PostProduct } from "@/features/post/types/post";
 
 /**
@@ -44,6 +45,11 @@ const MOCK_PRODUCTS: Array<Omit<PostProduct, "productId" | "soldOut">> = [
 
 /** 3개 중 1개꼴로 공구 게시물이 섞이게 한다 — 피드에 두 형태가 함께 보여야 비교가 된다 */
 function isGroupBuyPost(postId: number) {
+  // `mockPosts`가 끼워 넣은 게시물은 이미 제 공구 정보를 들고 있다 — 여기서 덮어쓰면 안 된다
+  if (isMockPostId(postId)) {
+    return false;
+  }
+
   return postId % 3 === 0;
 }
 

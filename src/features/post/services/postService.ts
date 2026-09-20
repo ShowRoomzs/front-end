@@ -2,6 +2,7 @@ import { apiInstance } from "@/common/lib/apiInstance";
 import { PageParams, PageResponse } from "@/common/types/page";
 // ⚠️ 임시 — 서버가 공구 게시물 필드를 내려주면 아래 5번의 호출과 함께 지운다
 import { withGroupBuyDetailMock, withGroupBuyMock } from "@/features/post/mocks/groupBuyMock";
+import { isMockPostId, mockPostDetail, withMockPosts } from "@/features/post/mocks/mockPosts";
 import {
   FeedItem,
   LikedPostSort,
@@ -15,21 +16,21 @@ export const postService = {
   getFollowingFeed: async (params: PageParams) => {
     const { data } = await apiInstance.get<PageResponse<FeedItem>>("/user/feed/following", { params });
 
-    return withGroupBuyMock(data);
+    return withMockPosts(withGroupBuyMock(data), params.page, "following");
   },
 
   /** 팔로우하지 않은 쇼룸의 게시물 — "회원님을 위한 추천" · 팔로잉 0일 때의 발견 피드 */
   getRecommendedFeed: async (params: PageParams) => {
     const { data } = await apiInstance.get<PageResponse<FeedItem>>("/user/feed/recommended", { params });
 
-    return withGroupBuyMock(data);
+    return withMockPosts(withGroupBuyMock(data), params.page, "recommended");
   },
 
   /** 좋아요한 게시물 (C3). 경로는 앱이 쓰던 옛 계약을 그대로 둔 것이라 wishlist다 */
   getLikedPosts: async (params: PageParams & { sort?: LikedPostSort }) => {
     const { data } = await apiInstance.get<PageResponse<FeedItem>>("/user/wishlist/contents", { params });
 
-    return withGroupBuyMock(data);
+    return withMockPosts(withGroupBuyMock(data), params.page, "liked");
   },
 
   /** 특정 쇼룸의 게시물 (C4) */
@@ -38,20 +39,38 @@ export const postService = {
       params,
     });
 
-    return withGroupBuyMock(data);
+    return withMockPosts(withGroupBuyMock(data), params.page, "showroom");
   },
 
   getPostDetail: async (postId: number) => {
+    // 목업 게시물은 서버에 없는 id라 부르면 404가 난다
+    if (isMockPostId(postId)) {
+      return mockPostDetail(postId);
+    }
+
     const { data } = await apiInstance.get<PostDetail>(`/user/showrooms/posts/${postId}`);
 
     return withGroupBuyDetailMock(data);
   },
 
+  /*
+    목업 게시물은 서버에 없는 id라 그대로 보내면 400·404가 난다. 하트는 화면에서 즉시 반영되고
+    (React Query 낙관적 갱신) 이 호출은 그 뒤의 확정일 뿐이라, 보내지 않고 성공으로 두면
+    목업에서도 하트가 정상으로 동작한다 — 앱을 껐다 켜면 초기 상태로 돌아간다.
+  */
   like: async (postId: number) => {
+    if (isMockPostId(postId)) {
+      return;
+    }
+
     await apiInstance.post<void>(`/user/showrooms/posts/${postId}/wishlist`);
   },
 
   unlike: async (postId: number) => {
+    if (isMockPostId(postId)) {
+      return;
+    }
+
     await apiInstance.delete<void>(`/user/showrooms/posts/${postId}/wishlist`);
   },
 
@@ -62,6 +81,10 @@ export const postService = {
   },
 
   report: async (postId: number, body: PostReportRequest) => {
+    if (isMockPostId(postId)) {
+      return;
+    }
+
     await apiInstance.post<void>(`/user/posts/${postId}/reports`, body);
   },
 
@@ -70,6 +93,12 @@ export const postService = {
    * 같은 사람이 같은 게시물을 다시 봐도 30분 안이면 서버가 적재하지 않는다.
    */
   recordImpressions: async (postIds: Array<number>, visitorId?: string) => {
-    await apiInstance.post<void>("/user/posts/impressions", { postIds, visitorId });
+    const realIds = postIds.filter(postId => !isMockPostId(postId));
+
+    if (realIds.length === 0) {
+      return;
+    }
+
+    await apiInstance.post<void>("/user/posts/impressions", { postIds: realIds, visitorId });
   },
 };

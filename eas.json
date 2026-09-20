@@ -20,7 +20,13 @@
       }
     },
     "preview": {
-      "distribution": "internal"
+      "extends": "production",
+      "environment": "production",
+      "distribution": "internal",
+      "autoIncrement": false,
+      "android": {
+        "buildType": "apk"
+      }
     },
     "production": {
       "autoIncrement": true

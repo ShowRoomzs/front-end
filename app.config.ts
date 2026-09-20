@@ -11,6 +11,21 @@ const NAVER_URL_SCHEME = "showroomznaver";
 export default ({ config }: ConfigContext): ExpoConfig => {
   const { EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY } = process.env;
 
+  /*
+    키가 없으면 카카오 플러그인이 예외를 던지는데, EAS 빌드에서는 그게 "Read app config 단계에서
+    Unknown error"로만 보여 원인을 찾기까지 로그를 파야 한다. 여기서 먼저 걸러 무엇이 왜 없는지 남긴다.
+
+    로컬에서는 `.env`가 채워 주므로 이 분기를 만날 일이 거의 없다. 대부분 EAS 빌드에서 나는데,
+    EAS는 **프로필 이름으로 환경을 고른다** — `extends`로는 따라오지 않는다.
+    프로필에 `"environment": "production"`을 적어야 그 환경의 변수가 실린다.
+  */
+  if (!EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY) {
+    throw new Error(
+      "EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY 가 없습니다. " +
+        "EAS 빌드라면 eas.json 의 해당 프로필에 \"environment\" 를 지정했는지 확인하세요."
+    );
+  }
+
 
   return {
     ...config,
@@ -30,11 +45,6 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     icon: "./assets/appicon-ios.png",
     userInterfaceStyle: "light",
     newArchEnabled: true,
-    splash: {
-      image: "./assets/logo.png",
-      resizeMode: "contain",
-      backgroundColor: "#0D0C11",
-    },
     ios: {
       icon: "./assets/appicon-ios.png",
       supportsTablet: true,
@@ -99,6 +109,47 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     },
     owner: "showroomz",
     plugins: [
+      /*
+        런치 스크린 (시안 C19) — 흰 배경 + 로즈 워드마크, iOS·Android 동일한 인상.
+
+        예전에는 잉크 배경(#0D0C11)에 흰 워드마크였다. 다음 프레임이 흰 홈이라 앱을 열 때마다
+        섬광이 생겼고, 하루에 여러 번 여는 커머스에서는 그 깜빡임이 첫인상보다 오래 남는다.
+        흰 배경이면 스플래시에서 홈으로 이어 붙어 앱이 빠르게 느껴진다.
+
+        스피너·진행바·버전 표기는 넣지 않는다 — 느리게 느껴지고, 실제로 기다리게 만들면
+        애플 심사에서 지적된다. iOS 런치 스크린은 스토리보드라 애니메이션도 넣을 수 없다.
+      */
+      [
+        "expo-splash-screen",
+        {
+          backgroundColor: "#FFFFFF",
+          // 아래쪽 투명 여백이 들어간 워드마크다. 플러그인은 이미지를 정중앙에만 놓을 수 있어,
+          // 시안의 "시각 중심에서 살짝 위"를 이미지 자체로 만든다 (scripts/build-splash-wordmark.py)
+          image: "./assets/splash-wordmark.png",
+          imageWidth: 262, // 390 화면의 67% — 시안 값
+          resizeMode: "contain",
+          android: {
+            /*
+              Android 12+ 는 시스템이 스플래시를 그리고 가운데 이미지를 **원형으로 마스킹**한다.
+              가로로 긴 워드마크를 그대로 주면 양끝이 잘려 나가므로 앱 아이콘을 쓴다.
+              아이콘 전경에 이미 로즈 배경이 들어 있어 원형으로 잘려도 여백이 생기지 않는다.
+
+              워드마크는 원래 하단 브랜딩 자리(windowSplashScreenBrandingImage)에 놓여야 하지만
+              이 플러그인이 그 속성을 노출하지 않는다. 배경과 로즈 마크는 같으므로 인상은 유지된다.
+            */
+            image: "./assets/appicon-android.png",
+            /*
+              Expo 는 아이콘을 288dp 캔버스 가운데에 얹고, Android 12+ 는 그중 **2/3(192dp)만
+              원형으로** 남긴다. 288 로 꽉 채워야 그 마스크가 아이콘 설계와 맞는다 —
+              이 아이콘은 심볼이 캔버스의 34%라 2/3 안에 넉넉히 들어가고 모서리까지 로즈다.
+              이보다 작게 주면 원 가장자리에 흰 틈이 생긴다.
+            */
+            imageWidth: 288,
+            backgroundColor: "#FFFFFF",
+            resizeMode: "contain",
+          },
+        },
+      ],
       "expo-font",
       [
         "@react-native-seoul/naver-login",

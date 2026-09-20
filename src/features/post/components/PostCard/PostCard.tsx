@@ -17,9 +17,13 @@ import { FeedItem } from "@/features/post/types/post";
  * 캡션이 좋아요 아래에 오는 것은 의도된 순서로, 사진을 본 직후의 동작(하트)을 손가락이 가장
  * 가까운 자리에 둔 것이다.
  *
- * **공구 게시물**  헤더 → 배지 → 제목 → 본문 → 상품 묶음 → 좋아요.
+ * **공구 게시물**  헤더 → 배지 → 제목 → 본문 → 미디어 → 상품 묶음 → 좋아요.
  * 여기서는 좋아요가 맨 아래다 — 읽고 상품까지 본 뒤에 누르는 동작이라 위에 두면 판단 전에
  * 결정을 요구하는 셈이 된다. 두 형태에서 좋아요 위치가 다른 것은 **보는 순서가 다르기** 때문이다.
+ *
+ * **사진은 두 형태 모두 피드에서 옆으로 넘긴다.** 그래서 미디어를 터치로 감싸지 않는다 —
+ * 감싸면 넘기는 제스처를 가로챈다. 상세로 가는 길은 **공구 게시물의 제목 하나**뿐이고,
+ * 일반 게시물은 상세가 없다(피드에서 보는 것이 전부다).
  *
  * 카드 높이는 서버가 내려준 aspectRatio로 잡는다 — 게시물마다 비율이 달라 고정 높이로 만들면
  * 사진이 잘리거나 피드가 튄다.
@@ -115,6 +119,19 @@ function PostCard(props: PostCardProps) {
                 lineHeight={21.6}
               />
             )}
+
+            {/*
+              사진은 상세와 같은 자리(본문 아래 · 상품 묶음 위)에 둔다. 예전에는 공구 카드에만
+              사진이 없어서, 같은 게시물인데 상세로 들어가야 사진이 나오는 구조였다.
+
+              여기를 터치로 감싸지 않는다 — 감싸면 옆으로 넘기는 제스처를 가로챈다.
+              상세로는 위의 제목으로 들어간다.
+            */}
+            {hasMedia && (
+              <View style={{ marginTop: 12 }}>
+                <MediaCarousel imageUrls={post.imageUrls} width={width} aspectRatio={post.aspectRatio} />
+              </View>
+            )}
           </View>
 
           {/* 끝난 공구처럼 상품 묶음이 비어 있으면 자리만 차지하는 여백이 남는다 */}
@@ -132,12 +149,13 @@ function PostCard(props: PostCardProps) {
         </>
       ) : (
         <>
+          {/*
+            일반 게시물은 **상세로 들어가지 않는다** — 피드에서 보는 것이 전부다.
+            공구와 달리 상세에 더 보여 줄 것(상품 묶음·공구 정보)이 없어, 들어가 봐야 같은 내용을
+            한 번 더 보는 화면이었다. 터치 래퍼를 걷어내면 옆으로 넘기는 제스처도 가로채지 않는다.
+          */}
           {hasMedia && (
-            <TouchableWithoutFeedback onPress={() => onPressPost(post.postId)}>
-              <View>
-                <MediaCarousel imageUrls={post.imageUrls} width={width} aspectRatio={post.aspectRatio} />
-              </View>
-            </TouchableWithoutFeedback>
+            <MediaCarousel imageUrls={post.imageUrls} width={width} aspectRatio={post.aspectRatio} />
           )}
 
           {likeRow}

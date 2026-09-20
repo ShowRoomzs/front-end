@@ -1,6 +1,4 @@
 import { apiInstance } from "@/common/lib/apiInstance";
-import { IS_DEMO } from "@/demo/config";
-import { demoAddressService } from "@/demo/services/account";
 import { Address, AddressRequest } from "@/features/mypage/types/address";
 
 /**
@@ -18,7 +16,7 @@ function toRequestBody(address: AddressRequest) {
   return { ...rest, isDefault };
 }
 
-const realAddressService = {
+export const addressService = {
   get: async () => {
     const { data: response } = await apiInstance.get<Array<Address>>("/user/delivery-addresses");
 
@@ -56,13 +54,3 @@ const realAddressService = {
     return response;
   },
 };
-
-/**
- * 데모 모드에서는 서버 대신 `src/demo`의 구현을 쓴다.
- *
- * 타입을 `typeof realAddressService`로 묶어 두어 데모 구현이 실제 계약에서 벗어나면
- * 컴파일이 잡는다 — 화면 코드는 지금과 하나도 달라지지 않는다.
- */
-export const addressService: typeof realAddressService = IS_DEMO
-  ? { ...realAddressService, ...demoAddressService }
-  : realAddressService;

@@ -1,6 +1,4 @@
 import { apiInstance } from "@/common/lib/apiInstance";
-import { IS_DEMO } from "@/demo/config";
-import { demoSettingService } from "@/demo/services/settings";
 import {
   AccountInfo,
   NotificationSettings,
@@ -9,7 +7,7 @@ import {
 import { RefundAccountResponse, UpdateRefundAccountRequest } from "@/features/setting/types/refundAccount";
 import { WithdrawalInfo, WithdrawalRequest } from "@/features/setting/types/withdrawal";
 
-const realSettingService = {
+export const settingService = {
   getNotificationSettings: async () => {
     const { data: response } = await apiInstance.get<NotificationSettings>("/user/settings/notifications");
 
@@ -65,8 +63,3 @@ const realSettingService = {
     return response;
   },
 };
-
-/** 데모 모드에서는 서버 대신 `src/demo`의 구현을 쓴다 */
-export const settingService: typeof realSettingService = IS_DEMO
-  ? { ...realSettingService, ...demoSettingService }
-  : realSettingService;

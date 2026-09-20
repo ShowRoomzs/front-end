@@ -1,7 +1,5 @@
 import { authInstance } from "@/common/lib/authInstance";
 import { refreshInstance } from "@/common/lib/refreshInstance";
-import { IS_DEMO } from "@/demo/config";
-import { demoAuthService } from "@/demo/services/account";
 import {
   RegisterRequest,
   RegisterResponse,
@@ -9,7 +7,7 @@ import {
   SocialLoginResponse,
 } from "@/features/auth/types/auth";
 
-const realAuthService = {
+export const authService = {
   socialLogin: async (request: SocialLoginRequest): Promise<SocialLoginResponse> => {
     const { data: response } = await authInstance.post<SocialLoginResponse>("/social/login", request);
 
@@ -30,13 +28,3 @@ const realAuthService = {
     return response;
   },
 };
-
-/**
- * 데모 모드에서는 서버 대신 `src/demo`의 구현을 쓴다.
- *
- * 타입을 `typeof realAuthService`로 묶어 두어 데모 구현이 실제 계약에서 벗어나면
- * 컴파일이 잡는다 — 화면 코드는 지금과 하나도 달라지지 않는다.
- */
-export const authService: typeof realAuthService = IS_DEMO
-  ? { ...realAuthService, ...demoAuthService }
-  : realAuthService;

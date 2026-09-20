@@ -1,10 +1,8 @@
 import { apiInstance } from "@/common/lib/apiInstance";
-import { IS_DEMO } from "@/demo/config";
-import { demoRecentSearchService } from "@/demo/services/account";
 import { RecentSearchParams } from "@/features/search/types/params";
 import { RecentSearchResponse, RecentSearchSyncRequest } from "@/features/search/types/recentSearch";
 
-const realRecentSearchService = {
+export const recentSearchService = {
   get: async (params: RecentSearchParams) => {
     const { data: response } = await apiInstance.get<RecentSearchResponse>("/user/recent-searches", {
       params,
@@ -49,13 +47,3 @@ const realRecentSearchService = {
     return response;
   },
 };
-
-/**
- * 데모 모드에서는 서버 대신 `src/demo`의 구현을 쓴다.
- *
- * 타입을 `typeof realRecentSearchService`로 묶어 두어 데모 구현이 실제 계약에서 벗어나면
- * 컴파일이 잡는다 — 화면 코드는 지금과 하나도 달라지지 않는다.
- */
-export const recentSearchService: typeof realRecentSearchService = IS_DEMO
-  ? { ...realRecentSearchService, ...demoRecentSearchService }
-  : realRecentSearchService;

@@ -1,8 +1,6 @@
 import { apiInstance } from "@/common/lib/apiInstance";
 import { PageParams, PageResponse } from "@/common/types/page";
 // ⚠️ 임시 — 서버가 공구 게시물 필드를 내려주면 아래 5번의 호출과 함께 지운다
-import { IS_DEMO } from "@/demo/config";
-import { demoPostService } from "@/demo/services/post";
 import { withGroupBuyDetailMock, withGroupBuyMock } from "@/features/post/mocks/groupBuyMock";
 import {
   FeedItem,
@@ -12,7 +10,7 @@ import {
   PostReportRequest,
 } from "@/features/post/types/post";
 
-const realPostService = {
+export const postService = {
   /** 팔로우한 쇼룸의 게시물 피드 (C1) */
   getFollowingFeed: async (params: PageParams) => {
     const { data } = await apiInstance.get<PageResponse<FeedItem>>("/user/feed/following", { params });
@@ -75,13 +73,3 @@ const realPostService = {
     await apiInstance.post<void>("/user/posts/impressions", { postIds, visitorId });
   },
 };
-
-/**
- * 데모 모드에서는 서버 대신 `src/demo`의 구현을 쓴다.
- *
- * 타입을 `typeof realPostService`로 묶어 두어 데모 구현이 실제 계약에서 벗어나면
- * 컴파일이 잡는다 — 화면 코드는 지금과 하나도 달라지지 않는다.
- */
-export const postService: typeof realPostService = IS_DEMO
-  ? { ...realPostService, ...demoPostService }
-  : realPostService;

@@ -13,6 +13,7 @@ import { FeedItem, GroupBuyInfo, PostDetail, PostListItem } from "@/features/pos
  * 옆의 `groupBuyMock`이 기존 게시물에 공구 옷을 입히는 것과 같은 자리다.
  *
  * 사진은 데모 빌드에서 쓰던 브랜드 공식 컷을 그대로 가져왔다(`mocks/images/`).
+ * **공구 게시물에는 사진을 넣지 않는다** — 제목·본문·상품 묶음이 전부다(시안 C1 · 백엔드 §24).
  *
  * **삭제하는 법** — `postService`에서 `withMockPosts` · `mockPostDetail` 호출을 지우고
  * 이 파일과 `mocks/images/` 폴더를 지우면 끝난다. 화면과 컴포넌트는 그대로 둔다.
@@ -69,7 +70,8 @@ const RATIO = 1;
 const SEEDS: Array<Seed> = [
   {
     offset: 1,
-    images: [IMAGE.serumLeaf, IMAGE.tonerSplash],
+    // 공구 게시물은 사진이 없다 — 제목·본문·상품 묶음이 전부다
+    images: [],
     content:
       "여름 내내 자외선이랑 냉방으로 올라온 붉은기, 어성초 두 단계면 잡힙니다. 토너로 결을 정리하고 세럼으로 눌러 주는 순서예요. 배송은 다음 주 월요일부터 순차로 나갑니다.",
     likeCount: 342,
@@ -105,7 +107,7 @@ const SEEDS: Array<Seed> = [
   },
   {
     offset: 2,
-    images: [IMAGE.kerasysLine, IMAGE.elastinePair],
+    images: [],
     content:
       "염색 자주 하시는 분들께. 샴푸로 단백질을 넣고 트리트먼트로 덮어 주는 순서가 맞습니다. 트리트먼트는 두피 말고 중간부터 끝까지만요.",
     likeCount: 312,
@@ -143,7 +145,7 @@ const SEEDS: Array<Seed> = [
   // ── 일반 게시물 5건 ────────────────────────────────────────────
   {
     offset: 3,
-    images: [IMAGE.serumFront],
+    images: [IMAGE.serumLeaf, IMAGE.serumFront],
     content: "어성초 세럼 4주차 기록. 붉은기가 확실히 가라앉았어요. 사진은 같은 조명, 같은 시간대입니다.",
     likeCount: 189,
     impressionCount: 4380,
@@ -178,7 +180,7 @@ const SEEDS: Array<Seed> = [
   },
   {
     offset: 7,
-    images: [IMAGE.kerasysFront],
+    images: [IMAGE.kerasysLine, IMAGE.kerasysFront],
     content: "케라마이드 4주 써 본 기록입니다. 3주차부터 손 빗질이 되기 시작했어요.",
     likeCount: 142,
     impressionCount: 3050,

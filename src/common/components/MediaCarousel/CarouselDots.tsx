@@ -5,7 +5,8 @@ import { cn } from "@/common/utils/cn";
 /**
  * 미디어 캐러셀 도트 — 디자인 시스템 05.
  *
- * 도트 6px · 간격 5 · 상하 11/3 · 활성 잉크(#0F0F0F) / 비활성 #DEDEE0. 1장이면 노출하지 않는다.
+ * 도트 6px · 간격 5 · 상하 11/3 · 활성 잉크(#0F0F0F) / 비활성 #DEDEE0.
+ * 1장이면 도트를 그리지 않고 작은 여백만 남긴다(`SINGLE_IMAGE_GAP`).
  *
  * 6장 이상(최대 20)이어도 화면에 노출하는 도트는 항상 5개다 — 도트 수는 장수를 세는 눈금이
  * 아니라 현재 위치를 알리는 신호로만 쓴다. 활성 도트는 3번째 칸에 고정하고 나머지가 좌우로
@@ -28,6 +29,19 @@ const WINDOW_SIZE = 5;
 const DOT_SIZE = 6;
 const DOT_SIZE_SHRUNK = 4;
 const DOT_GAP = 5;
+const DOT_PADDING_TOP = 11;
+const DOT_PADDING_BOTTOM = 3;
+
+/**
+ * 사진이 1장이라 도트를 안 그릴 때 대신 비워 두는 높이.
+ *
+ * 도트 줄 전체(20)를 그대로 비우면 사진과 하트 사이가 24가 되어 **여러 장짜리보다 오히려
+ * 허전해 보인다** — 도트가 그 공간을 채워 주지 않기 때문이다. 아무것도 안 두면 4라 붙어 버린다.
+ *
+ * 좋아요 줄이 이미 위로 4를 갖고 있으므로 6을 더해 **사진~하트 10**으로 맞췄다.
+ * 같은 자리를 인스타그램에서 재면 약 10dp다.
+ */
+const SINGLE_IMAGE_GAP = 6;
 
 /**
  * 위치에 따라 색이 다르다(의도적) — 피드 게시물 카드는 미디어 아래 중앙(잉크 / #DEDEE0),
@@ -47,7 +61,12 @@ export default function CarouselDots(props: CarouselDotsProps) {
   const { count, activeIndex, placement = "below" } = props;
 
   if (count <= 1) {
-    return null;
+    // 상품 갤러리는 도트가 사진 위에 얹히는 절대 배치라 레이아웃을 차지하지 않는다 — 지워도 여백이 안 변한다
+    if (placement === "inside") {
+      return null;
+    }
+
+    return <View style={{ height: SINGLE_IMAGE_GAP }} />;
   }
 
   const isWindowed = count > WINDOW_SIZE;
@@ -68,7 +87,7 @@ export default function CarouselDots(props: CarouselDotsProps) {
         placement === "inside"
           ? // 이미지 안 하단 14 — 아래 여백을 먹지 않고 사진 위에 얹힌다(시안 C7)
             { gap: DOT_GAP, bottom: 14 }
-          : { gap: DOT_GAP, paddingTop: 11, paddingBottom: 3 }
+          : { gap: DOT_GAP, paddingTop: DOT_PADDING_TOP, paddingBottom: DOT_PADDING_BOTTOM }
       }
     >
       {Array.from({ length: visibleCount }).map((_, position) => {

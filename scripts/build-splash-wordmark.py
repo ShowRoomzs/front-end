@@ -24,10 +24,17 @@ from PIL import Image
 
 SRC = "assets/logo.png"
 OUT = "assets/splash-wordmark.png"
+#: 안드로이드 하단 브랜딩용 — 밀도별로 굽는다(plugins/withSplashBranding.js 가 집어 간다)
+OUT_BRANDING_DIR = "assets/splash-branding"
+
+#: Android 가 하단 브랜딩에 허용하는 크기(200dp x 80dp) 안에서 폭을 꽉 채운다
+BRANDING_WIDTH_DP = 200
+DENSITIES = {"mdpi": 1, "hdpi": 1.5, "xhdpi": 2, "xxhdpi": 3, "xxxhdpi": 4}
 
 ROSE = (242, 69, 110)  # #F2456E — tailwind.config.js 의 rose 와 같은 값
 
-#: 시안에서 워드마크가 놓이는 폭(pt). app.config.ts 의 imageWidth 와 반드시 같아야 한다
+#: 시안에서 **글자가** 놓이는 폭(pt). app.config.ts 의 imageWidth 와 반드시 같아야 한다.
+#: 원본의 좌우 여백을 잘라내므로 이 값이 곧 글자 폭이다 — 여백을 남기면 같은 값에도 글자가 작아진다
 IMAGE_WIDTH_PT = 262
 #: 시각 중심을 만들기 위해 글자를 올릴 양(pt)
 LIFT_PT = 12
@@ -40,6 +47,15 @@ def main():
     # 알파는 유지하고 색만 교체 — 글자 모양이 원본 그대로 남는다
     tinted = Image.new("RGBA", (w, h), ROSE + (0,))
     tinted.putalpha(im.getchannel("A"))
+
+    # ── 좌우 투명 여백을 잘라낸다 ──────────────────────────────────
+    #
+    # 원본은 1500x100 인데 글자는 968px 뿐이고 좌우에 532px 이 비어 있다. 그대로 쓰면
+    # `imageWidth` 를 아무리 키워도 그 65% 만 글자라 시안보다 한참 작게 보인다.
+    # 잘라내고 나면 `imageWidth` 가 곧 글자 폭이 된다.
+    bbox = tinted.getchannel("A").getbbox()
+    tinted = tinted.crop((bbox[0], 0, bbox[2], h))
+    w = tinted.width
 
     # 이미지가 정중앙에 놓이므로, 아래에 빈 공간을 붙인 만큼 글자가 위로 올라간다
     pad = round(LIFT_PT * 2 * w / IMAGE_WIDTH_PT)
@@ -54,6 +70,19 @@ def main():
 
     print(f"{OUT}  {canvas.size[0]}x{canvas.size[1]}  {os.path.getsize(OUT) // 1024}KB")
     print(f"아래 여백 {pad}px → 390x844 화면에서 워드마크 중심 y={center_y:.1f} (시안 410)")
+
+    # ── 안드로이드 하단 브랜딩 ────────────────────────────────────────
+    #
+    # Android 12+ 는 가운데 아이콘을 **원형으로 잘라내서** 가로로 긴 워드마크를 넣을 수 없다.
+    # 자르지 않는 자리는 하단 브랜딩 슬롯뿐이라 글자 전체를 보이려면 여기를 쓴다.
+    # 여백은 넣지 않는다 — 시스템이 알아서 화면 아래에 배치한다.
+    os.makedirs(OUT_BRANDING_DIR, exist_ok=True)
+    for name, scale in DENSITIES.items():
+        bw = round(BRANDING_WIDTH_DP * scale)
+        bh = max(1, round(bw * h / w))
+        path = os.path.join(OUT_BRANDING_DIR, f"{name}.png")
+        tinted.resize((bw, bh), Image.LANCZOS).save(path)
+    print(f"{OUT_BRANDING_DIR}/  {len(DENSITIES)}개  (mdpi {BRANDING_WIDTH_DP}px ~ xxxhdpi {BRANDING_WIDTH_DP * 4}px)")
 
 
 if __name__ == "__main__":

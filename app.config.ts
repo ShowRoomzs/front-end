@@ -119,6 +119,17 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         스피너·진행바·버전 표기는 넣지 않는다 — 느리게 느껴지고, 실제로 기다리게 만들면
         애플 심사에서 지적된다. iOS 런치 스크린은 스토리보드라 애니메이션도 넣을 수 없다.
       */
+      /*
+        스플래시 테마에 **하단 브랜딩 워드마크**를 더한다.
+
+        Android 12+ 는 가운데 아이콘을 원형으로 잘라서 가로로 긴 워드마크를 넣을 수 없다.
+        자르지 않는 자리는 하단 브랜딩뿐이라, 가운데에는 앱 아이콘을 두고 글자는 아래로 내린다.
+
+        ⚠️ **expo-splash-screen 보다 앞에 둔다.** config plugin 의 mod 는 등록 순서의 **역순**으로
+        실행되고, expo-splash-screen 은 `Theme.App.SplashScreen` 을 통째로 지우고 다시 만든다.
+        뒤에 두면 여기서 더한 항목이 그때 날아간다.
+      */
+      "./plugins/withSplashBranding",
       [
         "expo-splash-screen",
         {
@@ -126,7 +137,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           // 아래쪽 투명 여백이 들어간 워드마크다. 플러그인은 이미지를 정중앙에만 놓을 수 있어,
           // 시안의 "시각 중심에서 살짝 위"를 이미지 자체로 만든다 (scripts/build-splash-wordmark.py)
           image: "./assets/splash-wordmark.png",
-          imageWidth: 262, // 390 화면의 67% — 시안 값
+          imageWidth: 262, // 390 화면의 67% — 시안 값. 좌우 여백을 잘라내서 이 값이 곧 글자 폭이다
           resizeMode: "contain",
           android: {
             /*
@@ -150,6 +161,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           },
         },
       ],
+
       "expo-font",
       [
         "@react-native-seoul/naver-login",

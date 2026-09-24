@@ -22,7 +22,18 @@ const { withAndroidStyles, withDangerousMod } = require("expo/config-plugins");
 const DENSITIES = ["mdpi", "hdpi", "xhdpi", "xxhdpi", "xxxhdpi"];
 const DRAWABLE_NAME = "splashscreen_branding";
 const STYLE_NAME = "Theme.App.SplashScreen";
-const ITEM_NAME = "windowSplashScreenBrandingImage";
+/**
+ * **`android:` 접두사가 반드시 있어야 한다.**
+ *
+ * 접두사 없는 이름은 androidx `core-splashscreen`이 선언한 속성을 가리킨다. 그 라이브러리에는
+ * `windowSplashScreenBackground` · `windowSplashScreenAnimatedIcon` · `postSplashScreenTheme`만 있고
+ * **브랜딩 이미지는 없다** — 이건 API 31 플랫폼 전용이다.
+ *
+ * 접두사를 빼면 prebuild 는 XML 을 잘 만들지만 **Gradle 이 리소스를 컴파일할 때** AAPT 가
+ * "attribute not found"로 죽는다. 실제로 그렇게 안드로이드 빌드가 두 번 실패했다.
+ * Expo 도 같은 이유로 `android:windowSplashScreenBehavior`에만 접두사를 붙인다.
+ */
+const ITEM_NAME = "android:windowSplashScreenBrandingImage";
 
 /** `assets/splash-branding/<density>.png` 를 밀도별 drawable 로 복사한다 */
 const withBrandingDrawables = config =>

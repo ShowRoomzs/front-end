@@ -6,7 +6,20 @@ import { CategoryStackParamList, CommonStackParamList } from "@/common/router/ty
 import CartView from "@/features/cart/views/CartView";
 import CategoryDetailView from "@/features/category/views/CategoryDetailView";
 import CategoryView from "@/features/category/views/CategoryView";
+import InquiryView from "@/features/inquiry/views/InquiryView";
+import AddressFormView from "@/features/mypage/views/AddressFormView";
 import NotificationView from "@/features/notification/views/NotificationView";
+import AddressSelectView from "@/features/order/views/AddressSelectView";
+import CancelDetailView from "@/features/order/views/CancelDetailView";
+import CancelRequestView from "@/features/order/views/CancelRequestView";
+import CheckoutView from "@/features/order/views/CheckoutView";
+import ClaimDetailView from "@/features/order/views/ClaimDetailView";
+import ClaimInvoiceView from "@/features/order/views/ClaimInvoiceView";
+import ClaimRequestView from "@/features/order/views/ClaimRequestView";
+import CollectionTrackingView from "@/features/order/views/CollectionTrackingView";
+import DeliveryTrackingView from "@/features/order/views/DeliveryTrackingView";
+import OrderCancelView from "@/features/order/views/OrderCancelView";
+import OrderDetailView from "@/features/order/views/OrderDetailView";
 import PostDetailView from "@/features/post/views/PostDetailView";
 import ProductDetailView from "@/features/product/views/ProductDetailView";
 import ProductInquiryListView from "@/features/product/views/ProductInquiryListView";
@@ -48,6 +61,24 @@ export default function CommonNavigator() {
         <Stack.Screen name={COMMON_ROUTES.CATEGORY} component={CategoryNavigator} />
         <Stack.Screen name={COMMON_ROUTES.WISHLIST} component={WishlistView} />
         <Stack.Screen name={COMMON_ROUTES.TERMS_DOCUMENT} component={CommonTermsDocumentView} />
+        {/* 주문 · 결제 · 반품·교환 — 장바구니·상품 상세·마이 어디서든 열린다(C9 · C10-1~5 · C13-2) */}
+        <Stack.Screen name={COMMON_ROUTES.CHECKOUT} component={CheckoutView} />
+        <Stack.Screen name={COMMON_ROUTES.ORDER_DETAIL} component={OrderDetailView} />
+        <Stack.Screen name={COMMON_ROUTES.ORDER_CANCEL} component={OrderCancelView} />
+        <Stack.Screen name={COMMON_ROUTES.CANCEL_REQUEST} component={CancelRequestView} />
+        <Stack.Screen name={COMMON_ROUTES.CANCEL_DETAIL} component={CancelDetailView} />
+        <Stack.Screen name={COMMON_ROUTES.DELIVERY_TRACKING} component={DeliveryTrackingView} />
+        <Stack.Screen name={COMMON_ROUTES.CLAIM_REQUEST} component={ClaimRequestView} />
+        <Stack.Screen name={COMMON_ROUTES.CLAIM_DETAIL} component={ClaimDetailView} />
+        <Stack.Screen
+          name={COMMON_ROUTES.CLAIM_INVOICE}
+          component={ClaimInvoiceView}
+          options={{ animation: "slide_from_bottom" }}
+        />
+        <Stack.Screen name={COMMON_ROUTES.COLLECTION_TRACKING} component={CollectionTrackingView} />
+        <Stack.Screen name={COMMON_ROUTES.ADDRESS_SELECT} component={AddressSelectView} />
+        <Stack.Screen name={COMMON_ROUTES.ADDRESS_FORM} component={AddressFormView} />
+        <Stack.Screen name={COMMON_ROUTES.INQUIRY_REGISTER} component={InquiryView} />
       </Stack.Navigator>
     </SafeAreaView>
   );

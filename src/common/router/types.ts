@@ -11,6 +11,9 @@ import {
   SETTINGS_ROUTES,
 } from "@/common/router/routes";
 import { TermsType } from "@/features/auth/views/TermsView";
+import { Address } from "@/features/mypage/types/address";
+import { ClaimType, DeliveryCarrierCode } from "@/features/order/types/claim";
+import { DirectItem } from "@/features/order/types/order";
 import { WithdrawalReasonCode } from "@/features/setting/types/withdrawal";
 import { TermsType as TermsDocumentType } from "@/features/terms/types/terms";
 
@@ -70,6 +73,8 @@ export type CommonStackParamList = {
   [COMMON_ROUTES.WISHLIST]: undefined;
   [COMMON_ROUTES.PRODUCT_DETAIL]: {
     productId: number;
+    /** 진입한 공구 — 알면 넘긴다. 없으면 서버가 이 상품을 담은 판매 중 공구가 하나일 때만 정해 준다 */
+    groupBuyId?: number;
   };
   [COMMON_ROUTES.PRODUCT_INQUIRY]: {
     productId: number;
@@ -83,6 +88,68 @@ export type CommonStackParamList = {
   /** C4 쇼룸 하단 고지에서 여는 약관 — 마이 탭을 거치지 않고 이 스택에서 바로 연다 */
   [COMMON_ROUTES.TERMS_DOCUMENT]: {
     termsType: TermsDocumentType;
+  };
+  /** 장바구니 진입이면 `cartItemIds`, 바로 구매면 `direct` — 둘 중 하나만 */
+  [COMMON_ROUTES.CHECKOUT]: {
+    cartItemIds?: Array<number>;
+    direct?: DirectItem;
+  };
+  [COMMON_ROUTES.ORDER_DETAIL]: {
+    orderId: number;
+  };
+  [COMMON_ROUTES.ORDER_CANCEL]: {
+    orderId: number;
+  };
+  /** 진입한 항목이 미리 체크된다 */
+  [COMMON_ROUTES.CANCEL_REQUEST]: {
+    orderId: number;
+    orderProductId?: number;
+  };
+  [COMMON_ROUTES.CANCEL_DETAIL]: {
+    cancelRequestId: number;
+  };
+  /** 주문 항목의 송장이면 `orderId`+`orderProductId`, 재발송 송장이면 `reshipClaimId` */
+  [COMMON_ROUTES.DELIVERY_TRACKING]: {
+    orderId?: number;
+    orderProductId?: number;
+    reshipClaimId?: number;
+  };
+  [COMMON_ROUTES.CLAIM_REQUEST]: {
+    orderProductId: number;
+    type: ClaimType;
+  };
+  [COMMON_ROUTES.CLAIM_DETAIL]: {
+    claimId: number;
+  };
+  /** [송장 수정]이면 등록된 값을 채운 채 연다 */
+  [COMMON_ROUTES.CLAIM_INVOICE]: {
+    claimId: number;
+    carrier?: DeliveryCarrierCode;
+    trackingNumber?: string;
+  };
+  [COMMON_ROUTES.COLLECTION_TRACKING]: {
+    claimId: number;
+  };
+  /**
+   * C13-2 배송지 선택.
+   *
+   * 주문·교환은 배송지 id가 아니라 **값의 사본**을 든다 — 그래서 "지금 쓰는 주소"를 id로 넘길 수 없는
+   * 자리(주문 상세 · 교환 상세)는 `matchAddress`로 넘기고 화면이 목록과 값으로 비교한다.
+   * `onSelect`가 true를 돌려주면(또는 끝나면) 이전 화면으로 돌아간다.
+   */
+  [COMMON_ROUTES.ADDRESS_SELECT]: {
+    selectedAddressId?: number;
+    matchAddress?: Pick<Address, "recipientName" | "zipCode" | "address">;
+    onSelect: (address: Address) => Promise<boolean | void> | boolean | void;
+  };
+  [COMMON_ROUTES.ADDRESS_FORM]?: {
+    addressId?: number;
+    /** 새로 만든 배송지를 바로 고르게 할 때 — 저장 후 그 id를 넘긴다 */
+    onSaved?: (addressId: number | null) => void;
+  };
+  [COMMON_ROUTES.INQUIRY_REGISTER]: {
+    orderId: number;
+    orderNumber: string;
   };
 };
 
@@ -132,6 +199,9 @@ export type MypageStackParamList = {
   };
   [MYPAGE_ROUTES.INQUIRY_REGISTER]?: {
     inquiryId?: number;
+    /** 주문 상세에서 열면 그 주문이 연결된 채로 시작한다 */
+    orderId?: number;
+    orderNumber?: string;
   };
   [MYPAGE_ROUTES.NOTICE]: undefined;
   [MYPAGE_ROUTES.CUSTOMER_CENTER]: undefined;

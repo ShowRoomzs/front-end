@@ -203,6 +203,10 @@ export default function CartView() {
       <CartOptionBottomSheet
         cartId={optionTarget.cartId}
         productId={optionTarget.productId}
+        groupBuyId={
+          groups.find(group => group.items.some(item => item.cartId === optionTarget.cartId))?.groupBuyId ??
+          null
+        }
         variantId={optionTarget.variantId}
         quantity={optionTarget.quantity}
         onConfirm={handleConfirmOption}
@@ -235,10 +239,21 @@ export default function CartView() {
     [mainNavigation]
   );
 
-  /** 주문·결제 API가 아직 없어 여기서 동선이 끊긴다 */
+  /**
+   * 체크된 항목만 결제로 넘긴다.
+   *
+   * 구매 불가 항목은 이미 선택에서 빠져 있다(마감·품절이 섞이면 서버가 주문서 전체를 막는다 —
+   * `CART_ITEM_NOT_PURCHASABLE`). 손대기 전의 기본 선택도 서버가 정한 것이라 같은 기준이다.
+   */
   const handlePressOrder = useCallback(() => {
-    toast.show("주문·결제 기능을 준비하고 있어요. 열리면 알려드릴게요.");
-  }, []);
+    const purchasable = new Set(selectableIds);
+    const cartItemIds = Array.from(effectiveSelectedIds).filter(id => purchasable.has(id));
+
+    if (cartItemIds.length === 0) {
+      return;
+    }
+    navigation.navigate(COMMON_ROUTES.CHECKOUT, { cartItemIds });
+  }, [effectiveSelectedIds, navigation, selectableIds]);
 
   if (isLoading) {
     return (
@@ -301,7 +316,7 @@ export default function CartView() {
             </View>
 
             {groups.map((group, ix) => (
-              <View key={group.marketId}>
+              <View key={group.groupBuyId ?? `market-${group.marketId}`}>
                 {ix > 0 && <GroupBand height={5} />}
                 <CartGroupSection
                   group={group}

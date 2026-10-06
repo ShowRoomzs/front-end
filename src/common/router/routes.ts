@@ -45,6 +45,32 @@ export const COMMON_ROUTES = {
   CATEGORY: "commonCategory",
   WISHLIST: "commonWishlist",
   TERMS_DOCUMENT: "commonTermsDocument",
+  /** C9 결제 — 장바구니 [주문하기] · 상품 상세 [바로 구매] */
+  CHECKOUT: "checkout",
+  /** C10-1 주문 상세 — 주문 내역 · 결제 완료 · 반품·교환 화면에서 진입 */
+  ORDER_DETAIL: "orderDetail",
+  /** C10 1b 주문 취소 — 결제완료 즉시 취소 */
+  ORDER_CANCEL: "orderCancel",
+  /** C10 1c 주문 취소 요청 — 상품준비중(브랜드 승인 필요) */
+  CANCEL_REQUEST: "cancelRequest",
+  /** C10 1d 취소 상세 — 확인 중 · 승인 · 반려 */
+  CANCEL_DETAIL: "cancelDetail",
+  /** C10-2 배송 조회 — 주문 송장 · 교환/반려 재발송 송장 */
+  DELIVERY_TRACKING: "deliveryTracking",
+  /** C10-3 반품 · 교환 요청 */
+  CLAIM_REQUEST: "claimRequest",
+  /** C10-5 반품 · 교환 상세(접수 화면 겸용) */
+  CLAIM_DETAIL: "claimDetail",
+  /** C10-5 회수 송장 등록 · C10-4 [송장 수정] */
+  CLAIM_INVOICE: "claimInvoice",
+  /** C10-4 회수 조회 */
+  COLLECTION_TRACKING: "collectionTracking",
+  /** C13-2 배송지 선택 — 결제 · 주문 상세 · 교환에서 진입 */
+  ADDRESS_SELECT: "addressSelect",
+  /** C13-1 배송지 추가·수정 — 마이 스택 밖(결제 · 배송지 선택)에서 여는 같은 화면 */
+  ADDRESS_FORM: "commonAddressForm",
+  /** C12-1 1:1 문의 작성 — 주문 상세 · 반품·교환 상세에서 주문을 붙여 연다 */
+  INQUIRY_REGISTER: "commonInquiryRegister",
 } as const;
 
 // 설정 스택 네비게이션

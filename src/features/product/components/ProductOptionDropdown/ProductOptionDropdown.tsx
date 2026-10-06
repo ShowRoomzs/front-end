@@ -18,6 +18,8 @@ interface ProductOptionDropdownProps {
   onToggleGroup: (optionGroupId: number) => void;
   onChangeOption: (optionGroupId: number, optionId: number) => void;
   productId: number;
+  /** 가격은 공구 계약의 옵션 가격이다 — 공구를 알면 넘긴다 */
+  groupBuyId?: number | null;
 }
 
 export default function ProductOptionDropdown(props: ProductOptionDropdownProps) {
@@ -31,6 +33,7 @@ export default function ProductOptionDropdown(props: ProductOptionDropdownProps)
     onToggleGroup,
     onChangeOption,
     productId,
+    groupBuyId,
   } = props;
 
   const isLast = index === optionGroups.length - 1;
@@ -46,7 +49,7 @@ export default function ProductOptionDropdown(props: ProductOptionDropdownProps)
   const enabledVariants = getEnabledVariants(variants, selectedOptionsExcludingSelf);
 
   const enabledVariantIds = useMemo(() => enabledVariants.map(v => v.variantId), [enabledVariants]);
-  const { data: stockResponse } = useGetStock(productId, enabledVariantIds, isLast);
+  const { data: stockResponse } = useGetStock(productId, enabledVariantIds, isLast, groupBuyId);
 
   /**
    * 잠금은 **직전 그룹 하나**만 본다(시안 C7).

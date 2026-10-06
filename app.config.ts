@@ -22,10 +22,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
   if (!EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY) {
     throw new Error(
       "EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY 가 없습니다. " +
-        "EAS 빌드라면 eas.json 의 해당 프로필에 \"environment\" 를 지정했는지 확인하세요."
+        'EAS 빌드라면 eas.json 의 해당 프로필에 "environment" 를 지정했는지 확인하세요.'
     );
   }
-
 
   return {
     ...config,
@@ -163,6 +162,15 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       ],
 
       "expo-font",
+      /*
+        포트원 결제창(C9 결제 · 반품·교환 배송비)에서 카드사·간편결제 앱을 부르는 앱 링크 목록을
+        AndroidManifest `<queries>`와 Info.plist `LSApplicationQueriesSchemes`에 넣는다.
+
+        ⚠️ iOS 15+는 LSApplicationQueriesSchemes를 **50개까지만** 읽는다. 위 목록(로그인·SNS 8개)과
+        합쳐 넘치면 뒤쪽 카드사 앱이 열리지 않는다 — "iOS에서만 카드사 앱이 안 열림" 문의가 오면
+        먼저 이 목록을 줄일 것(서버 문서 「결제 연동 앱 전달사항」 1절).
+      */
+      "@portone/react-native-sdk/plugin",
       [
         "@react-native-seoul/naver-login",
         {

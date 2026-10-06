@@ -55,11 +55,16 @@ export default function InquiryView() {
   const { params } = useRoute<RouteProp<MypageStackParamList, typeof MYPAGE_ROUTES.INQUIRY_REGISTER>>();
   const inquiryId = params?.inquiryId;
   const isEdit = !!inquiryId;
+  /** 주문 상세 · 반품·교환 상세에서 열면 그 주문이 연결된 채로 시작한다 */
+  const linkedOrderId = params?.orderId;
+  const linkedOrderNumber = params?.orderNumber;
 
   const { data: inquiryDetail } = useGetInquiryDetail(inquiryId);
   const { data: categories } = useGetCategories();
 
-  const [form, setForm] = useState<InquiryRequest>(INITIAL_FORM);
+  const [form, setForm] = useState<InquiryRequest>(() =>
+    linkedOrderId ? { ...INITIAL_FORM, orderId: linkedOrderId } : INITIAL_FORM
+  );
   const { imageUrls, handleAddImage, handleRemoveImage, setImageUrls } = useImagePicker({
     maxCount: PHOTO_MAX_COUNT,
     allowsMultipleSelection: true,
@@ -181,7 +186,7 @@ export default function InquiryView() {
           </View>
 
           <View className="px-14 pb-4 pt-16">
-            <InquiryOrderField />
+            <InquiryOrderField linkedOrderNumber={linkedOrderNumber} />
           </View>
 
           <View className="px-14 pb-4 pt-16">

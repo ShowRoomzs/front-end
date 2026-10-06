@@ -21,7 +21,8 @@ import { useBottomSheetContext } from "@/common/providers/BottomSheetProvider";
 const ORDER_SHEET_ID = "inquiry-order";
 const MIN_BOTTOM_PADDING = 20;
 
-export default function InquiryOrderField() {
+export default function InquiryOrderField(props: { linkedOrderNumber?: string }) {
+  const { linkedOrderNumber } = props;
   const { close } = useBottomSheetContext();
 
   const { open } = useBottomSheet({
@@ -34,16 +35,21 @@ export default function InquiryOrderField() {
     <View>
       <FieldLabel label="관련 주문" optional />
 
+      {/* 주문 상세에서 열었으면 그 주문이 이미 연결돼 있다 — 고를 것이 없어 셰브런 없이 값만 보여준다 */}
       <TouchableOpacity
         onPress={open}
+        disabled={!!linkedOrderNumber}
         activeOpacity={0.6}
         className="h-48 flex-row items-center justify-between rounded-base border-[1px] border-borderButton px-13"
         style={{ marginTop: 9 }}
       >
-        <Typography style={{ fontSize: 15, lineHeight: 15 }} className="text-gray71">
-          주문 내역에서 선택
+        <Typography
+          style={{ fontSize: 15, lineHeight: 15 }}
+          className={linkedOrderNumber ? "text-ink" : "text-gray71"}
+        >
+          {linkedOrderNumber ? `주문번호 ${linkedOrderNumber}` : "주문 내역에서 선택"}
         </Typography>
-        <ChevronRightIcon size={15} color="#C7C7C7" />
+        {!linkedOrderNumber && <ChevronRightIcon size={15} color="#C7C7C7" />}
       </TouchableOpacity>
 
       <Typography style={{ fontSize: 11.5, lineHeight: 18.4, marginTop: 8 }} className="text-gray45">

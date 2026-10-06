@@ -1,4 +1,4 @@
-import { RouteProp, useRoute } from "@react-navigation/native";
+import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, TextInput, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -13,9 +13,8 @@ import { useBottomSheet } from "@/common/hooks/useBottomSheet";
 import { useAddressSearch } from "@/common/providers/AddressSearchProvider";
 import { useBottomSheetContext } from "@/common/providers/BottomSheetProvider";
 import { toast } from "@/common/providers/ToastProvider";
-import { useMypageNavigation } from "@/common/router";
-import { MYPAGE_ROUTES } from "@/common/router/routes";
-import { MypageStackParamList } from "@/common/router/types";
+import { COMMON_ROUTES, MYPAGE_ROUTES } from "@/common/router/routes";
+import { CommonStackParamList, MypageStackParamList } from "@/common/router/types";
 import { formatPhoneNumber, formatPhoneNumberInput } from "@/features/auth/utils/formatPhoneNumber";
 import AddressFormField from "@/features/mypage/components/AddressFormField/AddressFormField";
 import {
@@ -66,9 +65,18 @@ function resolveMemoSelection(memo: string | null) {
   return { preset: DELIVERY_MEMO_CUSTOM, custom: memo };
 }
 
+/**
+ * 마이(C13) 스택과 공용(결제 · 배송지 선택) 스택에 같은 화면이 붙는다 — 결제 중에 배송지를 추가하려고
+ * 마이 탭으로 건너가면 결제 화면을 잃는다. 공용 스택에서는 `onSaved`로 새 배송지 id를 돌려준다.
+ */
+type AddressFormRoute =
+  | RouteProp<MypageStackParamList, typeof MYPAGE_ROUTES.ADDRESS_FORM>
+  | RouteProp<CommonStackParamList, typeof COMMON_ROUTES.ADDRESS_FORM>;
+
 export default function AddressFormView() {
-  const navigation = useMypageNavigation();
-  const route = useRoute<RouteProp<MypageStackParamList, typeof MYPAGE_ROUTES.ADDRESS_FORM>>();
+  const navigation = useNavigation();
+  const route = useRoute<AddressFormRoute>();
+  const onSaved = route.params && "onSaved" in route.params ? route.params.onSaved : undefined;
   const { bottom } = useSafeAreaInsets();
   const { openAddressSearch } = useAddressSearch();
   const { close: closeMemoSheet } = useBottomSheetContext();
@@ -170,15 +178,18 @@ export default function AddressFormView() {
       if (isEdit) {
         await updateAddressMutation.mutateAsync({ addressId, address: payload });
         toast.show("배송지가 수정되었습니다");
+        onSaved?.(addressId ?? null);
       } else {
-        await addAddressMutation.mutateAsync(payload);
+        const created = await addAddressMutation.mutateAsync(payload);
+
         toast.show("배송지가 저장되었습니다");
+        onSaved?.(created?.id ?? null);
       }
       navigation.goBack();
     } catch {
       toast.show("배송지를 저장하지 못했어요. 입력한 내용을 확인해 주세요");
     }
-  }, [addAddressMutation, addressId, form, isEdit, memoValue, navigation, updateAddressMutation]);
+  }, [addAddressMutation, addressId, form, isEdit, memoValue, navigation, onSaved, updateAddressMutation]);
 
   return (
     <KeyboardAvoidingView className="flex-1" behavior={Platform.OS === "ios" ? "padding" : undefined}>

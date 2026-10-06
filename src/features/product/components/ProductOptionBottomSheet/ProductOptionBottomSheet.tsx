@@ -22,6 +22,7 @@ import { getEnabledVariants } from "@/features/product/utils/option";
 interface ProductOptionBottomSheetProps {
   sheetApi?: SheetApi;
   productId: number;
+  groupBuyId?: number | null;
   /** 옵션이 없는 상품의 유일한 줄에 적는 이름 — 그 상품은 고를 것이 없어 조합명이 없다 */
   productName: string;
   optionGroups: Array<OptionGroup>;
@@ -31,7 +32,8 @@ interface ProductOptionBottomSheetProps {
 }
 
 export default function ProductOptionBottomSheet(props: ProductOptionBottomSheetProps) {
-  const { productId, productName, optionGroups, variants, sheetApi, onPressCart, onPressBuy } = props;
+  const { productId, groupBuyId, productName, optionGroups, variants, sheetApi, onPressCart, onPressBuy } =
+    props;
   const { bottom } = useSafeAreaInsets();
   const { selectedVariantsByProductId, setSelectedVariants } = useProductVariantSelection();
   const { selectedOptions, openGroupId, handleToggleGroup, handleChangeOption } = useOptionSelection({
@@ -159,6 +161,7 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
               onToggleGroup={handleToggleGroup}
               onChangeOption={handleChangeOptionInternal}
               productId={productId}
+              groupBuyId={groupBuyId}
             />
           ))}
           {selectedVariants.map(variant => (

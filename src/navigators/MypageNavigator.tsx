@@ -35,7 +35,7 @@ export default function MypageNavigator() {
       <Stack.Screen name={MYPAGE_ROUTES.NOTICE} component={NoticeListView} />
       <Stack.Screen name={MYPAGE_ROUTES.SERVICE_AGREEMENT} component={ServiceAgreementView} />
       <Stack.Screen name={MYPAGE_ROUTES.PRIVACY_POLICY} component={PrivacyPolicyView} />
-      {/* 주문 API가 아직 없어 임시 화면을 붙여 둔다 — 메뉴에서 지우지 않고 상태를 알린다 */}
+      {/* C10 주문 내역 — 그 뒤의 화면(주문 상세 · 배송 조회 · 반품·교환)은 공용 스택에 있다 */}
       <Stack.Screen name={MYPAGE_ROUTES.ORDER_AND_DELIVERY_SEARCH} component={OrderHistoryView} />
       <Stack.Screen name={MYPAGE_ROUTES.CANCEL_AND_REFUND} component={CancelAndRefundView} />
       <Stack.Screen name={MYPAGE_ROUTES.OPEN_LICENSE} component={OpenLicenseView} />

@@ -3,6 +3,8 @@ import { ProductPrice } from "@/features/product/types/product";
 export interface CreateCartItem {
   productId?: number;
   variantId: number;
+  /** 담는 공구 — 상품 상세 응답의 groupBuyId를 그대로 싣는다(필수). 가격은 이 공구 계약의 공구가다 */
+  groupBuyId: number;
   quantity: number;
 }
 export type CreateCartRequest = Array<CreateCartItem>;
@@ -76,6 +78,17 @@ export interface CartGroupShipping {
  * 일반 쇼핑몰의 "판매자별 묶음"과 같은 역할이다.
  */
 export interface CartGroup {
+  /**
+   * 그룹의 키 — **같은 쇼룸이라도 공구가 다르면 다른 그룹**이다(서버가 공구 단위로 묶는다).
+   * 귀속을 정하지 못한 옛 행의 그룹이면 null(쇼룸 단위로 묶이고 마감으로 표시)
+   */
+  groupBuyId: number | null;
+  groupBuyNumber: string | null;
+  groupBuyTitle: string | null;
+  /** 공구 종료 시각(KST) — 연장되면 바뀐다 */
+  endAt: string | null;
+  /** 그룹 머리의 D-day — 마감 당일 0, 마감 그룹이면 null */
+  dDay: number | null;
   marketId: number;
   marketName: string;
   marketImageUrl: string | null;
@@ -91,6 +104,9 @@ export interface CartSummary {
   discountTotal: number;
   deliveryFeeTotal: number;
   finalTotal: number;
+  selectedCount: number;
+  selectableCount: number;
+  totalCount: number;
 }
 
 /** 항목은 공구(쇼룸) 단위로 묶여 내려온다. 요약은 선택된 항목 기준이다 */

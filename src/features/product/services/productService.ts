@@ -11,10 +11,11 @@ export const productService = {
 
     return response;
   },
-  getDetail: async (productId: number) => {
+  getDetail: async (productId: number, groupBuyId?: number) => {
     try {
       const { data: response } = await apiInstance.get<ProductDetailResponse>(
-        `/common/products/${productId}`
+        `/common/products/${productId}`,
+        { params: { groupBuyId } }
       );
 
       return response;
@@ -25,11 +26,11 @@ export const productService = {
       return buildProductMock(productId);
     }
   },
-  getStock: async (productId: number, variantIds: Array<number>) => {
+  getStock: async (productId: number, variantIds: Array<number>, groupBuyId?: number | null) => {
     try {
       const { data: response } = await apiInstance.get<StockResponse>(
         `/common/products/${productId}/variants`,
-        { params: { variantIds } }
+        { params: { variantIds, groupBuyId: groupBuyId ?? undefined } }
       );
 
       return response;

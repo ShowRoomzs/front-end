@@ -18,6 +18,7 @@ import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
 import { CustomErrorResponse } from "@/common/types/error";
 import { useCart } from "@/features/cart/hooks/useCart";
+import { cartService } from "@/features/cart/services/cartService";
 import ProductBundleSection from "@/features/product/components/ProductBundleSection/ProductBundleSection";
 import ProductDeliveryBlock from "@/features/product/components/ProductDeliveryBlock/ProductDeliveryBlock";
 import ProductDeliveryPolicy from "@/features/product/components/ProductDeliveryPolicy/ProductDeliveryPolicy";
@@ -51,6 +52,10 @@ import { ProductSaleState, resolveSaleState, saleStateMessage } from "@/features
  * 가격 아래의 [공동구매 D-3 + 쇼룸] 줄은 아직 그리지 않는다. 서버가 groupBuyStatus(진행 단계)만
  * 내려주고 마감일도 쇼룸도 주지 않아, 이 상품이 어느 공구에 붙어 있는지 알 수 없다.
  */
+/** 서버가 이 상품의 판매 중 공구를 하나로 정하지 못했다 — 가격이 계약 가격이 아니라 살 수 없다 */
+const NO_GROUP_BUY_MESSAGE =
+  "지금 구매할 수 있는 공동구매를 찾지 못했어요. 공구 게시물에서 다시 들어와 주세요.";
+
 /** 상단 여백 12 + 버튼 52 + 하단 여백 26 — 본문이 이 아래로 숨지 않게 같은 값을 비운다 */
 const BOTTOM_CTA_HEIGHT = 90;
 
@@ -67,10 +72,14 @@ const TABS: Array<{ id: ProductTabId; label: string }> = [
 
 export default function ProductDetailView() {
   const { params } = useRoute<RouteProp<CommonStackParamList, typeof COMMON_ROUTES.PRODUCT_DETAIL>>();
-  const { productId } = params;
+  const { productId, groupBuyId: requestedGroupBuyId } = params;
   const { bottom } = useSafeAreaInsets();
 
-  const { data: productDetail, isLoading, refetch: refetchProductDetail } = useGetProductDetail(productId);
+  const {
+    data: productDetail,
+    isLoading,
+    refetch: refetchProductDetail,
+  } = useGetProductDetail(productId, requestedGroupBuyId);
   const { create: createCart } = useCart();
   const { clearSelectedVariants, selectedVariantsByProductId } = useProductVariantSelection();
 
@@ -95,12 +104,20 @@ export default function ProductDetailView() {
 
   const handlePressBottomSheetCart = usePermissionPress(async () => {
     const variants = selectedVariantsByProductId[productId];
+    const groupBuyId = productDetail?.groupBuyId;
+
+    // 서버가 공구를 정하지 못한 상품은 가격이 계약 가격이 아니라 담을 수 없다(담기 API가 400을 낸다)
+    if (!groupBuyId) {
+      toast.show(NO_GROUP_BUY_MESSAGE);
+      return;
+    }
 
     try {
       await createCart(
         variants.map(variant => ({
           productId,
           variantId: variant.variantId,
+          groupBuyId,
           quantity: variant.count,
         }))
       );
@@ -133,7 +150,9 @@ export default function ProductDetailView() {
    * 있다. 그 상태로 결제로 넘기면 "결제는 됐는데 주문은 없는" 구간이 생긴다. 판정은 서버가
    * 내려준 값으로만 하고(클라이언트 재고 캐시로 미리 막지 않는다), 막힌 이유를 모달로 알린다.
    *
-   * 주문·결제 API가 아직 없어, 통과한 경우는 안내 토스트까지만 이어진다.
+   * 통과하면 C9 결제로 넘긴다. 서버의 바로 구매(`direct`)는 **한 줄**만 받으므로, 시트에서 조합을
+   * 여러 개 쌓았으면 장바구니에 담은 뒤 그 항목들로 주문서를 연다 — 결제가 끝나면 서버가 결제된
+   * 장바구니 항목을 지우므로 장바구니에 흔적이 남지 않는다.
    */
   const handlePressBottomSheetBuy = usePermissionPress(async () => {
     const variants = selectedVariantsByProductId[productId] ?? [];
@@ -147,7 +166,50 @@ export default function ProductDetailView() {
       return;
     }
 
-    toast.show("주문·결제 기능을 준비하고 있어요. 장바구니에 담아 두시면 열릴 때 알려드릴게요.");
+    const groupBuyId = latest?.groupBuyId ?? productDetail?.groupBuyId;
+
+    if (!groupBuyId) {
+      toast.show(NO_GROUP_BUY_MESSAGE);
+      return;
+    }
+    if (variants.length === 0) {
+      return;
+    }
+
+    if (variants.length === 1) {
+      const [only] = variants;
+
+      clearSelectedVariants(productId);
+      commonNavigation.navigate(COMMON_ROUTES.CHECKOUT, {
+        direct: { variantId: only.variantId, quantity: only.count, groupBuyId },
+      });
+      return;
+    }
+
+    try {
+      await createCart(
+        variants.map(variant => ({
+          productId,
+          variantId: variant.variantId,
+          groupBuyId,
+          quantity: variant.count,
+        }))
+      );
+      const cart = await cartService.get();
+      const wanted = new Set(variants.map(variant => variant.variantId));
+      const cartItemIds = cart.groups
+        .filter(group => group.groupBuyId === groupBuyId)
+        .flatMap(group => group.items)
+        .filter(item => wanted.has(item.variantId) && item.availability.isPurchasable)
+        .map(item => item.cartId);
+
+      clearSelectedVariants(productId);
+      commonNavigation.navigate(COMMON_ROUTES.CHECKOUT, { cartItemIds });
+    } catch (error) {
+      const axiosError = error as AxiosError<CustomErrorResponse<string, { message?: string }>>;
+
+      toast.show(axiosError.response?.data?.message || "주문서를 열지 못했어요. 잠시 후 다시 시도해 주세요.");
+    }
   });
 
   const { open: openProductOptionBottomSheet } = useBottomSheet({
@@ -155,6 +217,7 @@ export default function ProductDetailView() {
     render: (
       <ProductOptionBottomSheet
         productId={productId}
+        groupBuyId={productDetail?.groupBuyId}
         productName={productDetail?.name ?? ""}
         optionGroups={productDetail?.optionGroups || []}
         variants={productDetail?.variants || []}

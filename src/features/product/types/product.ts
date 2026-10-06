@@ -138,6 +138,14 @@ export interface ProductDetail {
   /** 서버가 계산해 내려준다. 할인이 없으면 0 */
   discountRate: number;
   salePrice: number;
+  /**
+   * 가격을 정한 공구 — 담기·바로 구매에 그대로 싣는다.
+   *
+   * null이면 가격이 계약 가격이 아니고 **담기·바로 구매를 부를 수 없다**(요청한 공구가 판매 중이
+   * 아니거나, 요청 없이 이 상품을 담은 판매 중 공구가 하나로 정해지지 않을 때).
+   */
+  groupBuyId: number | null;
+  groupBuyNumber: string | null;
   groupBuyStatus: GroupBuyStatus;
   /**
    * ⚠️ 서버 미제공 — 지금은 `mocks/productMock.ts`만 채운다.

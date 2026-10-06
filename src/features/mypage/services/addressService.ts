@@ -27,8 +27,9 @@ export const addressService = {
 
     return response;
   },
+  /** 만든 배송지의 id를 돌려준다 — 배송지 선택(C13-2)이 새 주소를 바로 고른 상태로 돌아오는 데 쓴다 */
   create: async (address: AddressRequest) => {
-    const { data: response } = await apiInstance.post<Address>(
+    const { data: response } = await apiInstance.post<{ id: number }>(
       "/user/delivery-addresses",
       toRequestBody(address)
     );

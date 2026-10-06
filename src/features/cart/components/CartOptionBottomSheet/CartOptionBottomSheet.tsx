@@ -25,15 +25,17 @@ interface CartOptionBottomSheetProps {
   sheetApi?: SheetApi;
   cartId: number;
   productId: number;
+  /** 담긴 공구 — 옵션 가격·재고를 그 공구 계약으로 읽는다 */
+  groupBuyId: number | null;
   variantId: number;
   quantity: number;
   onConfirm: (cartId: number, newVariantId: number, newQuantity: number, sheetApi?: SheetApi) => void;
 }
 
 export default function CartOptionBottomSheet(props: CartOptionBottomSheetProps) {
-  const { cartId, productId, variantId, quantity, sheetApi, onConfirm } = props;
+  const { cartId, productId, groupBuyId, variantId, quantity, sheetApi, onConfirm } = props;
   const { bottom } = useSafeAreaInsets();
-  const { data: productDetail } = useGetProductDetail(productId);
+  const { data: productDetail } = useGetProductDetail(productId, groupBuyId ?? undefined);
   const [footerHeight, setFooterHeight] = useState(0);
 
   // productDetail의 variants에서 variantId로 찾아서 초기 옵션 매핑
@@ -177,6 +179,7 @@ export default function CartOptionBottomSheet(props: CartOptionBottomSheetProps)
               onToggleGroup={handleToggleGroup}
               onChangeOption={handleChangeOptionInternal}
               productId={productId}
+              groupBuyId={groupBuyId}
             />
           ))}
           {selectedVariants.map(variant => (

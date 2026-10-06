@@ -57,6 +57,15 @@ export default function CartGroupSection(props: CartGroupSectionProps) {
         >
           {group.marketName}
         </Typography>
+        {/*
+          마감된 공구는 D-day를 "마감"으로 바꾸지 않고 아예 지운다(시안 C8) — D-day는 남은 시간을
+          재촉하는 신호인데, 아래 상품 행이 이미 마감을 말하고 있어 같은 말을 두 번 하게 된다.
+        */}
+        {!group.isClosed && group.dDay !== null && group.dDay !== undefined && (
+          <Typography style={{ fontSize: 12.5, fontWeight: "700", lineHeight: 12.5 }} className="text-rose">
+            {`D-${group.dDay}`}
+          </Typography>
+        )}
       </View>
 
       {group.items.map(item => (

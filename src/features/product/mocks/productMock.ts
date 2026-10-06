@@ -100,6 +100,9 @@ export function buildProductMock(productId: number): ProductDetail {
     regularPrice: 38000,
     discountRate: 34,
     salePrice,
+    // 서버에 없는 상품이라 담을 공구도 없다 — 담기·바로 구매는 「공구를 찾지 못했어요」로 막힌다
+    groupBuyId: null,
+    groupBuyNumber: null,
     groupBuyStatus: "IN_PROGRESS",
     groupBuy: {
       dday: 3,

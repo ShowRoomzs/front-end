@@ -212,7 +212,7 @@ export default function AddressFormView() {
             <AddressFormField
               label="연락처"
               value={formatPhoneNumberInput(form.phoneNumber)}
-              placeholder="010-1234-5678"
+              placeholder="숫자만 입력해 주세요"
               onChangeText={text =>
                 setForm(prev => ({ ...prev, phoneNumber: text.replace(/\D/g, "").slice(0, PHONE_DIGITS) }))
               }

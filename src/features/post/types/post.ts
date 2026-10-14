@@ -7,11 +7,10 @@
  */
 
 /**
- * 콘텐츠 타입 판별자.
+ * 콘텐츠 타입 판별자 — `GROUP_BUY`면 `post.groupBuy`가 채워진다.
  *
- * 서버는 아직 `GENERAL`만 내려준다 — 공구 게시물(`GROUP_BUY`)과 게시물에 붙는 상품 목록 필드가
- * `PostDto`에 없다. 화면은 목업으로 먼저 그려 두었고(`mocks/groupBuyMock.ts`), 실물 필드가
- * 생기면 그 파일만 지우면 된다.
+ * 서버의 공구 블록(`PostDto.GroupBuyBlock`)은 화면이 쓰는 모양(`GroupBuyInfo`)과 필드 이름이 달라
+ * `postService`가 받자마자 바꿔 둔다 — 화면·컴포넌트는 `GroupBuyInfo`만 안다.
  */
 export type PostContentType = "GENERAL" | "GROUP_BUY";
 
@@ -34,6 +33,10 @@ export interface PostProduct {
   /** 할인율(%) — 가격과 같은 크기(700/15)로 로즈다 */
   discountRate: number;
   soldOut: boolean;
+  /** 이 상품이 팔리는 공구 — 상품 상세로 넘겨야 공구가·담기가 그 공구로 정해진다 */
+  groupBuyId?: number | null;
+  /** false면 상품 상세로 갈 수 없다(마감 · 미진열 · 공구 연결 해제). 없으면 갈 수 있는 것으로 본다 */
+  detailAvailable?: boolean;
 }
 
 /**
@@ -43,6 +46,7 @@ export interface PostProduct {
  * 대가관계 표시(`isPaidAd`)는 규정상 항상 중립 배지이고 로즈를 쓰지 않는다.
  */
 export interface GroupBuyInfo {
+  groupBuyId?: number | null;
   /** 공구 게시물의 제목 — 일반 게시물에는 제목이 없다 */
   title: string;
   /** 마감까지 남은 일수 */
@@ -50,6 +54,39 @@ export interface GroupBuyInfo {
   status: GroupBuyStatus;
   isPaidAd: boolean;
   products: Array<PostProduct>;
+}
+
+/**
+ * 서버 공구 블록 그대로 — back-end `PostDto.GroupBuyBlock` / `GroupBuyProductItem`.
+ * `postService`에서 `GroupBuyInfo`로 바꿀 때만 쓴다.
+ */
+export type RawGroupBuySaleState = "ON_SALE" | "PARTIALLY_SOLD_OUT" | "SOLD_OUT" | "CLOSED";
+
+export interface RawGroupBuyProduct {
+  productId: number;
+  name: string;
+  thumbnailUrl: string | null;
+  /** 정가 — 계약 시점 값 */
+  regularPrice: number | null;
+  /** 공구가 — 계약 시점 값 */
+  groupBuyPrice: number | null;
+  discountRate: number | null;
+  /** ON_SALE이 아니면 흑백 + 라벨 */
+  state: "ON_SALE" | "SOLD_OUT" | "CLOSED";
+  detailAvailable: boolean;
+}
+
+export interface RawGroupBuyBlock {
+  groupBuyId: number;
+  title: string;
+  saleState: RawGroupBuySaleState;
+  /** KST 날짜 차이, 마감 당일 0. CLOSED면 null */
+  dDay: number | null;
+  endAt: string;
+  adDisclosure: { label: string; text: string } | null;
+  productCount: number;
+  /** 목록에서 CLOSED면 [] */
+  products: Array<RawGroupBuyProduct>;
 }
 
 export interface PostListItem {

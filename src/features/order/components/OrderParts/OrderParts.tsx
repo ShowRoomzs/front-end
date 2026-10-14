@@ -377,6 +377,16 @@ export function UnderlineLink(props: { label: string; onPress: () => void }) {
  * 하단 고정 CTA — 52px R8. 막혔으면 회색(#F4F4F5 · #B5B5B5)이고 **라벨이 막힌 이유를 말한다**
  * (「결제수단을 선택해 주세요」) — 비활성 버튼만 두면 왜 안 눌리는지 찾아 헤매게 된다.
  */
+/**
+ * 하단 버튼이 없는 화면의 스크롤 끝 여백 — 안드로이드는 앱을 내비게이션 바 밑까지 그리므로(edge-to-edge)
+ * 이 여백이 없으면 마지막 줄이 바 아래에 깔려 보이지도 눌리지도 않는다. `BottomCta`가 있는 화면은 그쪽이 챙긴다.
+ */
+export function BottomSafeSpacer() {
+  const { bottom } = useSafeAreaInsets();
+
+  return <View style={{ height: bottom }} />;
+}
+
 export function BottomCta(props: {
   label: string;
   enabled: boolean;

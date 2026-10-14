@@ -7,10 +7,9 @@ import { FeedItem, GroupBuyInfo, PostDetail, PostListItem } from "@/features/pos
 /**
  * ⚠️ 임시 목업 — 피드를 채워 두기 위한 가짜 게시물 7건(공구 2 · 일반 5).
  *
- * **서버에 올린 데이터가 아니다.** 공구 게시물은 백엔드에 아직 없어서(`PostType.GROUP_BUY`가
- * "아직 만들지 않는다"로 비어 있고 피드 응답의 `contentType`은 항상 `"GENERAL"`이다)
- * 애초에 올릴 수가 없다. 그래서 응답을 받은 직후 이 파일에서 끼워 넣는다 —
- * 옆의 `groupBuyMock`이 기존 게시물에 공구 옷을 입히는 것과 같은 자리다.
+ * **서버에 올린 데이터가 아니다.** 피드가 비어 보이지 않게 데모용으로 응답을 받은 직후 끼워 넣는다.
+ * 서버는 이제 공구 게시물(`contentType: "GROUP_BUY"` + `groupBuy` 블록)을 내려주므로, 실제 공구
+ * 게시물이 충분히 쌓이면 이 파일과 `postService`의 `withMockPosts` 호출을 지운다.
  *
  * 사진은 데모 빌드에서 쓰던 브랜드 공식 컷을 그대로 가져왔다(`mocks/images/`).
  * **공구 게시물에는 사진을 넣지 않는다** — 제목·본문·상품 묶음이 전부다(시안 C1 · 백엔드 §24).

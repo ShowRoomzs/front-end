@@ -2,6 +2,7 @@ import { TouchableOpacity, View } from "react-native";
 
 import Typography from "@/common/components/Typography/Typography";
 import { Address } from "@/features/mypage/types/address";
+import { formatAddressLine } from "@/features/mypage/utils/formatAddressLine";
 
 /**
  * 배송지 한 건 (C13).
@@ -73,7 +74,7 @@ export default function AddressRow(props: AddressRowProps) {
       </Typography>
 
       <Typography style={{ fontSize: 13, lineHeight: 20.8, marginTop: 5 }} className="text-ink76">
-        {`${address.address} ${address.detailAddress} (${address.zipCode})`}
+        {formatAddressLine(address)}
       </Typography>
 
       {!!address.memo && (

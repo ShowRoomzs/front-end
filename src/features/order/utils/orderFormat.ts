@@ -124,7 +124,15 @@ export function won(value: number): string {
 
 /** 단품 · 1개 — 옵션과 수량은 따로 내려온다(조합은 앱이 한다) */
 export function optionWithQuantity(optionName: string | null | undefined, quantity: number): string {
-  return optionName ? `${optionName} · ${quantity}개` : `${quantity}개`;
+  return withOption(optionName, `${quantity}개`);
+}
+
+/**
+ * 옵션명 뒤에 문구를 잇는다 — 옵션이 없는 상품은 서버가 `optionName: null`을 주므로
+ * 옵션 자리를 비우고 뒤 문구만 남긴다(「null · 주문 1개」가 찍히지 않게).
+ */
+export function withOption(optionName: string | null | undefined, rest: string, separator = " · "): string {
+  return optionName ? `${optionName}${separator}${rest}` : rest;
 }
 
 type ApiError = AxiosError<CustomErrorResponse<string, { message?: string; code?: string }>>;

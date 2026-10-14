@@ -60,10 +60,10 @@ export function useFeedActions() {
 
   /** 공구 게시물의 상품 행 — 게시물이 아니라 상품 상세로 간다 */
   const handlePressProduct = useCallback(
-    (productId: number) => {
+    (productId: number, groupBuyId?: number | null) => {
       navigation.navigate(ROOT_ROUTES.COMMON, {
         screen: COMMON_ROUTES.PRODUCT_DETAIL,
-        params: { productId },
+        params: { productId, groupBuyId: groupBuyId ?? undefined },
       });
     },
     [navigation]

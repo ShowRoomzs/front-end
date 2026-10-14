@@ -15,6 +15,7 @@ import { CommonStackParamList } from "@/common/router/types";
 import {
   AmountRow,
   Band,
+  BottomSafeSpacer,
   BulletNotes,
   InfoRow,
   OutlineAction,
@@ -34,7 +35,7 @@ import {
   CancelRequestDetail,
   CancelRequestStatus,
 } from "@/features/order/types/cancelRequest";
-import { formatDateTimeFull, formatRequestedAt, won } from "@/features/order/utils/orderFormat";
+import { formatDateTimeFull, formatRequestedAt, withOption, won } from "@/features/order/utils/orderFormat";
 
 /**
  * C10 1d 취소 상세 — 확인 중 · 승인 · 반려.
@@ -166,7 +167,7 @@ export default function CancelDetailView() {
               thumbnailUrl={item.thumbnailUrl}
               brand={item.brandName}
               name={item.productName}
-              meta={`${item.optionName} / ${item.quantity}개`}
+              meta={withOption(item.optionName, `${item.quantity}개`, " / ")}
               price={won(item.amount)}
             />
           </View>
@@ -273,6 +274,7 @@ export default function CancelDetailView() {
           }}
         />
         <View className="h-26" />
+        <BottomSafeSpacer />
       </ScrollView>
     </View>
   );

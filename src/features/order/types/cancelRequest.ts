@@ -55,7 +55,7 @@ export interface CancelRequestDetail {
     productId: number;
     brandName: string;
     productName: string;
-    optionName: string;
+    optionName: string | null;
     quantity: number;
     amount: number;
     thumbnailUrl: string;

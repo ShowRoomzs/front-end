@@ -24,7 +24,8 @@ interface PostProductListProps {
   isClosed?: boolean;
   /** 상세에서는 접지 않고 전부 편다 */
   expandedByDefault?: boolean;
-  onPressProduct: (productId: number) => void;
+  /** 공구 ID를 함께 넘긴다 — 상품 상세가 그 공구의 가격·담기로 열린다 */
+  onPressProduct: (productId: number, groupBuyId?: number | null) => void;
 }
 
 const THUMB_SIZE = 90;
@@ -45,11 +46,14 @@ export default function PostProductList(props: PostProductListProps) {
     <View className="px-22">
       {visible.map((product, index) => {
         const isDead = isClosed || product.soldOut;
+        // 서버가 상세 진입을 막은 행(마감 · 미진열 · 공구 연결 해제)은 눌러도 반응하지 않는다
+        const canOpen = product.detailAvailable !== false;
 
         return (
           <TouchableOpacity
             key={product.productId}
-            onPress={() => onPressProduct(product.productId)}
+            onPress={() => onPressProduct(product.productId, product.groupBuyId)}
+            disabled={!canOpen}
             activeOpacity={0.6}
             className="flex-row items-center"
             style={{

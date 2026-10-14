@@ -48,7 +48,7 @@ export interface OrderItem {
   variantId: number;
   productId: number;
   productName: string;
-  optionName: string;
+  optionName: string | null;
   thumbnailUrl: string;
   quantity: number;
   price: Pick<ProductPrice, "regularPrice" | "salePrice" | "discountRate">;
@@ -209,7 +209,7 @@ export interface OrderItemRow {
   variantId: number;
   brandName: string | null;
   productName: string;
-  optionName: string;
+  optionName: string | null;
   quantity: number;
   /** 환불로 끝난 수량 — 0이면 그리지 않는다 */
   returnedQuantity: number;
@@ -350,7 +350,7 @@ export interface TrackingResponse {
   item: {
     brandName: string | null;
     productName: string;
-    optionName: string;
+    optionName: string | null;
     quantity: number;
     amount: number;
     thumbnailUrl: string;

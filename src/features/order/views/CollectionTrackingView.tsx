@@ -10,6 +10,7 @@ import { COMMON_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
 import {
   Band,
+  BottomSafeSpacer,
   OutlineAction,
   ProductLine,
   UnderlineLink,
@@ -126,6 +127,7 @@ export default function CollectionTrackingView() {
             </View>
           )}
           <View className="h-30" />
+          <BottomSafeSpacer />
         </ScrollView>
       </View>
     );
@@ -218,6 +220,7 @@ export default function CollectionTrackingView() {
         <DisclaimerLine text="택배 이력은 택배사 추적 정보이고, 입고·검수는 브랜드가 등록한 정보예요." />
 
         <View className="h-30" />
+        <BottomSafeSpacer />
       </ScrollView>
     </View>
   );

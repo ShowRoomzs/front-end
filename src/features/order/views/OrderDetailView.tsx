@@ -13,6 +13,7 @@ import OrderItemCard from "@/features/order/components/OrderItemCard/OrderItemCa
 import {
   AmountRow,
   Band,
+  BottomSafeSpacer,
   CopyButton,
   NoticeBox,
   OutlineAction,
@@ -94,7 +95,7 @@ export default function OrderDetailView() {
   }
 
   const { maskedAddress, summary } = order;
-  const isAllConfirmed = order.items.length > 0 && order.items.every(item => item.status === "CONFIRMED");
+  const hasConfirmed = order.items.some(item => item.status === "CONFIRMED");
   const addressLines = [
     `${maskedAddress.address}${maskedAddress.detailAddress ? `, ${maskedAddress.detailAddress}` : ""}`,
     maskedAddress.phoneNumber,
@@ -210,9 +211,10 @@ export default function OrderDetailView() {
 
         {/*
           구매확정 뒤 하자는 셀프 반품이 없다 — 1:1 문의로 접수하면 운영자가 반품을 대신 연다(결정 2).
+          한 상품만 확정됐어도 그 상품의 하자 접수 길은 열려 있어야 하므로 전부가 아니라 하나라도 확정이면 보인다.
           개입할 것이 없는 종결 상태라 로즈를 쓰지 않는다.
         */}
-        {isAllConfirmed && (
+        {hasConfirmed && (
           <View className="px-14 pt-20">
             <View className="flex-row">
               <OutlineAction
@@ -237,6 +239,7 @@ export default function OrderDetailView() {
         )}
 
         <View className="h-30" />
+        <BottomSafeSpacer />
       </ScrollView>
     </View>
   );

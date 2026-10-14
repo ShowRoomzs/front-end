@@ -1,56 +1,101 @@
 import { apiInstance } from "@/common/lib/apiInstance";
 import { PageParams, PageResponse } from "@/common/types/page";
-// ⚠️ 임시 — 서버가 공구 게시물 필드를 내려주면 아래 5번의 호출과 함께 지운다
-import { withGroupBuyDetailMock, withGroupBuyMock } from "@/features/post/mocks/groupBuyMock";
 import { isMockPostId, mockPostDetail, withMockPosts } from "@/features/post/mocks/mockPosts";
 import {
   FeedItem,
+  GroupBuyInfo,
   LikedPostSort,
   PostDetail,
+  PostListItem,
   PostReportReasonItem,
   PostReportRequest,
+  RawGroupBuyBlock,
 } from "@/features/post/types/post";
+
+/** 서버가 보내는 그대로 — 공구 블록만 `RawGroupBuyBlock`이다 */
+type RawFeedItem = Omit<FeedItem, "post"> & {
+  post: Omit<PostListItem, "groupBuy"> & { groupBuy: RawGroupBuyBlock | null };
+};
+type RawPostDetail = Omit<PostDetail, "groupBuy"> & { groupBuy: RawGroupBuyBlock | null };
+
+/**
+ * 서버 공구 블록(`PostDto.GroupBuyBlock`) → 화면이 쓰는 `GroupBuyInfo`.
+ *
+ * - 마감(`CLOSED`)이 아니면 진행 중으로 본다 — 일부·전부 품절은 상품 행의 `soldOut`이 말한다
+ * - 대가관계 표시는 공구 게시물에 항상 붙는다(서버 규칙) — 블록이 있으면 배지를 그린다
+ * - 상품 행에 공구 ID를 실어, 누르면 상품 상세가 이 공구의 가격·담기로 열리게 한다
+ */
+function toGroupBuyInfo(raw: RawGroupBuyBlock): GroupBuyInfo {
+  return {
+    groupBuyId: raw.groupBuyId,
+    title: raw.title,
+    dday: raw.dDay ?? 0,
+    status: raw.saleState === "CLOSED" ? "CLOSED" : "OPEN",
+    isPaidAd: !!raw.adDisclosure,
+    products: (raw.products ?? []).map(product => ({
+      productId: product.productId,
+      name: product.name,
+      imageUrl: product.thumbnailUrl,
+      listPrice: product.regularPrice ?? product.groupBuyPrice ?? 0,
+      price: product.groupBuyPrice ?? product.regularPrice ?? 0,
+      discountRate: product.discountRate ?? 0,
+      soldOut: product.state !== "ON_SALE",
+      groupBuyId: raw.groupBuyId,
+      detailAvailable: product.detailAvailable,
+    })),
+  };
+}
+
+function toFeedPage(page: PageResponse<RawFeedItem>): PageResponse<FeedItem> {
+  return {
+    ...page,
+    content: page.content.map(item => ({
+      ...item,
+      post: { ...item.post, groupBuy: item.post.groupBuy ? toGroupBuyInfo(item.post.groupBuy) : null },
+    })),
+  };
+}
 
 export const postService = {
   /** 팔로우한 쇼룸의 게시물 피드 (C1) */
   getFollowingFeed: async (params: PageParams) => {
-    const { data } = await apiInstance.get<PageResponse<FeedItem>>("/user/feed/following", { params });
+    const { data } = await apiInstance.get<PageResponse<RawFeedItem>>("/user/feed/following", { params });
 
-    return withMockPosts(withGroupBuyMock(data), params.page, "following");
+    return withMockPosts(toFeedPage(data), params.page, "following");
   },
 
   /** 팔로우하지 않은 쇼룸의 게시물 — "회원님을 위한 추천" · 팔로잉 0일 때의 발견 피드 */
   getRecommendedFeed: async (params: PageParams) => {
-    const { data } = await apiInstance.get<PageResponse<FeedItem>>("/user/feed/recommended", { params });
+    const { data } = await apiInstance.get<PageResponse<RawFeedItem>>("/user/feed/recommended", { params });
 
-    return withMockPosts(withGroupBuyMock(data), params.page, "recommended");
+    return withMockPosts(toFeedPage(data), params.page, "recommended");
   },
 
   /** 좋아요한 게시물 (C3). 경로는 앱이 쓰던 옛 계약을 그대로 둔 것이라 wishlist다 */
   getLikedPosts: async (params: PageParams & { sort?: LikedPostSort }) => {
-    const { data } = await apiInstance.get<PageResponse<FeedItem>>("/user/wishlist/contents", { params });
+    const { data } = await apiInstance.get<PageResponse<RawFeedItem>>("/user/wishlist/contents", { params });
 
-    return withMockPosts(withGroupBuyMock(data), params.page, "liked");
+    return withMockPosts(toFeedPage(data), params.page, "liked");
   },
 
   /** 특정 쇼룸의 게시물 (C4) */
   getShowroomPosts: async (showroomId: number, params: PageParams) => {
-    const { data } = await apiInstance.get<PageResponse<FeedItem>>(`/user/showrooms/${showroomId}/posts`, {
+    const { data } = await apiInstance.get<PageResponse<RawFeedItem>>(`/user/showrooms/${showroomId}/posts`, {
       params,
     });
 
-    return withMockPosts(withGroupBuyMock(data), params.page, "showroom");
+    return withMockPosts(toFeedPage(data), params.page, "showroom");
   },
 
-  getPostDetail: async (postId: number) => {
+  getPostDetail: async (postId: number): Promise<PostDetail> => {
     // 목업 게시물은 서버에 없는 id라 부르면 404가 난다
     if (isMockPostId(postId)) {
       return mockPostDetail(postId);
     }
 
-    const { data } = await apiInstance.get<PostDetail>(`/user/showrooms/posts/${postId}`);
+    const { data } = await apiInstance.get<RawPostDetail>(`/user/showrooms/posts/${postId}`);
 
-    return withGroupBuyDetailMock(data);
+    return { ...data, groupBuy: data.groupBuy ? toGroupBuyInfo(data.groupBuy) : null };
   },
 
   /*

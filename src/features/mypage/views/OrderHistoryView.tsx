@@ -12,7 +12,7 @@ import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { HOME_ROUTES, useMypageNavigation } from "@/common/router";
 import { COMMON_ROUTES } from "@/common/router/routes";
 import OrderItemCard from "@/features/order/components/OrderItemCard/OrderItemCard";
-import { Band } from "@/features/order/components/OrderParts/OrderParts";
+import { Band, BottomSafeSpacer } from "@/features/order/components/OrderParts/OrderParts";
 import { useOrderNavigation } from "@/features/order/hooks/useOrderNavigation";
 import { useGetOrderList } from "@/features/order/hooks/useOrderQueries";
 import { OrderCard } from "@/features/order/types/order";
@@ -121,11 +121,14 @@ export default function OrderHistoryView() {
         }}
         onEndReachedThreshold={0.4}
         ListFooterComponent={
-          <ListFooter
-            isEmpty={content.length === 0}
-            isFetching={isFetchingNextPage}
-            hasNext={!!hasNextPage}
-          />
+          <>
+            <ListFooter
+              isEmpty={content.length === 0}
+              isFetching={isFetchingNextPage}
+              hasNext={!!hasNextPage}
+            />
+            <BottomSafeSpacer />
+          </>
         }
         ListEmptyComponent={
           isLoading ? (

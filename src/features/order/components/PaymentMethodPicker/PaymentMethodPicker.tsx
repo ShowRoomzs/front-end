@@ -57,12 +57,21 @@ export default function PaymentMethodPicker(props: PaymentMethodPickerProps) {
   const isCard = value.method === "CARD";
   const isEasy = value.method === "EASY_PAY";
 
+  /**
+   * 바꾼 값만 덮어쓰고 나머지는 그대로 넘긴다 — 카드 ↔ 간편결제를 오가도 앞에서 고른 카드사·간편결제가
+   * 남는다(시안 C9). 서버로 보낼 때는 `toSubmittedSelection`이 고른 수단의 값만 남긴다.
+   */
+  const emit = useCallback(
+    (next: Partial<PaymentSelection>) => onChange({ ...value, ...next }),
+    [onChange, value]
+  );
+
   const handlePickIssuer = useCallback(
     (issuer: CardIssuer) => {
-      onChange({ method: "CARD", cardIssuer: issuer });
+      emit({ method: "CARD", cardIssuer: issuer });
       close();
     },
-    [close, onChange]
+    [close, emit]
   );
 
   const { open: openIssuerSheet } = useBottomSheet({
@@ -92,7 +101,7 @@ export default function PaymentMethodPicker(props: PaymentMethodPickerProps) {
                 <Path d="M6.4 14.6h3.4" stroke={color} strokeWidth={1.6} />
               </Svg>
             )}
-            onPress={() => !isCard && onChange({ method: "CARD" })}
+            onPress={() => !isCard && emit({ method: "CARD" })}
           />
         )}
         {hasEasy && (
@@ -106,7 +115,7 @@ export default function PaymentMethodPicker(props: PaymentMethodPickerProps) {
                 <Circle cx={12} cy={16.4} r={1.9} stroke={color} strokeWidth={1.6} />
               </Svg>
             )}
-            onPress={() => !isEasy && onChange({ method: "EASY_PAY" })}
+            onPress={() => !isEasy && emit({ method: "EASY_PAY" })}
           />
         )}
       </View>
@@ -137,7 +146,7 @@ export default function PaymentMethodPicker(props: PaymentMethodPickerProps) {
               provider={provider}
               labelSize={easyPayLabelSize}
               isSelected={value.easyPayProvider === provider}
-              onPress={() => onChange({ method: "EASY_PAY", easyPayProvider: provider })}
+              onPress={() => emit({ method: "EASY_PAY", easyPayProvider: provider })}
             />
           ))}
         </View>
@@ -193,10 +202,12 @@ export function RadioDot(props: { isSelected: boolean }) {
         backgroundColor: isSelected ? ROSE : "#FFFFFF",
       }}
     >
-      <View
-        className="rounded-full"
-        style={{ width: 7, height: 7, backgroundColor: isSelected ? "#FFFFFF" : "transparent" }}
-      />
+      {/* 가운데 점은 SVG 원으로 그린다 — 7px View의 borderRadius는 안드로이드(새 아키텍처)에서 무시돼 네모로 나온다 */}
+      {isSelected && (
+        <Svg width={7} height={7} viewBox="0 0 7 7">
+          <Circle cx={3.5} cy={3.5} r={3.5} fill="#FFFFFF" />
+        </Svg>
+      )}
     </View>
   );
 }

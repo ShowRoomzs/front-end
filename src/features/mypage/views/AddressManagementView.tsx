@@ -15,6 +15,7 @@ import AddressRow from "@/features/mypage/components/AddressRow/AddressRow";
 import { useAddressMutation } from "@/features/mypage/hooks/useAddressMutation/useAddressMutation";
 import { useGetAddressList } from "@/features/mypage/hooks/useGetAddressList";
 import { Address } from "@/features/mypage/types/address";
+import { formatAddressLine } from "@/features/mypage/utils/formatAddressLine";
 
 /**
  * C13 배송지 관리.
@@ -59,7 +60,7 @@ export default function AddressManagementView() {
     (address: Address) => {
       showModal({
         title: "배송지를 삭제할까요?",
-        message: `${address.recipientName} · ${address.address}\n삭제하면 되돌릴 수 없어요`,
+        message: `${address.recipientName} · ${formatAddressLine(address)}\n삭제하면 되돌릴 수 없어요`,
         buttons: [
           { label: "취소", variant: "outline" },
           {

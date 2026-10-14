@@ -106,6 +106,16 @@ export function isPaymentSelectionComplete(selection: Partial<PaymentSelection> 
   return selection.method === "CARD" ? !!selection.cardIssuer : !!selection.easyPayProvider;
 }
 
+/**
+ * 서버로 보낼 선택 — 고른 수단의 세부값만 남긴다. 화면은 카드 ↔ 간편결제를 오가도 양쪽 선택을 기억하므로
+ * 그대로 보내면 쓰지 않는 쪽 값이 섞인다.
+ */
+export function toSubmittedSelection(selection: Partial<PaymentSelection>): PaymentSelection {
+  return selection.method === "CARD"
+    ? { method: "CARD", cardIssuer: selection.cardIssuer }
+    : { method: "EASY_PAY", easyPayProvider: selection.easyPayProvider };
+}
+
 /** 「신한카드」 · 「카카오페이」 — 접수 화면·결제 정보 줄의 라벨 */
 export function paymentSelectionLabel(selection: Partial<PaymentSelection> | null): string {
   if (selection?.method === "CARD" && selection.cardIssuer) {

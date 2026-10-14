@@ -65,7 +65,7 @@ export interface ClaimExchangeOption {
 export interface ClaimFormItem {
   orderProductId: number;
   productName: string;
-  optionName: string;
+  optionName: string | null;
   thumbnailUrl: string;
   /** 단가(공구가) */
   unitPrice: number;
@@ -224,7 +224,7 @@ export interface ClaimDetailItem {
   focused: boolean;
   brandName: string;
   productName: string;
-  optionName: string;
+  optionName: string | null;
   exchangeOptionName: string | null;
   quantity: number;
   amount: number;

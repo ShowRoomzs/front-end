@@ -5,6 +5,7 @@ import Typography from "@/common/components/Typography/Typography";
 import {
   AmountRow,
   Band,
+  BottomSafeSpacer,
   CloseHeader,
   InfoRow,
   OutlineAction,
@@ -13,7 +14,7 @@ import {
 } from "@/features/order/components/OrderParts/OrderParts";
 import { useGetClaimDetail } from "@/features/order/hooks/useOrderQueries";
 import { ClaimDetailResponse } from "@/features/order/types/claim";
-import { won } from "@/features/order/utils/orderFormat";
+import { optionWithQuantity, won } from "@/features/order/utils/orderFormat";
 
 /**
  * 반품·교환 접수 화면 — 요청 → 확인 모달 → **접수**(시안 C10-3).
@@ -194,7 +195,7 @@ function ReceiptBody(props: {
             thumbnailUrl={item.thumbnailUrl}
             brand={item.brandName}
             name={item.productName}
-            meta={`${item.optionName} · ${item.quantity}개`}
+            meta={optionWithQuantity(item.optionName, item.quantity)}
             newMeta={
               !isReturn && item.exchangeOptionName ? `${item.exchangeOptionName} · ${item.quantity}개` : null
             }
@@ -207,6 +208,7 @@ function ReceiptBody(props: {
         <OutlineAction label={`${kw} 상세`} height={44} fontSize={13.5} onPress={onPressDetail} />
         <OutlineAction label="주문 내역으로" height={44} fontSize={13.5} onPress={onPressOrderList} />
       </View>
+      <BottomSafeSpacer />
     </ScrollView>
   );
 }

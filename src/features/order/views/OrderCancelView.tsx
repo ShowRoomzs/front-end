@@ -16,6 +16,7 @@ import {
   AmountRow,
   Band,
   BottomCta,
+  BottomSafeSpacer,
   BulletNotes,
   OutlineAction,
   ProductBlock,
@@ -26,7 +27,7 @@ import {
 import { RadioDot } from "@/features/order/components/PaymentMethodPicker/PaymentMethodPicker";
 import { invalidateOrderQueries, useGetOrderDetail } from "@/features/order/hooks/useOrderQueries";
 import { orderService } from "@/features/order/services/orderService";
-import { formatOrderDate, resolveErrorMessage, won } from "@/features/order/utils/orderFormat";
+import { formatOrderDate, resolveErrorMessage, withOption, won } from "@/features/order/utils/orderFormat";
 
 /**
  * C10 1b 주문 취소 — 결제완료(브랜드가 준비를 시작하기 전) 즉시 취소.
@@ -182,7 +183,7 @@ export default function OrderCancelView() {
               thumbnailUrl={item.thumbnailUrl}
               brand={item.brand}
               name={item.productName}
-              option={`${item.optionName} · 주문 ${item.quantity}개`}
+              option={withOption(item.optionName, `주문 ${item.quantity}개`)}
               price={won(item.price.salePrice * item.quantity)}
             />
             <View className="h-14" />
@@ -358,7 +359,7 @@ function CancelDoneScreen(props: {
     thumbnailUrl: string;
     brand: string;
     productName: string;
-    optionName: string;
+    optionName: string | null;
     quantity: number;
     price: { salePrice: number };
   }>;
@@ -453,7 +454,7 @@ function CancelDoneScreen(props: {
               thumbnailUrl={item.thumbnailUrl}
               brand={item.brand}
               name={item.productName}
-              meta={`${item.optionName} / ${item.quantity}개`}
+              meta={withOption(item.optionName, `${item.quantity}개`, " / ")}
               price={won(item.price.salePrice * item.quantity)}
             />
           </View>
@@ -467,6 +468,7 @@ function CancelDoneScreen(props: {
           style={{ paddingHorizontal: 14, paddingTop: 16, paddingBottom: 26 }}
           notes={["결제 수단별로 환불에 2~3영업일이 더 걸릴 수 있어요."]}
         />
+        <BottomSafeSpacer />
       </ScrollView>
     </SafeAreaView>
   );

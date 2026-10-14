@@ -38,7 +38,7 @@ interface PostCardProps {
   onPressShowroom: (showroomId: number) => void;
   onPressFollow: (showroomId: number, isFollowing: boolean) => void;
   onPressLike: (postId: number, isLiked: boolean) => void;
-  onPressProduct: (productId: number) => void;
+  onPressProduct: (productId: number, groupBuyId?: number | null) => void;
   onPressMore: (postId: number) => void;
 }
 

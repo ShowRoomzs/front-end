@@ -49,9 +49,15 @@ import {
   PaymentMethods,
   PaymentSelection,
   paymentSelectionLabel,
+  toSubmittedSelection,
 } from "@/features/order/types/payment";
 import { copyToClipboard } from "@/features/order/utils/copyToClipboard";
-import { resolveErrorCode, resolveErrorMessage, won } from "@/features/order/utils/orderFormat";
+import {
+  optionWithQuantity,
+  resolveErrorCode,
+  resolveErrorMessage,
+  won,
+} from "@/features/order/utils/orderFormat";
 
 /**
  * C10-3 반품 · 교환 요청 — 주문 상세의 [반품 요청] / [교환 요청]에서 진입한다.
@@ -103,7 +109,7 @@ export default function ClaimRequestView() {
   const [payment, setPayment] = useState<Partial<PaymentSelection>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [receiptClaimId, setReceiptClaimId] = useState<number | null>(null);
-  const { imageUrls, handleAddImage, handleRemoveImage } = useImagePicker({
+  const { imageUrls, handleAddImage, handleRemoveImage, setImageUrls } = useImagePicker({
     maxCount: form?.photoMax ?? 10,
     allowsMultipleSelection: true,
   });
@@ -345,7 +351,7 @@ export default function ClaimRequestView() {
         invoice: isLater || !carrier ? null : { carrier, trackingNumber: invoiceNumber.replace(/\D/g, "") },
         expectedFee: fee,
         reshipAddressId: isReturn ? undefined : reshipAddress?.id,
-        payment: needPay ? (payment as PaymentSelection) : undefined,
+        payment: needPay ? toSubmittedSelection(payment) : undefined,
       };
       const response = await claimService.create(body);
 
@@ -524,7 +530,7 @@ export default function ClaimRequestView() {
                       thumbnailUrl={item.thumbnailUrl}
                       brand={form.brandName}
                       name={item.productName}
-                      option={`${item.optionName} · ${item.claimableQuantity}개`}
+                      option={optionWithQuantity(item.optionName, item.claimableQuantity)}
                       price={won(item.unitPrice * item.claimableQuantity)}
                     />
                   </View>
@@ -561,8 +567,10 @@ export default function ClaimRequestView() {
                 <TouchableOpacity
                   key={item.code}
                   onPress={() => {
+                    // 사유가 바뀌면 그 사유에 맞춰 적은 설명·사진도 의미를 잃는다 — 함께 비운다
                     setReasonCode(item.code);
                     setDetail("");
+                    setImageUrls([]);
                   }}
                   activeOpacity={0.6}
                   className="flex-row items-center"

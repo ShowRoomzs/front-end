@@ -16,6 +16,7 @@ import {
   AmountRow,
   Band,
   BottomCta,
+  BottomSafeSpacer,
   BulletNotes,
   CautionBox,
   InfoRow,
@@ -39,13 +40,19 @@ import {
   UserClaimPhase,
 } from "@/features/order/types/claim";
 import { MaskedAddress } from "@/features/order/types/order";
-import { isPaymentSelectionComplete, PaymentMethods, PaymentSelection } from "@/features/order/types/payment";
+import {
+  isPaymentSelectionComplete,
+  PaymentMethods,
+  PaymentSelection,
+  toSubmittedSelection,
+} from "@/features/order/types/payment";
 import {
   formatDateTimeFull,
   formatDueDate,
   formatMonthDay,
   formatRequestedAt,
   resolveErrorMessage,
+  withOption,
   won,
 } from "@/features/order/utils/orderFormat";
 
@@ -209,7 +216,7 @@ export default function ClaimDetailView() {
     setIsPaying(true);
     try {
       const paymentWindow = await claimService.payReshipFee(claimId, {
-        ...(payment as PaymentSelection),
+        ...toSubmittedSelection(payment),
         expectedAmount: reshipFee.amount ?? undefined,
       });
 
@@ -235,6 +242,12 @@ export default function ClaimDetailView() {
 
   const isExchange = detail.type === "EXCHANGE";
   const kw = isExchange ? "교환" : "반품";
+  // 반려되면 검수가 끝난 것이라 완료 일시가 오지 않는다 — 반려 시각을 그 자리에 적어 끝났음을 알린다
+  const focused = detail.items.find(item => item.focused) ?? detail.items[0];
+  const rejectedAt =
+    focused && REJECTED_PHASES.includes(focused.phase) ? focused.rejection?.rejectedAt : undefined;
+  const rejectedLine = rejectedAt ? `반려 · ${formatDateTimeFull(rejectedAt)}` : null;
+  const completedLine = detail.completedAt ? formatDateTimeFull(detail.completedAt) : rejectedLine;
 
   return (
     <View className="flex-1 bg-white">
@@ -278,7 +291,7 @@ export default function ClaimDetailView() {
           <ReshipFeeBlock
             reshipFee={reshipFee}
             kw={kw}
-            phases={detail.items.map(item => item.phase)}
+            items={detail.items}
             payment={payment}
             onChangePayment={setPayment}
           />
@@ -290,12 +303,8 @@ export default function ClaimDetailView() {
           <InfoRow label="신청 일시" value={formatDateTimeFull(detail.requestedAt)} />
           <InfoRow
             label="완료 일시"
-            value={
-              detail.completedAt
-                ? formatDateTimeFull(detail.completedAt)
-                : `${isExchange ? "새 상품 도착" : "검수"} 후 표시돼요`
-            }
-            valueColor={detail.completedAt ? "#0F0F0F" : "#9E9E9E"}
+            value={completedLine ?? `${isExchange ? "새 상품 도착" : "검수"} 후 표시돼요`}
+            valueColor={completedLine ? "#0F0F0F" : "#9E9E9E"}
           />
           {!!purchaseConfirmLine(detail) && (
             <InfoRow label="구매확정" value={purchaseConfirmLine(detail) as string} />
@@ -382,6 +391,7 @@ export default function ClaimDetailView() {
           </>
         )}
         {!detail.refund && !detail.exchangePayment && <View className="h-26" />}
+        {!isPayable && <BottomSafeSpacer />}
       </ScrollView>
 
       {isPayable && (
@@ -498,7 +508,7 @@ function ClaimItemBlock(props: {
           thumbnailUrl={item.thumbnailUrl}
           brand={item.brandName}
           name={item.productName}
-          meta={`${item.optionName} / ${item.quantity}개`}
+          meta={withOption(item.optionName, `${item.quantity}개`, " / ")}
           newMeta={
             isExchange && item.exchangeOptionName ? `${item.exchangeOptionName} / ${item.quantity}개` : null
           }
@@ -577,12 +587,20 @@ function RejectionBlock(props: { item: ClaimDetailItem }) {
 function ReshipFeeBlock(props: {
   reshipFee: ClaimReshipFee;
   kw: string;
-  phases: Array<UserClaimPhase>;
+  items: Array<ClaimDetailItem>;
   payment: Partial<PaymentSelection>;
   onChangePayment: (next: Partial<PaymentSelection>) => void;
 }) {
-  const { reshipFee, kw, phases, payment, onChangePayment } = props;
+  const { reshipFee, kw, items, payment, onChangePayment } = props;
   const amount = won(reshipFee.amount ?? 0);
+  // 승인된 상품이 하나뿐이면 어느 환불액에서 빼는지 상품명으로 짚어준다 — 여럿이면 일반 문장
+  const approvedItems = items.filter(
+    item => item.phase !== "CANCELLED" && !REJECTED_PHASES.includes(item.phase)
+  );
+  const deductedSub =
+    approvedItems.length === 1
+      ? `반품이 승인된 ${approvedItems[0].productName} 환불액에서 차감돼요. 추가 결제는 없어요.`
+      : "반품이 승인된 상품의 환불액에서 차감돼요. 추가 결제는 없어요.";
 
   const confirmBox = (title: string, sub: string) => (
     <View
@@ -657,10 +675,7 @@ function ReshipFeeBlock(props: {
         </>
       )}
       {reshipFee.state === "DEDUCTED" &&
-        confirmBox(
-          `함께 반품한 상품의 환불액에서 재발송 배송비 ${amount}을 빼고 보내드려요`,
-          "반품이 승인된 상품의 환불액에서 차감돼요. 추가 결제는 없어요."
-        )}
+        confirmBox(`함께 반품한 상품의 환불액에서 재발송 배송비 ${amount}을 빼고 보내드려요`, deductedSub)}
       {reshipFee.state === "COVERED" &&
         confirmBox(
           "요청 때 결제한 배송비로 다시 보내드려요",
@@ -668,7 +683,7 @@ function ReshipFeeBlock(props: {
         )}
       {reshipFee.state === "PAID" &&
         confirmBox(
-          paidReshipTitle(phases),
+          paidReshipTitle(items.map(item => item.phase)),
           `재발송 배송비 ${amount} · ${reshipFee.methodLabel ?? ""} 결제 완료${
             reshipFee.settledAt ? ` (${formatMonthDay(reshipFee.settledAt)})` : ""
           }`

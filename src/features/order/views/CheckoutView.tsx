@@ -30,7 +30,11 @@ import PortOnePaymentModal from "@/features/order/components/PortOnePaymentModal
 import { CheckoutPaymentOutcome, useCheckoutPayment } from "@/features/order/hooks/useCheckoutPayment";
 import { useGetCheckout } from "@/features/order/hooks/useOrderQueries";
 import { CheckoutRequest } from "@/features/order/types/order";
-import { isPaymentSelectionComplete, PaymentSelection } from "@/features/order/types/payment";
+import {
+  isPaymentSelectionComplete,
+  PaymentSelection,
+  toSubmittedSelection,
+} from "@/features/order/types/payment";
 import {
   optionWithQuantity,
   resolveErrorCode,
@@ -226,10 +230,10 @@ export default function CheckoutView() {
           direct: params.direct,
           deliveryAddressId: address.id ?? undefined,
           deliveryMemo: memoValue || undefined,
-          payment: selection as PaymentSelection,
+          payment: toSubmittedSelection(selection),
           expectedTotalAmount: checkout.summary.totalAmount,
         },
-        selection as PaymentSelection
+        toSubmittedSelection(selection)
       );
 
       payment.setIsBusy(false);

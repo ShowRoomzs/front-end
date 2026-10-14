@@ -10,6 +10,7 @@ import { COMMON_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
 import {
   Band,
+  BottomSafeSpacer,
   NoticeBox,
   ProductLine,
   SectionTitle,
@@ -218,6 +219,7 @@ export default function DeliveryTrackingView() {
         )}
 
         <View className="h-30" />
+        <BottomSafeSpacer />
       </ScrollView>
     </View>
   );

@@ -16,6 +16,7 @@ import {
   AmountRow,
   Band,
   BottomCta,
+  BottomSafeSpacer,
   BulletNotes,
   CloseHeader,
   OutlineAction,
@@ -28,7 +29,7 @@ import { RadioDot } from "@/features/order/components/PaymentMethodPicker/Paymen
 import { useGetOrderDetail } from "@/features/order/hooks/useOrderQueries";
 import { cancelRequestService } from "@/features/order/services/cancelRequestService";
 import { CANCEL_REQUEST_REASONS, CancelRequestReason } from "@/features/order/types/cancelRequest";
-import { formatOrderDate, resolveErrorMessage, won } from "@/features/order/utils/orderFormat";
+import { formatOrderDate, resolveErrorMessage, withOption, won } from "@/features/order/utils/orderFormat";
 
 /**
  * C10 1c 주문 취소 요청 — 상품준비중은 즉시 취소가 아니라 **요청**이다.
@@ -50,7 +51,7 @@ interface Line {
   groupBuyId: number | null;
   brand: string;
   productName: string;
-  optionName: string;
+  optionName: string | null;
   thumbnailUrl: string;
   unit: number;
   max: number;
@@ -143,7 +144,7 @@ export default function CancelRequestView() {
     });
 
     let refund = 0;
-    let hasPartialPaid = false;
+    let partialFee = 0;
     let hasPaid = false;
 
     groups.forEach(group => {
@@ -154,7 +155,7 @@ export default function CancelRequestView() {
       if (group.cancelled >= group.total) {
         refund += group.fee;
       } else if (group.fee > 0) {
-        hasPartialPaid = true;
+        partialFee += group.fee;
       }
     });
 
@@ -162,8 +163,9 @@ export default function CancelRequestView() {
 
     if (refund > 0) {
       line = `+${won(refund)} 함께 환불`;
-    } else if (hasPartialPaid) {
-      line = "남은 상품 배송에 쓰여 환불 없음";
+    } else if (partialFee > 0) {
+      // 낸 배송비가 얼마인지 같이 적어 "왜 안 돌아오는지"를 금액과 함께 읽게 한다
+      line = `${won(partialFee)} · 남은 상품 배송에 쓰여 환불 없음`;
     } else if (!hasPaid && cancelSum > 0) {
       line = "무료배송 주문";
     }
@@ -306,7 +308,7 @@ export default function CancelRequestView() {
                 thumbnailUrl={line.thumbnailUrl}
                 brand={line.brand}
                 name={line.productName}
-                meta={`${line.optionName} / ${qtyOf(line)}개`}
+                meta={withOption(line.optionName, `${qtyOf(line)}개`, " / ")}
                 price={won(line.unit * qtyOf(line))}
               />
             </View>
@@ -334,6 +336,7 @@ export default function CancelRequestView() {
               "결제 수단별로 환불에 2~3영업일이 더 걸릴 수 있어요.",
             ]}
           />
+          <BottomSafeSpacer />
         </ScrollView>
       </View>
     );
@@ -402,7 +405,7 @@ export default function CancelRequestView() {
                     thumbnailUrl={line.thumbnailUrl}
                     brand={line.brand}
                     name={line.productName}
-                    option={`${line.optionName} · 주문 ${line.max}개`}
+                    option={withOption(line.optionName, `주문 ${line.max}개`)}
                     price={won(line.unit * (isChecked ? quantity : line.max))}
                     dimmed={!isChecked}
                   />

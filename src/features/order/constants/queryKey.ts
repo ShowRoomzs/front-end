@@ -7,4 +7,5 @@ export const ORDER_QUERY_KEY = {
   CLAIM_DETAIL: "claimDetail",
   COLLECTION_TRACKING: "claimCollectionTracking",
   RESHIP_TRACKING: "claimReshipTracking",
+  DELIVERY_CARRIERS: "deliveryCarriers",
 };

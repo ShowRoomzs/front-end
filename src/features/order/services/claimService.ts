@@ -1,6 +1,7 @@
 import { apiInstance } from "@/common/lib/apiInstance";
 import {
   ClaimDetailResponse,
+  ClaimFormCarrier,
   ClaimFormResponse,
   ClaimInvoiceRequest,
   ClaimPaymentCompleteResponse,
@@ -26,6 +27,13 @@ export const claimService = {
     const { data } = await apiInstance.get<ClaimFormResponse>("/user/claims/form", {
       params: { orderProductId, type },
     });
+
+    return data;
+  },
+
+  /** 송장에 고를 수 있는 택배사 — 출고 · 회수 · 재발송이 같은 목록을 쓴다(폼 API의 `carriers`와 같다) */
+  getCarriers: async () => {
+    const { data } = await apiInstance.get<Array<ClaimFormCarrier>>("/common/delivery-carriers");
 
     return data;
   },

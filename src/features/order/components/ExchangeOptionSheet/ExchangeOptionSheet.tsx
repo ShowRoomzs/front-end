@@ -83,7 +83,8 @@ export default function ExchangeOptionSheet(props: ExchangeOptionSheetProps) {
                 style={{ fontSize: 14, fontWeight: isSelected ? "600" : "400", lineHeight: 18.9 }}
                 className={`min-w-0 flex-1 ${labelColor}`}
               >
-                {option.optionName}
+                {/* 옵션이 없는 상품은 서버가 optionName: null을 준다 */}
+                {option.optionName ?? "옵션 없음"}
               </Typography>
               {!!tag && (
                 <Typography

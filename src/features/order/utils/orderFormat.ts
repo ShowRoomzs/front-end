@@ -6,9 +6,9 @@ import { formatPrice } from "@/common/utils/formatPrice";
 /**
  * 주문 화면의 날짜·금액·오류 표기.
  *
- * 서버 시각은 `yyyy-MM-dd'T'HH:mm:ss` **KST · 오프셋 없음**이다. `new Date(문자열)`로 읽으면
- * 기기 시간대에 따라 해석이 갈리고(UTC로 읽으면 9시간 어긋난다) 날짜가 하루 밀리는 일이 생긴다.
- * 그래서 문자열을 **쪼개서** 쓰고, 요일만 날짜 숫자로 계산한다 — 시간대가 끼어들 자리가 없다.
+ * 주문·클레임 API 시각은 `yyyy-MM-dd'T'HH:mm:ss` **KST · 오프셋 없음**이다(back-end `OrderDto.TIME_PATTERN`).
+ * `new Date(문자열)`로 읽으면 기기 시간대에 따라 해석이 갈리므로 문자열을 **쪼개서** 쓴다.
+ * 전역 직렬화(`JacksonConfig`)를 타는 값은 `…Z`(UTC)로 오므로, 시간대가 붙은 값만 KST로 옮겨 읽는다.
  */
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
@@ -22,16 +22,40 @@ interface DateParts {
   weekday: string;
 }
 
+const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
+
 function parse(value: string | null | undefined): DateParts | null {
   if (!value) {
     return null;
   }
-  const match = value.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2}))?)?/);
+  const match = value.match(
+    /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2}))?(?:\.\d+)?(Z|[+-]\d{2}:?\d{2})?)?/
+  );
 
   if (!match) {
     return null;
   }
-  const [, y, m, d, hh = "0", mm = "0", ss = "0"] = match;
+  const [, y, m, d, hh = "0", mm = "0", ss = "0", zone] = match;
+
+  if (zone) {
+    // 시간대가 붙은 값은 절대 시각이다 — KST로 옮긴 숫자를 UTC 게터로 읽는다
+    const epoch = Date.parse(value);
+
+    if (Number.isNaN(epoch)) {
+      return null;
+    }
+    const kst = new Date(epoch + KST_OFFSET_MS);
+
+    return {
+      year: kst.getUTCFullYear(),
+      month: kst.getUTCMonth() + 1,
+      day: kst.getUTCDate(),
+      hour: kst.getUTCHours(),
+      minute: kst.getUTCMinutes(),
+      second: kst.getUTCSeconds(),
+      weekday: WEEKDAYS[kst.getUTCDay()],
+    };
+  }
   const year = Number(y);
   const month = Number(m);
   const day = Number(d);
@@ -107,7 +131,7 @@ export function formatMonthDayTime(value: string | null | undefined): string {
   return p ? `${pad(p.month)}.${pad(p.day)} (${p.weekday}) ${pad(p.hour)}:${pad(p.minute)}` : "";
 }
 
-/** KST 문자열을 절대 시각(ms)으로 — 만료 5분 전 잠금처럼 지금과 비교할 때만 쓴다 */
+/** 서버 시각을 절대 시각(ms)으로 — 만료 5분 전 잠금처럼 지금과 비교할 때만 쓴다 */
 export function toKstEpoch(value: string | null | undefined): number | null {
   const p = parse(value);
 
@@ -125,6 +149,27 @@ export function won(value: number): string {
 /** 단품 · 1개 — 옵션과 수량은 따로 내려온다(조합은 앱이 한다) */
 export function optionWithQuantity(optionName: string | null | undefined, quantity: number): string {
   return withOption(optionName, `${quantity}개`);
+}
+
+/** 브랜드가 반품지를 등록하지 않았을 때 보낼 곳 자리에 쓰는 문구 */
+export const RETURN_TO_MISSING =
+  "브랜드 반품지가 아직 등록되지 않았어요. 1:1 문의로 보낼 곳을 확인해 주세요.";
+
+/**
+ * 브랜드 반품지(보낼 곳)를 두 줄로 — 첫 줄 「이름 · 연락처」, 둘째 줄 주소.
+ * 반품지가 없으면 서버가 값을 비워 보내므로 빈 값은 빼고 잇는다(「 · 」·「null」이 찍히지 않게).
+ */
+export function returnToLines(
+  returnTo:
+    | { name: string | null; contact: string | null; address: string | null; detailAddress: string | null }
+    | null
+    | undefined,
+  separator = " · "
+) {
+  const head = [returnTo?.name, returnTo?.contact].filter(Boolean).join(separator);
+  const address = [returnTo?.address, returnTo?.detailAddress].filter(Boolean).join(" ");
+
+  return { head, address, isEmpty: !head && !address };
 }
 
 /**

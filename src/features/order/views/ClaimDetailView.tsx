@@ -52,6 +52,8 @@ import {
   formatMonthDay,
   formatRequestedAt,
   resolveErrorMessage,
+  RETURN_TO_MISSING,
+  returnToLines,
   withOption,
   won,
 } from "@/features/order/utils/orderFormat";
@@ -206,7 +208,7 @@ export default function ClaimDetailView() {
   }, [claimId, detail, navigation, refetch]);
 
   const reshipFee = detail?.reshipFee;
-  const isPayable = reshipFee?.state === "PAYABLE";
+  const isPayable = !!reshipFee && isReshipPayable(reshipFee);
   const canPay = isPayable && isPaymentSelectionComplete(payment);
 
   const handlePressPay = useCallback(async () => {
@@ -331,9 +333,13 @@ export default function ClaimDetailView() {
           )}
           <InfoRow
             label={`${kw} 도착지`}
-            value={`${detail.info.returnTo.name} / ${detail.info.returnTo.contact}\n${detail.info.returnTo.address}${
-              detail.info.returnTo.detailAddress ? ` ${detail.info.returnTo.detailAddress}` : ""
-            }`}
+            value={(() => {
+              const lines = returnToLines(detail.info.returnTo, " / ");
+
+              return lines.isEmpty
+                ? RETURN_TO_MISSING
+                : [lines.head, lines.address].filter(Boolean).join("\n");
+            })()}
           />
           {isExchange && !!detail.info.reshipTo && (
             <InfoRow label="교환받을 배송지" value={maskedLines(detail.info.reshipTo)}>
@@ -583,7 +589,15 @@ function RejectionBlock(props: { item: ClaimDetailItem }) {
   );
 }
 
-/** 「상품 다시 받기」 — 결제 필요 · 차감 · 충당 · 결제 완료 */
+/**
+ * 재발송비를 결제받을 수 있는가 — 서버는 0원 청구(브랜드 부담 · 기본 배송비 0원)도 `PAYABLE`로 내린다
+ * (back-end `UserClaimQueryService.reshipFee`가 `WAIVED`를 따로 나누지 않는다). 0원은 결제할 것이 없으므로 막는다.
+ */
+function isReshipPayable(reshipFee: ClaimReshipFee) {
+  return reshipFee.state === "PAYABLE" && (reshipFee.amount ?? 0) > 0;
+}
+
+/** 「상품 다시 받기」 — 결제 필요 · 차감 · 충당 · 결제 완료 · 0원 */
 function ReshipFeeBlock(props: {
   reshipFee: ClaimReshipFee;
   kw: string;
@@ -630,7 +644,7 @@ function ReshipFeeBlock(props: {
   return (
     <View>
       <SectionTitle title="상품 다시 받기" />
-      {reshipFee.state === "PAYABLE" && (
+      {isReshipPayable(reshipFee) && (
         <>
           <Typography style={{ fontSize: 12.5, lineHeight: 20.6 }} className="px-14 pt-8 text-ink76">
             {kw}이 반려된 상품을 다시 보내드려요.{" "}
@@ -674,6 +688,12 @@ function ReshipFeeBlock(props: {
           )}
         </>
       )}
+      {reshipFee.state === "PAYABLE" &&
+        !isReshipPayable(reshipFee) &&
+        confirmBox(
+          `${kw}이 반려된 상품을 다시 보내드려요`,
+          "재발송 배송비는 없어요. 추가 결제 없이 보내드려요."
+        )}
       {reshipFee.state === "DEDUCTED" &&
         confirmBox(`함께 반품한 상품의 환불액에서 재발송 배송비 ${amount}을 빼고 보내드려요`, deductedSub)}
       {reshipFee.state === "COVERED" &&

@@ -33,11 +33,13 @@ export type DeliveryCarrierCode =
   | "EPOST"
   | "KYUNGDONG"
   | "DAESIN"
+  | "ILYANG"
   | "LOGEN"
   | "HAPDONG"
   | "COUPANG"
   | "WOORI"
-  | "CU";
+  | "CU"
+  | "GS25";
 
 export type ClaimStatus =
   | "PAYMENT_PENDING"
@@ -55,7 +57,7 @@ export type ClaimStatus =
 
 export interface ClaimExchangeOption {
   variantId: number;
-  optionName: string;
+  optionName: string | null;
   /** 목록에서 빼지 않고 회색 + 「품절」로 그린다 */
   soldOut: boolean;
   /** 받은 옵션 — 불량·오배송일 때만 같은 옵션으로 다시 받는다 */
@@ -94,9 +96,10 @@ export interface ClaimFormCarrier {
 
 /** 브랜드 반품 수취 주소 — 송장에 적는 값이라 원문이다 */
 export interface ClaimReturnTo {
-  name: string;
-  contact: string;
-  address: string;
+  /** 브랜드가 반품지를 등록하지 않았으면 서버가 아래 값을 비워 보낸다 — `returnToLines`로 그린다 */
+  name: string | null;
+  contact: string | null;
+  address: string | null;
   detailAddress: string | null;
 }
 

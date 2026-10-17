@@ -16,6 +16,8 @@ import { CheckoutRequest, OrderCard } from "@/features/order/types/order";
  *
  * 상태가 서버에서 자주 바뀌는 화면이라(웹훅이 결제를 완료하고, 브랜드가 준비를 시작하고, 배치가
  * 송장 미등록 요청을 닫는다) 캐시를 길게 두지 않는다 — 화면에 들어올 때마다 다시 읽는다.
+ * 상세 · 조회 화면은 화면을 떠나면 캐시도 버린다(`gcTime: 0`) — 다시 열 때 지난 상태가 응답이 올 때까지
+ * 몇 초씩 보이면(「회수중」이었다가 「반품 완료」로 바뀌는 식) 틀린 정보를 보여주는 셈이라서다.
  */
 
 /** C9 주문서 — 배송지를 바꿀 때마다 금액(배송비)이 다시 계산되므로 요청 전체를 키로 쓴다 */
@@ -72,6 +74,7 @@ export function useGetOrderDetail(orderId: number | undefined) {
     },
     enabled: !!orderId,
     staleTime: 0,
+    gcTime: 0,
   });
 }
 
@@ -93,6 +96,7 @@ export function useGetTracking(params: {
         : orderService.getItemTracking(orderId as number, orderProductId as number),
     enabled: !!reshipClaimId || (!!orderId && !!orderProductId),
     staleTime: 0,
+    gcTime: 0,
   });
 }
 
@@ -106,12 +110,22 @@ export function useGetClaimForm(orderProductId: number, type: ClaimType) {
   });
 }
 
+/** 택배사 목록은 배포 때만 바뀐다 — 한 번 읽고 오래 둔다 */
+export function useGetDeliveryCarriers() {
+  return useQuery({
+    queryKey: [ORDER_QUERY_KEY.DELIVERY_CARRIERS],
+    queryFn: claimService.getCarriers,
+    staleTime: Infinity,
+  });
+}
+
 export function useGetClaimDetail(claimId: number | undefined) {
   return useQuery({
     queryKey: [ORDER_QUERY_KEY.CLAIM_DETAIL, claimId],
     queryFn: () => claimService.getDetail(claimId as number),
     enabled: !!claimId,
     staleTime: 0,
+    gcTime: 0,
   });
 }
 
@@ -120,6 +134,7 @@ export function useGetCollectionTracking(claimId: number) {
     queryKey: [ORDER_QUERY_KEY.COLLECTION_TRACKING, claimId],
     queryFn: () => claimService.getCollectionTracking(claimId),
     staleTime: 0,
+    gcTime: 0,
   });
 }
 

@@ -1,11 +1,11 @@
-import { cloneElement, ReactElement, useMemo } from "react";
+import { cloneElement, ReactElement, useCallback, useMemo } from "react";
 
-import BottomSheet from "@/common/components/BottomSheet/BottomSheet";
+import BottomSheet, { BottomSheetProps } from "@/common/components/BottomSheet/BottomSheet";
 import { useBottomSheetContext } from "@/common/providers/BottomSheetProvider";
 import { SheetApi } from "@/common/providers/BottomSheetProvider/context";
 
 export default function BottomSheetRenderer() {
-  const { activeSheetId, sheetRef, registry, open, close } = useBottomSheetContext();
+  const { activeSheetId, sheetRef, registry, open, close, onSheetChange } = useBottomSheetContext();
 
   const item = useMemo(() => (activeSheetId ? registry.get(activeSheetId) : null), [activeSheetId, registry]);
 
@@ -26,8 +26,17 @@ export default function BottomSheetRenderer() {
     return cloneElement(item.render as ReactElement, { sheetApi: api } as unknown as ReactElement);
   }, [item?.render, api]);
 
+  const sheetOnChange = item?.sheetProps?.onChange;
+  const handleChange = useCallback<NonNullable<BottomSheetProps["onChange"]>>(
+    (index, position, type) => {
+      onSheetChange(index);
+      sheetOnChange?.(index, position, type);
+    },
+    [onSheetChange, sheetOnChange]
+  );
+
   return (
-    <BottomSheet ref={sheetRef} {...item?.sheetProps}>
+    <BottomSheet ref={sheetRef} {...item?.sheetProps} onChange={handleChange}>
       {renderedContent}
     </BottomSheet>
   );

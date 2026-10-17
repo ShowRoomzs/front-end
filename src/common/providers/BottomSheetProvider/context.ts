@@ -22,6 +22,8 @@ export interface BottomSheetContextValue {
   unregister: (id: SheetId) => void;
   open: (id: SheetId) => void;
   close: () => void;
+  /** 시트의 실제 위치 변화(-1이면 닫힘) — 안드로이드 뒤로가기 처리가 이 값을 본다 */
+  onSheetChange: (index: number) => void;
 
   activeSheetId: SheetId | null;
   sheetRef: RefObject<BottomSheetModalMethods | null>;

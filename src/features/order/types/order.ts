@@ -6,7 +6,7 @@ import { ProductPrice } from "@/features/product/types/product";
  * 주문 — back-end `OrderDto` · `UserOrderDto` · `PaymentDto`.
  *
  * 시각은 전부 `yyyy-MM-dd'T'HH:mm:ss` **KST · 오프셋 없음**이다. UTC로 읽으면 9시간 어긋나므로
- * 문자열을 직접 쪼개 쓴다(`utils/orderDate.ts`). 날짜만 있는 필드는 `yyyy-MM-dd`.
+ * 문자열을 직접 쪼개 쓴다(`utils/orderFormat.ts`). 날짜만 있는 필드는 `yyyy-MM-dd`.
  *
  * 라벨·색·보조 문구·버튼은 서버가 내린다 — 앱이 상태→버튼 매핑을 들지 않는다.
  */

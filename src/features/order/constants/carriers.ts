@@ -1,11 +1,10 @@
 import { ClaimFormCarrier } from "@/features/order/types/claim";
 
 /**
- * 소비자가 회수 송장에 고를 수 있는 택배사 — back-end `DeliveryCarrier.isConsumerSelectable()`.
+ * 송장 택배사 목록의 **대체값** — 서버 목록(`GET /common/delivery-carriers`)을 받기 전이나 못 받았을 때만 쓴다.
  *
- * 요청 화면(C10-3)은 폼 API의 `carriers`를 그대로 쓴다. 이 목록은 폼을 거치지 않는 **송장 등록·수정
- * 화면**(C10-5 · C10-4 [송장 수정])만 쓴다 — 상세 API가 택배사 목록을 주지 않아서다.
- * 서버 목록이 바뀌면(GS25 반값택배 추가 등 — 클레임 설계서 Q9) 여기도 함께 고친다.
+ * 요청 화면(C10-3)은 폼 API의 `carriers`를, 송장 등록·수정 화면(C10-5 · C10-4 [송장 수정])은 공용 목록 API를
+ * 쓴다 — 둘 다 back-end `DeliveryCarrier.selectable()`(추적 연동 업체)이다.
  */
 export const CONSUMER_CARRIERS: Array<ClaimFormCarrier> = [
   { code: "CJ", label: "CJ대한통운" },
@@ -13,5 +12,11 @@ export const CONSUMER_CARRIERS: Array<ClaimFormCarrier> = [
   { code: "HANJIN", label: "한진택배" },
   { code: "LOTTE", label: "롯데택배" },
   { code: "LOGEN", label: "로젠택배" },
-  { code: "CU", label: "CU편의점택배" },
+  { code: "KYUNGDONG", label: "경동택배" },
+  { code: "DAESIN", label: "대신택배" },
+  { code: "ILYANG", label: "일양로지스" },
+  { code: "CU", label: "CU 편의점택배" },
+  { code: "GS25", label: "GS25 편의점택배" },
+  { code: "HAPDONG", label: "합동택배" },
+  { code: "WOORI", label: "우리택배" },
 ];

@@ -56,6 +56,8 @@ import {
   optionWithQuantity,
   resolveErrorCode,
   resolveErrorMessage,
+  RETURN_TO_MISSING,
+  returnToLines,
   won,
 } from "@/features/order/utils/orderFormat";
 
@@ -175,6 +177,18 @@ export default function ClaimRequestView() {
   });
 
   const optionItem = form?.items.find(item => item.orderProductId === optionTarget);
+  // 시트에 넘기는 콜백은 고정해야 한다 — useBottomSheet는 render props가 바뀔 때마다 시트를 다시 등록하므로,
+  // 매 렌더 새로 만든 함수를 넘기면 시트가 열린 동안 「등록 → 리렌더 → 새 함수 → 등록」이 끝없이 돈다.
+  const handleApplyOption = useCallback(
+    (variantId: number) => {
+      if (optionTarget) {
+        setExchangeOptions(prev => ({ ...prev, [optionTarget]: variantId }));
+      }
+      closeSheet();
+    },
+    [closeSheet, optionTarget]
+  );
+
   const { open: openOptionSheet } = useBottomSheet({
     id: OPTION_SHEET_ID,
     render: (
@@ -183,12 +197,7 @@ export default function ClaimRequestView() {
         options={optionItem?.exchangeOptions ?? []}
         selected={optionTarget ? (exchangeOptions[optionTarget] ?? null) : null}
         onCancel={closeSheet}
-        onApply={variantId => {
-          if (optionTarget) {
-            setExchangeOptions(prev => ({ ...prev, [optionTarget]: variantId }));
-          }
-          closeSheet();
-        }}
+        onApply={handleApplyOption}
       />
     ),
     sheetProps: { enableDynamicSizing: true, snapPoints: undefined },
@@ -443,7 +452,7 @@ export default function ClaimRequestView() {
       ? "착불로 보내주세요 · 택배비는 브랜드가 부담해요"
       : "선불로 보내주세요 · 반송 택배비는 택배사에 직접 결제해요";
   })();
-  const returnAddress = `${form.returnTo.address}${form.returnTo.detailAddress ? ` ${form.returnTo.detailAddress}` : ""}`;
+  const returnTo = returnToLines(form.returnTo);
   /** 고른 배송지가 있으면 그것, 없으면 원 주문 배송지(폼 기본값) */
   const reshipLines = (() => {
     const joinAddress = (zip: string, address: string, detailAddress?: string | null) =>
@@ -540,7 +549,7 @@ export default function ClaimRequestView() {
                     <SelectField
                       height={44}
                       fontSize={14}
-                      value={pickedOption?.optionName}
+                      value={pickedOption ? (pickedOption.optionName ?? "옵션 없음") : undefined}
                       placeholder="교환할 옵션을 선택해 주세요"
                       onPress={() => handleOpenOption(item.orderProductId)}
                     />
@@ -730,18 +739,28 @@ export default function ClaimRequestView() {
           <SectionTitle title={`${kw} 신청 정보`} style={{ paddingTop: 20 }} />
           <View className="px-14 pt-14" style={{ gap: 14 }}>
             <InfoBlock label="보낼 곳">
-              <Typography style={{ fontSize: 13, lineHeight: 20.8 }} className="text-ink">
-                {form.returnTo.name} · {form.returnTo.contact}
-              </Typography>
-              <Typography style={{ fontSize: 13, lineHeight: 20.8 }} className="text-ink76">
-                {returnAddress}
-              </Typography>
-              <View className="flex-row" style={{ marginTop: 8 }}>
-                <SmallOutlineButton
-                  label="주소 복사"
-                  onPress={() => copyToClipboard(returnAddress, "주소를 복사했어요")}
-                />
-              </View>
+              {returnTo.isEmpty ? (
+                <Typography style={{ fontSize: 13, lineHeight: 20.8 }} className="text-gray45">
+                  {RETURN_TO_MISSING}
+                </Typography>
+              ) : (
+                <>
+                  <Typography style={{ fontSize: 13, lineHeight: 20.8 }} className="text-ink">
+                    {returnTo.head}
+                  </Typography>
+                  <Typography style={{ fontSize: 13, lineHeight: 20.8 }} className="text-ink76">
+                    {returnTo.address}
+                  </Typography>
+                  {!!returnTo.address && (
+                    <View className="flex-row" style={{ marginTop: 8 }}>
+                      <SmallOutlineButton
+                        label="주소 복사"
+                        onPress={() => copyToClipboard(returnTo.address, "주소를 복사했어요")}
+                      />
+                    </View>
+                  )}
+                </>
+              )}
             </InfoBlock>
             {!isReturn && !!reshipLines && (
               <InfoBlock label="받을 곳">
@@ -840,9 +859,10 @@ export default function ClaimRequestView() {
                   fontSize={11.5}
                   style={{ gap: 6 }}
                   notes={[
-                    `단순 변심 · 주문 실수로 교환하면 새 상품을 보내는 배송비${
-                      form.fees.consumerFault > 0 ? ` ${won(form.fees.consumerFault)}` : ""
-                    }을 요청할 때 결제해요. 반송 택배비는 택배사에 직접 결제해요.`,
+                    // 금액이 없으면 「배송비을」이 되지 않게 조사를 함께 고른다
+                    `단순 변심 · 주문 실수로 교환하면 새 상품을 보내는 ${
+                      form.fees.consumerFault > 0 ? `배송비 ${won(form.fees.consumerFault)}을` : "배송비를"
+                    } 요청할 때 결제해요. 반송 택배비는 택배사에 직접 결제해요.`,
                     "같은 상품의 다른 옵션으로만 교환할 수 있어요. 다른 상품을 원하시면 반품 후 새로 주문해 주세요.",
                     "상자에 현금은 넣지 마세요.",
                   ]}

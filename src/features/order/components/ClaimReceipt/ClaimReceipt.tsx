@@ -14,7 +14,12 @@ import {
 } from "@/features/order/components/OrderParts/OrderParts";
 import { useGetClaimDetail } from "@/features/order/hooks/useOrderQueries";
 import { ClaimDetailResponse } from "@/features/order/types/claim";
-import { optionWithQuantity, won } from "@/features/order/utils/orderFormat";
+import {
+  optionWithQuantity,
+  RETURN_TO_MISSING,
+  returnToLines,
+  won,
+} from "@/features/order/utils/orderFormat";
 
 /**
  * 반품·교환 접수 화면 — 요청 → 확인 모달 → **접수**(시안 C10-3).
@@ -67,6 +72,7 @@ function ReceiptBody(props: {
   const isReturn = detail.type === "RETURN";
   const isLater = !detail.info.collectionInvoice;
   const { returnTo, reshipTo } = detail.info;
+  const returnLines = returnToLines(returnTo);
   const courierLine =
     detail.guide.courierPayment === "COLLECT"
       ? "착불로 보내주세요 · 택배비는 브랜드가 부담해요"
@@ -127,15 +133,26 @@ function ReceiptBody(props: {
       <SectionTitle title={`${kw} 신청 정보`} />
       <View className="px-14 pt-8">
         <InfoRow label="보낼 곳" labelWidth={62} fontSize={13}>
-          <Typography style={{ fontSize: 13, lineHeight: 20.8 }} className="text-ink">
-            {returnTo.name} ·{" "}
-            <Typography style={{ fontSize: 13, lineHeight: 20.8, textDecorationLine: "underline" }}>
-              {returnTo.contact}
+          {returnLines.isEmpty ? (
+            <Typography style={{ fontSize: 13, lineHeight: 20.8 }} className="text-gray45">
+              {RETURN_TO_MISSING}
             </Typography>
-          </Typography>
-          <Typography style={{ fontSize: 13, lineHeight: 20.8 }} className="text-ink76">
-            {`${returnTo.address}${returnTo.detailAddress ? ` ${returnTo.detailAddress}` : ""}`}
-          </Typography>
+          ) : (
+            <>
+              <Typography style={{ fontSize: 13, lineHeight: 20.8 }} className="text-ink">
+                {returnTo.name}
+                {!!returnTo.name && !!returnTo.contact && " · "}
+                {!!returnTo.contact && (
+                  <Typography style={{ fontSize: 13, lineHeight: 20.8, textDecorationLine: "underline" }}>
+                    {returnTo.contact}
+                  </Typography>
+                )}
+              </Typography>
+              <Typography style={{ fontSize: 13, lineHeight: 20.8 }} className="text-ink76">
+                {returnLines.address}
+              </Typography>
+            </>
+          )}
         </InfoRow>
         <InfoRow label="사유" labelWidth={62} fontSize={13} value={detail.info.reasonLabel} />
         <InfoRow label="택배비" labelWidth={62} fontSize={13} value={courierLine} />

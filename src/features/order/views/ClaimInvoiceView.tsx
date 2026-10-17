@@ -23,11 +23,15 @@ import {
 } from "@/features/order/components/OrderParts/OrderParts";
 import { CONSUMER_CARRIERS } from "@/features/order/constants/carriers";
 import { ORDER_QUERY_KEY } from "@/features/order/constants/queryKey";
-import { invalidateOrderQueries, useGetClaimDetail } from "@/features/order/hooks/useOrderQueries";
+import {
+  invalidateOrderQueries,
+  useGetClaimDetail,
+  useGetDeliveryCarriers,
+} from "@/features/order/hooks/useOrderQueries";
 import { claimService } from "@/features/order/services/claimService";
 import { DeliveryCarrierCode } from "@/features/order/types/claim";
 import { copyToClipboard } from "@/features/order/utils/copyToClipboard";
-import { resolveErrorMessage } from "@/features/order/utils/orderFormat";
+import { resolveErrorMessage, RETURN_TO_MISSING, returnToLines } from "@/features/order/utils/orderFormat";
 
 /**
  * 회수 송장 등록 — C10-5 [회수 송장 등록]과 C10-4 [송장 수정]이 같은 화면을 쓴다(수정이면 값이 채워진 채 열린다).
@@ -44,6 +48,7 @@ export default function ClaimInvoiceView() {
   const { params } = useRoute<RouteProp<CommonStackParamList, typeof COMMON_ROUTES.CLAIM_INVOICE>>();
   const { claimId } = params;
   const { data: detail } = useGetClaimDetail(claimId);
+  const { data: carriers = CONSUMER_CARRIERS } = useGetDeliveryCarriers();
   const { close: closeSheet } = useBottomSheetContext();
 
   const [carrier, setCarrier] = useState<DeliveryCarrierCode | null>(params.carrier ?? null);
@@ -60,7 +65,7 @@ export default function ClaimInvoiceView() {
 
   const { open: openCarrierSheet } = useBottomSheet({
     id: CARRIER_SHEET_ID,
-    render: <CarrierSheet carriers={CONSUMER_CARRIERS} selected={carrier} onPick={handlePickCarrier} />,
+    render: <CarrierSheet carriers={carriers} selected={carrier} onPick={handlePickCarrier} />,
     sheetProps: { enableDynamicSizing: true, snapPoints: undefined },
   });
 
@@ -88,10 +93,7 @@ export default function ClaimInvoiceView() {
     }
   }, [canSubmit, carrier, claimId, isSubmitting, navigation, trackingNumber]);
 
-  const returnTo = detail?.info.returnTo;
-  const returnAddress = returnTo
-    ? `${returnTo.address}${returnTo.detailAddress ? ` ${returnTo.detailAddress}` : ""}`
-    : "";
+  const returnLines = returnToLines(detail?.info.returnTo, " / ");
 
   return (
     <KeyboardAvoidingView className="flex-1" behavior={Platform.OS === "ios" ? "padding" : undefined}>
@@ -103,7 +105,7 @@ export default function ClaimInvoiceView() {
             <FieldTitle label="택배사" />
             <View style={{ marginTop: 9 }}>
               <SelectField
-                value={CONSUMER_CARRIERS.find(item => item.code === carrier)?.label}
+                value={carriers.find(item => item.code === carrier)?.label}
                 placeholder="택배사를 선택해 주세요"
                 onPress={openCarrierSheet}
               />
@@ -135,17 +137,24 @@ export default function ClaimInvoiceView() {
           <Band marginTop={20} />
 
           <SectionTitle title="보내실 주소" />
-          {!!returnTo && (
+          {!!detail && returnLines.isEmpty && (
+            <Typography style={{ fontSize: 13.5, lineHeight: 22.95 }} className="px-14 pt-12 text-gray45">
+              {RETURN_TO_MISSING}
+            </Typography>
+          )}
+          {!returnLines.isEmpty && (
             <>
               <Typography style={{ fontSize: 13.5, lineHeight: 22.95 }} className="px-14 pt-12 text-ink">
-                {`${returnTo.name} / ${returnTo.contact}\n${returnAddress}`}
+                {[returnLines.head, returnLines.address].filter(Boolean).join("\n")}
               </Typography>
-              <View className="flex-row px-14 pt-8">
-                <SmallOutlineButton
-                  label="주소 복사"
-                  onPress={() => copyToClipboard(returnAddress, "주소를 복사했어요")}
-                />
-              </View>
+              {!!returnLines.address && (
+                <View className="flex-row px-14 pt-8">
+                  <SmallOutlineButton
+                    label="주소 복사"
+                    onPress={() => copyToClipboard(returnLines.address, "주소를 복사했어요")}
+                  />
+                </View>
+              )}
             </>
           )}
 

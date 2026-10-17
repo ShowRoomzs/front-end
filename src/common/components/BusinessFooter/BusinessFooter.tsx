@@ -59,11 +59,13 @@ export default function BusinessFooter(props: BusinessFooterProps) {
             BUSINESS_INFO.privacyOfficer,
             BUSINESS_INFO.customerService,
             BUSINESS_INFO.operatingHours,
-          ].map(line => (
-            <Typography key={line} variant="legal" className="text-gray45">
-              {line}
-            </Typography>
-          ))}
+          ]
+            .filter(Boolean)
+            .map(line => (
+              <Typography key={line} variant="legal" className="text-gray45">
+                {line}
+              </Typography>
+            ))}
 
           <Typography variant="legal" className="mt-14 text-gray45">
             {BUSINESS_INFO.intermediaryNotice}

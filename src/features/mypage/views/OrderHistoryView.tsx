@@ -92,7 +92,7 @@ export default function OrderHistoryView() {
             isFirst={ix === 0}
             onPressAction={action => handleItemAction(order.orderId, row, action)}
             onPressClaim={claimId => open(COMMON_ROUTES.CLAIM_DETAIL, { claimId })}
-            onPressCancelRejection={openCancelDetail}
+            onPressCancelRejection={() => openCancelDetail(order.orderId, row.orderProductId)}
           />
         ))}
         <Band />

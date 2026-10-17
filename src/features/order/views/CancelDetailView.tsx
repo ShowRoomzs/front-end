@@ -24,59 +24,69 @@ import {
   UnderlineLink,
 } from "@/features/order/components/OrderParts/OrderParts";
 import { useOrderNavigation } from "@/features/order/hooks/useOrderNavigation";
+import { useGetOrderDetail } from "@/features/order/hooks/useOrderQueries";
+import { cancelRequestService } from "@/features/order/services/cancelRequestService";
+import { CancelDetail, CancelPhase } from "@/features/order/types/cancelRequest";
 import {
-  CANCEL_REQUEST_AVAILABLE,
-  CANCEL_REQUEST_NOT_READY_MESSAGE,
-  cancelRequestService,
-} from "@/features/order/services/cancelRequestService";
-import {
-  CANCEL_REJECT_REASON_LABEL,
-  CANCEL_REQUEST_REASONS,
-  CancelRequestDetail,
-  CancelRequestStatus,
-} from "@/features/order/types/cancelRequest";
-import { formatDateTimeFull, formatRequestedAt, withOption, won } from "@/features/order/utils/orderFormat";
+  formatDateTimeFull,
+  formatRequestedAt,
+  resolveErrorMessage,
+  withOption,
+  won,
+} from "@/features/order/utils/orderFormat";
 
 /**
- * C10 1d 취소 상세 — 확인 중 · 승인 · 반려.
+ * C10 1d 취소 상세 — 확인 중 · 취소 완료 · 거부. 항목 기준이라 요청 · 직접 취소 · 직권 취소가 같은 화면이다.
  *
  * 구성: 신청 일시 + 주문번호 + [주문 상세] → 취소 상품(상품 위 상태 라벨) → 상품 아래 행동 버튼 →
  * 취소 신청 정보(라벨 열 고정) → 환불 정보 → 안내.
  *
- * - 확인 중: 라벨 로즈(철회할 수 있다) · 회색 안내 박스 · 완료 일시는 「브랜드 확인 후 표시돼요」 · [취소 요청 철회]
- * - 승인: 라벨 「취소 완료」 회색 · 금액 라벨 「환불 금액」 · [재구매]
- * - 반려: 박스 「주문은 그대로 배송돼요」 · 반려 사유 행(어드민 4종 문구 그대로) + 「○○의 메시지」 ·
- *   금액 0원(회색) · [배송 조회] — 받은 뒤 반품으로 이어가는 길을 바로 연다
+ * - 확인 중: 라벨 로즈 · 회색 안내 박스 · 완료 일시는 「브랜드 확인 후 표시돼요」
+ * - 취소 완료: 라벨 회색 · 금액 라벨 「환불 금액」 · [재구매]
+ * - 거부: 박스 「주문은 그대로 배송돼요」 · 거부 사유 행 + 「○○의 메시지」 · 금액 0원(회색) · [배송 조회]
  *
- * ⚠️ 앱용 API가 없어 DEV에서만 목업으로 열린다. 배포본은 「준비 중」을 띄운다.
+ * 상태 라벨 · 안내 문구 · 사유는 서버가 내린다. 응답에 없는 브랜드명 · 상품 id(재구매) · 결제 수단은 주문
+ * 상세의 같은 항목에서 읽는다. 요청 철회 API는 서버에 없어 [취소 요청 철회]는 DEV 목업 요청에서만 그린다.
  */
-const CANCEL_DETAIL_KEY = "cancelRequestDetail";
+const CANCEL_DETAIL_KEY = "cancelDetail";
 
-const STATUS_VIEW: Record<CancelRequestStatus, { label: string; color: string }> = {
-  PENDING: { label: "취소 요청 · 브랜드 확인 중", color: "#CF3D61" },
-  APPROVED: { label: "취소 완료", color: "#737373" },
-  REJECTED: { label: "취소 반려", color: "#3C3C3C" },
+const PHASE_COLOR: Record<CancelPhase, string> = {
+  REVIEWING: "#CF3D61",
+  CANCELLED: "#737373",
+  REJECTED: "#3C3C3C",
 };
 
 export default function CancelDetailView() {
   const navigation = useCommonNavigation();
   const { params } = useRoute<RouteProp<CommonStackParamList, typeof COMMON_ROUTES.CANCEL_DETAIL>>();
-  const { cancelRequestId } = params;
+  const { orderId, orderProductId, devMockRequestId } = params;
   const { show: showModal } = useModal();
   const { open } = useOrderNavigation();
+  const { data: order } = useGetOrderDetail(orderId);
 
-  const { data: detail, isLoading } = useQuery({
-    queryKey: [CANCEL_DETAIL_KEY, cancelRequestId],
-    queryFn: () => cancelRequestService.getDetail(cancelRequestId),
-    enabled: CANCEL_REQUEST_AVAILABLE,
+  const {
+    data: detail,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: [CANCEL_DETAIL_KEY, orderId, orderProductId, devMockRequestId],
+    queryFn: () =>
+      devMockRequestId
+        ? cancelRequestService.getMockDetail(devMockRequestId)
+        : cancelRequestService.getDetail(orderId, orderProductId),
+    staleTime: 0,
+    gcTime: 0,
     retry: false,
   });
 
   const refresh = useCallback(() => {
-    void queryClient.invalidateQueries({ queryKey: [CANCEL_DETAIL_KEY, cancelRequestId] });
-  }, [cancelRequestId]);
+    void queryClient.invalidateQueries({ queryKey: [CANCEL_DETAIL_KEY, orderId, orderProductId] });
+  }, [orderId, orderProductId]);
 
   const handlePressWithdraw = useCallback(() => {
+    if (!devMockRequestId) {
+      return;
+    }
     showModal({
       title: "취소 요청을 철회할까요?",
       message: "철회하면 주문이 그대로 진행되고\n상품이 발송돼요.",
@@ -85,50 +95,49 @@ export default function CancelDetailView() {
         {
           label: "철회하기",
           onPress: async () => {
-            await cancelRequestService.withdraw(cancelRequestId);
+            await cancelRequestService.withdrawMock(devMockRequestId);
             toast.show("취소 요청을 철회했어요");
             navigation.goBack();
           },
         },
       ],
     });
-  }, [cancelRequestId, navigation, showModal]);
-
-  if (!CANCEL_REQUEST_AVAILABLE) {
-    return (
-      <View className="flex-1 bg-white">
-        <ScreenHeader title="취소 상세" onPressBack={navigation.goBack} />
-        <View className="flex-1 items-center justify-center px-40">
-          <Typography
-            style={{ fontSize: 15.5, fontWeight: "600", lineHeight: 23.25 }}
-            className="text-center text-ink"
-          >
-            취소 상세를 준비하고 있어요
-          </Typography>
-          <Typography
-            style={{ fontSize: 13, lineHeight: 22.1, marginTop: 7 }}
-            className="text-center text-gray45"
-          >
-            {CANCEL_REQUEST_NOT_READY_MESSAGE}
-          </Typography>
-        </View>
-      </View>
-    );
-  }
+  }, [devMockRequestId, navigation, showModal]);
 
   if (isLoading || !detail) {
     return (
       <View className="flex-1 bg-white">
         <ScreenHeader title="취소 상세" onPressBack={navigation.goBack} />
-        <View className="flex-1 items-center justify-center">{isLoading && <Spinner />}</View>
+        <View className="flex-1 items-center justify-center px-40">
+          {isLoading ? (
+            <Spinner />
+          ) : (
+            <Typography style={{ fontSize: 13, lineHeight: 22.1 }} className="text-center text-gray45">
+              {resolveErrorMessage(error, "취소 내역을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.")}
+            </Typography>
+          )}
+        </View>
       </View>
     );
   }
 
-  const status = STATUS_VIEW[detail.status];
-  const isPending = detail.status === "PENDING";
-  const isRejected = detail.status === "REJECTED";
+  const isPending = detail.phase === "REVIEWING";
+  const isRejected = detail.phase === "REJECTED";
+  const isCancelled = detail.phase === "CANCELLED";
   const firstItem = detail.items[0];
+  // 응답에 없는 값 — 주문 상세의 같은 항목에서 읽는다
+  const rowOf = (id: number) => order?.items.find(row => row.orderProductId === id);
+  const firstRow = firstItem ? rowOf(firstItem.orderProductId) : undefined;
+  const paidAmount = detail.items.reduce((sum, item) => sum + item.amount, 0);
+  const refundAmount = detail.refund?.amount ?? (isRejected ? 0 : paidAmount);
+  const refundMethodLabel = detail.refund?.methodLabel ?? order?.payment?.methodLabel ?? null;
+
+  // 직접 · 직권 취소는 신청이 없어 확정 시각이 곧 취소 시각이다
+  let decidedLabel = detail.kind === "REQUEST" ? "완료 일시" : "취소 일시";
+
+  if (isRejected) {
+    decidedLabel = "거부 일시";
+  }
 
   return (
     <View className="flex-1 bg-white">
@@ -141,7 +150,7 @@ export default function CancelDetailView() {
               style={{ fontSize: 19, fontWeight: "700", lineHeight: 24.7, letterSpacing: -0.4 }}
               className="text-ink"
             >
-              {formatRequestedAt(detail.requestedAt)}
+              {formatRequestedAt(detail.requestedAt ?? detail.decidedAt)}
             </Typography>
             <Typography style={{ fontSize: 12.5, lineHeight: 17.5, marginTop: 7 }} className="text-gray45">
               주문번호 {detail.orderNumber}
@@ -156,16 +165,16 @@ export default function CancelDetailView() {
 
         <SectionTitle title="취소 상품" count={`${detail.items.length}개`} />
         <Typography
-          style={{ fontSize: 12.5, fontWeight: "600", lineHeight: 12.5, color: status.color }}
+          style={{ fontSize: 12.5, fontWeight: "600", lineHeight: 12.5, color: PHASE_COLOR[detail.phase] }}
           className="px-14 pt-16"
         >
-          {status.label}
+          {detail.phaseLabel}
         </Typography>
         {detail.items.map(item => (
           <View key={item.orderProductId} className="px-14 pt-12">
             <ProductBlock
               thumbnailUrl={item.thumbnailUrl}
-              brand={item.brandName}
+              brand={rowOf(item.orderProductId)?.brandName ?? ""}
               name={item.productName}
               meta={withOption(item.optionName, `${item.quantity}개`, " / ")}
               price={won(item.amount)}
@@ -173,7 +182,7 @@ export default function CancelDetailView() {
           </View>
         ))}
 
-        {detail.status !== "APPROVED" && (
+        {!isCancelled && (
           <View
             className="mx-14 rounded-base bg-band"
             style={{ marginTop: 14, paddingVertical: 12, paddingHorizontal: 13 }}
@@ -181,21 +190,21 @@ export default function CancelDetailView() {
             <Typography style={{ fontSize: 12.5, lineHeight: 20 }} className="text-ink76">
               {isPending
                 ? "브랜드가 확인하고 있어요. 보통 1영업일 안에 결과를 알림으로 알려드려요."
-                : "브랜드가 취소 요청을 반려했어요. 주문은 그대로 배송돼요."}
+                : "브랜드가 취소 요청을 거부했어요. 주문은 그대로 배송돼요."}
             </Typography>
           </View>
         )}
 
         <View className="flex-row px-14 pt-12">
-          {isPending && (
+          {isPending && !!devMockRequestId && (
             <OutlineAction label="취소 요청 철회" height={44} fontSize={13.5} onPress={handlePressWithdraw} />
           )}
-          {detail.status === "APPROVED" && !!firstItem && (
+          {isCancelled && !!firstRow && (
             <OutlineAction
               label="재구매"
               height={44}
               fontSize={13.5}
-              onPress={() => open(COMMON_ROUTES.PRODUCT_DETAIL, { productId: firstItem.productId })}
+              onPress={() => open(COMMON_ROUTES.PRODUCT_DETAIL, { productId: firstRow.productId })}
             />
           )}
           {isRejected && !!firstItem && (
@@ -216,9 +225,11 @@ export default function CancelDetailView() {
         <Band marginTop={20} />
         <SectionTitle title="취소 신청 정보" style={{ paddingBottom: 8 }} />
         <View className="px-14">
-          <InfoRow label="신청 일시" labelWidth={62} value={formatDateTimeFull(detail.requestedAt)} />
+          {!!detail.requestedAt && (
+            <InfoRow label="신청 일시" labelWidth={62} value={formatDateTimeFull(detail.requestedAt)} />
+          )}
           <InfoRow
-            label={isRejected ? "반려 일시" : "완료 일시"}
+            label={decidedLabel}
             labelWidth={62}
             value={detail.decidedAt ? formatDateTimeFull(detail.decidedAt) : "브랜드 확인 후 표시돼요"}
             valueColor={detail.decidedAt ? "#0F0F0F" : "#9E9E9E"}
@@ -226,53 +237,58 @@ export default function CancelDetailView() {
           <InfoRow
             label="취소 사유"
             labelWidth={62}
-            value={
-              detail.reasonDetail ??
-              CANCEL_REQUEST_REASONS.find(item => item.code === detail.reason)?.text ??
-              ""
-            }
+            value={detail.reasonDetail ? `${detail.reasonLabel}\n${detail.reasonDetail}` : detail.reasonLabel}
           />
-          {isRejected && !!detail.rejectReason && <RejectRows detail={detail} />}
+          {isRejected && !!detail.rejection && (
+            <RejectRows detail={detail} brandName={firstRow?.brandName ?? ""} />
+          )}
         </View>
 
         <Band marginTop={14} />
         <SectionTitle title="환불 정보" />
         <View className="px-14 pt-14">
-          <AmountRow label="결제 금액" value={won(detail.paidAmount)} labelColor="#3C3C3C" fontSize={13.5} />
+          <AmountRow label="결제 금액" value={won(paidAmount)} labelColor="#3C3C3C" fontSize={13.5} />
         </View>
         <View
           className="mx-14 flex-row items-baseline justify-between border-t-[0.5px] border-dividerProduct"
           style={{ marginTop: 12, paddingTop: 12, gap: 12 }}
         >
           <Typography style={{ fontSize: 14, fontWeight: "600", lineHeight: 14 }} className="text-ink">
-            {detail.status === "APPROVED" ? "환불 금액" : "환불 예정 금액"}
+            {isCancelled ? "환불 금액" : "환불 예정 금액"}
           </Typography>
           <Typography
             style={{ fontSize: 17, fontWeight: "700", lineHeight: 17, letterSpacing: -0.4 }}
             className={isRejected ? "text-gray62" : "text-ink"}
           >
-            {won(isRejected ? 0 : detail.refundAmount)}
+            {won(refundAmount)}
           </Typography>
         </View>
-        {!!detail.refundMethodLabel && (
+        {!isRejected && !!refundMethodLabel && (
+          <View className="px-14 pt-9">
+            <AmountRow label="환불 수단" value={refundMethodLabel} fontSize={12.5} valueColor="#3C3C3C" />
+          </View>
+        )}
+        {!!detail.refund?.statusLabel && (
           <View className="px-14 pt-9">
             <AmountRow
-              label="환불 수단"
-              value={detail.refundMethodLabel}
+              label="환불 상태"
+              value={detail.refund.statusLabel}
               fontSize={12.5}
               valueColor="#3C3C3C"
             />
           </View>
         )}
-        <BulletNotes style={{ paddingHorizontal: 14, paddingTop: 18 }} notes={[noteFor(detail)]} />
+        <BulletNotes style={{ paddingHorizontal: 14, paddingTop: 18 }} notes={notesFor(detail)} />
 
-        <DevStatusSwitch
-          current={detail.status}
-          onPick={next => {
-            cancelRequestService.devSetStatus(cancelRequestId, next);
-            refresh();
-          }}
-        />
+        {!!devMockRequestId && (
+          <DevStatusSwitch
+            current={detail.phase}
+            onPick={next => {
+              cancelRequestService.devSetPhase(devMockRequestId, next);
+              refresh();
+            }}
+          />
+        )}
         <View className="h-26" />
         <BottomSafeSpacer />
       </ScrollView>
@@ -280,33 +296,33 @@ export default function CancelDetailView() {
   );
 }
 
-/** 반려 사유 — 어드민의 거부 사유 문구 그대로, 브랜드가 쓴 상세 사유는 출처를 밝혀 따로 단다 */
-function RejectRows(props: { detail: CancelRequestDetail }) {
-  const { detail } = props;
+/** 거부 사유 — 서버 문구 그대로, 브랜드가 쓴 상세 사유는 출처를 밝혀 따로 단다 */
+function RejectRows(props: { detail: CancelDetail; brandName: string }) {
+  const { detail, brandName } = props;
 
   return (
     <>
       <View className="flex-row" style={{ gap: 14, paddingVertical: 6 }}>
         <Typography style={{ width: 62, fontSize: 13.5, lineHeight: 20.25 }} className="text-gray45">
-          반려 사유
+          거부 사유
         </Typography>
         <Typography
           style={{ flex: 1, fontSize: 13.5, fontWeight: "600", lineHeight: 20.25 }}
           className="text-ink"
         >
-          {CANCEL_REJECT_REASON_LABEL[detail.rejectReason!]}
+          {detail.rejection?.reasonLabel}
         </Typography>
       </View>
-      {!!detail.rejectMessage && (
+      {!!detail.rejection?.detail && (
         <View
           className="rounded-base bg-band"
           style={{ marginTop: 6, marginBottom: 2, paddingVertical: 12, paddingHorizontal: 13 }}
         >
           <Typography style={{ fontSize: 12, fontWeight: "600", lineHeight: 12 }} className="text-ink76">
-            {detail.items[0]?.brandName}의 메시지
+            {brandName ? `${brandName}의 메시지` : "브랜드 메시지"}
           </Typography>
           <Typography style={{ fontSize: 13, lineHeight: 21.45, marginTop: 7 }} className="text-ink76">
-            {detail.rejectMessage}
+            {detail.rejection.detail}
           </Typography>
         </View>
       )}
@@ -314,30 +330,28 @@ function RejectRows(props: { detail: CancelRequestDetail }) {
   );
 }
 
-function noteFor(detail: CancelRequestDetail) {
-  if (detail.status === "PENDING") {
-    return "브랜드가 1영업일(주말·공휴일 제외) 안에 확인하지 않으면 자동으로 취소돼요. 확인 전까지는 요청을 철회할 수 있어요.";
+/** 안내 — 서버 문구를 먼저 쓰고, 서버가 비워 두는 취소 완료에는 카드사 처리 기간을 단다 */
+function notesFor(detail: CancelDetail) {
+  const notes = [...detail.notices];
+
+  if (detail.autoApproved) {
+    notes.unshift("브랜드가 기한 안에 확인하지 않아 자동으로 취소됐어요.");
   }
-  if (detail.status === "APPROVED") {
-    return "카드사 처리에 2~3영업일이 더 걸릴 수 있어요.";
+  if (detail.phase === "CANCELLED") {
+    notes.push("카드사 처리에 2~3영업일이 더 걸릴 수 있어요.");
   }
-  return detail.rejectReason === "CUSTOM_MADE"
-    ? "주문 제작·맞춤 상품은 단순 변심 반품이 제한될 수 있어요."
-    : "배송완료 후 7일 이내에 주문 상세에서 반품을 신청할 수 있어요.";
+  return notes;
 }
 
-/** DEV 빌드에서만 — 목업의 세 상태를 눈으로 확인하는 스위치(배포본에는 그리지 않는다) */
-function DevStatusSwitch(props: {
-  current: CancelRequestStatus;
-  onPick: (status: CancelRequestStatus) => void;
-}) {
+/** DEV 목업 요청에서만 — 세 상태를 눈으로 확인하는 스위치(배포본에는 그리지 않는다) */
+function DevStatusSwitch(props: { current: CancelPhase; onPick: (phase: CancelPhase) => void }) {
   if (!__DEV__) {
     return null;
   }
-  const options: Array<{ status: CancelRequestStatus; label: string }> = [
-    { status: "PENDING", label: "확인 중" },
-    { status: "APPROVED", label: "승인" },
-    { status: "REJECTED", label: "반려" },
+  const options: Array<{ phase: CancelPhase; label: string }> = [
+    { phase: "REVIEWING", label: "확인 중" },
+    { phase: "CANCELLED", label: "취소 완료" },
+    { phase: "REJECTED", label: "거부" },
   ];
 
   return (
@@ -347,18 +361,18 @@ function DevStatusSwitch(props: {
       </Typography>
       {options.map(option => (
         <TouchableOpacity
-          key={option.status}
-          onPress={() => props.onPick(option.status)}
+          key={option.phase}
+          onPress={() => props.onPick(option.phase)}
           activeOpacity={0.6}
           className="rounded-full border-[1px] px-10 py-6"
           style={{
-            borderColor: option.status === props.current ? "#1A1A1A" : "#E3E3E5",
-            backgroundColor: option.status === props.current ? "#1A1A1A" : "#FFFFFF",
+            borderColor: option.phase === props.current ? "#1A1A1A" : "#E3E3E5",
+            backgroundColor: option.phase === props.current ? "#1A1A1A" : "#FFFFFF",
           }}
         >
           <Typography
             style={{ fontSize: 11, lineHeight: 11 }}
-            className={option.status === props.current ? "text-white" : "text-ink76"}
+            className={option.phase === props.current ? "text-white" : "text-ink76"}
           >
             {option.label}
           </Typography>

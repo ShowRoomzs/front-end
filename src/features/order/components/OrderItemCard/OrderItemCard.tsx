@@ -29,7 +29,7 @@ interface OrderItemCardProps {
   /** 할 일 줄 · 반품·교환 반려 줄 — 반품·교환 상세로 */
   onPressClaim: (claimId: number) => void;
   /** 「취소 요청 반려 · 사유 보기」 — 취소 상세로 */
-  onPressCancelRejection: (cancelRequestId: number) => void;
+  onPressCancelRejection: () => void;
 }
 
 const TONE_COLOR = { ACTIVE: "#F2456E", MUTED: "#737373" } as const;
@@ -50,7 +50,7 @@ export default function OrderItemCard(props: OrderItemCardProps) {
         <ChevronLine
           label="취소 요청 반려 · 사유 보기"
           tone="gray"
-          onPress={() => onPressCancelRejection(item.cancelRejection!.cancelRequestId)}
+          onPress={onPressCancelRejection}
           style={isList ? { marginTop: 2, marginBottom: -4 } : { marginTop: 4, marginBottom: -2 }}
         />
       )}

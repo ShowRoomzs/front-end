@@ -47,24 +47,17 @@ export function useOrderNavigation() {
     [mainNavigation, navigation]
   );
 
-  /** 취소 상세(C10 1d) — 앱용 API가 생기기 전에는 배포본에서 「준비 중」으로 막는다 */
+  /** 취소 상세(C10 1d) — 항목 기준(요청 · 직접 취소 · 직권 취소 모두) */
   const openCancelDetail = useCallback(
-    (cancelRequestId: number | null | undefined) => {
-      if (!cancelRequestId) {
-        return;
-      }
-      if (!CANCEL_REQUEST_AVAILABLE) {
-        toast.show(CANCEL_REQUEST_NOT_READY_MESSAGE);
-        return;
-      }
-      open(COMMON_ROUTES.CANCEL_DETAIL, { cancelRequestId });
+    (orderId: number, orderProductId: number) => {
+      open(COMMON_ROUTES.CANCEL_DETAIL, { orderId, orderProductId });
     },
     [open]
   );
 
   /**
    * 항목 버튼 — 서버가 내린 것만 그린다. 갈 곳은 버튼 종류가 정한다.
-   * 취소 요청·취소 상세는 앱용 API가 아직 없어 서버가 내리지 않는다(내려오면 문의로 안내).
+   * 취소 요청은 서버가 하위주문 id를 아직 내리지 않아 DEV 목업으로만 접수된다(`cancelRequestService`).
    */
   const handleItemAction = useCallback(
     (orderId: number, item: OrderItemRow, action: OrderItemAction) => {
@@ -100,7 +93,7 @@ export function useOrderNavigation() {
           open(COMMON_ROUTES.CANCEL_REQUEST, { orderId, orderProductId: item.orderProductId });
           return;
         case "CANCEL_DETAIL":
-          openCancelDetail(item.cancelRequestId ?? item.cancelRejection?.cancelRequestId);
+          openCancelDetail(orderId, item.orderProductId);
       }
     },
     [open, openCancelDetail]

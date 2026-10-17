@@ -26,9 +26,13 @@ import {
   SectionTitle,
 } from "@/features/order/components/OrderParts/OrderParts";
 import { RadioDot } from "@/features/order/components/PaymentMethodPicker/PaymentMethodPicker";
-import { useGetOrderDetail } from "@/features/order/hooks/useOrderQueries";
+import { invalidateOrderQueries, useGetOrderDetail } from "@/features/order/hooks/useOrderQueries";
 import { cancelRequestService } from "@/features/order/services/cancelRequestService";
-import { CANCEL_REQUEST_REASONS, CancelRequestReason } from "@/features/order/types/cancelRequest";
+import {
+  CANCEL_REASON_DETAIL_MAX,
+  CANCEL_REQUEST_REASONS,
+  CancelRequestReason,
+} from "@/features/order/types/cancelRequest";
 import { formatOrderDate, resolveErrorMessage, withOption, won } from "@/features/order/utils/orderFormat";
 
 /**
@@ -42,10 +46,12 @@ import { formatOrderDate, resolveErrorMessage, withOption, won } from "@/feature
  * 상품이 여럿이면 **체크로 고르고**, 2개 이상 수량이면 취소 수량 스테퍼가 붙는다. 진입한 항목은
  * 미리 체크된다. 상품이 1개면 고를 것이 없어 체크박스를 두지 않는다.
  *
- * ⚠️ 앱용 취소 요청 API가 없어 DEV에서만 목업으로 동작한다(`cancelRequestService`).
+ * 취소 요청 API는 하위주문 id를 받는데 주문 응답이 아직 내리지 않아, 그 값이 오기 전까지는 DEV에서만
+ * 목업으로 접수된다(`cancelRequestService.create`). 기타 사유는 상세 입력이 필수다(서버 검증과 같다).
  */
 interface Line {
   orderProductId: number;
+  deliveryGroupId: number | null;
   productId: number;
   variantId: number;
   groupBuyId: number | null;
@@ -78,6 +84,7 @@ export default function CancelRequestView() {
 
         return {
           orderProductId: item.orderProductId,
+          deliveryGroupId: item.deliveryGroupId ?? null,
           productId: item.productId,
           variantId: item.variantId,
           groupBuyId: group?.groupBuyId ?? null,
@@ -102,7 +109,11 @@ export default function CancelRequestView() {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [recart, setRecart] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [done, setDone] = useState<{ cancelRequestId: number; recarted: boolean } | null>(null);
+  const [done, setDone] = useState<{
+    orderProductId: number;
+    devMockRequestId?: number;
+    recarted: boolean;
+  } | null>(null);
 
   useEffect(() => {
     if (lines.length === 0) {
@@ -175,13 +186,17 @@ export default function CancelRequestView() {
 
   const refund = cancelSum + shipping.refund;
   const isAllSelected = lines.length > 0 && selectedLines.length === lines.length;
-  const isReady = selectedLines.length > 0 && !!reason;
+  const needsEtcText = reason === "ETC" && etcText.trim().length === 0;
+  const isReady = selectedLines.length > 0 && !!reason && !needsEtcText;
 
   const ctaLabel = (() => {
     if (selectedLines.length === 0) {
       return "취소할 상품을 선택해 주세요";
     }
-    return reason ? `취소 요청하기 (${selectedLines.length}개)` : "취소 사유를 선택해 주세요";
+    if (!reason) {
+      return "취소 사유를 선택해 주세요";
+    }
+    return needsEtcText ? "취소 사유를 입력해 주세요" : `취소 요청하기 (${selectedLines.length}개)`;
   })();
 
   const handleSubmit = useCallback(async () => {
@@ -190,12 +205,20 @@ export default function CancelRequestView() {
     }
     setIsSubmitting(true);
     try {
-      const { cancelRequestId } = await cancelRequestService.create({
+      // 한 요청은 한 하위주문 — 고른 항목의 하위주문이 모두 같고 값이 있을 때만 서버로 보낸다
+      const groupIds = new Set(selectedLines.map(line => line.deliveryGroupId));
+      const deliveryGroupId = groupIds.size === 1 ? (selectedLines[0]?.deliveryGroupId ?? null) : null;
+      const result = await cancelRequestService.create({
         orderId: order.orderId,
         items: selectedLines.map(line => ({ orderProductId: line.orderProductId, quantity: qtyOf(line) })),
         reason,
-        reasonDetail: reason === "ETC" ? etcText.trim() || undefined : undefined,
+        reasonDetail: reason === "ETC" ? etcText.trim() : undefined,
+        deliveryGroupId,
       });
+
+      if (result.source === "SERVER") {
+        invalidateOrderQueries();
+      }
 
       let recarted = false;
 
@@ -218,7 +241,11 @@ export default function CancelRequestView() {
         recarted = results.some(result => result.status === "fulfilled");
       }
       setIsConfirmOpen(false);
-      setDone({ cancelRequestId, recarted });
+      setDone({
+        orderProductId: selectedLines[0].orderProductId,
+        devMockRequestId: result.source === "DEV_MOCK" ? result.mockRequestId : undefined,
+        recarted,
+      });
     } catch (error) {
       setIsConfirmOpen(false);
       toast.show(resolveErrorMessage(error, (error as Error)?.message || "취소를 요청하지 못했어요."));
@@ -319,7 +346,11 @@ export default function CancelRequestView() {
               height={44}
               fontSize={13.5}
               onPress={() =>
-                navigation.replace(COMMON_ROUTES.CANCEL_DETAIL, { cancelRequestId: done.cancelRequestId })
+                navigation.replace(COMMON_ROUTES.CANCEL_DETAIL, {
+                  orderId: order.orderId,
+                  orderProductId: done.orderProductId,
+                  devMockRequestId: done.devMockRequestId,
+                })
               }
             />
             <OutlineAction
@@ -472,7 +503,7 @@ export default function CancelRequestView() {
                 placeholder="취소 사유를 적어주세요"
                 placeholderTextColor="#B5B5B5"
                 multiline
-                maxLength={255}
+                maxLength={CANCEL_REASON_DETAIL_MAX}
                 className="m-0 flex-1 p-0 text-ink"
                 style={{
                   fontSize: 13.5,

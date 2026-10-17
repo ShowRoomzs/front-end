@@ -1,10 +1,9 @@
 /**
- * 소비자 취소 요청 — 상품준비중(브랜드가 출고 준비를 시작한 뒤)의 취소는 즉시 취소가 아니라
- * **요청 → 브랜드 승인**으로 확정된다(시안 C10 1c · 1d).
+ * 소비자 취소 요청 · 취소 상세 — back-end `UserCancelDto`(C10 1b~1d · 1009 기획 수정본 3-1).
  *
- * ⚠️ 앱용 API가 아직 없다(서버 「결제 연동 앱 전달사항」 10절 「아직 없는 것」). 아래 모양은 서버 도메인
- * (`order_cancel_request` · `CancelRequestReason` · `CancelRequestStatus`)과 시안에서 잡은 **잠정 계약**이고,
- * 데이터는 DEV에서만 `cancelRequestService`의 목업이 채운다. API가 생기면 그 서비스만 바꾼다.
+ * 상품준비중(브랜드가 출고 준비를 시작한 뒤)의 취소는 즉시 취소가 아니라 **요청 → 브랜드 승인**으로 확정된다.
+ * 취소 상세는 **항목 기준**이다 — 그 항목이 어떤 경로로 취소됐는지(요청 · 직접 취소 · 직권 취소)에 따라
+ * 같은 화면이 다른 값을 그린다. 문구(상태 라벨 · 안내 · 사유)는 서버가 내린다.
  */
 
 /** 서버 `CancelRequestReason` — 시안의 사유 4택과 같다 */
@@ -17,50 +16,68 @@ export const CANCEL_REQUEST_REASONS: Array<{ code: CancelRequestReason; label: s
   { code: "ETC", label: "기타", text: "기타" },
 ];
 
-/** 서버 `CancelRequestStatus`(VOIDED는 시스템 종료라 소비자 화면에 오지 않는다) */
-export type CancelRequestStatus = "PENDING" | "APPROVED" | "REJECTED";
+/** 상세 사유 — 기타면 필수 · 300자(서버 `OrderCancelRequestService`) */
+export const CANCEL_REASON_DETAIL_MAX = 300;
 
-/** 브랜드 어드민의 거부 사유 4종 — 문구 그대로 표시한다(시안 1d · 서버 C10 설계서 7-2 C4) */
-export type CancelRejectReason = "ALREADY_PACKED" | "ALREADY_PICKED_UP" | "CUSTOM_MADE" | "ETC";
-
-export const CANCEL_REJECT_REASON_LABEL: Record<CancelRejectReason, string> = {
-  ALREADY_PACKED: "이미 포장·출고가 완료됨",
-  ALREADY_PICKED_UP: "택배사 집화가 완료됨",
-  CUSTOM_MADE: "주문 제작·맞춤 상품",
-  ETC: "기타",
-};
-
-export interface CreateCancelRequest {
-  orderId: number;
-  items: Array<{ orderProductId: number; quantity: number }>;
-  reason: CancelRequestReason;
+/** `POST /user/orders/{orderId}/cancel-requests` — 한 하위주문의 결제된 항목 중 고른 것, **항목 전량**이다 */
+export interface CreateCancelRequestBody {
+  deliveryGroupId: number;
+  orderProductIds: Array<number>;
+  reasonCode: CancelRequestReason;
   reasonDetail?: string;
 }
 
-export interface CancelRequestDetail {
-  cancelRequestId: number;
+/** REQUEST 소비자 취소 요청 · CONSUMER_CANCEL 준비 전 직접 취소 · SELLER_CANCEL 브랜드 직권 취소 */
+export type CancelKind = "REQUEST" | "CONSUMER_CANCEL" | "SELLER_CANCEL";
+
+/** REVIEWING 브랜드 확인 중 · CANCELLED 취소 완료 · REJECTED 브랜드 거부(상품은 발송된다) */
+export type CancelPhase = "REVIEWING" | "CANCELLED" | "REJECTED";
+
+export interface CancelDetailItem {
+  orderProductId: number;
+  productName: string;
+  optionName: string | null;
+  thumbnailUrl: string;
+  quantity: number;
+  /** 단가 × 수량 */
+  amount: number;
+}
+
+export interface CancelDetailRefund {
+  /** 전 항목 취소면 배송비 포함 */
+  amount: number;
+  status: "PROCESSING" | "DONE";
+  statusLabel: string;
+  /** 「신한카드 결제 취소」 */
+  methodLabel: string | null;
+  refundedAt: string | null;
+}
+
+/** `GET /user/orders/{orderId}/items/{orderProductId}/cancel` */
+export interface CancelDetail {
   orderId: number;
   orderNumber: string;
-  status: CancelRequestStatus;
-  requestedAt: string;
-  /** 승인·반려 일시 — 확인 중이면 null */
+  /** 취소 요청이면 그 id — 직접 · 직권 취소는 null */
+  cancelRequestId: number | null;
+  kind: CancelKind;
+  phase: CancelPhase;
+  /** 「확인 중」 · 「취소 요청 거부」 · 「취소 완료」 */
+  phaseLabel: string;
+  /** 브랜드가 응답 기한 안에 확인하지 않아 자동으로 취소됐다 */
+  autoApproved: boolean;
+  /** 안내 문구 — 없으면 빈 목록 */
+  notices: Array<string>;
+  /** 요청 시각 — 직접 · 직권 취소는 null(취소 시각은 `decidedAt`) */
+  requestedAt: string | null;
+  /** 브랜드 응답 기한 — 확인 중일 때만 */
+  respondDueAt: string | null;
+  /** 취소 · 거부 확정 시각 */
   decidedAt: string | null;
-  reason: CancelRequestReason;
+  reasonLabel: string;
   reasonDetail: string | null;
-  rejectReason: CancelRejectReason | null;
-  /** 브랜드가 적은 상세 사유 — 기타는 필수, 나머지는 있을 때만 */
-  rejectMessage: string | null;
-  items: Array<{
-    orderProductId: number;
-    productId: number;
-    brandName: string;
-    productName: string;
-    optionName: string | null;
-    quantity: number;
-    amount: number;
-    thumbnailUrl: string;
-  }>;
-  paidAmount: number;
-  refundAmount: number;
-  refundMethodLabel: string;
+  /** 거부 사유 — 거부됐을 때만 */
+  rejection: { reasonLabel: string; detail: string | null } | null;
+  items: Array<CancelDetailItem>;
+  /** 거부 · 확인 중이면 null */
+  refund: CancelDetailRefund | null;
 }

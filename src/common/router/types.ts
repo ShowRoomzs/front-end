@@ -105,8 +105,11 @@ export type CommonStackParamList = {
     orderId: number;
     orderProductId?: number;
   };
+  /** 취소 상세는 항목 기준이다. `devMockRequestId`는 DEV 목업으로 접수한 요청(서버에 없다)일 때만 */
   [COMMON_ROUTES.CANCEL_DETAIL]: {
-    cancelRequestId: number;
+    orderId: number;
+    orderProductId: number;
+    devMockRequestId?: number;
   };
   /** 주문 항목의 송장이면 `orderId`+`orderProductId`, 재발송 송장이면 `reshipClaimId` */
   [COMMON_ROUTES.DELIVERY_TRACKING]: {

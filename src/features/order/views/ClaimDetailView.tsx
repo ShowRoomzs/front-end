@@ -1,6 +1,6 @@
 import { RouteProp, useFocusEffect, useRoute } from "@react-navigation/native";
-import { useCallback, useState } from "react";
-import { Image, ScrollView, View } from "react-native";
+import { useCallback, useMemo, useState } from "react";
+import { Image, ScrollView, TouchableOpacity, View } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
@@ -33,9 +33,16 @@ import { useOrderNavigation } from "@/features/order/hooks/useOrderNavigation";
 import { invalidateOrderQueries, useGetClaimDetail } from "@/features/order/hooks/useOrderQueries";
 import { claimService } from "@/features/order/services/claimService";
 import {
+  applyDevReshipMock,
+  canApplyDevReshipMock,
+  DEV_RESHIP_MOCK_OPTIONS,
+  DevReshipMock,
+} from "@/features/order/services/reshipFeeDevMock";
+import {
   ClaimAction,
   ClaimDetailItem,
   ClaimDetailResponse,
+  ClaimPaymentCompleteResponse,
   ClaimReshipFee,
   UserClaimPhase,
 } from "@/features/order/types/claim";
@@ -44,6 +51,7 @@ import {
   isPaymentSelectionComplete,
   PaymentMethods,
   PaymentSelection,
+  paymentSelectionLabel,
   toSubmittedSelection,
 } from "@/features/order/types/payment";
 import {
@@ -89,7 +97,14 @@ export default function ClaimDetailView() {
   const navigation = useCommonNavigation();
   const { params } = useRoute<RouteProp<CommonStackParamList, typeof COMMON_ROUTES.CLAIM_DETAIL>>();
   const { claimId } = params;
-  const { data: detail, isLoading, refetch } = useGetClaimDetail(claimId);
+  const { data: serverDetail, isLoading, refetch } = useGetClaimDetail(claimId);
+  // DEV 빌드에서만 — 재발송비 결제 상태를 덧씌워 확인한다(`reshipFeeDevMock`)
+  const [devReshipMock, setDevReshipMock] = useState<DevReshipMock>("OFF");
+  const [devPaidLabel, setDevPaidLabel] = useState<string | null>(null);
+  const detail = useMemo(
+    () => (serverDetail ? applyDevReshipMock(serverDetail, devReshipMock, devPaidLabel) : serverDetail),
+    [devPaidLabel, devReshipMock, serverDetail]
+  );
   const { show: showModal } = useModal();
   const { open } = useOrderNavigation();
   const [payment, setPayment] = useState<Partial<PaymentSelection>>({});
@@ -215,6 +230,31 @@ export default function ClaimDetailView() {
     if (!reshipFee || !canPay || isPaying) {
       return;
     }
+    if (devReshipMock !== "OFF") {
+      // 목업 청구는 서버에 없어 결제창을 열 수 없다 — 결제창이 돌려줄 결과를 골라 후속 처리를 본다
+      showModal({
+        title: "DEV 목업 결제",
+        message: `${paymentSelectionLabel(payment)} · ${won(reshipFee.amount ?? 0)}
+결제창 결과를 골라 주세요.`,
+        buttons: [
+          {
+            label: "성공",
+            onPress: () => {
+              setDevPaidLabel(paymentSelectionLabel(payment));
+              setDevReshipMock("PAID");
+              handlePaymentOutcome({ type: "PAID", result: {} as ClaimPaymentCompleteResponse });
+            },
+          },
+          { label: "실패", variant: "outline", onPress: () => handlePaymentOutcome({ type: "NOT_PAID" }) },
+          {
+            label: "자동 취소",
+            variant: "outline",
+            onPress: () => handlePaymentOutcome({ type: "CANCELLED", requestExpired: false }),
+          },
+        ],
+      });
+      return;
+    }
     setIsPaying(true);
     try {
       const paymentWindow = await claimService.payReshipFee(claimId, {
@@ -229,7 +269,18 @@ export default function ClaimDetailView() {
     } finally {
       setIsPaying(false);
     }
-  }, [canPay, claimId, claimPayment, isPaying, payment, refetch, reshipFee]);
+  }, [
+    canPay,
+    claimId,
+    claimPayment,
+    devReshipMock,
+    handlePaymentOutcome,
+    isPaying,
+    payment,
+    refetch,
+    reshipFee,
+    showModal,
+  ]);
 
   if (isLoading || !detail) {
     return (
@@ -288,6 +339,16 @@ export default function ClaimDetailView() {
             onPressAction={action => handleItemAction(item, action)}
           />
         ))}
+
+        {canApplyDevReshipMock(serverDetail) && (
+          <DevReshipSwitch
+            current={devReshipMock}
+            onPick={mock => {
+              setDevReshipMock(mock);
+              setPayment({});
+            }}
+          />
+        )}
 
         {!!reshipFee && reshipFee.state !== "WAITING" && (
           <ReshipFeeBlock
@@ -795,6 +856,39 @@ function RefundSection(props: { detail: ClaimDetailResponse }) {
 }
 
 /** 반려 재발송비를 낸 뒤 — 받았으면 종결, 출발했으면 이동 중, 아니면 준비 중 */
+/** DEV 빌드에서만 — 재발송비 결제 목업 상태 스위치(배포본에는 그리지 않는다 · CancelDetailView와 같은 모양) */
+function DevReshipSwitch(props: { current: DevReshipMock; onPick: (mock: DevReshipMock) => void }) {
+  if (!__DEV__) {
+    return null;
+  }
+  return (
+    <View className="flex-row flex-wrap items-center px-14 pt-20" style={{ gap: 6 }}>
+      <Typography style={{ fontSize: 11, lineHeight: 11 }} className="text-gray55">
+        DEV 재발송비 목업
+      </Typography>
+      {DEV_RESHIP_MOCK_OPTIONS.map(option => (
+        <TouchableOpacity
+          key={option.mock}
+          onPress={() => props.onPick(option.mock)}
+          activeOpacity={0.6}
+          className="rounded-full border-[1px] px-10 py-6"
+          style={{
+            borderColor: option.mock === props.current ? "#1A1A1A" : "#E3E3E5",
+            backgroundColor: option.mock === props.current ? "#1A1A1A" : "#FFFFFF",
+          }}
+        >
+          <Typography
+            style={{ fontSize: 11, lineHeight: 11 }}
+            className={option.mock === props.current ? "text-white" : "text-ink76"}
+          >
+            {option.label}
+          </Typography>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+}
+
 function paidReshipTitle(phases: Array<UserClaimPhase>) {
   if (phases.includes("REJECTED_DONE")) {
     return "반려 상품을 받으셨어요";

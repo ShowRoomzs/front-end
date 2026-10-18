@@ -285,8 +285,10 @@ export type ReshipFeeState = "PAYABLE" | "WAITING" | "PAID" | "DEDUCTED" | "COVE
 export interface ClaimReshipFee {
   state: ReshipFeeState;
   amount: number | null;
-  /** PAYABLE의 결제 기한 */
+  /** PAYABLE의 결제 기한 — 기한이 지나도 내려온다(`overdue`를 먼저 본다) */
   dueDate: string | null;
+  /** 결제 기한이 지났다(PAYABLE일 때만 참) — 기한이 지나도 결제는 된다 */
+  overdue: boolean;
   settledAt: string | null;
   methodLabel: string | null;
   storage: {

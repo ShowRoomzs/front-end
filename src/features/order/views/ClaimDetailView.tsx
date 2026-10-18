@@ -658,6 +658,28 @@ function isReshipPayable(reshipFee: ClaimReshipFee) {
   return reshipFee.state === "PAYABLE" && (reshipFee.amount ?? 0) > 0;
 }
 
+/**
+ * 결제 기한이 지난 재발송비(서버 `overdue`) — 기한이 지나도 결제는 된다. 문구는 백엔드 46 수정계획 7-3의
+ * 제안(기획 기본값)이다: 고지 전 · 보관 중은 기한 경과 안내, 보관 기한까지 지나면 고객센터 안내.
+ */
+function OverdueNotice(props: { dueDate: string | null; expired: boolean }) {
+  if (props.expired) {
+    return (
+      <Typography style={{ fontSize: 12.5, lineHeight: 20.6 }} className="px-14 pt-8 text-ink76">
+        보관 기한이 지났어요. 고객센터로 문의해 주세요.
+      </Typography>
+    );
+  }
+  return (
+    <Typography style={{ fontSize: 12.5, lineHeight: 20.6 }} className="px-14 pt-8 text-ink76">
+      <Typography style={{ fontSize: 12.5, fontWeight: "600", lineHeight: 20.6 }} className="text-roseText">
+        결제 기한{props.dueDate ? `(${formatMonthDay(props.dueDate)})` : ""}이 지났어요.
+      </Typography>{" "}
+      결제하면 반려 상품을 다시 보내드려요.
+    </Typography>
+  );
+}
+
 /** 「상품 다시 받기」 — 결제 필요 · 차감 · 충당 · 결제 완료 · 0원 */
 function ReshipFeeBlock(props: {
   reshipFee: ClaimReshipFee;
@@ -668,6 +690,12 @@ function ReshipFeeBlock(props: {
 }) {
   const { reshipFee, kw, items, payment, onChangePayment } = props;
   const amount = won(reshipFee.amount ?? 0);
+  const storagePhase = reshipFee.storage?.phase;
+  // 보관 기한 줄 — 기한 전에는 결제 기한이 곧 보관 기한이고, 기한이 지나면 서버가 정한 보관 기한(보관 중일 때만)
+  const overdueStorageDue = storagePhase === "STORING" ? reshipFee.storage?.storageDueAt : null;
+  const storageDue = reshipFee.overdue
+    ? overdueStorageDue
+    : (reshipFee.storage?.storageDueAt ?? reshipFee.dueDate);
   // 승인된 상품이 하나뿐이면 어느 환불액에서 빼는지 상품명으로 짚어준다 — 여럿이면 일반 문장
   const approvedItems = items.filter(
     item => item.phase !== "CANCELLED" && !REJECTED_PHASES.includes(item.phase)
@@ -707,18 +735,22 @@ function ReshipFeeBlock(props: {
       <SectionTitle title="상품 다시 받기" />
       {isReshipPayable(reshipFee) && (
         <>
-          <Typography style={{ fontSize: 12.5, lineHeight: 20.6 }} className="px-14 pt-8 text-ink76">
-            {kw}이 반려된 상품을 다시 보내드려요.{" "}
-            {!!reshipFee.dueDate && (
-              <Typography
-                style={{ fontSize: 12.5, fontWeight: "600", lineHeight: 20.6 }}
-                className="text-ink76"
-              >
-                {formatDueDate(reshipFee.dueDate)}까지
-              </Typography>
-            )}
-            {reshipFee.dueDate ? " " : ""}재발송 배송비를 결제해 주세요.
-          </Typography>
+          {reshipFee.overdue ? (
+            <OverdueNotice dueDate={reshipFee.dueDate} expired={storagePhase === "EXPIRED"} />
+          ) : (
+            <Typography style={{ fontSize: 12.5, lineHeight: 20.6 }} className="px-14 pt-8 text-ink76">
+              {kw}이 반려된 상품을 다시 보내드려요.{" "}
+              {!!reshipFee.dueDate && (
+                <Typography
+                  style={{ fontSize: 12.5, fontWeight: "600", lineHeight: 20.6 }}
+                  className="text-ink76"
+                >
+                  {formatDueDate(reshipFee.dueDate)}까지
+                </Typography>
+              )}
+              {reshipFee.dueDate ? " " : ""}재발송 배송비를 결제해 주세요.
+            </Typography>
+          )}
           <View className="flex-row items-baseline justify-between px-14 pt-12" style={{ gap: 12 }}>
             <Typography style={{ fontSize: 13.5, lineHeight: 18.9 }} className="text-ink76">
               재발송 배송비
@@ -735,14 +767,14 @@ function ReshipFeeBlock(props: {
             issuerSheet="grid"
             easyPayLabelSize={14.5}
           />
-          {(!!reshipFee.storage?.storageDueAt || !!reshipFee.dueDate) && (
+          {!!storageDue && (
             <Typography style={{ fontSize: 11.5, lineHeight: 18.4 }} className="px-14 pt-10 text-gray45">
               보관 기한{" "}
               <Typography
                 style={{ fontSize: 11.5, fontWeight: "600", lineHeight: 18.4 }}
                 className="text-ink76"
               >
-                {formatMonthDay(reshipFee.storage?.storageDueAt ?? reshipFee.dueDate)}
+                {formatMonthDay(storageDue)}
               </Typography>{" "}
               · 이후 처리는 고객센터로 안내드려요.
             </Typography>

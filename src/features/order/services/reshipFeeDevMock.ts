@@ -68,6 +68,7 @@ export function applyDevReshipMock(
       state: isPaid ? "PAID" : "PAYABLE",
       amount: AMOUNT,
       dueDate: isPaid ? null : kstDate(isOverdue ? -1 : 14),
+      overdue: isOverdue,
       settledAt: isPaid ? kstNow() : null,
       methodLabel: isPaid ? (paidMethodLabel ?? "신한카드") : null,
       storage: isOverdue ? { noticeCount: 2, storageDueAt: kstDate(90), phase: "STORING" } : null,

@@ -5,6 +5,7 @@ import {
   CancelDetail,
   CancelPhase,
   CancelRequestReason,
+  CancelWithdrawResponse,
   CreateCancelRequestBody,
 } from "@/features/order/types/cancelRequest";
 import { OrderItemRow } from "@/features/order/types/order";
@@ -16,7 +17,7 @@ import { OrderItemRow } from "@/features/order/types/order";
  * - **취소 요청 생성**은 서버가 `deliveryGroupId`(하위주문)를 받는데 주문 응답이 아직 이 값을 내리지 않는다
  *   (`OrderItemRow.deliveryGroupId`). 값이 있으면 실제 API로 보내고, 없으면 DEV 빌드에서만 목업으로 접수한다.
  *   배포본은 진입점이 「준비 중」 안내로 막힌다 — 가짜 요청이 접수된 것처럼 보이면 실제 소비자가 취소된 줄 안다.
- * - 요청 철회 API는 서버에 없다 — 철회는 DEV 목업 요청에서만 된다.
+ * - 철회는 요청 단위다(요청에 담긴 항목이 함께 철회된다). 상세의 `withdrawable`이 참일 때만 연다.
  */
 export const CANCEL_REQUEST_AVAILABLE = __DEV__;
 
@@ -77,6 +78,15 @@ export const cancelRequestService = {
     return { source: "DEV_MOCK", mockRequestId: await createMock(input) };
   },
 
+  /** 409 `CANCEL_REQUEST_ALREADY_DECIDED` — 그사이 브랜드가 승인 · 거부했거나 자동 승인됐다 */
+  withdraw: async (orderId: number, cancelRequestId: number) => {
+    const { data } = await apiInstance.post<CancelWithdrawResponse>(
+      `/user/orders/${orderId}/cancel-requests/${cancelRequestId}/withdraw`
+    );
+
+    return data;
+  },
+
   /** DEV 목업 요청만 — 서버 요청은 상세 API로 본다 */
   getMockDetail: async (mockRequestId: number) => {
     const found = mockRequests.get(mockRequestId);
@@ -104,6 +114,7 @@ export const cancelRequestService = {
       ...found,
       phase,
       phaseLabel: MOCK_PHASE_LABEL[phase],
+      withdrawable: phase === "REVIEWING",
       notices: MOCK_NOTICES[phase],
       respondDueAt: phase === "REVIEWING" ? found.respondDueAt : null,
       decidedAt: phase === "REVIEWING" ? null : nowKst(),
@@ -130,14 +141,14 @@ export const cancelRequestService = {
 
 /** 목업 문구는 서버(`UserCancelService`)와 같게 둔다 */
 const MOCK_PHASE_LABEL: Record<CancelPhase, string> = {
-  REVIEWING: "확인 중",
-  REJECTED: "취소 요청 거부",
+  REVIEWING: "취소 요청 · 브랜드 확인 중",
+  REJECTED: "취소 반려",
   CANCELLED: "취소 완료",
 };
 
 const MOCK_NOTICES: Record<CancelPhase, Array<string>> = {
   REVIEWING: [
-    "브랜드가 1영업일(주말·공휴일 제외) 안에 확인하지 않으면 자동으로 취소돼요",
+    "브랜드가 1영업일(주말·공휴일 제외) 안에 확인하지 않으면 자동으로 취소돼요. 확인 전까지는 요청을 철회할 수 있어요",
     "취소 요청이 처리될 때까지 이 주문의 상품은 발송되지 않아요",
   ],
   REJECTED: ["브랜드가 취소 요청을 거부해 상품이 발송돼요. 받은 뒤 반품을 신청할 수 있어요"],
@@ -171,6 +182,7 @@ async function createMock(input: CreateCancelRequestInput) {
     phase: "REVIEWING",
     phaseLabel: MOCK_PHASE_LABEL.REVIEWING,
     autoApproved: false,
+    withdrawable: true,
     notices: MOCK_NOTICES.REVIEWING,
     requestedAt: nowKst(),
     respondDueAt: null,

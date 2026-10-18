@@ -24,7 +24,7 @@ import {
   UnderlineLink,
 } from "@/features/order/components/OrderParts/OrderParts";
 import { useOrderNavigation } from "@/features/order/hooks/useOrderNavigation";
-import { useGetOrderDetail } from "@/features/order/hooks/useOrderQueries";
+import { invalidateOrderQueries, useGetOrderDetail } from "@/features/order/hooks/useOrderQueries";
 import { cancelRequestService } from "@/features/order/services/cancelRequestService";
 import { CancelDetail, CancelPhase } from "@/features/order/types/cancelRequest";
 import {
@@ -46,7 +46,7 @@ import {
  * - 거부: 박스 「주문은 그대로 배송돼요」 · 거부 사유 행 + 「○○의 메시지」 · 금액 0원(회색) · [배송 조회]
  *
  * 상태 라벨 · 안내 문구 · 사유는 서버가 내린다. 응답에 없는 브랜드명 · 상품 id(재구매) · 결제 수단은 주문
- * 상세의 같은 항목에서 읽는다. 요청 철회 API는 서버에 없어 [취소 요청 철회]는 DEV 목업 요청에서만 그린다.
+ * 상세의 같은 항목에서 읽는다. [취소 요청 철회]는 서버가 `withdrawable`을 줄 때만 그린다(요청 단위 철회).
  */
 const CANCEL_DETAIL_KEY = "cancelDetail";
 
@@ -83,8 +83,10 @@ export default function CancelDetailView() {
     void queryClient.invalidateQueries({ queryKey: [CANCEL_DETAIL_KEY, orderId, orderProductId] });
   }, [orderId, orderProductId]);
 
+  const cancelRequestId = detail?.cancelRequestId ?? null;
+
   const handlePressWithdraw = useCallback(() => {
-    if (!devMockRequestId) {
+    if (!devMockRequestId && !cancelRequestId) {
       return;
     }
     showModal({
@@ -95,14 +97,26 @@ export default function CancelDetailView() {
         {
           label: "철회하기",
           onPress: async () => {
-            await cancelRequestService.withdrawMock(devMockRequestId);
-            toast.show("취소 요청을 철회했어요");
-            navigation.goBack();
+            try {
+              if (devMockRequestId) {
+                await cancelRequestService.withdrawMock(devMockRequestId);
+              } else if (cancelRequestId) {
+                await cancelRequestService.withdraw(orderId, cancelRequestId);
+                // 항목이 상품준비중으로 돌아간다 — 주문 내역 · 상세를 다시 읽는다
+                invalidateOrderQueries();
+              }
+              toast.show("취소 요청을 철회했어요");
+              navigation.goBack();
+            } catch (error) {
+              // 409 — 그사이 브랜드가 승인 · 거부했거나 자동 승인됐다. 지금 상태를 다시 보여준다
+              toast.show(resolveErrorMessage(error, "취소 요청을 철회하지 못했어요"));
+              refresh();
+            }
           },
         },
       ],
     });
-  }, [devMockRequestId, navigation, showModal]);
+  }, [cancelRequestId, devMockRequestId, navigation, orderId, refresh, showModal]);
 
   if (isLoading || !detail) {
     return (
@@ -196,7 +210,7 @@ export default function CancelDetailView() {
         )}
 
         <View className="flex-row px-14 pt-12">
-          {isPending && !!devMockRequestId && (
+          {isPending && detail.withdrawable && (
             <OutlineAction label="취소 요청 철회" height={44} fontSize={13.5} onPress={handlePressWithdraw} />
           )}
           {isCancelled && !!firstRow && (

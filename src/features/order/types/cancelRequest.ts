@@ -65,6 +65,8 @@ export interface CancelDetail {
   phaseLabel: string;
   /** 브랜드가 응답 기한 안에 확인하지 않아 자동으로 취소됐다 */
   autoApproved: boolean;
+  /** [취소 요청 철회] 노출 — 브랜드 확인 중인 취소 요청만 */
+  withdrawable: boolean;
   /** 안내 문구 — 없으면 빈 목록 */
   notices: Array<string>;
   /** 요청 시각 — 직접 · 직권 취소는 null(취소 시각은 `decidedAt`) */
@@ -80,4 +82,13 @@ export interface CancelDetail {
   items: Array<CancelDetailItem>;
   /** 거부 · 확인 중이면 null */
   refund: CancelDetailRefund | null;
+}
+
+/** `POST /user/orders/{orderId}/cancel-requests/{cancelRequestId}/withdraw` — 요청 단위로 철회된다 */
+export interface CancelWithdrawResponse {
+  orderId: number;
+  cancelRequestId: number;
+  deliveryGroupId: number;
+  orderProductIds: Array<number>;
+  withdrawnAt: string;
 }

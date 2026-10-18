@@ -1,5 +1,5 @@
 import { ClaimTypeCode, MaskedAddress, TrackingCarrier, TrackingHeadline, UserOrderTone } from "./order";
-import { ClaimPaymentStatus, PaymentSelection, PaymentWindow } from "./payment";
+import { ClaimPaymentStatus, PaymentMethods, PaymentSelection, PaymentWindow } from "./payment";
 
 /**
  * 반품·교환 — back-end `UserClaimDto`(C10-3 요청 · C10-4 회수 조회 · C10-5 상세).
@@ -131,6 +131,8 @@ export interface ClaimFormResponse {
     consumerFault: CourierPayment;
     sellerFault: CourierPayment;
   };
+  /** 열린 결제수단 — 고객 귀책 교환의 재발송비 결제에 고른다. 교환 폼만 · 반품 폼은 null */
+  paymentMethods: PaymentMethods | null;
   /** 「신한카드 결제 취소」 */
   refundMethodLabel: string | null;
   invoiceDueDays: number;

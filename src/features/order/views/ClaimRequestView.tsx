@@ -148,16 +148,17 @@ export default function ClaimRequestView() {
   const sum = selectedItems.reduce((total, item) => total + item.unitPrice * item.claimableQuantity, 0);
   /**
    * 결제가 필요한 교환 — 고객 귀책이고 재발송비가 0보다 크다.
-   * 폼 API가 열린 결제수단 목록을 주지 않아 주문서와 같은 기본 목록을 쓴다 — 꺼진 수단을 고르면
-   * 서버가 `PAYMENT_METHOD_UNAVAILABLE`로 막고 그 문구를 띄운다.
+   * 결제수단은 교환 폼의 `paymentMethods`(주문서와 같은 목록)를 쓴다 — 꺼진 수단은 목록에서 빠진다.
+   * 값이 없으면(반품 폼 · 구버전 서버) 기본 목록으로 그린다.
    */
   const needPay = !isReturn && consumerFault && fee > 0;
   const paymentMethods: PaymentMethods = useMemo(
-    () => ({
-      cardIssuers: ["SHINHAN", "SAMSUNG", "HYUNDAI", "KB", "LOTTE", "HANA", "BC", "NH", "WOORI"],
-      easyPayProviders: ["KAKAOPAY", "NAVERPAY", "TOSSPAY"],
-    }),
-    []
+    () =>
+      form?.paymentMethods ?? {
+        cardIssuers: ["SHINHAN", "SAMSUNG", "HYUNDAI", "KB", "LOTTE", "HANA", "BC", "NH", "WOORI"],
+        easyPayProviders: ["KAKAOPAY", "NAVERPAY", "TOSSPAY"],
+      },
+    [form?.paymentMethods]
   );
 
   // ─── 시트
@@ -344,7 +345,7 @@ export default function ClaimRequestView() {
       }
 
       const localUris = reason.photoAllowed ? imageUrls.filter(url => !url.startsWith("http")) : [];
-      const uploaded = localUris.length > 0 ? await uploadImages({ localUris, type: "INQUIRY" }) : [];
+      const uploaded = localUris.length > 0 ? await uploadImages({ localUris, type: "CLAIM" }) : [];
 
       const body: CreateClaimRequest = {
         idempotencyKey: idempotency.current.key,

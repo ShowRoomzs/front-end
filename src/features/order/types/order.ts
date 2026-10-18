@@ -71,6 +71,10 @@ export interface OrderGroup {
   groupBuyNumber: string | null;
   items: Array<OrderItem>;
   shipping: OrderShipping;
+  /** 발송 예정일 `yyyy-MM-dd` — 주문서는 공구 마감 예정 기준의 예상값 */
+  expectedShipDueDate: string | null;
+  /** C9 「발송 예정일 09.29 · 공구 마감 후 3영업일 이내 발송 (주말·공휴일 제외)」의 뒷부분 */
+  shipDueText: string | null;
 }
 
 /** C9 「결제 금액」 4줄 — `productTotal`은 **정가 합** */

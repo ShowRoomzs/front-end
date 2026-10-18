@@ -5,7 +5,8 @@ import { apiInstance } from "@/common/lib/apiInstance";
 
 interface UploadImagesParams {
   localUris: Array<string>;
-  type: "PROFILE" | "REVIEW" | "INQUIRY";
+  /** back-end `ImageType.USER_ALLOWED_TYPES` — CLAIM은 반품·교환 사진(브랜드 검수 화면과 서로 본다) */
+  type: "PROFILE" | "REVIEW" | "INQUIRY" | "CLAIM";
 }
 
 export function useUploadImagesMutation() {

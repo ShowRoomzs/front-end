@@ -36,6 +36,7 @@ import {
   toSubmittedSelection,
 } from "@/features/order/types/payment";
 import {
+  formatMonthDay,
   optionWithQuantity,
   resolveErrorCode,
   resolveErrorMessage,
@@ -474,8 +475,8 @@ export default function CheckoutView() {
         ))}
 
         {/*
-          발송 시기 고지 — 결제 버튼보다 위에 있어야 한다(결정 3·15). 발송기한은 공구 마감 + N영업일인데
-          주문서 응답이 날짜를 주지 않아 날짜 없이 정책만 적는다. 실제 예정일은 주문 내역에 뜬다.
+          발송 시기 고지 — 결제 버튼보다 위에 있어야 한다(결정 3·15). 「발송 예정일 MM.DD · 공구 마감 후 N영업일 이내
+          발송」 — 날짜·정책 문구는 그룹(브랜드 · 공구)마다 서버가 준다. 여러 그룹이면 그룹마다 한 줄씩.
         */}
         <View
           className="mx-14 flex-row items-center rounded-base bg-band px-12 py-10"
@@ -487,9 +488,28 @@ export default function CheckoutView() {
             <Circle cx={7} cy={17.5} r={1.6} stroke="#3C3C3C" strokeWidth={1.6} />
             <Circle cx={17} cy={17.5} r={1.6} stroke="#3C3C3C" strokeWidth={1.6} />
           </Svg>
-          <Typography style={{ fontSize: 12.5, lineHeight: 18.75 }} className="min-w-0 flex-1 text-ink76">
-            공구 마감 후 순차 발송 (주말·공휴일 제외)
-          </Typography>
+          <View className="min-w-0 flex-1" style={{ gap: 2 }}>
+            {checkout.groups.map(group => (
+              <Typography
+                key={`${group.marketId}-${group.groupBuyId}`}
+                style={{ fontSize: 12.5, lineHeight: 18.75 }}
+                className="text-ink76"
+              >
+                {checkout.groups.length > 1 ? `${group.marketName} · ` : ""}
+                {group.expectedShipDueDate ? "발송 예정일 " : ""}
+                {!!group.expectedShipDueDate && (
+                  <Typography
+                    style={{ fontSize: 12.5, fontWeight: "600", lineHeight: 18.75 }}
+                    className="text-ink"
+                  >
+                    {formatMonthDay(group.expectedShipDueDate)}
+                  </Typography>
+                )}
+                {group.expectedShipDueDate ? " · " : ""}
+                {group.shipDueText ?? "공구 마감 후 순차 발송 (주말·공휴일 제외)"}
+              </Typography>
+            ))}
+          </View>
         </View>
 
         <Band marginTop={20} />

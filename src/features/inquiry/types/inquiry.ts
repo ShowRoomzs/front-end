@@ -40,6 +40,13 @@ export interface InquiryRequest {
   /** 최대 5장 */
   imageUrls?: Array<string>;
   orderId?: number;
+  /**
+   * C20 1d 정지 소명 — 유형 ACCOUNT로 보내고 관련 주문은 비운다. 정지가 아니면 409
+   * `SANCTION_APPEAL_NOT_AVAILABLE`, 답변 전 소명이 있으면 409 `SANCTION_APPEAL_ALREADY_EXISTS`.
+   */
+  sanctionAppeal?: boolean;
+  /** C10-5 계좌 송금 환급 건 — 유형은 CANCEL_EXCHANGE_RETURN이어야 한다(서버 「환불 계좌 안내」) */
+  refundTaskId?: number;
 }
 
 export type InquiryHistoryParams = SizeParams & {
@@ -55,6 +62,8 @@ export interface InquiryHistory {
   imageUrls: Array<string>;
   orderId: number | null;
   order: InquiryOrderSummary | null;
+  /** 정지 소명 문의 — `typeName`이 「계정 이용 정지」로 온다(2026-10-24 BE main · 개발 서버 미배포) */
+  sanctionAppeal?: boolean;
   status: InquiryStatus;
   answerContent: string | null;
   answeredAt: string | null;

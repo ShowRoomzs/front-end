@@ -2,6 +2,7 @@ import { TouchableOpacity, View } from "react-native";
 
 import { BellIcon, CartIcon, SearchIcon } from "@/common/components/DsIcon/icons";
 import Typography from "@/common/components/Typography/Typography";
+import SuspensionBanner from "@/features/account/components/SuspensionBanner";
 
 /**
  * C1 홈 헤더 — 로고를 빼고 한 줄(38px 검색 필드 + 아이콘 2개)로 만들어 피드가 42px 더 보인다.
@@ -33,55 +34,58 @@ export default function FeedHeader(props: FeedHeaderProps) {
   const badgeCount = Math.min(cartCount, CART_BADGE_MAX);
 
   return (
-    <View
-      className="flex-row items-center border-b-[0.5px] border-divider bg-white pb-12 pt-2"
-      style={{ gap: 12, paddingHorizontal: 16 }}
-    >
-      <TouchableOpacity
-        onPress={onPressSearch}
-        activeOpacity={0.7}
-        className="h-38 flex-1 flex-row items-center rounded-base bg-fill px-12"
-        style={{ gap: 8 }}
+    <>
+      <View
+        className="flex-row items-center border-b-[0.5px] border-divider bg-white pb-12 pt-2"
+        style={{ gap: 12, paddingHorizontal: 16 }}
       >
-        <SearchIcon size={16} />
-        <Typography style={{ fontSize: 14, lineHeight: 14 }} className="text-gray55">
-          쇼룸 이름 또는 아이디로 검색
-        </Typography>
-      </TouchableOpacity>
-
-      <View className="flex-row" style={{ gap: 18 }}>
         <TouchableOpacity
-          onPress={onPressNotification}
-          activeOpacity={0.6}
-          style={{ padding: ICON_HIT_SLOP_PADDING, margin: -ICON_HIT_SLOP_PADDING }}
+          onPress={onPressSearch}
+          activeOpacity={0.7}
+          className="h-38 flex-1 flex-row items-center rounded-base bg-fill px-12"
+          style={{ gap: 8 }}
         >
-          <BellIcon size={25} />
-          {hasUnreadNotification && (
-            <View
-              className="absolute rounded-full border-[1.5px] border-white bg-rose"
-              style={{ top: 6, right: 6, width: 7, height: 7 }}
-            />
-          )}
+          <SearchIcon size={16} />
+          <Typography style={{ fontSize: 14, lineHeight: 14 }} className="text-gray55">
+            쇼룸 이름 또는 아이디로 검색
+          </Typography>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={onPressCart}
-          activeOpacity={0.6}
-          style={{ padding: ICON_HIT_SLOP_PADDING, margin: -ICON_HIT_SLOP_PADDING }}
-        >
-          <CartIcon size={25} />
-          {badgeCount > 0 && (
-            <View
-              className="absolute flex-row items-center justify-center rounded-full border-[1.5px] border-white bg-rose"
-              style={{ top: 6, right: 6, minWidth: 18, height: 18, paddingHorizontal: 3 }}
-            >
-              <Typography style={{ fontSize: 10, lineHeight: 10 }} className="text-white">
-                {badgeCount}
-              </Typography>
-            </View>
-          )}
-        </TouchableOpacity>
+        <View className="flex-row" style={{ gap: 18 }}>
+          <TouchableOpacity
+            onPress={onPressNotification}
+            activeOpacity={0.6}
+            style={{ padding: ICON_HIT_SLOP_PADDING, margin: -ICON_HIT_SLOP_PADDING }}
+          >
+            <BellIcon size={25} />
+            {hasUnreadNotification && (
+              <View
+                className="absolute rounded-full border-[1.5px] border-white bg-rose"
+                style={{ top: 6, right: 6, width: 7, height: 7 }}
+              />
+            )}
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={onPressCart}
+            activeOpacity={0.6}
+            style={{ padding: ICON_HIT_SLOP_PADDING, margin: -ICON_HIT_SLOP_PADDING }}
+          >
+            <CartIcon size={25} />
+            {badgeCount > 0 && (
+              <View
+                className="absolute flex-row items-center justify-center rounded-full border-[1.5px] border-white bg-rose"
+                style={{ top: 6, right: 6, minWidth: 18, height: 18, paddingHorizontal: 3 }}
+              >
+                <Typography style={{ fontSize: 10, lineHeight: 10 }} className="text-white">
+                  {badgeCount}
+                </Typography>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+      <SuspensionBanner />
+    </>
   );
 }

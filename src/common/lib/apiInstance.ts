@@ -2,7 +2,9 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import * as SecureStore from "expo-secure-store";
 
 import { SECURE_STORE } from "@/common/constants/secureStore";
+import { queryClient } from "@/common/lib/queryClient";
 import { useUserStore } from "@/common/stores/useUserStore";
+import { ACCOUNT_STATUS_QUERY_KEY } from "@/features/account/constants/suspension";
 import { authService } from "@/features/auth/services/authService";
 
 export const apiInstance = axios.create({
@@ -45,6 +47,14 @@ apiInstance.interceptors.response.use(
   response => response,
   async (error: AxiosError) => {
     const config = error.config as RetriedConfig | undefined;
+
+    // C20 — 정지된 뒤 처음 막힌 요청이다. 계정 상태를 다시 받아 배너 · 비활성을 바로 그린다(서버 문서의 재조회 시점)
+    if (
+      error.response?.status === 409 &&
+      (error.response.data as { code?: string })?.code === "USER_SUSPENDED"
+    ) {
+      void queryClient.invalidateQueries({ queryKey: [ACCOUNT_STATUS_QUERY_KEY] });
+    }
 
     if (error.response?.status !== 401 || !config || config.isRetriedAfterRefresh) {
       return Promise.reject(error);

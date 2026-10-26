@@ -43,7 +43,12 @@ import PortOnePaymentModal from "@/features/order/components/PortOnePaymentModal
 import { ClaimPaymentOutcome, useClaimPayment } from "@/features/order/hooks/useClaimPayment";
 import { invalidateOrderQueries, useGetClaimForm } from "@/features/order/hooks/useOrderQueries";
 import { claimService } from "@/features/order/services/claimService";
-import { ClaimReasonCode, CreateClaimRequest, DeliveryCarrierCode } from "@/features/order/types/claim";
+import {
+  ClaimFormResponse,
+  ClaimReasonCode,
+  CreateClaimRequest,
+  DeliveryCarrierCode,
+} from "@/features/order/types/claim";
 import {
   isPaymentSelectionComplete,
   PaymentMethods,
@@ -140,12 +145,12 @@ export default function ClaimRequestView() {
   const sellerFault = isSellerFault(reason?.feeBearer);
   const consumerFault = !!reason && !sellerFault;
   const needDetail = !!reason?.detailRequired;
-  const fee = consumerFault ? (form?.fees.consumerFault ?? 0) : 0;
   const selectedItems = useMemo(
     () => (form?.items ?? []).filter(item => selected.has(item.orderProductId)),
     [form?.items, selected]
   );
   const sum = selectedItems.reduce((total, item) => total + item.unitPrice * item.claimableQuantity, 0);
+  const fee = consumerFault ? resolveConsumerFee(form, sum) : 0;
   /**
    * 결제가 필요한 교환 — 고객 귀책이고 재발송비가 0보다 크다.
    * 결제수단은 교환 폼의 `paymentMethods`(주문서와 같은 목록)를 쓴다 — 꺼진 수단은 목록에서 빠진다.
@@ -566,8 +571,8 @@ export default function ClaimRequestView() {
           <SectionTitle title={`${kw} 사유`} style={{ paddingTop: 20 }} />
           <Typography style={{ fontSize: 12, lineHeight: 19.2 }} className="px-14 pt-8 text-gray45">
             {isReturn
-              ? "단순 변심 · 주문 실수는 배송비가 차감돼요."
-              : "단순 변심 · 주문 실수는 재발송 배송비가 발생해요."}
+              ? "단순 변심 · 주문 실수는 최초 배송비가 차감돼요. 검수 결과 사유가 다르면 배송비 부담이 바뀔 수 있어요."
+              : "단순 변심 · 주문 실수는 재발송 배송비를 결제해요. 검수 결과 사유가 다르면 배송비 부담이 바뀔 수 있어요."}
           </Typography>
           <View className="px-14 pt-6">
             {form.reasons.map(item => {
@@ -794,7 +799,7 @@ export default function ClaimRequestView() {
               <View className="px-14 pt-14" style={{ gap: 9 }}>
                 <AmountRow label="결제 금액" value={won(sum)} />
                 <AmountRow
-                  label="배송비 차감"
+                  label="최초 배송비 차감"
                   value={deductionText}
                   valueColor={deductionColor(!!reason, fee)}
                 />
@@ -813,13 +818,7 @@ export default function ClaimRequestView() {
                   fontSize={11.5}
                   style={{ gap: 6 }}
                   notes={[
-                    ...(form.fees.consumerFault > 0
-                      ? [
-                          `무료배송으로 받은 주문을 단순 변심 · 주문 실수로 반품하면 최초 배송비 ${won(
-                            form.fees.consumerFault
-                          )}이 차감돼요.`,
-                        ]
-                      : []),
+                    ...returnFeeNotes(form),
                     "함께 받은 사은품도 모두 보내주세요. 빠지면 환불이 늦어질 수 있어요.",
                     "상자에 현금은 넣지 마세요. 반송 택배비는 택배사에 직접 결제해요.",
                     "환불은 검수 완료 후 영업일 3–5일 안에 결제 수단으로 돌아가요.",
@@ -915,6 +914,50 @@ function InfoBlock(props: { label: string; children: ReactNode }) {
       <View className="min-w-0 flex-1">{props.children}</View>
     </View>
   );
+}
+
+/**
+ * 고객 귀책 배송비 — 반품은 일부 반품 규칙(1021 기-18)을 따른다.
+ *
+ * 무료배송 주문은 반품 뒤 **남는 상품액이 무료배송 기준 아래로 떨어질 때만** 최초 배송비를 뺀다.
+ * 같은 주문에서 이미 뺐으면 다시 빼지 않는다. 판정 재료(`deductionRule`)가 없으면(유료배송 주문 ·
+ * 구버전 서버) 서버가 준 `consumerFault`를 그대로 쓴다 — 신청 때 서버가 `expectedFee`로 다시 검증한다.
+ */
+function resolveConsumerFee(form: ClaimFormResponse | undefined, selectedAmount: number) {
+  if (!form) {
+    return 0;
+  }
+  const rule = form.fees.deductionRule;
+
+  if (form.type !== "RETURN" || !rule) {
+    return form.fees.consumerFault;
+  }
+  if (rule.alreadyDeducted) {
+    return 0;
+  }
+  if (rule.freeShippingThreshold === null) {
+    return rule.deductibleFee;
+  }
+  return rule.keptAmount - selectedAmount < rule.freeShippingThreshold ? rule.deductibleFee : 0;
+}
+
+/** 반품 안내 첫 줄 — 무료배송 주문만. 기준 금액을 모르면 일부 반품 문장에서 숫자를 뺀다 */
+function returnFeeNotes(form: ClaimFormResponse): Array<string> {
+  const rule = form.fees.deductionRule;
+  const fee = rule ? rule.deductibleFee : form.fees.consumerFault;
+
+  if (fee <= 0) {
+    return [];
+  }
+  const threshold = rule?.freeShippingThreshold;
+  const partial = threshold
+    ? `일부만 반품할 때는 남은 금액이 무료배송 기준(${won(threshold)}) 아래로 내려가면 차감되고, 기준 이상이면 차감되지 않아요.`
+    : "일부만 반품할 때는 남은 금액이 무료배송 기준 아래로 내려가면 차감되고, 기준 이상이면 차감되지 않아요.";
+
+  return [
+    `무료배송으로 받은 주문을 단순 변심 · 주문 실수로 반품하면 최초 배송비 ${won(fee)}을 환불액에서 빼고 돌려드려요. ` +
+      `${partial} 반송 택배비는 보내실 때 택배사에 직접 결제해요.`,
+  ];
 }
 
 /** 배송비 차감 금액 색 — 차감이 있으면 로즈 텍스트, 사유 전이면 회색 */

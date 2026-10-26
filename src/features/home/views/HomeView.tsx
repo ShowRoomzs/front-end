@@ -13,6 +13,7 @@ import { useCartItemCount } from "@/features/cart/hooks/useGetCart";
 import FeedCaughtUp from "@/features/home/components/FeedCaughtUp/FeedCaughtUp";
 import FeedHeader from "@/features/home/components/FeedHeader/FeedHeader";
 import FollowingEmptyState from "@/features/home/components/FollowingEmptyState/FollowingEmptyState";
+import { useNotificationBadge } from "@/features/notification/hooks/useNotificationBadge";
 import PostCard from "@/features/post/components/PostCard/PostCard";
 import { useFeedActions } from "@/features/post/hooks/useFeedActions";
 import { useGetFollowingFeed } from "@/features/post/hooks/useGetFollowingFeed";
@@ -47,6 +48,7 @@ export default function HomeView() {
   const followingFeed = useGetFollowingFeed(!!user);
   const recommendedFeed = useGetRecommendedFeed();
   const cartItemCount = useCartItemCount();
+  const notificationBadge = useNotificationBadge();
 
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -194,6 +196,7 @@ export default function HomeView() {
     <View className="flex-1 bg-white">
       <FeedHeader
         cartCount={cartItemCount}
+        hasUnreadNotification={notificationBadge > 0}
         onPressSearch={handlePressSearch}
         onPressNotification={handlePressNotification}
         onPressCart={handlePressCart}

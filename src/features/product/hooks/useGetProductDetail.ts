@@ -11,6 +11,8 @@ export function useGetProductDetail(productId: number, groupBuyId?: number) {
   return useQuery({
     queryKey: [PRODUCT_QUERY_KEY.PRODUCT_DETAIL, productId, groupBuyId ?? null],
     queryFn: () => productService.getDetail(productId, groupBuyId),
+    // 다른 응답에서 상품 id를 찾아 부르는 화면(배송 조회)은 찾기 전까지 0을 넘긴다
+    enabled: productId > 0,
     staleTime: 1000 * 60 * 5,
   });
 }

@@ -3,6 +3,8 @@ import { Clipboard } from "react-native";
 
 import SheetList, { SheetListItem } from "@/common/components/SheetList/SheetList";
 import { toast } from "@/common/providers/ToastProvider";
+import { SUSPENSION_BLOCKED } from "@/features/account/constants/suspension";
+import { useSuspension } from "@/features/account/hooks/useAccountStatus";
 import ReportSheetContent from "@/features/post/components/ReportSheetContent/ReportSheetContent";
 
 /**
@@ -34,10 +36,17 @@ function buildPostLink(postId: number) {
 export default function PostMoreSheetContent(props: PostMoreSheetContentProps) {
   const { postId, onClose } = props;
   const [step, setStep] = useState<MoreStep>("menu");
+  const suspension = useSuspension();
 
   const handleSelect = useCallback(
     (action: MoreAction) => {
       if (action === "report") {
+        // C20 — 정지 중에는 신고 사유를 고르기 전에 막는다(고른 뒤 409로 막히면 고른 수고가 버려진다)
+        if (suspension) {
+          onClose();
+          toast.show(SUSPENSION_BLOCKED.REPORT);
+          return;
+        }
         setStep("report");
         return;
       }
@@ -45,7 +54,7 @@ export default function PostMoreSheetContent(props: PostMoreSheetContentProps) {
       onClose();
       toast.success("링크를 복사했어요");
     },
-    [onClose, postId]
+    [onClose, postId, suspension]
   );
 
   if (step === "report") {

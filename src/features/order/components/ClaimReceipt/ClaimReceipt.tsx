@@ -175,7 +175,7 @@ function ReceiptBody(props: {
           <View className="px-14" style={{ paddingTop: 14, gap: 9 }}>
             <AmountRow label="결제 금액" value={won(detail.refund.approvedAmount)} />
             <AmountRow
-              label="배송비 차감"
+              label="최초 배송비 차감"
               value={detail.refund.returnDeduction > 0 ? `-${won(detail.refund.returnDeduction)}` : "0원"}
               valueColor={detail.refund.returnDeduction > 0 ? "#CF3D61" : "#0F0F0F"}
             />

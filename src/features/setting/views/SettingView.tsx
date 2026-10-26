@@ -3,6 +3,7 @@ import { Image, ScrollView, TouchableOpacity, View } from "react-native";
 import Svg, { Circle, Path } from "react-native-svg";
 
 import defaultProfileImage from "@/common/assets/common/profile-default.png";
+import DevMockSwitch from "@/common/components/DevMockSwitch/DevMockSwitch";
 import { ChevronRightIcon } from "@/common/components/DsIcon/icons";
 import GroupBand from "@/common/components/GroupBand/GroupBand";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
@@ -17,6 +18,12 @@ import { useUploadImagesMutation } from "@/common/queries/useUploadImagesMutatio
 import { SETTINGS_ROUTES, useMypageNavigation, useSettingsNavigation } from "@/common/router";
 import { HOME_ROUTES } from "@/common/router/routes";
 import { useUserStore } from "@/common/stores/useUserStore";
+import { SUSPENSION_BLOCKED } from "@/features/account/constants/suspension";
+import { useSuspension } from "@/features/account/hooks/useAccountStatus";
+import {
+  DEV_ACCOUNT_STATUS_OPTIONS,
+  useAccountStatusDevStore,
+} from "@/features/account/stores/useAccountStatusDevStore";
 import { useLogin } from "@/features/auth/hooks/useLogin";
 import ProfileImageSelectButton from "@/features/setting/components/ProfileImageSelectButton/ProfileImageSelectButton";
 import { useGetNotificationSettings } from "@/features/setting/hooks/useGetNotificationSettings";
@@ -51,6 +58,10 @@ export default function SettingView() {
   const { show: showModal } = useModal();
   const { user } = useUserStore();
   const { logout } = useLogin();
+  /** C20 1f — 정지 중에는 닉네임 · 프로필 사진 변경만 막는다(나머지 설정은 평소대로) */
+  const suspension = useSuspension();
+  const devAccountMock = useAccountStatusDevStore(state => state.mock);
+  const setDevAccountMock = useAccountStatusDevStore(state => state.setMock);
 
   const { mutateAsync: uploadImages, isPending: isUploading } = useUploadImagesMutation();
   const { mutateAsync: updateUser, isPending: isUpdating } = useUpdateUserMutation();
@@ -114,29 +125,36 @@ export default function SettingView() {
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <View className="items-center px-14 pb-22 pt-24">
-          <ProfileImageSelectButton onSelect={handleSelectProfileImage}>
-            <View>
-              <Image
-                source={user.profileImageUrl ? { uri: user.profileImageUrl } : defaultProfileImage}
-                className="h-76 w-76 rounded-full"
-              />
-              {/* 사진을 바꿀 수 있다는 신호 — 안내 문구만으로는 탭 대상임이 드러나지 않는다 */}
-              <View
-                className="absolute items-center justify-center rounded-full border-[1px] border-borderButton bg-white"
-                style={{ right: -2, bottom: -2, width: 26, height: 26 }}
-              >
-                <Svg width={13} height={13} viewBox="0 0 24 24" fill="none">
-                  <Path
-                    d="M4.5 8.5h3l1.6-2h5.8l1.6 2h3v10h-15z"
-                    stroke="#3C3C3C"
-                    strokeWidth={1.8}
-                    strokeLinejoin="miter"
-                  />
-                  <Circle cx={12} cy={13} r={3} stroke="#3C3C3C" strokeWidth={1.8} />
-                </Svg>
+          {suspension ? (
+            <Image
+              source={user.profileImageUrl ? { uri: user.profileImageUrl } : defaultProfileImage}
+              className="h-76 w-76 rounded-full"
+            />
+          ) : (
+            <ProfileImageSelectButton onSelect={handleSelectProfileImage}>
+              <View>
+                <Image
+                  source={user.profileImageUrl ? { uri: user.profileImageUrl } : defaultProfileImage}
+                  className="h-76 w-76 rounded-full"
+                />
+                {/* 사진을 바꿀 수 있다는 신호 — 안내 문구만으로는 탭 대상임이 드러나지 않는다 */}
+                <View
+                  className="absolute items-center justify-center rounded-full border-[1px] border-borderButton bg-white"
+                  style={{ right: -2, bottom: -2, width: 26, height: 26 }}
+                >
+                  <Svg width={13} height={13} viewBox="0 0 24 24" fill="none">
+                    <Path
+                      d="M4.5 8.5h3l1.6-2h5.8l1.6 2h3v10h-15z"
+                      stroke="#3C3C3C"
+                      strokeWidth={1.8}
+                      strokeLinejoin="miter"
+                    />
+                    <Circle cx={12} cy={13} r={3} stroke="#3C3C3C" strokeWidth={1.8} />
+                  </Svg>
+                </View>
               </View>
-            </View>
-          </ProfileImageSelectButton>
+            </ProfileImageSelectButton>
+          )}
 
           <Typography
             style={{ fontSize: 17, fontWeight: "700", lineHeight: 22.1, letterSpacing: -0.3, marginTop: 12 }}
@@ -145,7 +163,7 @@ export default function SettingView() {
             {user.nickname}
           </Typography>
           <Typography style={{ fontSize: 12.5, lineHeight: 12.5, marginTop: 5 }} className="text-gray45">
-            프로필 사진을 탭해 변경할 수 있어요
+            {suspension ? SUSPENSION_BLOCKED.PROFILE : "프로필 사진을 탭해 변경할 수 있어요"}
           </Typography>
         </View>
 
@@ -155,6 +173,7 @@ export default function SettingView() {
         <SettingRow
           label="닉네임 변경"
           onPress={() => settingsNavigation.navigate(SETTINGS_ROUTES.NICKNAME_CHANGE)}
+          disabled={!!suspension}
         />
         <SettingRow
           label="회원정보"
@@ -198,6 +217,13 @@ export default function SettingView() {
           className="py-16"
         />
 
+        <DevMockSwitch
+          label="DEV 계정 상태"
+          options={DEV_ACCOUNT_STATUS_OPTIONS}
+          current={devAccountMock}
+          onPick={setDevAccountMock}
+        />
+
         <View className="h-24" />
       </ScrollView>
     </View>
@@ -209,25 +235,28 @@ interface SettingRowProps {
   onPress: () => void;
   /** 회원 탈퇴처럼 눈에 덜 띄어야 하는 항목 — 14/400 회색 */
   isPassive?: boolean;
+  /** 눌리지 않는 회색 행 — 정지 중 닉네임 변경 */
+  disabled?: boolean;
   className?: string;
 }
 
 function SettingRow(props: SettingRowProps) {
-  const { label, onPress, isPassive = false, className = "py-15" } = props;
+  const { label, onPress, isPassive = false, disabled = false, className = "py-15" } = props;
 
   return (
     <TouchableOpacity
       onPress={onPress}
+      disabled={disabled}
       activeOpacity={0.6}
       className={`flex-row items-center justify-between px-14 ${className}`}
     >
       <Typography
         style={{ fontSize: 14, fontWeight: isPassive ? "400" : "500", lineHeight: 14 }}
-        className={isPassive ? "text-gray45" : "text-ink"}
+        className={isPassive || disabled ? "text-gray45" : "text-ink"}
       >
         {label}
       </Typography>
-      <ChevronRightIcon size={16} />
+      {!disabled && <ChevronRightIcon size={16} />}
     </TouchableOpacity>
   );
 }

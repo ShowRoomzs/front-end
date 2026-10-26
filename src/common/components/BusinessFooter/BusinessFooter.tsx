@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
 
 import { ChevronDownIcon } from "@/common/components/DsIcon/icons";
@@ -25,11 +25,19 @@ interface BusinessFooterProps {
   links?: Array<{ label: string; onPress: () => void }>;
   /** 마이는 위 그룹과 10만큼 띄운다 */
   marginTop?: number;
+  /** 값이 바뀔 때마다 펼친다 — 다른 화면의 [사업자 정보 확인]으로 들어왔을 때 */
+  expandSignal?: number;
 }
 
 export default function BusinessFooter(props: BusinessFooterProps) {
-  const { defaultExpanded = false, links, marginTop } = props;
+  const { defaultExpanded = false, links, marginTop, expandSignal } = props;
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+
+  useEffect(() => {
+    if (expandSignal) {
+      setIsExpanded(true);
+    }
+  }, [expandSignal]);
 
   return (
     <View className="bg-band px-14" style={{ paddingTop: 20, paddingBottom: 26, marginTop }}>

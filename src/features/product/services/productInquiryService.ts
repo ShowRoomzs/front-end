@@ -1,7 +1,5 @@
 import { apiInstance } from "@/common/lib/apiInstance";
 import { PageParams, PageResponse } from "@/common/types/page";
-// ⚠️ 임시 — 공개 문의 목록 API가 열릴 때까지만 쓴다
-import { buildProductInquiryMock } from "@/features/product/mocks/productInquiryMock";
 import {
   ProductInquiryCategoryResponse,
   ProductInquiryDetail,
@@ -12,28 +10,35 @@ import {
   PublicProductInquiryList,
 } from "@/features/product/types/productInquiry";
 
+/** 상품별 공개 문의 목록 API(`GET /v1/common/products/{productId}/inquiries`)가 서버에 생겼는가 */
+const PUBLIC_INQUIRY_LIST_AVAILABLE = false;
+
 export const productInquiryService = {
   /**
    * 상품 상세에 공개되는 문의 목록 (C7 문의 탭 · C7-2 문의 전체).
    *
-   * ⚠️ 서버 미제공 — 이 주소는 아직 없고, 실패하면 `mocks/productInquiryMock.ts`로
-   * 떨어진다. 남의 문의가 보이지 않는 `/user/product-inquiries`를 여기에 가져다 쓰지
-   * 않는다 — 그걸로 목록을 만들면 머리의 건수가 사람마다 달라져 거짓이 된다.
+   * ⚠️ 서버 미제공(2026-10-21 main · feat/add 모두) — 상품별 **공개** 목록 API가 없다. 남의 문의가 보이지 않는
+   * `/user/product-inquiries`를 여기에 가져다 쓰지 않는다 — 그걸로 목록을 만들면 머리의 건수가 사람마다 달라져 거짓이 된다.
    *
-   * **삭제하는 법** — 공개 목록 API가 열리면 catch 한 블록과 목업 파일을 지우면 된다.
+   * - DEV 빌드: `mocks/productInquiryMock.ts`로 채워 아코디언 · 비밀글 · 답변 상태를 확인한다.
+   * - 배포본: `null`을 돌려준다 — 화면은 「준비 중」 안내를 그린다(「등록된 문의가 없어요」라고 쓰면 거짓이다).
+   *
+   * **API가 열리면** `PUBLIC_INQUIRY_LIST_AVAILABLE`을 true로 바꾸고 목업 분기와 파일을 지운다.
    */
-  getPublicList: async (productId: number): Promise<PublicProductInquiryList> => {
-    try {
+  getPublicList: async (productId: number): Promise<PublicProductInquiryList | null> => {
+    if (PUBLIC_INQUIRY_LIST_AVAILABLE) {
       const { data: response } = await apiInstance.get<PageResponse<PublicProductInquiry>>(
         `/common/products/${productId}/inquiries`
       );
 
       return { totalCount: response.pageInfo.totalElements, items: response.content };
-    } catch (error) {
-      // ⚠️ 임시 — 공개 문의 목록 API가 없다. 생기면 이 catch와 목업을 함께 지운다
-      console.warn(`[product] ${productId} 문의 목록 조회 실패 — 샘플 데이터로 대체합니다`, error);
+    }
+    if (__DEV__) {
+      const { buildProductInquiryMock } = await import("@/features/product/mocks/productInquiryMock");
+
       return buildProductInquiryMock(productId);
     }
+    return null;
   },
   getCategories: async () => {
     const { data: response } = await apiInstance.get<ProductInquiryCategoryResponse>(

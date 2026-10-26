@@ -2,6 +2,7 @@ import { View } from "react-native";
 
 import HeaderActions from "@/common/components/HeaderActions/HeaderActions";
 import Typography from "@/common/components/Typography/Typography";
+import SuspensionBanner from "@/features/account/components/SuspensionBanner";
 
 /**
  * 탭 화면 헤더 — 제목 + 검색 · 장바구니. C2 팔로잉 · C3 좋아요가 같은 규격을 쓴다.
@@ -17,14 +18,18 @@ export default function ScreenHeaderBar(props: ScreenHeaderBarProps) {
   const { title, showCart } = props;
 
   return (
-    <View className="border-b-[0.5px] border-divider bg-white">
-      <View className="flex-row items-center pb-12 pt-2" style={{ paddingHorizontal: 16 }}>
-        <Typography style={{ fontSize: 18, fontWeight: "700", lineHeight: 18, letterSpacing: -0.5 }}>
-          {title}
-        </Typography>
-        <View className="flex-1" />
-        <HeaderActions showCart={showCart} />
+    <>
+      <View className="border-b-[0.5px] border-divider bg-white">
+        <View className="flex-row items-center pb-12 pt-2" style={{ paddingHorizontal: 16 }}>
+          <Typography style={{ fontSize: 18, fontWeight: "700", lineHeight: 18, letterSpacing: -0.5 }}>
+            {title}
+          </Typography>
+          <View className="flex-1" />
+          <HeaderActions showCart={showCart} />
+        </View>
       </View>
-    </View>
+      {/* C20 1a — 정지 배너는 탭 헤더 바로 아래 */}
+      <SuspensionBanner />
+    </>
   );
 }

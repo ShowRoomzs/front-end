@@ -5,7 +5,6 @@ import { MypageStackParamList } from "@/common/router/types";
 import InquiryView from "@/features/inquiry/views/InquiryView";
 import AddressFormView from "@/features/mypage/views/AddressFormView";
 import AddressManagementView from "@/features/mypage/views/AddressManagementView";
-import CancelAndRefundView from "@/features/mypage/views/CancelAndRefundView";
 import CustomerCenterView from "@/features/mypage/views/CustomerCenterView";
 import InquiryDetailView from "@/features/mypage/views/InquiryDetailView";
 import InquiryHistoryView from "@/features/mypage/views/InquiryHistoryView";
@@ -37,7 +36,6 @@ export default function MypageNavigator() {
       <Stack.Screen name={MYPAGE_ROUTES.PRIVACY_POLICY} component={PrivacyPolicyView} />
       {/* C10 주문 내역 — 그 뒤의 화면(주문 상세 · 배송 조회 · 반품·교환)은 공용 스택에 있다 */}
       <Stack.Screen name={MYPAGE_ROUTES.ORDER_AND_DELIVERY_SEARCH} component={OrderHistoryView} />
-      <Stack.Screen name={MYPAGE_ROUTES.CANCEL_AND_REFUND} component={CancelAndRefundView} />
       <Stack.Screen name={MYPAGE_ROUTES.OPEN_LICENSE} component={OpenLicenseView} />
     </Stack.Navigator>
   );

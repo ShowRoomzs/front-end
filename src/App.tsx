@@ -11,6 +11,8 @@ import { queryClient } from "@/common/lib/queryClient";
 import PortalProvider from "@/common/providers/PortalProvider/PortalProvider";
 import SplashProvider from "@/common/providers/SplashProvider/SplashProvider";
 import { linking } from "@/common/router/linking";
+import { navigationRef } from "@/common/router/navigationRef";
+import AccountStatusHost from "@/features/account/components/AccountStatusHost";
 import MainNavigator from "@/navigators/MainNavigator";
 
 SplashScreen.preventAutoHideAsync();
@@ -43,9 +45,10 @@ export default function App() {
           */}
           <StatusBar style="dark" />
           <SplashProvider isReady={isReady}>
-            <NavigationContainer theme={THEME} linking={linking}>
+            <NavigationContainer ref={navigationRef} theme={THEME} linking={linking}>
               <PortalProvider>
                 <MainNavigator />
+                <AccountStatusHost />
               </PortalProvider>
             </NavigationContainer>
           </SplashProvider>

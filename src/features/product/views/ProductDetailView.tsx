@@ -17,8 +17,12 @@ import { useCommonNavigation, useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
 import { CustomErrorResponse } from "@/common/types/error";
+import SuspensionBlockedLine, { SuspendedButton } from "@/features/account/components/SuspensionBlockedLine";
+import { SUSPENSION_BLOCKED } from "@/features/account/constants/suspension";
+import { useSuspension } from "@/features/account/hooks/useAccountStatus";
 import { useCart } from "@/features/cart/hooks/useCart";
 import { cartService } from "@/features/cart/services/cartService";
+import { findCachedGroupBuy } from "@/features/post/utils/findCachedGroupBuy";
 import ProductBundleSection from "@/features/product/components/ProductBundleSection/ProductBundleSection";
 import ProductDeliveryBlock from "@/features/product/components/ProductDeliveryBlock/ProductDeliveryBlock";
 import ProductDeliveryPolicy from "@/features/product/components/ProductDeliveryPolicy/ProductDeliveryPolicy";
@@ -36,9 +40,8 @@ import ProductSellerInfo from "@/features/product/components/ProductSellerInfo/P
 import PurchaseBlockedModal from "@/features/product/components/PurchaseBlockedModal/PurchaseBlockedModal";
 import { PRODUCT_OPTION_BOTTOM_SHEET_PROPS } from "@/features/product/constants/optionBottomSheet";
 import { useGetProductDetail } from "@/features/product/hooks/useGetProductDetail";
-// ⚠️ 임시 — 공구가 목업이라 묶음 상품도 서버가 알 길이 없다
-import { buildBundleMock } from "@/features/product/mocks/productMock";
 import { useProductVariantSelection } from "@/features/product/stores/useProductVariantSelection";
+import { BundleProduct, ProductDetail } from "@/features/product/types/product";
 import { ProductSaleState, resolveSaleState, saleStateMessage } from "@/features/product/utils/saleState";
 
 /**
@@ -49,8 +52,9 @@ import { ProductSaleState, resolveSaleState, saleStateMessage } from "@/features
  * 찜(♥)이 없다. 찜은 게시물 단위이고 서버도 상품 상세에 그 필드를 내려주지 않는다 —
  * 저장할 가치가 있는 것은 공구 게시물이지 그 안의 낱개 상품이 아니라는 판단이다.
  *
- * 가격 아래의 [공동구매 D-3 + 쇼룸] 줄은 아직 그리지 않는다. 서버가 groupBuyStatus(진행 단계)만
- * 내려주고 마감일도 쇼룸도 주지 않아, 이 상품이 어느 공구에 붙어 있는지 알 수 없다.
+ * 가격 아래의 [공동구매 D-3 + 쇼룸] 줄과 상세정보 탭 맨 아래 「이 공구에서 함께 판매 중」은 상품 상세 응답에
+ * 없다(서버는 groupBuyStatus 진행 단계만 준다). 공구 게시물에서 들어오면 그 게시물의 서버 데이터가 캐시에 있어
+ * 그것으로 채우고(`findCachedGroupBuy`), 없으면 둘 다 그리지 않는다 — 목업으로 채우지 않는다.
  */
 /** 서버가 이 상품의 판매 중 공구를 하나로 정하지 못했다 — 가격이 계약 가격이 아니라 살 수 없다 */
 const NO_GROUP_BUY_MESSAGE =
@@ -58,6 +62,8 @@ const NO_GROUP_BUY_MESSAGE =
 
 /** 상단 여백 12 + 버튼 52 + 하단 여백 26 — 본문이 이 아래로 숨지 않게 같은 값을 비운다 */
 const BOTTOM_CTA_HEIGHT = 90;
+/** 정지 중 [구매하기] 위 안내 한 줄(18 + 아래 10) */
+const SUSPENDED_LINE_HEIGHT = 28;
 
 /** 상세정보 탭 요약 표에 보여줄 고시 항목 수 */
 const SPEC_ROW_COUNT = 5;
@@ -74,12 +80,36 @@ export default function ProductDetailView() {
   const { params } = useRoute<RouteProp<CommonStackParamList, typeof COMMON_ROUTES.PRODUCT_DETAIL>>();
   const { productId, groupBuyId: requestedGroupBuyId } = params;
   const { bottom } = useSafeAreaInsets();
+  const suspension = useSuspension();
 
   const {
-    data: productDetail,
+    data: serverProductDetail,
     isLoading,
+    error: productDetailError,
     refetch: refetchProductDetail,
   } = useGetProductDetail(productId, requestedGroupBuyId);
+
+  /** 진입한 공구의 게시물 데이터 — 상세 응답에 없는 D-day · 쇼룸 · 같은 공구 상품을 여기서 읽는다 */
+  const resolvedGroupBuyId = serverProductDetail?.groupBuyId ?? requestedGroupBuyId;
+  const cachedGroupBuy = useMemo(
+    () => (resolvedGroupBuyId ? findCachedGroupBuy(resolvedGroupBuyId) : undefined),
+    [resolvedGroupBuyId]
+  );
+  const productDetail = useMemo((): ProductDetail | undefined => {
+    if (!serverProductDetail || serverProductDetail.groupBuy || !cachedGroupBuy) {
+      return serverProductDetail;
+    }
+    return {
+      ...serverProductDetail,
+      groupBuy: {
+        dday: cachedGroupBuy.groupBuy.dday,
+        isClosed: cachedGroupBuy.groupBuy.status === "CLOSED",
+        showroomId: cachedGroupBuy.showroomId,
+        showroomName: cachedGroupBuy.showroomName,
+        showroomImageUrl: cachedGroupBuy.showroomImageUrl,
+      },
+    };
+  }, [cachedGroupBuy, serverProductDetail]);
   const { create: createCart } = useCart();
   const { clearSelectedVariants, selectedVariantsByProductId } = useProductVariantSelection();
 
@@ -272,21 +302,31 @@ export default function ProductDetailView() {
   }, [productDetail?.brandSiteUrl]);
 
   /**
-   * 같은 공구의 다른 상품.
-   *
-   * ⚠️ 서버 미제공 — 상세는 이 상품이 어느 공구에 묶여 있는지를 알려주지 않는다.
-   * 공구 자체가 목업이라 묶음도 목업으로 둔다 — `groupBuy`가 없으면 섹션 자체를 그리지 않는다.
+   * 같은 공구의 다른 상품 — 공구 게시물 블록의 `products[]`(서버 값)에서 지금 상품과 상세로 갈 수 없는 상품을 뺀다.
+   * 게시물 데이터가 없으면 빈 목록이고, 섹션은 빈 목록이면 그리지 않는다.
    */
   const bundleProducts = useMemo(
-    () => (productDetail?.groupBuy ? buildBundleMock(productId) : []),
-    [productDetail?.groupBuy, productId]
+    (): Array<BundleProduct> =>
+      (cachedGroupBuy?.groupBuy.products ?? [])
+        .filter(product => product.productId !== productId && product.detailAvailable !== false)
+        .map(product => ({
+          id: product.productId,
+          name: product.name,
+          thumbnailUrl: product.imageUrl,
+          discountRate: product.discountRate,
+          salePrice: product.price,
+        })),
+    [cachedGroupBuy, productId]
   );
 
   const handlePressBundleProduct = useCallback(
     (targetProductId: number) => {
-      commonNavigation.push(COMMON_ROUTES.PRODUCT_DETAIL, { productId: targetProductId });
+      commonNavigation.push(COMMON_ROUTES.PRODUCT_DETAIL, {
+        productId: targetProductId,
+        groupBuyId: resolvedGroupBuyId ?? undefined,
+      });
     },
-    [commonNavigation]
+    [commonNavigation, resolvedGroupBuyId]
   );
 
   const noticeRows = useMemo((): Array<NoticeRow> => {
@@ -379,19 +419,47 @@ export default function ProductDetailView() {
     }
   };
 
+  /** C20 1b — 정지 중에는 자리를 지킨 회색 버튼 + 안내 한 줄 */
+  const renderBuyButton = () =>
+    suspension ? (
+      <View>
+        <SuspensionBlockedLine text={SUSPENSION_BLOCKED.PURCHASE} />
+        <SuspendedButton label="구매하기" />
+      </View>
+    ) : (
+      <TouchableOpacity
+        onPress={handleOpenOptionSheet}
+        activeOpacity={0.8}
+        className="h-52 flex-row items-center justify-center rounded-base bg-rose"
+      >
+        <Typography variant="buttonPrimary" className="text-white">
+          구매하기
+        </Typography>
+      </TouchableOpacity>
+    );
+
   return (
     <View className="flex-1 bg-white">
       <ScreenHeader onPressBack={commonNavigation.goBack} renderRight={<HeaderActions />} />
 
       {isLoading || !productDetail ? (
-        <View className="flex-1 items-center justify-center">
-          <Spinner />
+        <View className="flex-1 items-center justify-center px-40">
+          {isLoading ? (
+            <Spinner />
+          ) : (
+            <Typography style={{ fontSize: 13, lineHeight: 22.1 }} className="text-center text-gray45">
+              {(productDetailError as AxiosError<CustomErrorResponse<string, { message?: string }>> | null)
+                ?.response?.data?.message || "상품 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요."}
+            </Typography>
+          )}
         </View>
       ) : (
         <ScrollView
           stickyHeaderIndices={[6]}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: bottom + BOTTOM_CTA_HEIGHT }}
+          contentContainerStyle={{
+            paddingBottom: bottom + BOTTOM_CTA_HEIGHT + (suspension ? SUSPENDED_LINE_HEIGHT : 0),
+          }}
         >
           <ProductGallery
             representativeImageUrl={productDetail.representativeImageUrl}
@@ -487,15 +555,7 @@ export default function ProductDetailView() {
             </TouchableOpacity>
           </View>
         ) : (
-          <TouchableOpacity
-            onPress={handleOpenOptionSheet}
-            activeOpacity={0.8}
-            className="h-52 flex-row items-center justify-center rounded-base bg-rose"
-          >
-            <Typography variant="buttonPrimary" className="text-white">
-              구매하기
-            </Typography>
-          </TouchableOpacity>
+          renderBuyButton()
         )}
       </View>
 

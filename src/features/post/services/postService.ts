@@ -1,6 +1,5 @@
 import { apiInstance } from "@/common/lib/apiInstance";
 import { PageParams, PageResponse } from "@/common/types/page";
-import { isMockPostId, mockPostDetail, withMockPosts } from "@/features/post/mocks/mockPosts";
 import {
   FeedItem,
   GroupBuyInfo,
@@ -32,6 +31,7 @@ function toGroupBuyInfo(raw: RawGroupBuyBlock): GroupBuyInfo {
     dday: raw.dDay ?? 0,
     status: raw.saleState === "CLOSED" ? "CLOSED" : "OPEN",
     isPaidAd: !!raw.adDisclosure,
+    brandName: raw.brandName ?? null,
     products: (raw.products ?? []).map(product => ({
       productId: product.productId,
       name: product.name,
@@ -61,21 +61,21 @@ export const postService = {
   getFollowingFeed: async (params: PageParams) => {
     const { data } = await apiInstance.get<PageResponse<RawFeedItem>>("/user/feed/following", { params });
 
-    return withMockPosts(toFeedPage(data), params.page, "following");
+    return toFeedPage(data);
   },
 
   /** 팔로우하지 않은 쇼룸의 게시물 — "회원님을 위한 추천" · 팔로잉 0일 때의 발견 피드 */
   getRecommendedFeed: async (params: PageParams) => {
     const { data } = await apiInstance.get<PageResponse<RawFeedItem>>("/user/feed/recommended", { params });
 
-    return withMockPosts(toFeedPage(data), params.page, "recommended");
+    return toFeedPage(data);
   },
 
   /** 좋아요한 게시물 (C3). 경로는 앱이 쓰던 옛 계약을 그대로 둔 것이라 wishlist다 */
   getLikedPosts: async (params: PageParams & { sort?: LikedPostSort }) => {
     const { data } = await apiInstance.get<PageResponse<RawFeedItem>>("/user/wishlist/contents", { params });
 
-    return withMockPosts(toFeedPage(data), params.page, "liked");
+    return toFeedPage(data);
   },
 
   /** 특정 쇼룸의 게시물 (C4) */
@@ -84,38 +84,20 @@ export const postService = {
       params,
     });
 
-    return withMockPosts(toFeedPage(data), params.page, "showroom");
+    return toFeedPage(data);
   },
 
   getPostDetail: async (postId: number): Promise<PostDetail> => {
-    // 목업 게시물은 서버에 없는 id라 부르면 404가 난다
-    if (isMockPostId(postId)) {
-      return mockPostDetail(postId);
-    }
-
     const { data } = await apiInstance.get<RawPostDetail>(`/user/showrooms/posts/${postId}`);
 
     return { ...data, groupBuy: data.groupBuy ? toGroupBuyInfo(data.groupBuy) : null };
   },
 
-  /*
-    목업 게시물은 서버에 없는 id라 그대로 보내면 400·404가 난다. 하트는 화면에서 즉시 반영되고
-    (React Query 낙관적 갱신) 이 호출은 그 뒤의 확정일 뿐이라, 보내지 않고 성공으로 두면
-    목업에서도 하트가 정상으로 동작한다 — 앱을 껐다 켜면 초기 상태로 돌아간다.
-  */
   like: async (postId: number) => {
-    if (isMockPostId(postId)) {
-      return;
-    }
-
     await apiInstance.post<void>(`/user/showrooms/posts/${postId}/wishlist`);
   },
 
   unlike: async (postId: number) => {
-    if (isMockPostId(postId)) {
-      return;
-    }
-
     await apiInstance.delete<void>(`/user/showrooms/posts/${postId}/wishlist`);
   },
 
@@ -126,10 +108,6 @@ export const postService = {
   },
 
   report: async (postId: number, body: PostReportRequest) => {
-    if (isMockPostId(postId)) {
-      return;
-    }
-
     await apiInstance.post<void>(`/user/posts/${postId}/reports`, body);
   },
 
@@ -138,12 +116,10 @@ export const postService = {
    * 같은 사람이 같은 게시물을 다시 봐도 30분 안이면 서버가 적재하지 않는다.
    */
   recordImpressions: async (postIds: Array<number>, visitorId?: string) => {
-    const realIds = postIds.filter(postId => !isMockPostId(postId));
-
-    if (realIds.length === 0) {
+    if (postIds.length === 0) {
       return;
     }
 
-    await apiInstance.post<void>("/user/posts/impressions", { postIds: realIds, visitorId });
+    await apiInstance.post<void>("/user/posts/impressions", { postIds, visitorId });
   },
 };

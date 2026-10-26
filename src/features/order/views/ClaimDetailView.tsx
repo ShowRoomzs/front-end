@@ -1,8 +1,9 @@
 import { RouteProp, useFocusEffect, useRoute } from "@react-navigation/native";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { Image, ScrollView, TouchableOpacity, View } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
+import DevMockSwitch from "@/common/components/DevMockSwitch/DevMockSwitch";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import Spinner from "@/common/components/Spinner/Spinner";
 import Typography from "@/common/components/Typography/Typography";
@@ -12,6 +13,10 @@ import { toast } from "@/common/providers/ToastProvider";
 import { useCommonNavigation } from "@/common/router";
 import { COMMON_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
+import ClaimInspectionBlock, {
+  FeeLine,
+  FeeTotalLine,
+} from "@/features/order/components/ClaimInspectionBlock/ClaimInspectionBlock";
 import {
   AmountRow,
   Band,
@@ -31,6 +36,12 @@ import { ORDER_QUERY_KEY } from "@/features/order/constants/queryKey";
 import { ClaimPaymentOutcome, useClaimPayment } from "@/features/order/hooks/useClaimPayment";
 import { useOrderNavigation } from "@/features/order/hooks/useOrderNavigation";
 import { invalidateOrderQueries, useGetClaimDetail } from "@/features/order/hooks/useOrderQueries";
+import {
+  applyDevInspectionMock,
+  DEV_INSPECTION_EXCHANGE_OPTIONS,
+  DEV_INSPECTION_RETURN_OPTIONS,
+  DevInspectionMock,
+} from "@/features/order/services/claimInspectionDevMock";
 import { claimService } from "@/features/order/services/claimService";
 import {
   applyDevReshipMock,
@@ -42,6 +53,7 @@ import {
   ClaimAction,
   ClaimDetailItem,
   ClaimDetailResponse,
+  ClaimInspection,
   ClaimPaymentCompleteResponse,
   ClaimReshipFee,
   UserClaimPhase,
@@ -101,10 +113,22 @@ export default function ClaimDetailView() {
   // DEV 빌드에서만 — 재발송비 결제 상태를 덧씌워 확인한다(`reshipFeeDevMock`)
   const [devReshipMock, setDevReshipMock] = useState<DevReshipMock>("OFF");
   const [devPaidLabel, setDevPaidLabel] = useState<string | null>(null);
+  // DEV 빌드에서만 — 검수 판정(사유 번복 · 귀책 변경 · 교환 번복 결제)을 덧씌워 확인한다(`claimInspectionDevMock`)
+  const [devInspectionMock, setDevInspectionMock] = useState<DevInspectionMock>("OFF");
   const detail = useMemo(
-    () => (serverDetail ? applyDevReshipMock(serverDetail, devReshipMock, devPaidLabel) : serverDetail),
-    [devPaidLabel, devReshipMock, serverDetail]
+    () =>
+      serverDetail
+        ? applyDevInspectionMock(
+            applyDevReshipMock(serverDetail, devReshipMock, devPaidLabel),
+            devInspectionMock
+          )
+        : serverDetail,
+    [devInspectionMock, devPaidLabel, devReshipMock, serverDetail]
   );
+  const isDevMocking = devReshipMock !== "OFF" || devInspectionMock !== "OFF";
+  const detailRef = useRef(detail);
+
+  detailRef.current = detail;
   const { show: showModal } = useModal();
   const { open } = useOrderNavigation();
   const [payment, setPayment] = useState<Partial<PaymentSelection>>({});
@@ -120,7 +144,11 @@ export default function ClaimDetailView() {
   const handlePaymentOutcome = useCallback(
     (outcome: ClaimPaymentOutcome) => {
       if (outcome.type === "PAID") {
-        toast.show("결제가 완료되었어요. 반려 상품을 다시 보내드릴게요");
+        toast.show(
+          isOverturnPayableRef(detailRef.current)
+            ? "결제가 완료되었어요. 새 상품을 보내드릴게요"
+            : "결제가 완료되었어요. 반려 상품을 다시 보내드릴게요"
+        );
         invalidateOrderQueries();
         return;
       }
@@ -223,23 +251,32 @@ export default function ClaimDetailView() {
   }, [claimId, detail, navigation, refetch]);
 
   const reshipFee = detail?.reshipFee;
-  const isPayable = !!reshipFee && isReshipPayable(reshipFee);
+  const overturnPayment = detail?.inspection?.payment;
+  /** 교환 사유 번복 결제 — 결제 API는 반려 재발송비와 같다(서버 charge OVERTURN_RESHIP) */
+  const isOverturnPayable = isOverturnPayableRef(detail);
+  const isPayable = (!!reshipFee && isReshipPayable(reshipFee)) || isOverturnPayable;
+  const payAmount = isOverturnPayable ? (overturnPayment?.total ?? 0) : reshipTotal(reshipFee);
   const canPay = isPayable && isPaymentSelectionComplete(payment);
 
   const handlePressPay = useCallback(async () => {
-    if (!reshipFee || !canPay || isPaying) {
+    if (!canPay || isPaying) {
       return;
     }
-    if (devReshipMock !== "OFF") {
+    if (isDevMocking) {
       // 목업 청구는 서버에 없어 결제창을 열 수 없다 — 결제창이 돌려줄 결과를 골라 후속 처리를 본다
       showModal({
         title: "DEV 목업 결제",
-        message: `${paymentSelectionLabel(payment)} · ${won(reshipFee.amount ?? 0)}
+        message: `${paymentSelectionLabel(payment)} · ${won(payAmount)}
 결제창 결과를 골라 주세요.`,
         buttons: [
           {
             label: "성공",
             onPress: () => {
+              if (devInspectionMock === "EXCHANGE_OVERTURNED") {
+                setDevInspectionMock("EXCHANGE_OVERTURNED_PAID");
+                handlePaymentOutcome({ type: "PAID", result: {} as ClaimPaymentCompleteResponse });
+                return;
+              }
               setDevPaidLabel(paymentSelectionLabel(payment));
               setDevReshipMock("PAID");
               handlePaymentOutcome({ type: "PAID", result: {} as ClaimPaymentCompleteResponse });
@@ -259,7 +296,7 @@ export default function ClaimDetailView() {
     try {
       const paymentWindow = await claimService.payReshipFee(claimId, {
         ...toSubmittedSelection(payment),
-        expectedAmount: reshipFee.amount ?? undefined,
+        expectedAmount: payAmount || undefined,
       });
 
       claimPayment.openPaymentWindow(paymentWindow);
@@ -273,14 +310,30 @@ export default function ClaimDetailView() {
     canPay,
     claimId,
     claimPayment,
-    devReshipMock,
+    devInspectionMock,
     handlePaymentOutcome,
+    isDevMocking,
     isPaying,
+    payAmount,
     payment,
     refetch,
-    reshipFee,
     showModal,
   ]);
+
+  /** 계좌 송금 안내 [1:1 문의] — 환급 건 id를 실어 「취소/교환/반품」 문의로 연다(서버가 계좌 접수와 묶는다) */
+  const handlePressBankInquiry = useCallback(
+    (refundTaskId: number | null) => {
+      if (!detail) {
+        return;
+      }
+      open(COMMON_ROUTES.INQUIRY_REGISTER, {
+        orderId: detail.orderId,
+        orderNumber: detail.orderNumber,
+        refundTaskId: refundTaskId ?? undefined,
+      });
+    },
+    [detail, open]
+  );
 
   if (isLoading || !detail) {
     return (
@@ -349,6 +402,35 @@ export default function ClaimDetailView() {
             }}
           />
         )}
+        <DevMockSwitch
+          label="DEV 검수 판정"
+          options={isExchange ? DEV_INSPECTION_EXCHANGE_OPTIONS : DEV_INSPECTION_RETURN_OPTIONS}
+          current={
+            devInspectionMock === "EXCHANGE_OVERTURNED_PAID" ? "EXCHANGE_OVERTURNED" : devInspectionMock
+          }
+          onPick={mock => {
+            setDevInspectionMock(mock);
+            setPayment({});
+          }}
+        />
+
+        {!!detail.inspection && (
+          <ClaimInspectionBlock
+            inspection={detail.inspection}
+            brandName={focused?.brandName ?? ""}
+            initialFee={detail.refund?.returnDeduction}
+          />
+        )}
+        {isOverturnPayable && (
+          <PaymentMethodPicker
+            sheetId="claim-overturn-card-issuer"
+            methods={PAYMENT_METHODS}
+            value={payment}
+            onChange={setPayment}
+            issuerSheet="grid"
+            easyPayLabelSize={14.5}
+          />
+        )}
 
         {!!reshipFee && reshipFee.state !== "WAITING" && (
           <ReshipFeeBlock
@@ -414,7 +496,7 @@ export default function ClaimDetailView() {
         </View>
 
         <Band marginTop={14} />
-        {!!detail.refund && <RefundSection detail={detail} />}
+        {!!detail.refund && <RefundSection detail={detail} onPressBankInquiry={handlePressBankInquiry} />}
         {!detail.refund && !!detail.exchangePayment && (
           <>
             <SectionTitle title="결제 정보" />
@@ -463,7 +545,11 @@ export default function ClaimDetailView() {
 
       {isPayable && (
         <BottomCta
-          label={canPay ? `${won(reshipFee?.amount ?? 0)} 결제하고 다시 받기` : "결제 수단을 선택해 주세요"}
+          label={
+            canPay
+              ? `${won(payAmount)} ${isOverturnPayable ? "결제" : "결제하고 다시 받기"}`
+              : "결제 수단을 선택해 주세요"
+          }
           enabled={!!canPay}
           loading={isPaying || claimPayment.isConfirming}
           onPress={handlePressPay}
@@ -655,7 +741,23 @@ function RejectionBlock(props: { item: ClaimDetailItem }) {
  * (back-end `UserClaimQueryService.reshipFee`가 `WAIVED`를 따로 나누지 않는다). 0원은 결제할 것이 없으므로 막는다.
  */
 function isReshipPayable(reshipFee: ClaimReshipFee) {
-  return reshipFee.state === "PAYABLE" && (reshipFee.amount ?? 0) > 0;
+  return reshipFee.state === "PAYABLE" && reshipTotal(reshipFee) > 0;
+}
+
+/** 다시 받는 데 낼 금액 — 재발송 배송비 + (착불로 보냈다가 반려되면) 브랜드가 낸 착불 운임 */
+function reshipTotal(reshipFee: ClaimReshipFee | null | undefined) {
+  return (reshipFee?.amount ?? 0) + (reshipFee?.collectFreight ?? 0);
+}
+
+/** 교환 사유 번복으로 결제가 남았는가 */
+function isOverturnPayableRef(detail: ClaimDetailResponse | undefined) {
+  const payment = detail?.inspection?.payment;
+
+  return (
+    detail?.inspection?.state === "OVERTURN_PAYMENT_PENDING" &&
+    payment?.status === "PENDING" &&
+    payment.total > 0
+  );
 }
 
 /**
@@ -690,6 +792,7 @@ function ReshipFeeBlock(props: {
 }) {
   const { reshipFee, kw, items, payment, onChangePayment } = props;
   const amount = won(reshipFee.amount ?? 0);
+  const collect = reshipFee.collectFreight ?? 0;
   const storagePhase = reshipFee.storage?.phase;
   // 보관 기한 줄 — 기한 전에는 결제 기한이 곧 보관 기한이고, 기한이 지나면 서버가 정한 보관 기한(보관 중일 때만)
   const overdueStorageDue = storagePhase === "STORING" ? reshipFee.storage?.storageDueAt : null;
@@ -739,7 +842,9 @@ function ReshipFeeBlock(props: {
             <OverdueNotice dueDate={reshipFee.dueDate} expired={storagePhase === "EXPIRED"} />
           ) : (
             <Typography style={{ fontSize: 12.5, lineHeight: 20.6 }} className="px-14 pt-8 text-ink76">
-              {kw}이 반려된 상품을 다시 보내드려요.{" "}
+              {collect > 0 && kw === "교환"
+                ? "불량 · 오배송으로 신청해 착불로 보내셨기 때문에, "
+                : `${kw}이 반려된 상품을 다시 보내드려요. `}
               {!!reshipFee.dueDate && (
                 <Typography
                   style={{ fontSize: 12.5, fontWeight: "600", lineHeight: 20.6 }}
@@ -748,17 +853,29 @@ function ReshipFeeBlock(props: {
                   {formatDueDate(reshipFee.dueDate)}까지
                 </Typography>
               )}
-              {reshipFee.dueDate ? " " : ""}재발송 배송비를 결제해 주세요.
+              {reshipFee.dueDate ? " " : ""}
+              {collect > 0 && kw === "교환"
+                ? "재발송 배송비와 브랜드가 낸 착불 운임을 결제해 주세요. 결제하면 받으신 상품을 다시 보내드려요."
+                : `${collect > 0 ? "재발송 배송비와 착불 운임을" : "재발송 배송비를"} 결제해 주세요.`}
             </Typography>
           )}
-          <View className="flex-row items-baseline justify-between px-14 pt-12" style={{ gap: 12 }}>
-            <Typography style={{ fontSize: 13.5, lineHeight: 18.9 }} className="text-ink76">
-              재발송 배송비
-            </Typography>
-            <Typography style={{ fontSize: 15, fontWeight: "700", lineHeight: 21 }} className="text-ink">
-              {amount}
-            </Typography>
-          </View>
+          {collect > 0 ? (
+            // 착불로 보냈다가 반려 — 브랜드가 낸 회수 운임을 함께 낸다(1021 기-93)
+            <>
+              <FeeLine label="재발송 배송비" value={amount} />
+              <FeeLine label="착불 운임 (브랜드가 낸 회수 운임)" value={won(collect)} />
+              <FeeTotalLine value={won(reshipTotal(reshipFee))} />
+            </>
+          ) : (
+            <View className="flex-row items-baseline justify-between px-14 pt-12" style={{ gap: 12 }}>
+              <Typography style={{ fontSize: 13.5, lineHeight: 18.9 }} className="text-ink76">
+                재발송 배송비
+              </Typography>
+              <Typography style={{ fontSize: 15, fontWeight: "700", lineHeight: 21 }} className="text-ink">
+                {amount}
+              </Typography>
+            </View>
+          )}
           <PaymentMethodPicker
             sheetId="claim-reship-card-issuer"
             methods={PAYMENT_METHODS}
@@ -788,7 +905,12 @@ function ReshipFeeBlock(props: {
           "재발송 배송비는 없어요. 추가 결제 없이 보내드려요."
         )}
       {reshipFee.state === "DEDUCTED" &&
-        confirmBox(`함께 반품한 상품의 환불액에서 재발송 배송비 ${amount}을 빼고 보내드려요`, deductedSub)}
+        confirmBox(
+          `함께 반품한 상품의 환불액에서 재발송 배송비 ${amount}을 빼고 보내드려요`,
+          collect > 0
+            ? `${deductedSub}\n불량 · 오배송으로 신청해 착불로 보내셨기 때문에, 브랜드가 낸 착불 운임 ${won(collect)}도 환불액에서 함께 빼요.`
+            : deductedSub
+        )}
       {reshipFee.state === "COVERED" &&
         confirmBox(
           "요청 때 결제한 배송비로 다시 보내드려요",
@@ -805,8 +927,26 @@ function ReshipFeeBlock(props: {
   );
 }
 
-function RefundSection(props: { detail: ClaimDetailResponse }) {
+function RefundSection(props: {
+  detail: ClaimDetailResponse;
+  onPressBankInquiry: (refundTaskId: number | null) => void;
+}) {
   const refund = props.detail.refund!;
+  const inspection: ClaimInspection | null = props.detail.inspection ?? null;
+  const collectFreight =
+    (inspection?.state === "REASON_OVERTURNED" ? inspection.freight.collectFreight : 0) ||
+    (props.detail.reshipFee?.state === "DEDUCTED" ? (props.detail.reshipFee.collectFreight ?? 0) : 0);
+  const isFaultChanged = inspection?.state === "FAULT_CHANGED";
+  const freightRefund = isFaultChanged
+    ? inspection.freight.initialFeeRestored + inspection.freight.prepaidFreightRefund
+    : 0;
+  const split = inspection?.refundSplit;
+  const bankTransfer = split?.bankTransfer ?? 0;
+  // 원래 결제 금액을 넘는 몫은 카드 취소로 돌려줄 수 없어 운영자가 계좌로 보낸다 — 수단 줄에 둘을 나눠 적는다
+  const methodLabel =
+    refund.refundMethodLabel && bankTransfer > 0
+      ? `${refund.refundMethodLabel} ${won(refund.amount - bankTransfer)} · 계좌 송금 ${won(bankTransfer)}`
+      : refund.refundMethodLabel;
   const hasRejected =
     refund.rejectedAmount !== null && refund.rejectedAmount !== undefined && refund.rejectedAmount > 0;
 
@@ -832,7 +972,7 @@ function RefundSection(props: { detail: ClaimDetailResponse }) {
         />
         {refund.returnDeduction > 0 && (
           <AmountRow
-            label="반품 배송비 (차감)"
+            label="최초 배송비 차감"
             value={`-${won(refund.returnDeduction)}`}
             labelColor="#3C3C3C"
             valueColor="#CF3D61"
@@ -847,6 +987,33 @@ function RefundSection(props: { detail: ClaimDetailResponse }) {
             valueColor="#CF3D61"
             fontSize={13.5}
           />
+        )}
+        {collectFreight > 0 && (
+          <AmountRow
+            label="착불 운임 (소비자 부담)"
+            value={`-${won(collectFreight)}`}
+            labelColor="#3C3C3C"
+            valueColor="#CF3D61"
+            fontSize={13.5}
+          />
+        )}
+        {isFaultChanged && freightRefund > 0 && (
+          <View>
+            <AmountRow
+              label="귀책 변경 · 운임 환급"
+              value={`+${won(freightRefund)}`}
+              labelColor="#3C3C3C"
+              fontSize={13.5}
+            />
+            <Typography
+              style={{ fontSize: 11.5, lineHeight: 17.25, marginTop: 5 }}
+              className="text-right text-gray45"
+            >
+              {`최초 배송비 ${won(inspection.freight.initialFeeRestored)} + 보내실 때 낸 선불 운임(기본 배송비) ${won(
+                inspection.freight.prepaidFreightRefund
+              )}`}
+            </Typography>
+          </View>
         )}
       </View>
       <View
@@ -863,14 +1030,45 @@ function RefundSection(props: { detail: ClaimDetailResponse }) {
           {won(refund.amount)}
         </Typography>
       </View>
-      {!!refund.refundMethodLabel && (
+      {!!methodLabel && (
         <View className="px-14 pt-9">
-          <AmountRow
-            label="환불 수단"
-            value={refund.refundMethodLabel}
-            fontSize={12.5}
-            valueColor="#3C3C3C"
-          />
+          <AmountRow label="환불 수단" value={methodLabel} fontSize={12.5} valueColor="#3C3C3C" />
+        </View>
+      )}
+      {bankTransfer > 0 && (
+        <View
+          className="mx-14 rounded-base bg-band"
+          style={{ marginTop: 12, paddingVertical: 13, paddingHorizontal: 14 }}
+        >
+          <Typography style={{ fontSize: 13, fontWeight: "600", lineHeight: 18.85 }} className="text-ink">
+            운영자가 계좌로 별도 송금
+          </Typography>
+          <Typography style={{ fontSize: 12.5, lineHeight: 20, marginTop: 5 }} className="text-ink76">
+            {split?.bankTransferStatus === "송금 완료" ? (
+              `원래 결제 금액을 넘는 ${won(bankTransfer)}을 계좌로 송금했어요.`
+            ) : (
+              <>
+                원래 결제 금액을 넘는{" "}
+                <Typography
+                  style={{ fontSize: 12.5, fontWeight: "600", lineHeight: 20 }}
+                  className="text-ink76"
+                >
+                  {won(bankTransfer)}
+                </Typography>
+                은 1:1 문의로 계좌를 알려 주시면 송금해 드려요.
+              </>
+            )}
+          </Typography>
+          {split?.bankTransferStatus !== "송금 완료" && (
+            <View style={{ marginTop: 11 }}>
+              <OutlineAction
+                label="1:1 문의"
+                height={44}
+                fontSize={13}
+                onPress={() => props.onPressBankInquiry(split?.bankTransferRefundTaskId ?? null)}
+              />
+            </View>
+          )}
         </View>
       )}
       <BulletNotes

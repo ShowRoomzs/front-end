@@ -9,6 +9,8 @@ import { toast } from "@/common/providers/ToastProvider";
 import { useCommonNavigation } from "@/common/router";
 import { COMMON_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
+import { SUSPENSION_ORDER_NOTE } from "@/features/account/constants/suspension";
+import { useSuspension } from "@/features/account/hooks/useAccountStatus";
 import OrderItemCard from "@/features/order/components/OrderItemCard/OrderItemCard";
 import {
   AmountRow,
@@ -49,6 +51,7 @@ export default function OrderDetailView() {
   const { params } = useRoute<RouteProp<CommonStackParamList, typeof COMMON_ROUTES.ORDER_DETAIL>>();
   const { orderId } = params;
   const { data: order, isLoading, refetch } = useGetOrderDetail(orderId);
+  const suspension = useSuspension();
   const { open, handleItemAction, openCancelDetail } = useOrderNavigation();
 
   useFocusEffect(
@@ -236,6 +239,19 @@ export default function OrderDetailView() {
               상품에 하자가 있으면 1:1 문의로 접수해 주세요 — 확인 후 반품을 열어 드려요
             </Typography>
           </View>
+        )}
+
+        {/*
+          C20 1e — 배너를 본 사람이 주문까지 막혔다고 오해하지 않게, 이미 결제한 주문은 그대로 된다고 적는다.
+          청약철회 · 반품 권리는 정지로 제한할 수 없어 이 화면의 버튼은 모두 평소대로 둔다.
+        */}
+        {!!suspension && (
+          <>
+            <Band marginTop={22} />
+            <Typography style={{ fontSize: 12.5, lineHeight: 21.25 }} className="px-14 pt-18 text-gray45">
+              {SUSPENSION_ORDER_NOTE}
+            </Typography>
+          </>
         )}
 
         <View className="h-30" />

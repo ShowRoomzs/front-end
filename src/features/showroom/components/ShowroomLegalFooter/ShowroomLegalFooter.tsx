@@ -3,8 +3,9 @@ import Svg, { Circle, Path } from "react-native-svg";
 
 import Typography from "@/common/components/Typography/Typography";
 import { BUSINESS_INFO } from "@/common/constants/business";
-import { useCommonNavigation, useMypageNavigation } from "@/common/router";
-import { COMMON_ROUTES, MYPAGE_ROUTES } from "@/common/router/routes";
+import { toast } from "@/common/providers/ToastProvider";
+import { useCommonNavigation, useMainNavigation, useMypageNavigation } from "@/common/router";
+import { COMMON_ROUTES, HOME_ROUTES, MYPAGE_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 
 /**
  * C4 쇼룸 하단 고지 — 대가관계 안내 · 통신판매중개자 고지 · 법적 링크.
@@ -16,12 +17,22 @@ import { COMMON_ROUTES, MYPAGE_ROUTES } from "@/common/router/routes";
  * 때문이다 — 배지만 보고 무슨 뜻인지 모르면 표시를 한 의미가 없다.
  *
  * 마이 탭 푸터와 같은 규격(#F7F7F8 밴드 · 11px · #737373)이라 두 화면이 같은 목소리로 말한다.
+ *
+ * 운영자 정보는 **상호 · 사업자등록번호만** 요약하고(결정 노트 v0.2 기-35), 전체는 [사업자 정보 확인]이
+ * 마이 탭 사업자 정보를 펼쳐서 보여준다.
  */
 const LINK_ROW_HIT_SLOP = 8;
 
 export default function ShowroomLegalFooter() {
   const commonNavigation = useCommonNavigation();
+  const mainNavigation = useMainNavigation();
   const mypageNavigation = useMypageNavigation();
+
+  const handlePressBusinessInfo = () =>
+    mainNavigation.navigate(ROOT_ROUTES.HOME, {
+      screen: HOME_ROUTES.MYPAGE,
+      params: { screen: MYPAGE_ROUTES.MAIN, params: { showBusinessInfoAt: Date.now() } },
+    });
 
   const links = [
     {
@@ -34,6 +45,12 @@ export default function ShowroomLegalFooter() {
       key: "privacy",
       label: "개인정보 처리방침",
       onPress: () => commonNavigation.navigate(COMMON_ROUTES.TERMS_DOCUMENT, { termsType: "PRIVACY_POLICY" }),
+    },
+    {
+      // ⚠️ 운영정책 문서가 아직 없다 — 서버 약관 유형이 이용약관 · 개인정보 처리방침 · 마케팅 동의 3종뿐이다
+      key: "policy",
+      label: "운영정책",
+      onPress: () => toast.show("운영정책을 준비하고 있어요"),
     },
     {
       // 게시물 하나를 특정할 수 없는 자리라 신고 화면이 아니라 접수 창구로 보낸다.
@@ -60,6 +77,28 @@ export default function ShowroomLegalFooter() {
           </Typography>{" "}
           표시가 붙습니다.
         </Typography>
+      </View>
+
+      <View className="flex-row flex-wrap items-center" style={{ columnGap: 8, rowGap: 4, marginTop: 10 }}>
+        <Typography style={{ fontSize: 11, lineHeight: 18.15 }} className="text-gray45">
+          {BUSINESS_INFO.companyName}
+        </Typography>
+        <View style={{ width: 1, height: 9, backgroundColor: "#DEDEE0" }} />
+        <Typography style={{ fontSize: 11, lineHeight: 18.15 }} className="text-gray45">
+          {BUSINESS_INFO.registrationNumber}
+        </Typography>
+        <TouchableOpacity
+          onPress={handlePressBusinessInfo}
+          activeOpacity={0.6}
+          style={{ paddingVertical: LINK_ROW_HIT_SLOP, marginVertical: -LINK_ROW_HIT_SLOP }}
+        >
+          <Typography
+            style={{ fontSize: 11, fontWeight: "500", lineHeight: 18.15, textDecorationLine: "underline" }}
+            className="text-gray45"
+          >
+            사업자 정보 확인
+          </Typography>
+        </TouchableOpacity>
       </View>
 
       <Typography style={{ fontSize: 11, lineHeight: 18.7, marginTop: 14 }} className="text-gray45">

@@ -2,7 +2,10 @@ import { InfiniteData, useMutation } from "@tanstack/react-query";
 import { useCallback } from "react";
 
 import { queryClient } from "@/common/lib/queryClient";
+import { toast } from "@/common/providers/ToastProvider";
 import { PageResponse } from "@/common/types/page";
+import { SUSPENSION_BLOCKED } from "@/features/account/constants/suspension";
+import { useSuspension } from "@/features/account/hooks/useAccountStatus";
 import { POST_QUERY_KEY } from "@/features/post/constants/queryKey";
 import { postService } from "@/features/post/services/postService";
 import { FeedItem, PostDetail } from "@/features/post/types/post";
@@ -74,11 +77,18 @@ export function useUpdatePostLike() {
 
   const { mutate } = mutation;
 
+  const suspension = useSuspension();
+
   const toggle = useCallback(
     (postId: number, currentIsLiked: boolean) => {
+      // C20 — 정지 중에는 새 좋아요만 막는다. 하트처럼 안내 줄을 붙일 자리가 없어 토스트로 알린다(취소는 평소대로)
+      if (suspension && !currentIsLiked) {
+        toast.show(SUSPENSION_BLOCKED.LIKE);
+        return;
+      }
       mutate({ postId, isLiked: !currentIsLiked });
     },
-    [mutate]
+    [mutate, suspension]
   );
 
   return { ...mutation, toggle };

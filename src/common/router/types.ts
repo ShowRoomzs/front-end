@@ -22,7 +22,7 @@ export type HomeTabParamList = {
   [HOME_ROUTES.HOME]: undefined;
   [HOME_ROUTES.FOLLOWING]: undefined;
   [HOME_ROUTES.LIKE]: undefined;
-  [HOME_ROUTES.MYPAGE]: undefined;
+  [HOME_ROUTES.MYPAGE]: NavigatorScreenParams<MypageStackParamList> | undefined;
 };
 
 // 카테고리(탭 내부) 스택 파라미터
@@ -153,11 +153,13 @@ export type CommonStackParamList = {
   [COMMON_ROUTES.INQUIRY_REGISTER]: {
     orderId: number;
     orderNumber: string;
+    /** C10-5 계좌 송금 안내 — 유형 「취소/교환/반품」으로 열고 환급 건을 실어 보낸다 */
+    refundTaskId?: number;
   };
 };
 
 export type RootStackParamList = {
-  [ROOT_ROUTES.HOME]: undefined;
+  [ROOT_ROUTES.HOME]: NavigatorScreenParams<HomeTabParamList> | undefined;
   [ROOT_ROUTES.AUTH]: {
     params?: {
       onSuccessLogin?: () => void;
@@ -188,10 +190,17 @@ export type SettingsStackParamList = {
 };
 
 export type MypageStackParamList = {
-  [MYPAGE_ROUTES.MAIN]: undefined;
+  [MYPAGE_ROUTES.MAIN]:
+    | {
+        /**
+         * 사업자 정보를 펼치고 그 자리까지 내린다(C4 쇼룸 하단 [사업자 정보 확인]).
+         * 누를 때마다 값이 바뀌어야 다시 반응하므로 시각을 넘긴다.
+         */
+        showBusinessInfoAt?: number;
+      }
+    | undefined;
   [MYPAGE_ROUTES.SETTINGS]: undefined;
   [MYPAGE_ROUTES.ORDER_AND_DELIVERY_SEARCH]: undefined;
-  [MYPAGE_ROUTES.CANCEL_AND_REFUND]: undefined;
   [MYPAGE_ROUTES.ADDRESS_MANAGEMENT]: undefined;
   [MYPAGE_ROUTES.ADDRESS_FORM]?: {
     addressId?: number;
@@ -202,6 +211,10 @@ export type MypageStackParamList = {
   };
   [MYPAGE_ROUTES.INQUIRY_REGISTER]?: {
     inquiryId?: number;
+    /** C20 1d — 정지 안내 시트에서 왔다. 유형 「계정 이용 정지」로 고정하고 관련 주문 칸을 숨긴다 */
+    sanctionAppeal?: boolean;
+    /** C10-5 계좌 송금 안내 — 유형 「취소/교환/반품」으로 열고 환급 건을 실어 보낸다 */
+    refundTaskId?: number;
     /** 주문 상세에서 열면 그 주문이 연결된 채로 시작한다 */
     orderId?: number;
     orderNumber?: string;

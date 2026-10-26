@@ -53,6 +53,8 @@ export interface GroupBuyInfo {
   dday: number;
   status: GroupBuyStatus;
   isPaidAd: boolean;
+  /** 판매 브랜드 — 게시물 최하단 통신판매중개자 고지(1021 기-34 【잠정】). 개발 서버 미배포면 null */
+  brandName: string | null;
   products: Array<PostProduct>;
 }
 
@@ -84,6 +86,8 @@ export interface RawGroupBuyBlock {
   dDay: number | null;
   endAt: string;
   adDisclosure: { label: string; text: string } | null;
+  /** 2026-10-24 BE main에 생김 — 개발 서버 미배포라 없을 수 있다 */
+  brandName?: string | null;
   productCount: number;
   /** 목록에서 CLOSED면 [] */
   products: Array<RawGroupBuyProduct>;
@@ -145,13 +149,11 @@ export interface PostDetail {
  * 앱이 문구를 들고 있으면 규정이 바뀌어도 화면이 따라가지 못한다.
  */
 export type PostReportReasonCode =
-  | "AD_DISCLOSURE"
-  | "MEDICAL_CLAIM"
-  | "MISLEADING_AD"
-  | "COPYRIGHT"
+  | "MISLEADING_INFO"
+  | "FRAUD_IMPERSONATION"
+  | "ABUSE_HATE"
   | "SEXUAL_CONTENT"
-  | "VIOLENCE_HATE"
-  | "PERSONAL_INFO"
+  | "SPAM"
   | "OTHER";
 
 export interface PostReportReasonItem {

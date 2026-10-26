@@ -1,4 +1,5 @@
-import { useCallback, useMemo } from "react";
+import { RouteProp, useRoute } from "@react-navigation/native";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { Linking, ScrollView, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -14,8 +15,10 @@ import { BUSINESS_INFO } from "@/common/constants/business";
 import { usePermissionPress } from "@/common/hooks/usePermissionPress";
 import { useMainNavigation, useMypageNavigation } from "@/common/router";
 import { COMMON_ROUTES, MYPAGE_ROUTES, MyPageRouteName, ROOT_ROUTES } from "@/common/router/routes";
+import { MypageStackParamList } from "@/common/router/types";
 import { useUserStore } from "@/common/stores/useUserStore";
 import { COMMON_ASSETS } from "@/common/utils/assets";
+import SuspensionBanner from "@/features/account/components/SuspensionBanner";
 import { useCartItemCount } from "@/features/cart/hooks/useGetCart";
 import MypageProfileCard from "@/features/mypage/components/MypageProfileCard/MypageProfileCard";
 import OrderStatusCard, {
@@ -45,6 +48,19 @@ export default function MypageView() {
   const mainNavigation = useMainNavigation();
   const mypageNavigation = useMypageNavigation();
   const cartItemCount = useCartItemCount();
+  const { params } = useRoute<RouteProp<MypageStackParamList, typeof MYPAGE_ROUTES.MAIN>>();
+  const showBusinessInfoAt = params?.showBusinessInfoAt;
+  const scrollRef = useRef<ScrollView>(null);
+
+  /** C4 쇼룸 하단 [사업자 정보 확인]으로 왔다 — 푸터가 펼쳐진 뒤 맨 아래까지 내린다 */
+  useEffect(() => {
+    if (!showBusinessInfoAt) {
+      return;
+    }
+    const timer = setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
+
+    return () => clearTimeout(timer);
+  }, [showBusinessInfoAt]);
 
   const goMypage = useCallback(
     (routeName: MyPageRouteName) => {
@@ -168,7 +184,10 @@ export default function MypageView() {
         </View>
       </View>
 
+      <SuspensionBanner />
+
       <ScrollView
+        ref={scrollRef}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: inset.bottom + BOTTOM_TABS_HEIGHT }}
       >
@@ -196,7 +215,7 @@ export default function MypageView() {
         <MenuGroup title="문의" items={inquiryItems} />
         <GroupBand marginTop={10} />
         <MenuGroup title="도움말" items={helpItems} />
-        <BusinessFooter marginTop={10} links={footerLinks} />
+        <BusinessFooter marginTop={10} links={footerLinks} expandSignal={showBusinessInfoAt} />
       </ScrollView>
     </View>
   );

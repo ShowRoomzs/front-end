@@ -9,6 +9,8 @@ import {
   OrderDetailResponse,
   OrderListResponse,
   PaymentCompleteResponse,
+  StallChoice,
+  StallChoiceResponse,
   TrackingResponse,
 } from "@/features/order/types/order";
 import { PaymentSelection, PortOneClientResult } from "@/features/order/types/payment";
@@ -20,6 +22,18 @@ import { PaymentSelection, PortOneClientResult } from "@/features/order/types/pa
  * `payment.totalAmount`다. 여기서도 합계를 다시 계산하지 않는다.
  */
 export const orderService = {
+  /**
+   * C10-2 1d 추적 정지 — 재발송 / 환불 중 하나를 고른다(한 번만). 처리는 브랜드가 한다.
+   * 409 `ORDER_STALL_CHOICE_NOT_OPEN`(아직 대기) · `ORDER_STALL_CHOICE_ALREADY_MADE`(이미 골랐음).
+   */
+  chooseStall: async (deliveryGroupId: number, choice: StallChoice) => {
+    const { data } = await apiInstance.post<StallChoiceResponse>(
+      `/user/orders/groups/${deliveryGroupId}/stall-choice`,
+      { choice }
+    );
+
+    return data;
+  },
   /** C9 진입 — 저장하지 않는다. 장바구니 진입과 바로 구매 중 하나만 보낸다 */
   checkout: async (body: CheckoutRequest) => {
     const { data } = await apiInstance.post<CheckoutResponse>("/user/orders/checkout", body);

@@ -37,7 +37,7 @@ export default function ReportSheetContent(props: ReportSheetContentProps) {
       {
         onSuccess: () => {
           onClose();
-          toast.success("신고가 접수되었어요");
+          toast.success("신고가 접수되었습니다. 운영자가 검토 후 조치합니다");
         },
         onError: () => toast.error("신고를 접수하지 못했어요. 잠시 후 다시 시도해 주세요"),
       }

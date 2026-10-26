@@ -371,4 +371,28 @@ export interface TrackingResponse {
   scans: Array<TrackingScan>;
   shipDueAt: string | null;
   groupBuyEndAt: string | null;
+  /**
+   * 추적 정지 · 소비자 선택(C10-2 1d · 1021 기-15 【잠정】) — 정지가 아니고 선택도 없으면 null.
+   * 2026-10-24 BE main에 생겼고 개발 서버 미배포라 없을 수 있다.
+   */
+  stall?: StallChoiceResponse | null;
+}
+
+export type StallChoiceState = "NONE" | "WAITING" | "OPEN" | "CHOSEN";
+export type StallChoice = "RESHIP" | "REFUND";
+
+/** back-end `UserOrderDto.StallChoiceResponse` — 배송 그룹 단위다 */
+export interface StallChoiceResponse {
+  deliveryGroupId: number;
+  /** WAITING 정지 감지 · 선택 전 대기 / OPEN 고를 수 있음 / CHOSEN 골랐음(한 번만) */
+  state: StallChoiceState;
+  /** 정지 감지 + N일 — 고를 수 있게 되는 때 */
+  opensAt: string | null;
+  /** WAITING일 때만 1 이상 */
+  daysUntilOpen: number | null;
+  daysStalled: number | null;
+  choice: StallChoice | null;
+  /** 「재발송」 · 「환불」 */
+  choiceLabel: string | null;
+  chosenAt: string | null;
 }

@@ -126,6 +126,11 @@ export interface ClaimFormResponse {
     /** 반품 = 환불액에서 빼는 최초 배송비(무료배송 주문만) · 교환 = 요청 때 결제하는 재발송비 */
     consumerFault: number;
     sellerFault: number;
+    /**
+     * [반품 · 무료배송 주문] 일부 반품 판정 재료(1021 기-18) — 그 밖은 null.
+     * 개발 서버 미배포(2026-10-24)라 없을 수 있다 — 없으면 `consumerFault`를 그대로 쓴다.
+     */
+    deductionRule?: ClaimDeductionRule | null;
   };
   courierPayment: {
     consumerFault: CourierPayment;
@@ -214,12 +219,27 @@ export interface ClaimAction {
   label: string;
 }
 
+/** 최초 배송비 차감 판정 — (keptAmount − 선택 상품액) < freeShippingThreshold면 차감, 기준이 null이면 항상 차감 */
+export interface ClaimDeductionRule {
+  /** 차감액(편도 기본 배송비) — 같은 주문에서 이미 뺐으면 0 */
+  deductibleFee: number;
+  /** 결제 시점 무료배송 기준금액 */
+  freeShippingThreshold: number | null;
+  /** 지금 남아 있는 상품액(취소 · 반품 · 진행 중 클레임 제외) */
+  keptAmount: number;
+  alreadyDeducted: boolean;
+}
+
 export interface ClaimRejection {
   reasonLabel: string;
   /** 법적 근거 한 줄 — 법무 확정 대기(잠정) */
   legalNote: string | null;
   /** 브랜드가 적은 설명 — 그대로 전달한다 */
   sellerMessage: string | null;
+  /** 반려 수량 — 일부 반려면 신청 수량보다 작다(나머지는 검수 통과) */
+  rejectedQuantity: number | null;
+  /** 브랜드 귀책으로 인정됐다 — 배송비 차감이 돌아오고 반려 재발송비를 브랜드가 낸다 */
+  faultChangedToSeller: boolean;
   evidenceImageUrls: Array<string>;
   rejectedAt: string;
 }
@@ -298,6 +318,67 @@ export interface ClaimReshipFee {
     storageDueAt: string | null;
     phase: "NOTICE_PENDING" | "STORING" | "EXPIRED";
   } | null;
+  /**
+   * ⚠️ 서버 미제공(2026-10-24 main) — 착불(불량 · 오배송)로 신청했다가 검수에서 반려되면 브랜드가 낸 착불 운임을
+   * 소비자가 낸다(1021 기-93). 전체 반려는 재발송 배송비와 합쳐 결제, 일부 반려는 환불액에서 함께 차감한다.
+   * 서버가 금액을 내리기 전까지는 DEV 목업만 채운다 — 백엔드 요청 목록에 있다.
+   */
+  collectFreight?: number;
+}
+
+/** 검수 판정 — 검수 통과 · 사유 번복 · 검수 반려 */
+export type ClaimInspectionResult = "PASSED" | "REASON_OVERTURNED" | "REJECTED";
+
+/**
+ * 검수 판정 블록의 화면 분기(back-end `UserClaimDto.Inspection.state`).
+ * - REASON_OVERTURNED 반품 사유 번복 — 착불 운임 · 최초 배송비를 환불액에서 뺀다
+ * - FAULT_CHANGED 판매자 귀책으로 변경 — 선불 운임과 차감했던 최초 배송비를 환불에 더한다
+ * - OVERTURN_PAYMENT_PENDING 교환 사유 번복 — 재발송 배송비 + 착불 운임을 결제해야 새 상품이 나간다
+ */
+export type ClaimInspectionState = "REASON_OVERTURNED" | "FAULT_CHANGED" | "OVERTURN_PAYMENT_PENDING";
+
+export type ClaimChargeStatus = "PENDING" | "PAID" | "DEDUCTED" | "COVERED" | "VOID" | "REFUNDED" | "WAIVED";
+
+export interface ClaimInspection {
+  result: ClaimInspectionResult | null;
+  resultLabel: string | null;
+  state: ClaimInspectionState;
+  /** 서버 문장 — 화면은 시안 문구에 서버 금액을 넣어 쓰고, 이 값은 상태를 모를 때만 쓴다 */
+  headline: string;
+  /** 브랜드 설명 — 사유 번복만 */
+  explanation: string | null;
+  /** 브랜드 증빙 사진 — 사유 번복만, 없으면 [] */
+  attachments: Array<string>;
+  /** 운임 — 전부 그 상품의 기본 배송비(편도) 정액 */
+  freight: {
+    /** 착불 운임 — 사유 번복으로 소비자 부담 */
+    collectFreight: number;
+    /** 선불 운임 환급 — 귀책 변경 */
+    prepaidFreightRefund: number;
+    /** 차감했던 최초 배송비 환원 — 귀책 변경 */
+    initialFeeRestored: number;
+  };
+  /** 교환 사유 번복 결제 — 결제는 재발송 배송비 결제와 같은 API */
+  payment: {
+    reshipFee: number;
+    collectFreight: number;
+    total: number;
+    status: ClaimChargeStatus;
+    dueDate: string | null;
+    overdue: boolean;
+  } | null;
+  /** 운임 환급 수단 — 환급이 없으면 null */
+  refundSplit: {
+    /** 원 결제 취소로 돌려받는 운임 환급 */
+    pgCancel: number;
+    /** 원래 결제액을 넘어 계좌로 보내는 몫 — 없으면 0 */
+    bankTransfer: number;
+    bankTransferStatus: "송금 대기" | "송금 완료" | null;
+    /** [1:1 문의]의 `refundTaskId`로 보낸다 */
+    bankTransferRefundTaskId: number | null;
+    /** 송금 대기 — 「1:1 문의로 계좌를 알려주세요」 + [1:1 문의] */
+    inquiryNeeded: boolean;
+  } | null;
 }
 
 export interface ClaimDetailResponse {
@@ -314,6 +395,11 @@ export interface ClaimDetailResponse {
   refund: ClaimRefund | null;
   exchangePayment: ClaimExchangePayment | null;
   reshipFee: ClaimReshipFee | null;
+  /**
+   * 검수 판정 — 사유 번복 · 귀책 변경이 있었을 때만(1021 설계서 4-4 · C10-5).
+   * 2026-10-24 BE main에 생겼고 개발 서버 미배포라 없을 수 있다.
+   */
+  inspection?: ClaimInspection | null;
 }
 
 export interface ReshipFeePaymentRequest extends PaymentSelection {

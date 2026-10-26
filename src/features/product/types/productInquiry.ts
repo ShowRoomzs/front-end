@@ -62,8 +62,8 @@ export type ProductInquiryHistoryParams = SizeParams & {
  * ⚠️ 서버 미제공 — `GET /v1/common/products/{productId}/inquiries`가 아직 없다.
  * 지금 있는 `/v1/user/product-inquiries`는 로그인한 사람의 **자기 문의**만 주므로 남의 문의가
  * 보이지 않고, 응답에 작성자 이름도 없어 `수민** · 2026.08.08` 표기를 만들 수 없다.
- * 그래서 `productInquiryService.getPublicList`가 실패하면 `mocks/productInquiryMock.ts`로
- * 떨어진다 — 상품 상세·재고가 쓰는 방식과 같다.
+ * 그래서 `productInquiryService.getPublicList`는 DEV에서만 `mocks/productInquiryMock.ts`를 쓰고,
+ * 배포본은 `null`을 돌려줘 화면이 「준비 중」을 그린다.
  *
  * 필드는 BE `ProductInquiryResponse`를 그대로 따르고 **`authorName` 하나만 더했다.**
  * 서버가 공개 목록을 열 때 이 필드만 채워 주면 목업을 지우는 것으로 교체가 끝난다.

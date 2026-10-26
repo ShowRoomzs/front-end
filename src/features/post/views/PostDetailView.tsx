@@ -152,6 +152,21 @@ export default function PostDetailView() {
             onPress={() => handlePressLike(post.postId, post.isLiked)}
           />
         </View>
+
+        {/*
+          통신판매중개자 고지 — 공구 게시물만(1021 기-34 【잠정】). 브랜드명을 아직 못 받으면
+          판매 부분을 빼고 추천 · 고지만 적는다 — 「○○브랜드」 같은 자리표시를 내보내지 않는다.
+        */}
+        {!!groupBuy && (
+          <View
+            className="mx-14 rounded-base bg-band"
+            style={{ marginTop: 22, paddingVertical: 13, paddingHorizontal: 14 }}
+          >
+            <Typography style={{ fontSize: 11.5, lineHeight: 18.98 }} className="text-gray45">
+              {`${groupBuy.brandName ? `판매 ${groupBuy.brandName} · ` : ""}추천 ${post.showroomName}님 — SHOWROOMZ는 통신판매중개자로서 거래 당사자가 아닙니다`}
+            </Typography>
+          </View>
+        )}
       </ScrollView>
     </View>
   );

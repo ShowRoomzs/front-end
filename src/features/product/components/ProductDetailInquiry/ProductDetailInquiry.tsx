@@ -7,6 +7,8 @@ import Typography from "@/common/components/Typography/Typography";
 import { usePermissionPress } from "@/common/hooks/usePermissionPress";
 import { useCommonNavigation } from "@/common/router";
 import { COMMON_ROUTES } from "@/common/router/routes";
+import { SUSPENSION_BLOCKED } from "@/features/account/constants/suspension";
+import { useSuspension } from "@/features/account/hooks/useAccountStatus";
 import ProductInquiryItem from "@/features/product/components/ProductInquiryItem/ProductInquiryItem";
 import { useGetPublicProductInquiries } from "@/features/product/hooks/useGetPublicProductInquiries";
 
@@ -22,6 +24,7 @@ import { useGetPublicProductInquiries } from "@/features/product/hooks/useGetPub
  * 잘라 낸 3건이 아니라 **전체 건수**다.
  *
  * ⚠️ 목록 데이터는 아직 서버가 주지 않는다 — `productInquiryService.getPublicList` 주석 참고.
+ * 배포본은 목록이 `null`로 와서 「준비 중」을 그린다(문의 작성은 실제로 된다).
  */
 interface ProductDetailInquiryProps {
   productId: number;
@@ -56,6 +59,12 @@ export default function ProductDetailInquiry(props: ProductDetailInquiryProps) {
     navigation.navigate(COMMON_ROUTES.PRODUCT_INQUIRY_LIST, { productId, sellerName });
   }, [navigation, productId, sellerName]);
 
+  /** C20 1b — 정지 중에는 [문의하기]를 회색으로 두고 안내 한 줄을 붙인다(목록 열람은 그대로) */
+  const suspension = useSuspension();
+  const writeActionLabel = suspension ? undefined : "상품 문의하기";
+
+  /** 공개 목록 API가 없는 배포본 — 목록 자리에 「준비 중」을 둔다 */
+  const isListReady = data !== null;
   const totalCount = data?.totalCount ?? 0;
   const previewItems = (data?.items ?? []).slice(0, PREVIEW_COUNT);
 
@@ -71,29 +80,57 @@ export default function ProductDetailInquiry(props: ProductDetailInquiryProps) {
           {totalCount > 0 && <Typography className="text-gray45">{` ${totalCount}`}</Typography>}
         </Typography>
 
-        <TouchableOpacity
-          onPress={handlePressHeaderWrite}
-          activeOpacity={0.5}
-          className="flex-row items-center"
-          style={{ gap: 3, paddingVertical: 10, paddingHorizontal: 4, margin: -10 }}
-        >
-          <Typography style={{ fontSize: 12.5, fontWeight: "600", lineHeight: 12.5 }} className="text-gray45">
+        {suspension ? (
+          <Typography style={{ fontSize: 12.5, fontWeight: "600", lineHeight: 12.5 }} className="text-gray71">
             문의하기
           </Typography>
-          <ChevronRightIcon size={13} color="#C7C7C7" />
-        </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            onPress={handlePressHeaderWrite}
+            activeOpacity={0.5}
+            className="flex-row items-center"
+            style={{ gap: 3, paddingVertical: 10, paddingHorizontal: 4, margin: -10 }}
+          >
+            <Typography
+              style={{ fontSize: 12.5, fontWeight: "600", lineHeight: 12.5 }}
+              className="text-gray45"
+            >
+              문의하기
+            </Typography>
+            <ChevronRightIcon size={13} color="#C7C7C7" />
+          </TouchableOpacity>
+        )}
       </View>
+      {!!suspension && (
+        <Typography
+          style={{ fontSize: 12, lineHeight: 18, marginTop: -10 }}
+          className="px-14 pb-8 text-gray45"
+        >
+          {SUSPENSION_BLOCKED.INQUIRY}
+        </Typography>
+      )}
 
-      {previewItems.length === 0 ? (
+      {!isListReady && (
+        <EmptyState
+          icon={<SpeechBubbleIcon size={50} color="#D8D8DA" />}
+          title="문의 목록을 준비하고 있어요"
+          description={"궁금한 점을 남기시면\n판매자가 확인하고 답변해 드려요"}
+          paddingTop={40}
+          actionLabel={writeActionLabel}
+          onPressAction={handlePressWrite}
+        />
+      )}
+      {isListReady && previewItems.length === 0 && (
         <EmptyState
           icon={<SpeechBubbleIcon size={50} color="#D8D8DA" />}
           title="아직 등록된 문의가 없어요"
           description={"궁금한 점을 남기시면\n판매자가 확인하고 답변해 드려요"}
           paddingTop={40}
-          actionLabel="상품 문의하기"
+          actionLabel={writeActionLabel}
           onPressAction={handlePressWrite}
         />
-      ) : (
+      )}
+      {isListReady && previewItems.length > 0 && (
         <>
           {previewItems.map(inquiry => (
             <ProductInquiryItem

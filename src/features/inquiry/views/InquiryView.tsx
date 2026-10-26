@@ -19,12 +19,18 @@ import { useUploadImagesMutation } from "@/common/queries/useUploadImagesMutatio
 import { useMypageNavigation } from "@/common/router";
 import { MYPAGE_ROUTES } from "@/common/router/routes";
 import { MypageStackParamList } from "@/common/router/types";
-import InquiryOrderField from "@/features/inquiry/components/InquiryOrderField/InquiryOrderField";
+import { SANCTION_APPEAL_TYPE, SANCTION_APPEAL_TYPE_LABEL } from "@/features/account/constants/suspension";
+import { invalidateAccountStatus, useSuspension } from "@/features/account/hooks/useAccountStatus";
+import InquiryOrderField, {
+  InquiryOrderSelection,
+  formatInquiryOrderDate,
+} from "@/features/inquiry/components/InquiryOrderField/InquiryOrderField";
 import { useGetCategories } from "@/features/inquiry/hooks/useGetCategories";
 import { useGetInquiryDetail } from "@/features/inquiry/hooks/useGetInquiryDetail";
 import { useCreateInquiryMutation } from "@/features/inquiry/hooks/useInquiryMutation/useCreateInquiryMutation";
 import { useUpdateInquiryMutation } from "@/features/inquiry/hooks/useInquiryMutation/useUpdateInquiryMutation";
 import { InquiryRequest } from "@/features/inquiry/types/inquiry";
+import { resolveErrorCode, resolveErrorMessage } from "@/features/order/utils/orderFormat";
 
 /**
  * C12 1:1 문의 작성 — 유형 → 내용 → 사진 첨부.
@@ -33,8 +39,8 @@ import { InquiryRequest } from "@/features/inquiry/types/inquiry";
  * 정보를 안내할 수 있기 때문이다. 유형은 고객센터 FAQ와 **같은 5종**(CsCategory)이라
  * 사용자가 같은 분류를 두 번 배우지 않는다.
  *
- * **관련 주문은 아직 고를 수 없다** — 주문 목록 조회 API가 없어서다. 칸은 남기고 눌렀을 때
- * 준비 중임을 알린다(자세한 사정은 `InquiryOrderField`).
+ * 관련 주문은 최근 6개월 주문에서 고른다(`InquiryOrderField`). 주문 상세에서 열면 그 주문이
+ * 연결된 채로 시작하고 바꿀 수 없다.
  *
  * 등록 조건은 **유형 + 내용**이다. 사진은 선택이라 조건에서 제외한다.
  */
@@ -47,6 +53,12 @@ const CONTENT_PLACEHOLDER =
 
 const INITIAL_FORM: InquiryRequest = { type: "", content: "" };
 
+/** 유형 시트에서 「계정 이용 정지」를 가리키는 값 — 서버 유형은 ACCOUNT이고 소명 여부는 따로 보낸다 */
+const SANCTION_APPEAL_VALUE = "SANCTION_APPEAL";
+const SANCTION_APPEAL_PLACEHOLDER = "정지에 대해 확인이 필요한 내용을 적어주세요.";
+/** 계좌 송금 안내에서 왔을 때의 유형 — 서버가 환급 건과 묶으려면 이 유형이어야 한다 */
+const REFUND_ACCOUNT_TYPE = "CANCEL_EXCHANGE_RETURN";
+
 export default function InquiryView() {
   const navigation = useMypageNavigation();
   const { bottom } = useSafeAreaInsets();
@@ -58,13 +70,45 @@ export default function InquiryView() {
   /** 주문 상세 · 반품·교환 상세에서 열면 그 주문이 연결된 채로 시작한다 */
   const linkedOrderId = params?.orderId;
   const linkedOrderNumber = params?.orderNumber;
+  /** C20 1d — 정지 안내 시트에서 왔다 */
+  const suspension = useSuspension();
+  const [sanctionAppeal, setSanctionAppeal] = useState(!!params?.sanctionAppeal);
 
   const { data: inquiryDetail } = useGetInquiryDetail(inquiryId);
   const { data: categories } = useGetCategories();
 
-  const [form, setForm] = useState<InquiryRequest>(() =>
-    linkedOrderId ? { ...INITIAL_FORM, orderId: linkedOrderId } : INITIAL_FORM
+  const [form, setForm] = useState<InquiryRequest>(() => {
+    if (params?.sanctionAppeal) {
+      return { ...INITIAL_FORM, type: SANCTION_APPEAL_TYPE };
+    }
+    if (params?.refundTaskId) {
+      return {
+        ...INITIAL_FORM,
+        type: REFUND_ACCOUNT_TYPE,
+        orderId: linkedOrderId,
+        refundTaskId: params.refundTaskId,
+      };
+    }
+    return linkedOrderId ? { ...INITIAL_FORM, orderId: linkedOrderId } : INITIAL_FORM;
+  });
+  /** 요약 카드에 그릴 주문 — 주문 상세에서 넘어오면 번호만 안다 */
+  const [selectedOrder, setSelectedOrder] = useState<InquiryOrderSelection | null>(() =>
+    linkedOrderId && linkedOrderNumber
+      ? {
+          orderId: linkedOrderId,
+          orderNumber: linkedOrderNumber,
+          dateLabel: null,
+          productName: null,
+          subLabel: null,
+          thumbnailUrl: null,
+        }
+      : null
   );
+
+  const handleChangeOrder = useCallback((selection: InquiryOrderSelection | null) => {
+    setSelectedOrder(selection);
+    setForm(prev => ({ ...prev, orderId: selection?.orderId }));
+  }, []);
   const { imageUrls, handleAddImage, handleRemoveImage, setImageUrls } = useImagePicker({
     maxCount: PHOTO_MAX_COUNT,
     allowsMultipleSelection: true,
@@ -81,24 +125,59 @@ export default function InquiryView() {
         content: inquiryDetail.content,
         orderId: inquiryDetail.orderId ?? undefined,
       });
+      const { order } = inquiryDetail;
+
+      setSelectedOrder(
+        order
+          ? {
+              orderId: order.orderId,
+              orderNumber: order.orderNumber,
+              dateLabel: formatInquiryOrderDate(order.orderDate),
+              productName: order.productName
+                ? `${order.productName}${order.productCount > 1 ? ` 외 ${order.productCount - 1}건` : ""}`
+                : null,
+              subLabel: null,
+              thumbnailUrl: order.productImageUrl,
+            }
+          : null
+      );
       setImageUrls(inquiryDetail.imageUrls ?? []);
+      setSanctionAppeal(!!inquiryDetail.sanctionAppeal);
     }
   }, [inquiryDetail, setImageUrls]);
 
+  /** 「계정 이용 정지」는 정지 상태일 때만 목록에 나타난다(C20 1d · C12 유형 시트 규칙) */
   const typeItems = useMemo<Array<SheetListItem<string>>>(
-    () => (categories ?? []).map(category => ({ value: category.key, label: category.description })),
-    [categories]
+    () => [
+      ...(categories ?? []).map(category => ({ value: category.key, label: category.description })),
+      ...(suspension || sanctionAppeal
+        ? [{ value: SANCTION_APPEAL_VALUE, label: SANCTION_APPEAL_TYPE_LABEL }]
+        : []),
+    ],
+    [categories, sanctionAppeal, suspension]
   );
 
   const selectedTypeLabel = useMemo(
-    () => categories?.find(category => category.key === form.type)?.description,
-    [categories, form.type]
+    () =>
+      sanctionAppeal
+        ? SANCTION_APPEAL_TYPE_LABEL
+        : categories?.find(category => category.key === form.type)?.description,
+    [categories, form.type, sanctionAppeal]
   );
 
   /** 고르는 즉시 닫는다 — 단일 선택이라 확인 단계를 둘 이유가 없다 */
   const handleSelectType = useCallback(
     (type: string) => {
-      setForm(prev => ({ ...prev, type }));
+      const isAppeal = type === SANCTION_APPEAL_VALUE;
+
+      setSanctionAppeal(isAppeal);
+      // 정지 소명은 주문과 무관하다 — 고른 주문을 풀고 칸을 숨긴다
+      setForm(prev =>
+        isAppeal ? { ...prev, type: SANCTION_APPEAL_TYPE, orderId: undefined } : { ...prev, type }
+      );
+      if (isAppeal) {
+        setSelectedOrder(null);
+      }
       closeTypeSheet();
     },
     [closeTypeSheet]
@@ -111,7 +190,7 @@ export default function InquiryView() {
         title="문의 유형"
         items={typeItems}
         mode="select"
-        selectedValue={form.type}
+        selectedValue={sanctionAppeal ? SANCTION_APPEAL_VALUE : form.type}
         onSelect={handleSelectType}
       />
     ),
@@ -145,7 +224,11 @@ export default function InquiryView() {
       const remoteUrls = imageUrls.filter(url => url.startsWith("http"));
       const uploadedUrls = localUris.length ? await uploadImages({ localUris, type: "INQUIRY" }) : [];
 
-      const requestData: InquiryRequest = { ...form, imageUrls: [...remoteUrls, ...uploadedUrls] };
+      const requestData: InquiryRequest = {
+        ...form,
+        imageUrls: [...remoteUrls, ...uploadedUrls],
+        ...(sanctionAppeal ? { sanctionAppeal: true, orderId: undefined } : {}),
+      };
 
       if (isEdit) {
         await updateInquiry(requestData);
@@ -154,12 +237,21 @@ export default function InquiryView() {
         await createInquiry(requestData);
         toast.show("1:1 문의가 접수되었습니다");
       }
+      if (sanctionAppeal) {
+        // 답변 전 소명 id가 생겼다 — 다음 [이의 신청]은 새 작성 대신 이 문의로 간다
+        invalidateAccountStatus();
+      }
       navigation.goBack();
     } catch (error) {
       console.error("[inquiry] 등록 실패", error);
+      // 소명 규칙(정지 아님 · 이미 있음)은 서버 문구가 이유를 말한다
+      if (resolveErrorCode(error)?.startsWith("SANCTION_APPEAL")) {
+        toast.show(resolveErrorMessage(error, "문의를 등록하지 못했어요"));
+        return;
+      }
       toast.show(isEdit ? "수정하지 못했어요. 잠시 후 다시 시도해 주세요" : "문의를 등록하지 못했어요");
     }
-  }, [createInquiry, form, imageUrls, isEdit, navigation, updateInquiry, uploadImages]);
+  }, [createInquiry, form, imageUrls, isEdit, navigation, sanctionAppeal, updateInquiry, uploadImages]);
 
   return (
     <KeyboardAvoidingView className="flex-1" behavior={Platform.OS === "ios" ? "padding" : undefined}>
@@ -186,7 +278,14 @@ export default function InquiryView() {
           </View>
 
           <View className="px-14 pb-4 pt-16">
-            <InquiryOrderField linkedOrderNumber={linkedOrderNumber} />
+            {/* 정지 소명은 주문과 무관해 관련 주문 칸을 두지 않는다(C20 1d) */}
+            {!sanctionAppeal && (
+              <InquiryOrderField
+                selected={selectedOrder}
+                locked={!!linkedOrderId}
+                onChange={handleChangeOrder}
+              />
+            )}
           </View>
 
           <View className="px-14 pb-4 pt-16">
@@ -198,7 +297,7 @@ export default function InquiryView() {
               <TextInput
                 value={form.content}
                 onChangeText={content => setForm(prev => ({ ...prev, content }))}
-                placeholder={CONTENT_PLACEHOLDER}
+                placeholder={sanctionAppeal ? SANCTION_APPEAL_PLACEHOLDER : CONTENT_PLACEHOLDER}
                 placeholderTextColor="#B5B5B5"
                 maxLength={CONTENT_MAX_LENGTH}
                 multiline

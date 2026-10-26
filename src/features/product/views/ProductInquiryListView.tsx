@@ -13,6 +13,9 @@ import { usePermissionPress } from "@/common/hooks/usePermissionPress";
 import { useCommonNavigation } from "@/common/router";
 import { COMMON_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
+import SuspensionBlockedLine, { SuspendedButton } from "@/features/account/components/SuspensionBlockedLine";
+import { SUSPENSION_BLOCKED } from "@/features/account/constants/suspension";
+import { useSuspension } from "@/features/account/hooks/useAccountStatus";
 import ProductInquiryItem from "@/features/product/components/ProductInquiryItem/ProductInquiryItem";
 import { useGetPublicProductInquiries } from "@/features/product/hooks/useGetPublicProductInquiries";
 
@@ -41,6 +44,7 @@ export default function ProductInquiryListView() {
   const navigation = useCommonNavigation();
 
   const { data, isLoading } = useGetPublicProductInquiries(productId);
+  const suspension = useSuspension();
   const [selectedType, setSelectedType] = useState<string>(ALL);
   const [expandedIds, setExpandedIds] = useState<Array<number>>([]);
 
@@ -86,11 +90,22 @@ export default function ProductInquiryListView() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ flexGrow: 1, paddingBottom: bottom + BOTTOM_CTA_HEIGHT }}
         >
-          <View className="pb-14 pt-12">
-            <FilterChips items={chips} selectedValue={selectedType} onSelect={setSelectedType} />
-          </View>
+          {/* 공개 목록 API가 없는 배포본 — 거를 목록이 없으니 칩도 세우지 않는다 */}
+          {data !== null && (
+            <View className="pb-14 pt-12">
+              <FilterChips items={chips} selectedValue={selectedType} onSelect={setSelectedType} />
+            </View>
+          )}
 
-          {visibleItems.length === 0 ? (
+          {data === null && (
+            <EmptyState
+              fill
+              icon={<SpeechBubbleIcon size={50} color="#D8D8DA" />}
+              title="문의 목록을 준비하고 있어요"
+              description={"궁금한 점을 남기시면\n판매자가 확인하고 답변해 드려요"}
+            />
+          )}
+          {data !== null && visibleItems.length === 0 && (
             <EmptyState
               fill
               icon={<SpeechBubbleIcon size={50} color="#D8D8DA" />}
@@ -101,17 +116,16 @@ export default function ProductInquiryListView() {
                   : "다른 유형을 보시거나\n직접 문의를 남겨 보세요"
               }
             />
-          ) : (
-            visibleItems.map(inquiry => (
-              <ProductInquiryItem
-                key={inquiry.id}
-                inquiry={inquiry}
-                sellerName={sellerName}
-                isExpanded={expandedIds.includes(inquiry.id)}
-                onToggle={handleToggle}
-              />
-            ))
           )}
+          {visibleItems.map(inquiry => (
+            <ProductInquiryItem
+              key={inquiry.id}
+              inquiry={inquiry}
+              sellerName={sellerName}
+              isExpanded={expandedIds.includes(inquiry.id)}
+              onToggle={handleToggle}
+            />
+          ))}
         </ScrollView>
       )}
 
@@ -119,15 +133,23 @@ export default function ProductInquiryListView() {
         className="absolute bottom-0 left-0 right-0 border-t-[0.5px] border-divider bg-white px-14 pt-12"
         style={{ paddingBottom: bottom + 26 }}
       >
-        <TouchableOpacity
-          onPress={handlePressWrite}
-          activeOpacity={0.8}
-          className="h-52 flex-row items-center justify-center rounded-base bg-rose"
-        >
-          <Typography variant="buttonPrimary" className="text-white">
-            문의하기
-          </Typography>
-        </TouchableOpacity>
+        {suspension ? (
+          // C20 1b — 목록은 그대로 보이고 작성만 막는다
+          <>
+            <SuspensionBlockedLine text={SUSPENSION_BLOCKED.INQUIRY} />
+            <SuspendedButton label="문의하기" />
+          </>
+        ) : (
+          <TouchableOpacity
+            onPress={handlePressWrite}
+            activeOpacity={0.8}
+            className="h-52 flex-row items-center justify-center rounded-base bg-rose"
+          >
+            <Typography variant="buttonPrimary" className="text-white">
+              문의하기
+            </Typography>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );

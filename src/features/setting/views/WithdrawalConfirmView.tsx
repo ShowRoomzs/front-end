@@ -4,6 +4,7 @@ import { ScrollView, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Circle, Path } from "react-native-svg";
 
+import { ChevronRightIcon } from "@/common/components/DsIcon/icons";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import SectionLabel from "@/common/components/SectionLabel/SectionLabel";
 import Spinner from "@/common/components/Spinner/Spinner";
@@ -11,7 +12,8 @@ import Typography from "@/common/components/Typography/Typography";
 import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { useModal } from "@/common/providers/ModalProvider";
 import { toast } from "@/common/providers/ToastProvider";
-import { HOME_ROUTES, SETTINGS_ROUTES, useSettingsNavigation } from "@/common/router";
+import { HOME_ROUTES, SETTINGS_ROUTES, useMypageNavigation, useSettingsNavigation } from "@/common/router";
+import { MYPAGE_ROUTES } from "@/common/router/routes";
 import { SettingsStackParamList } from "@/common/router/types";
 import { useLogin } from "@/features/auth/hooks/useLogin";
 import { useGetWithdrawalInfo } from "@/features/setting/hooks/useWithdrawal";
@@ -89,7 +91,20 @@ export default function WithdrawalConfirmView() {
 
   const [agreeConsent, setAgreeConsent] = useState(false);
 
+  const mypageNavigation = useMypageNavigation();
   const isBlocked = !!info && !info.withdrawable;
+  /**
+   * 막는 건수 — 서버가 나눠 주면 넷을 더하고, 아니면(구버전 서버) 진행 중 주문 수를 쓴다.
+   * 주문 · 반품/교환 · 미결제 · 송금 대기 모두 주문 내역에서 확인하므로 한 링크로 보낸다.
+   */
+  const blockerCount = info?.blockers
+    ? info.blockers.ongoingOrders +
+      info.blockers.openClaims +
+      info.blockers.unpaidCharges +
+      info.blockers.pendingTransfers
+    : (info?.ongoingOrderCount ?? 0);
+  /** 이용 정지로만 막힌 경우 — 진행 중 주문 문구를 쓰면 사실과 다르다 */
+  const suspensionReason = blockerCount === 0 ? info?.suspensionBlockedReason : null;
   const canWithdraw = agreeConsent && !isBlocked && !isPending;
 
   const handleComplete = useCallback(async () => {
@@ -176,13 +191,32 @@ export default function WithdrawalConfirmView() {
                   style={{ fontSize: 14, fontWeight: "600", lineHeight: 20.3 }}
                   className="text-roseText"
                 >
-                  진행 중인 주문이 있어 지금은 탈퇴할 수 없어요
+                  {suspensionReason
+                    ? "지금은 탈퇴할 수 없어요"
+                    : "진행 중인 주문이 있어 지금은 탈퇴할 수 없어요"}
                 </Typography>
                 <Typography style={{ fontSize: 12.5, lineHeight: 20, marginTop: 5 }} className="text-ink76">
-                  배송과 교환·환불이 모두 끝난 뒤 탈퇴할 수 있어요
+                  {suspensionReason ??
+                    "구매확정 전 주문 · 반품/교환 진행 중 · 재발송비 미결제 건이 끝나면 탈퇴할 수 있어요. 반품 가능 기간만 남은 주문은 탈퇴를 막지 않아요."}
                 </Typography>
               </View>
             </View>
+            {blockerCount > 0 && (
+              <TouchableOpacity
+                onPress={() => mypageNavigation.navigate(MYPAGE_ROUTES.ORDER_AND_DELIVERY_SEARCH)}
+                activeOpacity={0.6}
+                className="flex-row items-center justify-between bg-white"
+                style={{ paddingVertical: 13, paddingHorizontal: 14, gap: 12 }}
+              >
+                <Typography
+                  style={{ fontSize: 13.5, fontWeight: "500", lineHeight: 13.5 }}
+                  className="text-ink"
+                >
+                  {`진행 중 주문 ${blockerCount}건 보기`}
+                </Typography>
+                <ChevronRightIcon size={15} color="#C7C7C7" />
+              </TouchableOpacity>
+            )}
           </View>
         )}
 

@@ -1,15 +1,15 @@
 import { PublicProductInquiry, PublicProductInquiryList } from "@/features/product/types/productInquiry";
 
 /**
- * ⚠️ 임시 목업 — C7 문의 탭을 실물 데이터 없이 확인하기 위한 자리다.
+ * ⚠️ DEV 전용 목업 — C7 문의 탭을 실물 데이터 없이 확인하기 위한 자리다.
  *
  * 서버에 상품별 **공개** 문의 목록 API가 없다. `/v1/user/product-inquiries`는 로그인한 사람의
  * 자기 문의만 주고 작성자 이름도 내려주지 않아, 목록도 건수도 만들 수 없다.
- * 그대로 두면 문의 탭이 계속 "준비 중" 안내로만 남아 아코디언·비밀글·답변 상태 같은 규칙을
- * 검토할 수 없으므로, **실제 조회가 실패했을 때만** 이 샘플로 떨어진다.
+ * `productInquiryService.getPublicList`가 `__DEV__`일 때만 동적 `import()`로 불러 아코디언 ·
+ * 비밀글 · 답변 상태를 확인한다. 배포본은 이 파일을 부르지 않고 「준비 중」을 그린다.
  *
- * **삭제하는 법** — 공개 목록 API가 열리면 `productInquiryService.getPublicList`의 catch 한
- * 블록과 이 파일을 지우면 된다. 타입(`PublicProductInquiry`)은 그대로 쓴다.
+ * **삭제하는 법** — 공개 목록 API가 열리면 `PUBLIC_INQUIRY_LIST_AVAILABLE`을 true로 바꾸고
+ * `__DEV__` 분기와 이 파일을 지우면 된다. 타입(`PublicProductInquiry`)은 그대로 쓴다.
  *
  * 값은 `productId`로 결정한다 — 열 때마다 달라지면 펼쳐 둔 항목이 바뀌어 검토가 안 된다.
  */

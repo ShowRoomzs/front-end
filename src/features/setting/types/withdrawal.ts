@@ -17,11 +17,25 @@ export interface WithdrawalReasonOption {
   label: string;
 }
 
+export interface WithdrawalBlockers {
+  ongoingOrders: number;
+  openClaims: number;
+  unpaidCharges: number;
+  pendingTransfers: number;
+}
+
 export interface WithdrawalInfo {
   /** false면 동의 체크와 [탈퇴하기]가 계속 비활성 */
   withdrawable: boolean;
-  /** 진행 중인 주문 상품 수 (0이면 차단 없음) */
+  /** 진행 중인 주문 상품 수 (= blockers.ongoingOrders) */
   ongoingOrderCount: number;
+  /**
+   * 탈퇴를 막는 건수 — 구매확정 전 주문 · 반품/교환 진행 중 · 재발송비 미결제 · 송금 대기(1021 기-31).
+   * 개발 서버 미배포(2026-10-24)라 없을 수 있다.
+   */
+  blockers?: WithdrawalBlockers;
+  /** 이용 정지 중 탈퇴를 막는 설정일 때의 사유 — 기본은 막지 않아 null */
+  suspensionBlockedReason?: string | null;
   followingCount: number;
   wishlistCount: number;
   cartCount: number;

@@ -148,11 +148,9 @@ export interface ProductDetail {
   groupBuyNumber: string | null;
   groupBuyStatus: GroupBuyStatus;
   /**
-   * ⚠️ 서버 미제공 — 지금은 `mocks/productMock.ts`만 채운다.
-   *
-   * `groupBuyStatus`는 진행 단계 문자열 하나뿐이라 **어느 공구인지도, 언제 끝나는지도** 알 수
-   * 없다. 가격 아래 [공동구매 D-3 + 쇼룸] 줄을 그리려면 이 두 가지가 함께 필요하다.
-   * 서버가 내려주기 시작하면 이 주석만 지우면 된다.
+   * ⚠️ 서버 미제공 — 상세 응답에 없다. 공구 게시물에서 들어오면 그 게시물 데이터로 화면이 채운다
+   * (`findCachedGroupBuy`). `groupBuyStatus`는 진행 단계 문자열 하나뿐이라 **어느 쇼룸인지도, 언제 끝나는지도**
+   * 알 수 없다. 서버가 내려주기 시작하면 화면의 캐시 조회만 지우면 된다.
    */
   groupBuy?: ProductGroupBuy | null;
   /** 하단 CTA를 [구매하기]와 판매 종료 상태로 가르는 값 */
@@ -171,8 +169,7 @@ export interface ProductDetail {
  *
  * 일반 추천이 아니라 **같은 주문에 묶이는 상품**이라 정가가 아닌 할인율·공구가만 적는다.
  *
- * ⚠️ 서버 미제공 — `groupBuy`가 아직 목업이라 어느 공구에 묶여 있는지를 알 길이 없다.
- * `mocks/productMock.ts`의 `buildBundleMock`이 채운다.
+ * ⚠️ 서버 미제공 — 상품 상세 응답에 없어, 진입한 공구 게시물 블록의 `products[]`로 채운다(`findCachedGroupBuy`).
  */
 export interface BundleProduct {
   id: number;

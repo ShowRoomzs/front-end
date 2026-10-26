@@ -432,15 +432,21 @@ export default function ClaimDetailView() {
           />
         )}
 
-        {!!reshipFee && reshipFee.state !== "WAITING" && (
-          <ReshipFeeBlock
-            reshipFee={reshipFee}
-            kw={kw}
-            items={detail.items}
-            payment={payment}
-            onChangePayment={setPayment}
-          />
-        )}
+        {/*
+          교환 사유 번복 청구(OVERTURN_RESHIP)는 서버가 `reshipFee`로도 함께 내린다 — 결제 블록은 위 검수 판정이
+          맡으므로 「상품 다시 받기」를 또 그리지 않는다(결제 수단 선택이 두 번 생긴다)
+        */}
+        {!!reshipFee &&
+          reshipFee.state !== "WAITING" &&
+          detail.inspection?.state !== "OVERTURN_PAYMENT_PENDING" && (
+            <ReshipFeeBlock
+              reshipFee={reshipFee}
+              kw={kw}
+              items={detail.items}
+              payment={payment}
+              onChangePayment={setPayment}
+            />
+          )}
 
         <Band marginTop={20} />
         <SectionTitle title={`${kw} 신청 정보`} style={{ paddingBottom: 8 }} />

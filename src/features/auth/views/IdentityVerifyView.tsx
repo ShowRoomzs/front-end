@@ -12,7 +12,15 @@ import { useModal } from "@/common/providers/ModalProvider";
 import { useAuthNavigation } from "@/common/router";
 import { AUTH_ROUTES } from "@/common/router/routes";
 import { AuthStackParamList } from "@/common/router/types";
-import { requestIdentityVerification } from "@/features/auth/services/identityVerificationService";
+import PortOneIdentityModal from "@/features/auth/components/PortOneIdentityModal/PortOneIdentityModal";
+import {
+  confirmIdentityVerification,
+  createIdentityVerificationWindow,
+  IdentityVerificationResult,
+  IdentityVerificationWindow,
+  isPassReady,
+  mockIdentityVerification,
+} from "@/features/auth/services/identityVerificationService";
 
 /**
  * C0-2 본인인증 — 소셜 로그인과 회원가입 사이의 별도 화면.
@@ -81,6 +89,8 @@ export default function IdentityVerifyView() {
 
   const { registerToken, onSuccessLogin } = route.params;
   const [isVerifying, setIsVerifying] = useState(false);
+  /** 열려 있는 포트원 인증창 — 서버 준비 전에는 열리지 않는다(`isPassReady`) */
+  const [passWindow, setPassWindow] = useState<IdentityVerificationWindow | null>(null);
 
   const handlePressBack = useCallback(() => {
     showModal({
@@ -93,11 +103,9 @@ export default function IdentityVerifyView() {
     });
   }, [navigation, showModal]);
 
-  const runVerification = useCallback(async () => {
-    setIsVerifying(true);
-    try {
-      const result = await requestIdentityVerification();
-
+  /** 결과에 따라 만 14세 미만 차단(C0 1d) · 인증 실패(C0 1e) · 회원가입(C0-1)으로 갈린다 */
+  const routeByResult = useCallback(
+    (result: IdentityVerificationResult) => {
       if (result.status === "AGE_RESTRICTED") {
         navigation.navigate(AUTH_ROUTES.AGE_RESTRICTED);
         return;
@@ -107,10 +115,40 @@ export default function IdentityVerifyView() {
         return;
       }
       navigation.navigate(AUTH_ROUTES.SIGN_UP, { registerToken, onSuccessLogin });
+    },
+    [navigation, onSuccessLogin, registerToken]
+  );
+
+  const runVerification = useCallback(async () => {
+    if (isPassReady()) {
+      setPassWindow(createIdentityVerificationWindow());
+      return;
+    }
+    setIsVerifying(true);
+    try {
+      routeByResult(await mockIdentityVerification());
     } finally {
       setIsVerifying(false);
     }
-  }, [navigation, onSuccessLogin, registerToken]);
+  }, [routeByResult]);
+
+  /** 인증창이 끝났다 — 실패면 바로 실패 화면, 아니면 서버가 결과를 조회해 판정한다 */
+  const handlePassFinish = useCallback(
+    async (identityVerificationId: string, failed: boolean) => {
+      setPassWindow(null);
+      if (failed) {
+        routeByResult({ status: "FAILED" });
+        return;
+      }
+      setIsVerifying(true);
+      try {
+        routeByResult(await confirmIdentityVerification(registerToken, identityVerificationId));
+      } finally {
+        setIsVerifying(false);
+      }
+    },
+    [registerToken, routeByResult]
+  );
 
   /**
    * 외부 앱으로 넘어갔다 돌아오는 절차라 대기 모달을 먼저 띄운다 — 이탈 직전에 남은 시간과
@@ -210,6 +248,11 @@ export default function IdentityVerifyView() {
           PASS 앱이 없어도 문자로 인증할 수 있어요
         </Typography>
       </View>
+
+      <PortOneIdentityModal
+        request={passWindow}
+        onFinish={(id, failed) => void handlePassFinish(id, failed)}
+      />
     </View>
   );
 }

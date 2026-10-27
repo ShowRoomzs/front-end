@@ -2,7 +2,8 @@
  * C11 알림 — back-end `NotificationItem`(`GET /v1/user/notifications`, 2026-10-24 main · 개발 서버 미배포).
  *
  * 문장은 서버가 만들고(`title`), 앱은 굵게 둘 부분(`emphasis`)과 앞 이미지 종류만 가른다.
- * `createdAt` · `todoDueAt`은 이벤트 시각이라 `…Z`(UTC)로 온다 — dayjs가 기기 시간대로 옮겨 읽는다.
+ * `createdAt`은 이벤트 시각(UTC · `…Z`)이라 dayjs가 기기 시간대로 옮겨 읽는다. `todoDueAt`은 KST 기한
+ * (「○일 23:59:59」)인데 `Z`가 붙어 오므로 날짜 부분을 그대로 쓴다.
  */
 export type NotificationImageKind = "THUMB" | "AVATAR" | "ICON";
 

@@ -366,7 +366,13 @@ function NotificationRow(props: { item: NotificationItem; isUnread: boolean; onP
             }}
             className={item.todoDueAt ? "text-roseText" : "text-gray45"}
           >
-            {item.todoDueAt ? `${item.body} · ${dayjs(item.todoDueAt).format("MM.DD")}까지` : item.body}
+            {/*
+              할 일 기한은 KST 벽시계(「○일 23:59:59」)인데 서버 직렬화가 `Z`를 붙인다 — UTC로 읽으면 다음 날이 된다.
+              날짜 부분을 그대로 쓴다
+            */}
+            {item.todoDueAt
+              ? `${item.body} · ${item.todoDueAt.slice(5, 7)}.${item.todoDueAt.slice(8, 10)}까지`
+              : item.body}
           </Typography>
         )}
         <Typography style={{ fontSize: 12, lineHeight: 12, marginTop: 5 }} className="text-gray45">

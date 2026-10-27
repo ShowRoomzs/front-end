@@ -1,6 +1,7 @@
-import { BottomSheetScrollView, BottomSheetView } from "@gorhom/bottom-sheet";
-import { useEffect, useMemo } from "react";
+import { BottomSheetView } from "@gorhom/bottom-sheet";
+import { useCallback, useEffect, useMemo } from "react";
 import { TouchableOpacity, View, useWindowDimensions } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { CheckIcon, ChevronRightIcon, CloseIcon, EmptyBagIcon } from "@/common/components/DsIcon/icons";
@@ -68,18 +69,20 @@ export default function InquiryOrderField(props: InquiryOrderFieldProps) {
   const { selected, locked = false, onChange } = props;
   const { close } = useBottomSheetContext();
 
+  /** 시트 props가 렌더마다 바뀌면 useBottomSheet가 다시 등록해 렌더가 끝없이 돈다 — 함수를 고정한다 */
+  const handleSelect = useCallback(
+    (selection: InquiryOrderSelection | null) => {
+      onChange(selection);
+      close();
+    },
+    [close, onChange]
+  );
+
   const { open } = useBottomSheet({
     id: ORDER_SHEET_ID,
-    render: (
-      <InquiryOrderSheet
-        selectedOrderId={selected?.orderId}
-        onSelect={selection => {
-          onChange(selection);
-          close();
-        }}
-      />
-    ),
-    sheetProps: { enableDynamicSizing: true, snapPoints: undefined },
+    render: <InquiryOrderSheet selectedOrderId={selected?.orderId} onSelect={handleSelect} />,
+    // 목록 스크롤과 시트 끌기가 겹치지 않도록 시트는 손잡이로만 끈다(상품 옵션 시트와 같다)
+    sheetProps: { enableDynamicSizing: true, snapPoints: undefined, enableContentPanningGesture: false },
   });
 
   return (
@@ -218,11 +221,12 @@ function InquiryOrderSheet(props: InquiryOrderSheetProps) {
         </View>
       )}
 
+      {/*
+        BottomSheetScrollView는 자기 스크롤 높이를 시트 높이로 덮어써서 아래 [주문 없이 문의하기]가 잘린다 —
+        시트 높이는 바깥 BottomSheetView만 재게 하고 목록은 일반 스크롤로 둔다
+      */}
       {orders.length > 0 && (
-        <BottomSheetScrollView
-          style={{ maxHeight: height * 0.55 }}
-          contentContainerStyle={{ paddingBottom: 8 }}
-        >
+        <ScrollView style={{ maxHeight: height * 0.55 }} contentContainerStyle={{ paddingBottom: 8 }}>
           {orders.map((order, ix) => {
             const selection = toInquiryOrderSelection(order);
             const isSelected = order.orderId === selectedOrderId;
@@ -275,7 +279,7 @@ function InquiryOrderSheet(props: InquiryOrderSheetProps) {
               </TouchableOpacity>
             );
           })}
-        </BottomSheetScrollView>
+        </ScrollView>
       )}
 
       <View className="border-t-[0.5px] border-divider px-20 pt-14">

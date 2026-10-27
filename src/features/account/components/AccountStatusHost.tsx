@@ -1,3 +1,4 @@
+import { CommonActions } from "@react-navigation/native";
 import { useCallback, useEffect, useRef } from "react";
 import { AppState } from "react-native";
 
@@ -41,9 +42,14 @@ export default function AccountStatusHost() {
       ? { inquiryId: suspension.pendingAppealInquiryId }
       : { sanctionAppeal: true };
 
-    navigationRef.navigate(ROOT_ROUTES.HOME, {
-      screen: HOME_ROUTES.MYPAGE,
-      params: { screen: MYPAGE_ROUTES.INQUIRY_REGISTER, params },
+    // 전역 ref의 navigate는 지금 열린 화면 쪽 내비게이터부터 처리한다 — 하단 탭에도 「home」 탭이 있어
+    // 그 탭이 가로채 홈으로만 간다. 루트 스택을 대상으로 못 박는다
+    navigationRef.dispatch({
+      ...CommonActions.navigate(ROOT_ROUTES.HOME, {
+        screen: HOME_ROUTES.MYPAGE,
+        params: { screen: MYPAGE_ROUTES.INQUIRY_REGISTER, params },
+      }),
+      target: navigationRef.getRootState().key,
     });
   }, [close, suspension?.pendingAppealInquiryId]);
 

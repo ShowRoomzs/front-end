@@ -15,6 +15,7 @@ import { toast } from "@/common/providers/ToastProvider";
 import { useCommonNavigation } from "@/common/router";
 import { COMMON_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
+import { successHaptic, warningHaptic } from "@/common/utils/haptics";
 import {
   AmountRow,
   Band,
@@ -163,7 +164,8 @@ export default function CheckoutView() {
     (outcome: CheckoutPaymentOutcome) => {
       switch (outcome.type) {
         case "PAID":
-          toast.show("결제가 완료되었어요");
+          successHaptic();
+          toast.success("결제가 완료되었어요");
           navigation.replace(COMMON_ROUTES.ORDER_DETAIL, { orderId: outcome.orderId });
           return;
         case "PENDING":
@@ -174,6 +176,7 @@ export default function CheckoutView() {
           toast.show(outcome.message);
           return;
         case "CLOSED":
+          warningHaptic();
           showModal({
             title: "주문이 완료되지 않았어요",
             message: outcome.message,

@@ -15,7 +15,7 @@ import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
 import { COMMON_ASSETS } from "@/common/utils/assets";
 import { cn } from "@/common/utils/cn";
-import { likeHaptic } from "@/common/utils/haptics";
+import { lightHaptic } from "@/common/utils/haptics";
 import { parseCount, SIZE_CLASSES, SIZE_RATIO } from "@/features/product/components/ProductCard/config";
 import { Product } from "@/features/product/types/product";
 
@@ -53,7 +53,7 @@ export default function ProductCard(props: ProductCardProps) {
   }, [onPress, product]);
 
   const handlePressLike = useCallback(() => {
-    likeHaptic();
+    lightHaptic();
     const newIsWished = !product.isWished;
 
     // 낙관적 업데이트 여부

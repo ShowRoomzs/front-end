@@ -25,7 +25,7 @@ export default function CouponRegisterView() {
   const handlePressRegister = useCallback(async () => {
     try {
       await createCoupon({ code });
-      toast.show("쿠폰이 등록되었습니다.");
+      toast.success("쿠폰이 등록되었습니다.");
       setCode("");
       navigation.goBack();
     } catch (error) {

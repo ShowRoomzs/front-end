@@ -16,6 +16,7 @@ import { useUploadImagesMutation } from "@/common/queries/useUploadImagesMutatio
 import { useCommonNavigation, useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
+import { successHaptic } from "@/common/utils/haptics";
 import { formatPhoneNumber } from "@/features/auth/utils/formatPhoneNumber";
 import { Address } from "@/features/mypage/types/address";
 import CarrierSheet from "@/features/order/components/CarrierSheet/CarrierSheet";
@@ -316,6 +317,7 @@ export default function ClaimRequestView() {
         invalidateOrderQueries();
         idempotency.current = null;
         if (claimId) {
+          successHaptic();
           setReceiptClaimId(claimId);
         }
         return;
@@ -377,6 +379,7 @@ export default function ClaimRequestView() {
       }
       idempotency.current = null;
       invalidateOrderQueries();
+      successHaptic();
       setReceiptClaimId(response.claimIds[0]);
     } catch (submitError) {
       const code = resolveErrorCode(submitError);

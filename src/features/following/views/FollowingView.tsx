@@ -12,6 +12,7 @@ import ScreenHeaderBar from "@/common/components/ScreenHeaderBar/ScreenHeaderBar
 import SheetList from "@/common/components/SheetList/SheetList";
 import { useBottomSheet } from "@/common/hooks/useBottomSheet";
 import { useBottomSheetContext } from "@/common/providers/BottomSheetProvider";
+import { toast } from "@/common/providers/ToastProvider";
 import { useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { useUserStore } from "@/common/stores/useUserStore";
@@ -116,7 +117,7 @@ export default function FollowingView() {
     });
   }, [navigation]);
 
-  const handlePressFollow = useCallback(
+  const applyFollow = useCallback(
     (showroomId: number, isFollowing: boolean) => {
       setUnfollowedIds(prev => {
         const next = new Set(prev);
@@ -131,6 +132,19 @@ export default function FollowingView() {
       toggleFollow(showroomId, isFollowing);
     },
     [toggleFollow]
+  );
+
+  /** 디자인 시스템 §07 — 팔로우 취소는 토스트 [실행 취소]로 그 자리에서 되돌린다 */
+  const handlePressFollow = useCallback(
+    (showroomId: number, isFollowing: boolean) => {
+      applyFollow(showroomId, isFollowing);
+      if (isFollowing) {
+        toast.success("팔로우를 취소했어요", {
+          action: { label: "실행 취소", onPress: () => applyFollow(showroomId, false) },
+        });
+      }
+    },
+    [applyFollow]
   );
 
   const renderItem = useCallback(

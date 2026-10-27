@@ -68,7 +68,7 @@ export default function AddressManagementView() {
             onPress: async () => {
               try {
                 await deleteAddressMutation.mutateAsync(address.id);
-                toast.show("배송지가 삭제되었습니다");
+                toast.success("배송지가 삭제되었습니다");
               } catch {
                 toast.show("배송지를 삭제하지 못했어요");
               }

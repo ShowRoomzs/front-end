@@ -4,6 +4,7 @@ import { useCallback } from "react";
 import { queryClient } from "@/common/lib/queryClient";
 import { toast } from "@/common/providers/ToastProvider";
 import { PageResponse } from "@/common/types/page";
+import { warningHaptic } from "@/common/utils/haptics";
 import { SUSPENSION_BLOCKED } from "@/features/account/constants/suspension";
 import { useSuspension } from "@/features/account/hooks/useAccountStatus";
 import { POST_QUERY_KEY } from "@/features/post/constants/queryKey";
@@ -83,6 +84,7 @@ export function useUpdatePostLike() {
     (postId: number, currentIsLiked: boolean) => {
       // C20 — 정지 중에는 새 좋아요만 막는다. 하트처럼 안내 줄을 붙일 자리가 없어 토스트로 알린다(취소는 평소대로)
       if (suspension && !currentIsLiked) {
+        warningHaptic();
         toast.show(SUSPENSION_BLOCKED.LIKE);
         return;
       }

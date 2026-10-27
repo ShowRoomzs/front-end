@@ -17,6 +17,7 @@ import { useCommonNavigation, useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
 import { CustomErrorResponse } from "@/common/types/error";
+import { warningHaptic } from "@/common/utils/haptics";
 import SuspensionBlockedLine, { SuspendedButton } from "@/features/account/components/SuspensionBlockedLine";
 import { SUSPENSION_BLOCKED } from "@/features/account/constants/suspension";
 import { useSuspension } from "@/features/account/hooks/useAccountStatus";
@@ -129,7 +130,6 @@ export default function ProductDetailView() {
 
   const handlePressToast = useCallback(() => {
     mainNavigation.navigate(ROOT_ROUTES.COMMON, { screen: COMMON_ROUTES.CART });
-    toast.hide();
   }, [mainNavigation]);
 
   const handlePressBottomSheetCart = usePermissionPress(async () => {
@@ -152,18 +152,10 @@ export default function ProductDetailView() {
         }))
       );
 
-      toast.show({
-        type: "point",
-        fullWidth: true,
-        offset: { bottom: 70 },
-        message: (
-          <View className="flex-row justify-between">
-            <Typography className="text-13 font-medium text-white">장바구니에 상품을 담았습니다</Typography>
-            <Typography onPress={handlePressToast} className="text-13 font-semibold text-white underline">
-              바로 가기
-            </Typography>
-          </View>
-        ),
+      // 하단 구매 바를 덮지 않도록 그 위로 띄운다
+      toast.success("장바구니에 담았어요", {
+        bottomOffset: 70,
+        action: { label: "보기", onPress: handlePressToast },
       });
       clearSelectedVariants(productId);
     } catch (error) {
@@ -192,6 +184,7 @@ export default function ProductDetailView() {
     if (latestState !== "ON_SALE") {
       // 무엇이 사라졌는지 되짚어 주려면 방금 고른 조합의 이름이 필요하다
       setBlockedOptionLabel(variants.at(-1)?.name ?? "");
+      warningHaptic();
       setBlockedBy(latestState);
       return;
     }

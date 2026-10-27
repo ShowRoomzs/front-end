@@ -43,7 +43,7 @@ export default function NicknameChangeView() {
         marketingAgree: user.marketingAgree,
         phoneNumber: user.phoneNumber,
       });
-      toast.show("닉네임이 변경되었어요");
+      toast.success("닉네임이 변경되었어요");
       navigation.goBack();
     } catch {
       toast.show("닉네임 변경에 실패했어요. 잠시 후 다시 시도해 주세요");

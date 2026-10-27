@@ -32,9 +32,6 @@ export const toast = {
   warning: (message: ReactNode, options?: Omit<ToastConfig, "message" | "type">) => {
     toast.show({ message, type: "warning", ...options });
   },
-  point: (message: ReactNode, options?: Omit<ToastConfig, "message" | "type">) => {
-    toast.show({ message, type: "point", ...options });
-  },
 };
 
 export function registerToastHandler(newHandler: ToastHandler) {

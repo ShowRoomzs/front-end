@@ -246,16 +246,21 @@ export function CloseIcon(props: DsIconProps & { thickness?: number }) {
   );
 }
 
-/** 체크 — 시트 선택(로즈 19 · stroke 2.6) · 흰 체크 */
-export function CheckIcon(props: DsIconProps) {
-  const { size, color, rest } = base({ ...props, size: props.size ?? 19, color: props.color ?? "#F2456E" });
+/** 체크 — 시트 선택(로즈 19 · stroke 2.6) · 흰 체크 · 토스트 성공(흰 18 · stroke 2.2) */
+export function CheckIcon(props: DsIconProps & { thickness?: number }) {
+  const { thickness = 2.6, ...iconProps } = props;
+  const { size, color, rest } = base({
+    ...iconProps,
+    size: iconProps.size ?? 19,
+    color: iconProps.color ?? "#F2456E",
+  });
 
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...rest}>
       <Path
         d="M4.5 12.5l5 5 10-11"
         stroke={color}
-        strokeWidth={2.6}
+        strokeWidth={thickness}
         strokeLinecap="round"
         strokeLinejoin="round"
       />

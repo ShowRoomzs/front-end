@@ -105,7 +105,7 @@ export default function CancelDetailView() {
                 // 항목이 상품준비중으로 돌아간다 — 주문 내역 · 상세를 다시 읽는다
                 invalidateOrderQueries();
               }
-              toast.show("취소 요청을 철회했어요");
+              toast.success("취소 요청을 철회했어요");
               navigation.goBack();
             } catch (error) {
               // 409 — 그사이 브랜드가 승인 · 거부했거나 자동 승인됐다. 지금 상태를 다시 보여준다

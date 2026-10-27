@@ -159,10 +159,10 @@ export default function ProductInquiryView() {
 
       if (isEdit) {
         await updateInquiry(requestData);
-        toast.show("문의가 수정되었습니다");
+        toast.success("문의가 수정되었습니다");
       } else {
         await createInquiry({ productId, data: requestData });
-        toast.show("문의가 접수되었습니다");
+        toast.success("문의가 접수되었습니다");
       }
       navigation.goBack();
     } catch (error) {

@@ -4,6 +4,7 @@ import { useCallback } from "react";
 import { queryClient } from "@/common/lib/queryClient";
 import { toast } from "@/common/providers/ToastProvider";
 import { PageResponse } from "@/common/types/page";
+import { lightHaptic, warningHaptic } from "@/common/utils/haptics";
 import { SUSPENSION_BLOCKED } from "@/features/account/constants/suspension";
 import { useSuspension } from "@/features/account/hooks/useAccountStatus";
 import { POST_QUERY_KEY } from "@/features/post/constants/queryKey";
@@ -87,9 +88,11 @@ export function useUpdateShowroomFollow(keepFollowingList = false) {
     (showroomId: number, currentIsFollowing: boolean) => {
       // C20 — 정지 중에는 새 팔로우만 막는다(언팔로우는 평소대로)
       if (suspension && !currentIsFollowing) {
+        warningHaptic();
         toast.show(SUSPENSION_BLOCKED.FOLLOW);
         return;
       }
+      lightHaptic();
       mutate({ showroomId, isFollowing: !currentIsFollowing });
     },
     [mutate, suspension]

@@ -76,7 +76,7 @@ export default function SettingView() {
     setTimeout(() => {
       navigate(HOME_ROUTES.HOME);
     }, 500);
-    toast.show("로그아웃 되었습니다.");
+    toast.success("로그아웃 되었습니다.");
   }, [logout, mypageNavigation, navigate]);
 
   const handlePressLogout = useCallback(() => {
@@ -107,7 +107,7 @@ export default function SettingView() {
           nickname: user.nickname,
           phoneNumber: user.phoneNumber,
         });
-        toast.show("프로필 이미지가 변경되었습니다.");
+        toast.success("프로필 이미지가 변경되었습니다.");
       } catch {
         toast.show("프로필 이미지 변경에 실패했어요");
       }

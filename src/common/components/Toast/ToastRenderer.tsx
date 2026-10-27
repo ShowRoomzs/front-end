@@ -1,206 +1,135 @@
-import { useCallback, useEffect, useMemo } from "react";
-import { Dimensions, View } from "react-native";
+import { useMemo } from "react";
+import { Pressable, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import {
-  DEFAULT_OFFSET,
-  DISTANCE_THRESHOLD_PERCENT,
-  LIMIT_OPPOSITE_OFFSET,
-  TYPE_STYLES,
-  VELOCITY_THRESHOLD,
-} from "@/common/components/Toast/config";
+import { BOTTOM_TABS_HEIGHT } from "@/common/components/BottomTabs/config";
+import { CheckIcon, InfoIcon } from "@/common/components/DsIcon/icons";
+import { DISMISS_DISTANCE, TOAST_GAP, VELOCITY_THRESHOLD } from "@/common/components/Toast/config";
 import Typography from "@/common/components/Typography/Typography";
+import { MOTION_DURATION, MOTION_EASING } from "@/common/constants/motion";
+import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { useToast, useToastState } from "@/common/providers/ToastProvider/context";
-import { cn } from "@/common/utils/cn";
+import { navigationRef } from "@/common/router/navigationRef";
+import { ROOT_ROUTES } from "@/common/router/routes";
 
+const ROSE_ON_INK = "#FF9DB5";
+
+/**
+ * 지금 하단 탭바가 떠 있는지 — 탭바는 홈 탭 묶음의 **각 탭 루트**에서만 그린다(BottomTabs와 같은 판단).
+ * 토스트는 내비게이터 밖에 있어 네비게이션 상태를 전역 ref로 읽는다.
+ */
+function isOnTabRoot() {
+  if (!navigationRef.isReady()) {
+    return false;
+  }
+  const root = navigationRef.getRootState();
+  const rootRoute = root.routes[root.index];
+
+  if (rootRoute.name !== ROOT_ROUTES.HOME) {
+    return false;
+  }
+  const tabState = rootRoute.state;
+
+  if (!tabState || tabState.index === undefined) {
+    return true;
+  }
+
+  return (tabState.routes[tabState.index].state?.index ?? 0) === 0;
+}
+
+/**
+ * 디자인 시스템 §07 토스트 — 잉크 배경 · 흰 글씨 13/500 · R8 · 하단 탭바 위 16.
+ * 왼쪽 상태 아이콘(성공 = 흰 체크 / 알림 = 로즈 라인), 오른쪽 로즈 액션은 하나까지.
+ */
 export default function ToastRenderer() {
   const { top, bottom } = useSafeAreaInsets();
   const { currentToast, opacity, translateY } = useToastState();
-  const { hide, pauseTimer } = useToast();
-  const gestureTranslateY = useSharedValue(0);
+  const { hide, pauseTimer, resumeTimer } = useToast();
+  const { isVisible: isTabBarVisible } = useBottomTab();
+  const dragY = useSharedValue(0);
 
   const position = currentToast?.position ?? "bottom";
-  const screenHeight = Dimensions.get("window").height;
-  const fullWidth = currentToast?.fullWidth ?? false;
 
-  useEffect(() => {
-    if (currentToast) {
-      gestureTranslateY.value = 0;
-    }
-  }, [currentToast, gestureTranslateY]);
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ translateY: translateY.value + dragY.value }],
+  }));
 
-  const hideAfterDelay = useCallback(
-    (delay: number) => {
-      setTimeout(() => {
-        hide();
-      }, delay);
-    },
-    [hide]
-  );
-
-  const animatedStyle = useAnimatedStyle(() => {
-    const transforms: Array<{ translateY: number }> = [
-      { translateY: translateY.value + gestureTranslateY.value },
-    ];
-
-    if (position === "center") {
-      const offset = currentToast?.offset;
-      const offsetTop = typeof offset === "number" ? offset : (offset?.top ?? 0);
-
-      transforms.push({ translateY: -25 + offsetTop });
-    }
-
-    return {
-      opacity: opacity.value,
-      transform: transforms,
-    };
-  }, [position, currentToast?.offset]);
-
+  // 밀어서 닫기 — 토스트가 붙은 가장자리 쪽으로 밀면 닫히고, 덜 밀면 제자리로 돌아와 남은 시간을 이어 간다
   const pan = useMemo(() => {
-    if (position === "center") {
-      return Gesture.Pan().enabled(false);
-    }
+    const direction = position === "bottom" ? 1 : -1;
 
     return Gesture.Pan()
       .onBegin(() => {
+        dragY.value = 0;
         runOnJS(pauseTimer)();
       })
       .onUpdate(e => {
-        const { velocityY, translationY } = e;
-        const swipePercent = Math.abs(translationY) / screenHeight;
+        const toward = e.translationY * direction;
 
-        if (position === "bottom") {
-          // 아래로 스와이프 (velocityY > VELOCITY_THRESHOLD): 토스트를 아래로 밀어서 닫기 (정방향)
-          if (velocityY > VELOCITY_THRESHOLD) {
-            runOnJS(hide)();
-          }
-          // 위로 스와이프 (translationY < 0): 토스트를 위로 당기기 (역방향, 제한)
-          else {
-            const limitedOffset = Math.min(swipePercent * LIMIT_OPPOSITE_OFFSET, LIMIT_OPPOSITE_OFFSET);
-
-            gestureTranslateY.value = -limitedOffset;
-          }
-        } else if (position === "top") {
-          // 위로 스와이프 (VELOCITY_THRESHOLD < velocityY): 토스트를 위로 밀어서 닫기 (정방향)
-          if (VELOCITY_THRESHOLD < velocityY) {
-            runOnJS(hide)();
-          }
-          // 아래로 스와이프 (translationY > 0): 토스트를 아래로 당기기 (역방향, 제한)
-          else {
-            const limitedOffset = Math.min(swipePercent * LIMIT_OPPOSITE_OFFSET, LIMIT_OPPOSITE_OFFSET);
-
-            gestureTranslateY.value = limitedOffset;
-          }
-        }
+        dragY.value = toward > 0 ? e.translationY : e.translationY * 0.2;
       })
       .onEnd(e => {
-        const { velocityY, translationY } = e;
-        const distanceThreshold = screenHeight * DISTANCE_THRESHOLD_PERCENT;
+        const toward = e.translationY * direction;
 
-        let shouldClose = false;
-
-        if (position === "bottom") {
-          // 아래로 스와이프 (translationY > 0) 시 닫힘 조건
-          shouldClose =
-            (translationY > 0 && Math.abs(velocityY) > VELOCITY_THRESHOLD) ||
-            Math.abs(translationY) > distanceThreshold;
-        } else if (position === "top") {
-          // 위로 스와이프 (translationY < 0) 시 닫힘 조건
-          shouldClose =
-            (translationY < 0 && Math.abs(velocityY) > VELOCITY_THRESHOLD) ||
-            Math.abs(translationY) > distanceThreshold;
-        }
-
-        if (shouldClose) {
+        if (toward > DISMISS_DISTANCE || e.velocityY * direction > VELOCITY_THRESHOLD) {
           runOnJS(hide)();
-        } else {
-          gestureTranslateY.value = withTiming(0, { duration: 200 });
-          runOnJS(hideAfterDelay)(1000);
+          return;
         }
+        dragY.value = withTiming(0, { duration: MOTION_DURATION.base, easing: MOTION_EASING.standard });
+        runOnJS(resumeTimer)();
       });
-  }, [position, pauseTimer, screenHeight, gestureTranslateY, hide, hideAfterDelay]);
+  }, [dragY, hide, pauseTimer, position, resumeTimer]);
 
   if (!currentToast) {
     return null;
   }
-  const wrapperClassName = currentToast.wrapperClassName ?? "";
-  const labelClassName = currentToast.labelClassName ?? "";
 
-  const renderContent = () => {
-    if (typeof currentToast.message === "string") {
-      return (
-        <Typography className={cn("text-13 font-medium text-white", labelClassName)}>
-          {currentToast.message}
-        </Typography>
-      );
-    }
-    return currentToast.message;
-  };
+  const { message, type = "info", action, bottomOffset } = currentToast;
+  const isSuccess = type === "success";
 
-  const type = currentToast.type ?? "info";
+  const tabBarHeight = isTabBarVisible && isOnTabRoot() ? BOTTOM_TABS_HEIGHT : 0;
+  const edgeStyle =
+    position === "bottom"
+      ? { bottom: bottom + (bottomOffset ?? tabBarHeight + TOAST_GAP) }
+      : { top: top + TOAST_GAP };
 
-  const getTypeStyle = () => {
-    if (type === "point") {
-      return {
-        borderWidth: 1,
-        borderColor: "#F2456ECC",
-        shadowColor: "#F2456E",
-        shadowOffset: { width: 0, height: 5 },
-        shadowOpacity: 0.35,
-        shadowRadius: 7.5,
-        elevation: 8,
-      };
-    }
-  };
-
-  const getPositionStyle = () => {
-    const offset = currentToast.offset;
-    const resolvedOffset =
-      typeof offset === "number"
-        ? { ...DEFAULT_OFFSET, top: offset, bottom: offset }
-        : { ...DEFAULT_OFFSET, ...offset };
-
-    switch (position) {
-      case "top":
-        return {
-          top: top + resolvedOffset.top,
-          left: resolvedOffset.left,
-          right: resolvedOffset.right,
-        };
-      case "bottom":
-        return {
-          bottom: bottom + resolvedOffset.bottom,
-          left: resolvedOffset.left,
-          right: resolvedOffset.right,
-        };
-      case "center": {
-        const screenHeight = Dimensions.get("window").height;
-        const offsetLeft = typeof offset === "number" ? 0 : (offset?.left ?? 0);
-        const offsetRight = typeof offset === "number" ? 0 : (offset?.right ?? 0);
-
-        return {
-          top: screenHeight / 2,
-          left: resolvedOffset.left + offsetLeft,
-          right: resolvedOffset.right + offsetRight,
-        };
-      }
-    }
+  const handlePressAction = () => {
+    action?.onPress();
+    hide();
   };
 
   return (
     <GestureDetector gesture={pan}>
       <Animated.View
-        style={[getPositionStyle(), animatedStyle]}
+        style={[edgeStyle, animatedStyle]}
         pointerEvents="box-none"
-        className={cn("absolute z-[9999] items-center", wrapperClassName)}
+        className="absolute left-16 right-16 z-[9999]"
       >
         <View
-          style={getTypeStyle()}
-          className={cn("rounded-[6px] px-15 py-10", TYPE_STYLES[type], fullWidth ? "w-full" : "")}
+          accessibilityRole="alert"
+          className="flex-row items-center rounded-[8px] bg-ink px-15 py-13"
+          style={{ gap: 10 }}
         >
-          {renderContent()}
+          {isSuccess ? (
+            <CheckIcon size={18} color="#FFFFFF" thickness={2.2} />
+          ) : (
+            <InfoIcon size={18} color={ROSE_ON_INK} />
+          )}
+          <View className="min-w-0 flex-1">
+            {typeof message === "string" ? (
+              <Typography className="text-13 font-medium leading-[18px] text-white">{message}</Typography>
+            ) : (
+              message
+            )}
+          </View>
+          {action && (
+            <Pressable onPress={handlePressAction} hitSlop={12} accessibilityRole="button">
+              <Typography className="text-[12.5px] font-semibold text-roseOnInk">{action.label}</Typography>
+            </Pressable>
+          )}
         </View>
       </Animated.View>
     </GestureDetector>

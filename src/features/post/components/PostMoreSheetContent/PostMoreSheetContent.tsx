@@ -3,6 +3,7 @@ import { Clipboard } from "react-native";
 
 import SheetList, { SheetListItem } from "@/common/components/SheetList/SheetList";
 import { toast } from "@/common/providers/ToastProvider";
+import { warningHaptic } from "@/common/utils/haptics";
 import { SUSPENSION_BLOCKED } from "@/features/account/constants/suspension";
 import { useSuspension } from "@/features/account/hooks/useAccountStatus";
 import ReportSheetContent from "@/features/post/components/ReportSheetContent/ReportSheetContent";
@@ -44,6 +45,7 @@ export default function PostMoreSheetContent(props: PostMoreSheetContentProps) {
         // C20 — 정지 중에는 신고 사유를 고르기 전에 막는다(고른 뒤 409로 막히면 고른 수고가 버려진다)
         if (suspension) {
           onClose();
+          warningHaptic();
           toast.show(SUSPENSION_BLOCKED.REPORT);
           return;
         }

@@ -188,7 +188,7 @@ export default function CartView() {
           data: { variantId: newVariantId, quantity: newQuantity },
           selectedCartItemIds: selectedIdList,
         });
-        toast.show("옵션이 변경되었습니다.");
+        toast.success("옵션이 변경되었습니다.");
         sheetApi?.close();
       } catch (error) {
         toast.show(resolveErrorMessage(error, "옵션 변경에 실패했습니다."));

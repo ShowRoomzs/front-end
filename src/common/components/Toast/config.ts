@@ -1,21 +1,6 @@
-import { ToastType } from "@/common/providers/ToastProvider";
+/** 디자인 시스템 §07 — 하단 탭바(없으면 화면 아래 안전 영역) 위로 띄우는 간격 */
+export const TOAST_GAP = 16;
 
-export const TYPE_STYLES: Record<ToastType, string> = {
-  info: "bg-gray14",
-  success: "bg-positiveColor",
-  error: "bg-negativeColor",
-  warning: "bg-pointColor",
-  point: "bg-pointColorOpacity80",
-};
-
-export const DEFAULT_OFFSET = {
-  top: 10,
-  bottom: 10,
-  left: 10,
-  right: 10,
-};
-
-// 토스트 스와이프 시 반대 방향(top > bottom, bottom > top)으로 최대 이동 가능 거리
-export const LIMIT_OPPOSITE_OFFSET = 30;
+/** 밀어서 닫기 — 붙은 가장자리 쪽으로 이만큼 밀거나 빠르게 튕기면 닫는다 */
+export const DISMISS_DISTANCE = 24;
 export const VELOCITY_THRESHOLD = 500;
-export const DISTANCE_THRESHOLD_PERCENT = 0.3;

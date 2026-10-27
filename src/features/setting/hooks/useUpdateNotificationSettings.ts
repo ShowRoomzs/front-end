@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import { useCallback, useRef } from "react";
 import { debounce } from "remeda";
 
@@ -20,6 +21,14 @@ import { NotificationSettings } from "@/features/setting/types/notification";
  */
 const DEBOUNCED_WAIT_MS = 500;
 
+/**
+ * 광고성 정보 수신 동의/거부 처리 결과 고지(정보통신망법) — 전송자 · 일시 · 처리 결과를 토스트에 함께 적는다
+ * (디자인 시스템 §07). 서버 PATCH는 본문 없이 204라 처리 일시는 성공 응답을 받은 시각이다.
+ */
+function marketingResultMessage(agreed: boolean) {
+  return `SHOWROOMZ · ${dayjs().format("YYYY.MM.DD")} 광고성 정보 수신 ${agreed ? "동의" : "거부"}가 처리되었어요`;
+}
+
 const NOTIFICATION_SETTINGS_KEY = [SETTING_QUERY_KEY.NOTIFICATION_SETTINGS];
 
 export function useUpdateNotificationSettings() {
@@ -30,6 +39,9 @@ export function useUpdateNotificationSettings() {
     async (field: keyof NotificationSettings, value: boolean) => {
       try {
         await mutateAsync({ [field]: value });
+        if (field === "marketingAgree") {
+          toast.success(marketingResultMessage(value));
+        }
       } catch {
         queryClient.invalidateQueries({ queryKey: NOTIFICATION_SETTINGS_KEY });
         toast.show("알림 설정을 변경하지 못했어요");

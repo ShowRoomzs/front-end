@@ -6,7 +6,7 @@ import { toast } from "@/common/providers/ToastProvider";
 export async function copyToClipboard(value: string, label = "복사했어요") {
   try {
     await Clipboard.setStringAsync(value);
-    toast.show(label);
+    toast.success(label);
   } catch {
     toast.show("복사하지 못했어요");
   }

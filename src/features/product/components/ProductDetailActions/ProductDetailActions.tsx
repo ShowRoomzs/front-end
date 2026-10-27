@@ -6,7 +6,7 @@ import Icon from "@/common/components/Icon/Icon";
 import Typography from "@/common/components/Typography/Typography";
 import VStack from "@/common/components/VStack/VStack";
 import { COMMON_ASSETS } from "@/common/utils/assets";
-import { likeHaptic } from "@/common/utils/haptics";
+import { lightHaptic } from "@/common/utils/haptics";
 
 interface ProductDetailActionsProps {
   isWished: boolean;
@@ -19,7 +19,7 @@ export default function ProductDetailActions(props: ProductDetailActionsProps) {
   const { isWished, likeCount, onPressLike, onPressPurchase } = props;
 
   const handlePressLike = useCallback(() => {
-    likeHaptic();
+    lightHaptic();
 
     onPressLike?.(!isWished);
   }, [isWished, onPressLike]);

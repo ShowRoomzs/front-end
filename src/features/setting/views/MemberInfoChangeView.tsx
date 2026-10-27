@@ -42,7 +42,7 @@ export default function MemberInfoChangeView() {
     try {
       await reverify(true);
       setAgreeConsent(false);
-      toast.show("회원정보가 최신 정보로 갱신되었어요");
+      toast.success("회원정보가 최신 정보로 갱신되었어요");
     } catch {
       toast.show("본인인증에 실패했어요. 잠시 후 다시 시도해 주세요");
     }

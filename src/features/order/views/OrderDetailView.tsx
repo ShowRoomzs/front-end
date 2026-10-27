@@ -73,7 +73,7 @@ export default function OrderDetailView() {
       onSelect: async address => {
         try {
           await orderService.changeDeliveryAddress(order.orderId, address.id);
-          toast.show("배송지를 변경했어요");
+          toast.success("배송지를 변경했어요");
           invalidateOrderQueries();
           return true;
         } catch (error) {

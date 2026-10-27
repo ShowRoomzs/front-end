@@ -1,7 +1,16 @@
+import { useEffect, useRef } from "react";
 import { TouchableOpacity, View } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSequence,
+  withTiming,
+} from "react-native-reanimated";
 
 import { HeartIcon } from "@/common/components/DsIcon/icons";
 import Typography from "@/common/components/Typography/Typography";
+import { MOTION_EASING, MOTION_REDUCE } from "@/common/constants/motion";
+import { lightHaptic } from "@/common/utils/haptics";
 
 /**
  * 좋아요 — 기본 선(잉크) → 누르면 로즈 채움 → 마감된 공구는 #C8C8CA.
@@ -10,6 +19,10 @@ import Typography from "@/common/components/Typography/Typography";
  * 광학 정렬 — 하트 글리프의 시각적 무게는 박스 중앙보다 아래에 몰려 있어(잉크 범위 y 5→20.6,
  * 중심 ≈12.8) `alignItems: center`만 쓰면 숫자가 위로 떠 보인다. 숫자에 translateY(1px)을 적용해
  * 하트의 광학 중심에 맞춘다. 하트를 위로 올리는 방식은 간격을 더 벌리므로 쓰지 않는다.
+ *
+ * 디자인 시스템 §08 좋아요 — 누르면 로즈로 채우며 1 → 1.28 → 0.92 → 1(380ms spring) · 햅틱 light.
+ * 해제는 팝 없이 색만, 마감은 반응 없음. 팝은 **누른 결과로 좋아요가 실제로 켜졌을 때만** 낸다 —
+ * 로그인 안내나 이용 정지로 막히면 하트가 채워지지 않으므로 튀지도 않는다.
  */
 interface LikeButtonProps {
   isLiked: boolean;
@@ -22,6 +35,13 @@ interface LikeButtonProps {
 
 const HIT_SLOP_VERTICAL = 10;
 const HIT_SLOP_HORIZONTAL = 8;
+
+/** 380ms를 1.28 · 0.92 · 1 세 구간으로(30% · 30% · 40%) */
+const POP_STEPS = [
+  { scale: 1.28, duration: 114 },
+  { scale: 0.92, duration: 114 },
+  { scale: 1, duration: 152 },
+];
 
 const HEART_COLOR = {
   default: "#0F0F0F",
@@ -45,11 +65,44 @@ export default function LikeButton(props: LikeButtonProps) {
 
   const color = getColor();
 
+  const scale = useSharedValue(1);
+  const isPressedRef = useRef(false);
+  const prevIsLikedRef = useRef(isLiked);
+
+  useEffect(() => {
+    const changed = prevIsLikedRef.current !== isLiked;
+
+    prevIsLikedRef.current = isLiked;
+    if (!changed || !isPressedRef.current) {
+      return;
+    }
+    isPressedRef.current = false;
+    lightHaptic();
+    if (isLiked) {
+      scale.value = withSequence(
+        ...POP_STEPS.map(step =>
+          withTiming(step.scale, {
+            duration: step.duration,
+            easing: MOTION_EASING.spring,
+            reduceMotion: MOTION_REDUCE,
+          })
+        )
+      );
+    }
+  }, [isLiked, scale]);
+
+  const heartStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.value }] }));
+
+  const handlePress = () => {
+    isPressedRef.current = true;
+    onPress();
+  };
+
   return (
     <TouchableOpacity
-      onPress={onPress}
+      onPress={handlePress}
       disabled={isBlocked}
-      activeOpacity={0.4}
+      activeOpacity={0.55}
       style={{
         alignSelf: "flex-start",
         paddingVertical: HIT_SLOP_VERTICAL,
@@ -59,7 +112,9 @@ export default function LikeButton(props: LikeButtonProps) {
       }}
     >
       <View className="flex-row items-center" style={{ gap: 7 }}>
-        <HeartIcon size={size} color={color} filled={isLiked} />
+        <Animated.View style={heartStyle}>
+          <HeartIcon size={size} color={color} filled={isLiked} />
+        </Animated.View>
         <Typography
           style={{ fontSize: 13.5, fontWeight: "600", lineHeight: 13.5, transform: [{ translateY: 1 }] }}
           className={likeLocked ? "text-gray62" : "text-ink"}

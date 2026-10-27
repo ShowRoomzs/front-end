@@ -74,7 +74,7 @@ export default function ProductInquiryHistoryTab() {
             onPress: async () => {
               try {
                 await deleteInquiry(target.id);
-                toast.show("문의가 삭제되었습니다");
+                toast.success("문의가 삭제되었습니다");
               } catch {
                 toast.show("문의를 삭제하지 못했어요");
               }

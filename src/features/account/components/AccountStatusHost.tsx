@@ -86,7 +86,7 @@ export default function AccountStatusHost() {
       return;
     }
     handledReleaseRef.current = true;
-    toast.show("계정 이용 정지가 해제되었어요");
+    toast.success("계정 이용 정지가 해제되었어요");
     void accountStatusService.ackReleaseNotice().finally(invalidateAccountStatus);
   }, [hasReleaseNotice]);
 

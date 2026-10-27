@@ -13,6 +13,7 @@ import { toast } from "@/common/providers/ToastProvider";
 import { useCommonNavigation } from "@/common/router";
 import { COMMON_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
+import { successHaptic } from "@/common/utils/haptics";
 import ClaimInspectionBlock, {
   FeeLine,
   FeeTotalLine,
@@ -144,7 +145,8 @@ export default function ClaimDetailView() {
   const handlePaymentOutcome = useCallback(
     (outcome: ClaimPaymentOutcome) => {
       if (outcome.type === "PAID") {
-        toast.show(
+        successHaptic();
+        toast.success(
           isOverturnPayableRef(detailRef.current)
             ? "결제가 완료되었어요. 새 상품을 보내드릴게요"
             : "결제가 완료되었어요. 반려 상품을 다시 보내드릴게요"
@@ -189,7 +191,7 @@ export default function ClaimDetailView() {
             onPress: async () => {
               try {
                 await claimService.withdraw(target.claimId);
-                toast.show("요청을 철회했어요");
+                toast.success("요청을 철회했어요");
                 invalidateOrderQueries();
                 navigation.replace(COMMON_ROUTES.ORDER_DETAIL, { orderId: detail.orderId });
               } catch (error) {
@@ -239,7 +241,7 @@ export default function ClaimDetailView() {
           const updated = await claimService.changeReshipAddress(claimId, address.id);
 
           queryClient.setQueryData([ORDER_QUERY_KEY.CLAIM_DETAIL, claimId], updated);
-          toast.show("교환받을 배송지를 변경했어요");
+          toast.success("교환받을 배송지를 변경했어요");
           return true;
         } catch (error) {
           toast.show(resolveErrorMessage(error, "배송지를 변경하지 못했어요"));

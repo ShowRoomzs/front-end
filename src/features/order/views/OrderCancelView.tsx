@@ -11,6 +11,7 @@ import { toast } from "@/common/providers/ToastProvider";
 import { useCommonNavigation, useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
+import { successHaptic } from "@/common/utils/haptics";
 import { cartService } from "@/features/cart/services/cartService";
 import {
   AmountRow,
@@ -113,6 +114,7 @@ export default function OrderCancelView() {
 
       invalidateOrderQueries({ includeCart: recarted });
       setIsConfirmOpen(false);
+      successHaptic();
       setDone({ isPending: result.isPending, recarted });
     } catch (error) {
       setIsConfirmOpen(false);

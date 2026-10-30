@@ -35,6 +35,30 @@ async function clearSession() {
   useUserStore.getState().clear();
 }
 
+/** 진행 중인 리프레시 — 동시에 401이 여러 개 와도 리프레시는 한 번만 보낸다 */
+let refreshPromise: Promise<void> | null = null;
+
+/**
+ * 리프레시 토큰으로 새 토큰을 받아 저장한다.
+ *
+ * 서버는 리프레시 토큰이 만료 3일 안으로 들어오면 리프레시할 때마다 새것으로 바꾸고 옛것은 버린다.
+ * 앱을 켤 때처럼 요청 여러 개가 한꺼번에 401을 받고 각자 리프레시하면, 첫 번째만 성공하고
+ * 나머지는 버려진 토큰을 보내 401을 받아 멀쩡한 세션을 지운다. 그래서 진행 중인 것을 함께 기다린다.
+ */
+function refreshTokens(refreshToken: string) {
+  refreshPromise ??= authService
+    .refresh(refreshToken)
+    .then(async ({ accessToken, refreshToken: nextRefreshToken }) => {
+      await SecureStore.setItemAsync(SECURE_STORE.ACCESS_TOKEN, accessToken);
+      await SecureStore.setItemAsync(SECURE_STORE.REFRESH_TOKEN, nextRefreshToken);
+    })
+    .finally(() => {
+      refreshPromise = null;
+    });
+
+  return refreshPromise;
+}
+
 /**
  * 401이면 리프레시 토큰으로 한 번 되살려 보고, 안 되면 세션을 버린다.
  *
@@ -69,21 +93,19 @@ apiInstance.interceptors.response.use(
     }
 
     try {
-      const { accessToken: nextAccessToken, refreshToken: nextRefreshToken } =
-        await authService.refresh(refreshToken);
-
-      await SecureStore.setItemAsync(SECURE_STORE.ACCESS_TOKEN, nextAccessToken);
-      await SecureStore.setItemAsync(SECURE_STORE.REFRESH_TOKEN, nextRefreshToken);
-
-      config.isRetriedAfterRefresh = true;
-
-      return apiInstance(config);
-    } catch {
-      // 리프레시가 401이면 refreshInstance가 이미 정리했지만, 네트워크 오류 등으로 실패했을 때도
-      // 이 세션으로는 더 부를 수 없다. 원래 오류를 그대로 돌려줘 호출부가 401로 판단하게 둔다
-      await clearSession();
+      await refreshTokens(refreshToken);
+    } catch (refreshError) {
+      // 서버가 리프레시 토큰을 거절했을 때(401)만 세션을 버린다. 네트워크 오류는 토큰이 멀쩡하므로
+      // 남겨 두고, 연결이 돌아온 뒤의 요청이 다시 리프레시하게 한다. 원래 오류를 그대로 돌려준다
+      if ((refreshError as AxiosError).response?.status === 401) {
+        await clearSession();
+      }
 
       return Promise.reject(error);
     }
+
+    config.isRetriedAfterRefresh = true;
+
+    return apiInstance(config);
   }
 );

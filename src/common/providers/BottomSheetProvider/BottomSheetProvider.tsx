@@ -4,6 +4,7 @@ import { BackHandler } from "react-native";
 
 import type { BottomSheetModalMethods } from "@gorhom/bottom-sheet/src/types";
 
+import { SHEET_EXIT_TIMING } from "@/common/constants/motion";
 import {
   BottomSheetContext,
   SheetId,
@@ -39,7 +40,7 @@ export function BottomSheetProvider(props: BottomSheetProviderProps) {
   const unregister = useCallback((id: SheetId) => {
     // 열린 시트의 주인 화면이 사라지면 시트도 닫는다 — 그대로 두면 내용 없는 빈 시트가 다음 화면을 덮는다
     if (activeSheetIdRef.current === id) {
-      sheetRef.current?.dismiss();
+      sheetRef.current?.dismiss(SHEET_EXIT_TIMING);
       activeSheetIdRef.current = null;
       setActiveSheetId(null);
     }
@@ -63,7 +64,7 @@ export function BottomSheetProvider(props: BottomSheetProviderProps) {
   }, []);
 
   const close = useCallback(() => {
-    sheetRef.current?.dismiss();
+    sheetRef.current?.dismiss(SHEET_EXIT_TIMING);
     activeSheetIdRef.current = null;
     setActiveSheetId(null);
   }, []);

@@ -4,6 +4,12 @@ import { runOnJS, useSharedValue, withTiming } from "react-native-reanimated";
 import { ModalConfig, ModalContext, ModalStateContext } from "./context";
 import { registerModalHandler, unregisterModalHandler } from "./modal";
 
+import { MOTION_DURATION, MOTION_EASING, MOTION_REDUCE } from "@/common/constants/motion";
+
+/** 디자인 시스템 §08 확인 모달 — 딤 · 대화상자 scale .96 → 1 · 투명도 200ms. 퇴장은 투명도만 150ms */
+const ENTER_SCALE = 0.96;
+const EXIT_DURATION = 150;
+
 interface ModalProviderProps {
   children: React.ReactNode;
 }
@@ -13,27 +19,37 @@ export function ModalProvider(props: ModalProviderProps) {
 
   const [currentModal, setCurrentModal] = useState<ModalConfig | null>(null);
   const opacity = useSharedValue(0);
-  const scale = useSharedValue(0.95);
+  const scale = useSharedValue(ENTER_SCALE);
 
   const show = useCallback(
     (config: ModalConfig) => {
       setCurrentModal(config);
       opacity.value = 0;
-      scale.value = 0.95;
-      opacity.value = withTiming(1, { duration: 200 });
-      scale.value = withTiming(1, { duration: 200 });
+      scale.value = ENTER_SCALE;
+      const enter = {
+        duration: MOTION_DURATION.base,
+        easing: MOTION_EASING.standard,
+        reduceMotion: MOTION_REDUCE,
+      };
+
+      opacity.value = withTiming(1, enter);
+      scale.value = withTiming(1, enter);
     },
     [opacity, scale]
   );
 
+  // 퇴장은 제자리에서 투명도만 — 줄어들며 사라지면 누른 버튼이 밀려나는 것처럼 보인다
   const hide = useCallback(() => {
-    opacity.value = withTiming(0, { duration: 150 }, finished => {
-      if (finished) {
-        runOnJS(setCurrentModal)(null);
+    opacity.value = withTiming(
+      0,
+      { duration: EXIT_DURATION, easing: MOTION_EASING.exit, reduceMotion: MOTION_REDUCE },
+      finished => {
+        if (finished) {
+          runOnJS(setCurrentModal)(null);
+        }
       }
-    });
-    scale.value = withTiming(0.95, { duration: 150 });
-  }, [opacity, scale]);
+    );
+  }, [opacity]);
 
   useEffect(() => {
     registerModalHandler({ show, hide });

@@ -20,12 +20,28 @@ export const MOTION_DURATION = {
   base: 200,
   /** 바텀 시트 진입 */
   sheet: 280,
+  /** 바텀 시트 퇴장 */
+  sheetExit: 220,
   /** 아코디언 · 드롭다운 접힘 — 펼침(200ms)의 75% */
   collapse: 150,
 };
 
 /** 동작 줄이기 — OS 설정을 따른다(켜져 있으면 이동 · 확대 없이 바로 끝값) */
 export const MOTION_REDUCE = ReduceMotion.System;
+
+/** 바텀 시트 — 아래에서 280ms spring으로 올라온다 */
+export const SHEET_ENTER_TIMING = {
+  duration: MOTION_DURATION.sheet,
+  easing: MOTION_EASING.spring,
+  reduceMotion: MOTION_REDUCE,
+};
+
+/** 바텀 시트 퇴장 — 220ms exit */
+export const SHEET_EXIT_TIMING = {
+  duration: MOTION_DURATION.sheetExit,
+  easing: MOTION_EASING.exit,
+  reduceMotion: MOTION_REDUCE,
+};
 
 /**
  * 아코디언 · 드롭다운 · 접히는 섹션의 내용 — 위에서 4px 내려오며 페이드 200ms(§08).

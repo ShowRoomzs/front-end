@@ -3,7 +3,7 @@ import { ReactNode, useCallback, useMemo, useState } from "react";
 import { Image, TouchableOpacity, useWindowDimensions, View } from "react-native";
 import { WebView, WebViewMessageEvent } from "react-native-webview";
 
-import { ChevronDownIcon } from "@/common/components/DsIcon/icons";
+import ExpandChevron from "@/common/components/ExpandChevron/ExpandChevron";
 import Typography from "@/common/components/Typography/Typography";
 
 /**
@@ -130,11 +130,7 @@ export default function ProductDetailInfo(props: ProductDetailInfoProps) {
             <Typography style={{ fontSize: 13, fontWeight: "600", lineHeight: 13 }} className="text-ink76">
               {isExpand ? "상세 정보 접기" : "상세 정보 더 보기"}
             </Typography>
-            <ChevronDownIcon
-              size={12}
-              color="#3C3C3C"
-              style={{ transform: [{ rotate: isExpand ? "180deg" : "0deg" }] }}
-            />
+            <ExpandChevron expanded={isExpand} size={12} color="#3C3C3C" />
           </TouchableOpacity>
         </View>
       ) : (

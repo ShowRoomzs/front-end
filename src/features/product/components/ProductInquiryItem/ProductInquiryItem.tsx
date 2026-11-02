@@ -1,8 +1,11 @@
 import dayjs from "dayjs";
 import { TouchableOpacity, View } from "react-native";
+import Animated from "react-native-reanimated";
 
-import { ChevronDownIcon, LockIcon } from "@/common/components/DsIcon/icons";
+import { LockIcon } from "@/common/components/DsIcon/icons";
+import ExpandChevron from "@/common/components/ExpandChevron/ExpandChevron";
 import Typography from "@/common/components/Typography/Typography";
+import { EXPAND_ENTERING, EXPAND_EXITING } from "@/common/constants/motion";
 import { PublicProductInquiry } from "@/features/product/types/productInquiry";
 import { maskAuthorName } from "@/features/product/utils/maskAuthorName";
 
@@ -87,11 +90,7 @@ export default function ProductInquiryItem(props: ProductInquiryItemProps) {
           </Typography>
 
           {isExpandable && (
-            <ChevronDownIcon
-              size={14}
-              color="#C7C7C7"
-              style={{ marginTop: 4, transform: [{ rotate: isOpen ? "180deg" : "0deg" }] }}
-            />
+            <ExpandChevron expanded={isOpen} size={14} color="#C7C7C7" style={{ marginTop: 4 }} />
           )}
         </View>
 
@@ -101,7 +100,12 @@ export default function ProductInquiryItem(props: ProductInquiryItemProps) {
       </TouchableOpacity>
 
       {isOpen && (
-        <View className="px-14" style={{ paddingBottom: 16 }}>
+        <Animated.View
+          entering={EXPAND_ENTERING}
+          exiting={EXPAND_EXITING}
+          className="px-14"
+          style={{ paddingBottom: 16 }}
+        >
           <View className="rounded-base bg-band" style={{ padding: 13 }}>
             {/*
               브랜드명 옆에 "판매자"를 붙이고 우측에 답변일을 적는다 — 질문일과 답변일 사이
@@ -132,7 +136,7 @@ export default function ProductInquiryItem(props: ProductInquiryItemProps) {
               {inquiry.answerContent}
             </Typography>
           </View>
-        </View>
+        </Animated.View>
       )}
     </View>
   );

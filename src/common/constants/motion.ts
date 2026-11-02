@@ -1,4 +1,4 @@
-import { Easing, ReduceMotion } from "react-native-reanimated";
+import { Easing, Keyframe, ReduceMotion } from "react-native-reanimated";
 
 /**
  * 디자인 시스템 §08 인터랙션 · 모션 — 모든 반응은 300ms 안에 끝나고,
@@ -20,7 +20,28 @@ export const MOTION_DURATION = {
   base: 200,
   /** 바텀 시트 진입 */
   sheet: 280,
+  /** 아코디언 · 드롭다운 접힘 — 펼침(200ms)의 75% */
+  collapse: 150,
 };
 
 /** 동작 줄이기 — OS 설정을 따른다(켜져 있으면 이동 · 확대 없이 바로 끝값) */
 export const MOTION_REDUCE = ReduceMotion.System;
+
+/**
+ * 아코디언 · 드롭다운 · 접히는 섹션의 내용 — 위에서 4px 내려오며 페이드 200ms(§08).
+ * 레이아웃 애니메이션이라 `entering`으로 쓴다. 키프레임은 팩토리가 아닌 함수 곡선(bezierFn)을 받는다.
+ */
+export const EXPAND_ENTERING = new Keyframe({
+  0: { opacity: 0, transform: [{ translateY: -4 }] },
+  100: { opacity: 1, transform: [{ translateY: 0 }], easing: Easing.bezierFn(0.2, 0, 0, 1) },
+})
+  .duration(MOTION_DURATION.base)
+  .reduceMotion(MOTION_REDUCE);
+
+/** 접을 때는 제자리에서 150ms로 바로 사라진다 */
+export const EXPAND_EXITING = new Keyframe({
+  0: { opacity: 1 },
+  100: { opacity: 0, easing: Easing.bezierFn(0.4, 0, 1, 1) },
+})
+  .duration(MOTION_DURATION.collapse)
+  .reduceMotion(MOTION_REDUCE);

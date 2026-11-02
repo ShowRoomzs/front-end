@@ -1,9 +1,12 @@
 import dayjs from "dayjs";
 import { useCallback, useState } from "react";
 import { Image, ScrollView, TouchableOpacity, View } from "react-native";
+import Animated from "react-native-reanimated";
 
-import { ChevronDownIcon, LockIcon, MoreIcon } from "@/common/components/DsIcon/icons";
+import { LockIcon, MoreIcon } from "@/common/components/DsIcon/icons";
+import ExpandChevron from "@/common/components/ExpandChevron/ExpandChevron";
 import Typography from "@/common/components/Typography/Typography";
+import { EXPAND_ENTERING, EXPAND_EXITING } from "@/common/constants/motion";
 import InquiryItemMetaRow from "@/features/mypage/components/InquiryItemMetaRow/InquiryItemMetaRow";
 import { ProductInquiryHistory } from "@/features/product/types/productInquiry";
 
@@ -77,11 +80,7 @@ export default function ProductInquiryHistoryItem(props: ProductInquiryHistoryIt
 
           {isAnswered ? (
             <View style={{ marginTop: 4 }}>
-              <ChevronDownIcon
-                size={14}
-                color="#C7C7C7"
-                style={{ transform: [{ rotate: isOpen ? "180deg" : "0deg" }] }}
-              />
+              <ExpandChevron expanded={isOpen} size={14} color="#C7C7C7" />
             </View>
           ) : (
             <TouchableOpacity onPress={handlePressMore} activeOpacity={0.5} hitSlop={10}>
@@ -111,7 +110,7 @@ export default function ProductInquiryHistoryItem(props: ProductInquiryHistoryIt
       )}
 
       {isOpen && (
-        <View className="px-14 pb-15">
+        <Animated.View entering={EXPAND_ENTERING} exiting={EXPAND_EXITING} className="px-14 pb-15">
           <View className="rounded-base bg-band p-13">
             <View className="flex-row items-baseline" style={{ gap: 6 }}>
               <Typography
@@ -130,7 +129,7 @@ export default function ProductInquiryHistoryItem(props: ProductInquiryHistoryIt
               {item.answerContent}
             </Typography>
           </View>
-        </View>
+        </Animated.View>
       )}
     </View>
   );

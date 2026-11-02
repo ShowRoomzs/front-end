@@ -1,6 +1,6 @@
 import { TouchableOpacity, View } from "react-native";
 
-import { ChevronDownIcon } from "@/common/components/DsIcon/icons";
+import ExpandChevron from "@/common/components/ExpandChevron/ExpandChevron";
 import Typography from "@/common/components/Typography/Typography";
 import { cn } from "@/common/utils/cn";
 
@@ -39,13 +39,7 @@ export default function OutlineButton(props: OutlineButtonProps) {
         <Typography variant="button" className="text-ink76">
           {label}
         </Typography>
-        {withChevron && (
-          <ChevronDownIcon
-            size={12}
-            color="#3C3C3C"
-            style={{ transform: [{ rotate: expanded ? "180deg" : "0deg" }] }}
-          />
-        )}
+        {withChevron && <ExpandChevron expanded={expanded} size={12} color="#3C3C3C" />}
       </View>
     </TouchableOpacity>
   );

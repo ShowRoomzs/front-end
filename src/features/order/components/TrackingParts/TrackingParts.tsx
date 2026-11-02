@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Linking, TouchableOpacity, View } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
-import { ChevronDownIcon } from "@/common/components/DsIcon/icons";
+import ExpandChevron from "@/common/components/ExpandChevron/ExpandChevron";
 import Typography from "@/common/components/Typography/Typography";
 import { CopyButton } from "@/features/order/components/OrderParts/OrderParts";
 import { TrackingCarrier } from "@/features/order/types/order";
@@ -282,9 +282,7 @@ export function ToggleRowsButton(props: { isOpen: boolean; total: number; onPres
         <Typography style={{ fontSize: 12.5, fontWeight: "600", lineHeight: 12.5 }} className="text-ink76">
           {isOpen ? "이력 접기" : `이력 전체 보기 (${total}건)`}
         </Typography>
-        <View style={{ transform: [{ rotate: isOpen ? "180deg" : "0deg" }] }}>
-          <ChevronDownIcon size={12} color="#3C3C3C" />
-        </View>
+        <ExpandChevron expanded={isOpen} size={12} color="#3C3C3C" />
       </TouchableOpacity>
     </View>
   );

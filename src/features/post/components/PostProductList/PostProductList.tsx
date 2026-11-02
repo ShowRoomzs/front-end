@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Image, TouchableOpacity, View } from "react-native";
 
-import { ChevronDownIcon } from "@/common/components/DsIcon/icons";
+import ExpandChevron from "@/common/components/ExpandChevron/ExpandChevron";
 import Typography from "@/common/components/Typography/Typography";
 import { formatPrice } from "@/common/utils/formatPrice";
 import { PostProduct } from "@/features/post/types/post";
@@ -146,11 +146,7 @@ export default function PostProductList(props: PostProductListProps) {
             >
               {isExpanded ? "상품 접기" : `상품 ${hiddenCount}개 더보기`}
             </Typography>
-            <ChevronDownIcon
-              size={12}
-              color="#3C3C3C"
-              style={{ transform: [{ rotate: isExpanded ? "180deg" : "0deg" }] }}
-            />
+            <ExpandChevron expanded={isExpanded} size={12} color="#3C3C3C" />
           </View>
         </TouchableOpacity>
       )}

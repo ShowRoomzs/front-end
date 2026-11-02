@@ -1,8 +1,10 @@
 import { ReactNode, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
+import Animated from "react-native-reanimated";
 
-import { ChevronDownIcon } from "@/common/components/DsIcon/icons";
+import ExpandChevron from "@/common/components/ExpandChevron/ExpandChevron";
 import Typography from "@/common/components/Typography/Typography";
+import { EXPAND_ENTERING, EXPAND_EXITING } from "@/common/constants/motion";
 
 /**
  * 접히는 정보 섹션 — 제목 줄을 눌러 펴고 접는다 (C7 판매자 정보 탭).
@@ -39,15 +41,13 @@ export default function CollapsibleSection(props: CollapsibleSectionProps) {
         >
           {title}
         </Typography>
-        <ChevronDownIcon
-          size={14}
-          color="#C7C7C7"
-          style={{ transform: [{ rotate: isExpanded ? "180deg" : "0deg" }] }}
-        />
+        <ExpandChevron expanded={isExpanded} size={14} color="#C7C7C7" />
       </TouchableOpacity>
 
       {isExpanded && (
-        <View
+        <Animated.View
+          entering={EXPAND_ENTERING}
+          exiting={EXPAND_EXITING}
           className="bg-band"
           style={{
             paddingHorizontal: bodyStyle?.paddingHorizontal ?? 14,
@@ -56,7 +56,7 @@ export default function CollapsibleSection(props: CollapsibleSectionProps) {
           }}
         >
           {children}
-        </View>
+        </Animated.View>
       )}
 
       <View style={{ height: 0.5, backgroundColor: "#F0F0F0" }} />

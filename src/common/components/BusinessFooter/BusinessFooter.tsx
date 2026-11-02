@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { TouchableOpacity, View } from "react-native";
+import Animated from "react-native-reanimated";
 
-import { ChevronDownIcon } from "@/common/components/DsIcon/icons";
+import ExpandChevron from "@/common/components/ExpandChevron/ExpandChevron";
 import Typography from "@/common/components/Typography/Typography";
 import { BUSINESS_INFO } from "@/common/constants/business";
+import { EXPAND_ENTERING, EXPAND_EXITING } from "@/common/constants/motion";
 
 /**
  * 사업자 정보 푸터 — 회색 밴드(#F7F7F8) 안에 접기/펼치기로 넣고 11px · #737373로 둔다.
@@ -50,15 +52,11 @@ export default function BusinessFooter(props: BusinessFooterProps) {
         <Typography style={{ fontSize: 11.5, fontWeight: "600", lineHeight: 17 }} className="text-gray45">
           쇼룸즈 사업자 정보
         </Typography>
-        <ChevronDownIcon
-          size={11}
-          color="#C7C7C7"
-          style={{ transform: [{ rotate: isExpanded ? "180deg" : "0deg" }] }}
-        />
+        <ExpandChevron expanded={isExpanded} size={11} color="#C7C7C7" />
       </TouchableOpacity>
 
       {isExpanded && (
-        <View className="mt-10">
+        <Animated.View entering={EXPAND_ENTERING} exiting={EXPAND_EXITING} className="mt-10">
           {[
             BUSINESS_INFO.companyLine,
             BUSINESS_INFO.address,
@@ -78,7 +76,7 @@ export default function BusinessFooter(props: BusinessFooterProps) {
           <Typography variant="legal" className="mt-14 text-gray45">
             {BUSINESS_INFO.intermediaryNotice}
           </Typography>
-        </View>
+        </Animated.View>
       )}
 
       {!!links?.length && (

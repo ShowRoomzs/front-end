@@ -1,8 +1,10 @@
 import { useCallback } from "react";
 import { ScrollView, TouchableOpacity, View } from "react-native";
+import Animated from "react-native-reanimated";
 
-import { ChevronDownIcon } from "@/common/components/DsIcon/icons";
+import ExpandChevron from "@/common/components/ExpandChevron/ExpandChevron";
 import Typography from "@/common/components/Typography/Typography";
+import { EXPAND_ENTERING, EXPAND_EXITING } from "@/common/constants/motion";
 import { ProductOptionItem } from "@/features/product/utils/option";
 
 /**
@@ -173,30 +175,29 @@ export default function ProductOptionSelect(props: ProductOptionSelectProps) {
         >
           {selected ? selected.label : placeholder}
         </Typography>
-        <ChevronDownIcon
-          size={14}
-          color="#C7C7C7"
-          style={{ transform: [{ rotate: isOpen ? "180deg" : "0deg" }] }}
-        />
+        <ExpandChevron expanded={isOpen} size={14} color="#C7C7C7" />
       </TouchableOpacity>
 
-      {isOpen &&
+      {isOpen && (
         /*
           줄 수가 한 화면에 들어오면 **스크롤 뷰를 쓰지 않는다.** 높이가 정해지지 않은
           ScrollView는 자기 내용만큼 자리를 잡지 못한다(시트 자체가 이미 스크롤 뷰라 중첩
           측정이 깨진다). 긴 목록만 **고정 높이**로 둔다.
         */
-        (isScrollable ? (
-          <ScrollView
-            style={{ height: LIST_MAX_HEIGHT }}
-            nestedScrollEnabled
-            showsVerticalScrollIndicator={false}
-          >
-            {renderRows()}
-          </ScrollView>
-        ) : (
-          <View>{renderRows()}</View>
-        ))}
+        <Animated.View entering={EXPAND_ENTERING} exiting={EXPAND_EXITING}>
+          {isScrollable ? (
+            <ScrollView
+              style={{ height: LIST_MAX_HEIGHT }}
+              nestedScrollEnabled
+              showsVerticalScrollIndicator={false}
+            >
+              {renderRows()}
+            </ScrollView>
+          ) : (
+            renderRows()
+          )}
+        </Animated.View>
+      )}
     </View>
   );
 }

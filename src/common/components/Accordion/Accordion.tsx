@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { TouchableOpacity, View } from "react-native";
+import Animated from "react-native-reanimated";
 
-import { ChevronDownIcon } from "@/common/components/DsIcon/icons";
+import ExpandChevron from "@/common/components/ExpandChevron/ExpandChevron";
 import Typography from "@/common/components/Typography/Typography";
+import { EXPAND_ENTERING, EXPAND_EXITING } from "@/common/constants/motion";
 
 /**
  * 아코디언 — 고객센터 FAQ · 공지사항이 공유한다.
@@ -67,16 +69,17 @@ export default function Accordion(props: AccordionProps) {
         </View>
 
         <View style={{ marginTop: 4 }}>
-          <ChevronDownIcon
-            size={14}
-            color="#C7C7C7"
-            style={{ transform: [{ rotate: isOpen ? "180deg" : "0deg" }] }}
-          />
+          <ExpandChevron expanded={isOpen} size={14} color="#C7C7C7" />
         </View>
       </TouchableOpacity>
 
       {isOpen && (
-        <View className="flex-row bg-band px-14 py-14" style={{ gap: 10 }}>
+        <Animated.View
+          entering={EXPAND_ENTERING}
+          exiting={EXPAND_EXITING}
+          className="flex-row bg-band px-14 py-14"
+          style={{ gap: 10 }}
+        >
           {withMarker && (
             <Typography
               style={{ fontSize: 14.5, fontWeight: "700", lineHeight: 22.95 }}
@@ -88,7 +91,7 @@ export default function Accordion(props: AccordionProps) {
           <Typography variant="accordionAnswer" className="min-w-0 flex-1 text-ink76">
             {body}
           </Typography>
-        </View>
+        </Animated.View>
       )}
     </View>
   );

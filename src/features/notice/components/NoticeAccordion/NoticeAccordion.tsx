@@ -1,11 +1,13 @@
 import dayjs from "dayjs";
 import { useState } from "react";
 import { TouchableOpacity, View } from "react-native";
+import Animated from "react-native-reanimated";
 
 import Badge from "@/common/components/Badge/Badge";
-import { ChevronDownIcon } from "@/common/components/DsIcon/icons";
+import ExpandChevron from "@/common/components/ExpandChevron/ExpandChevron";
 import Spinner from "@/common/components/Spinner/Spinner";
 import Typography from "@/common/components/Typography/Typography";
+import { EXPAND_ENTERING, EXPAND_EXITING } from "@/common/constants/motion";
 import { htmlToText } from "@/common/utils/htmlToText";
 import useGetNoticeDetail from "@/features/notice/hooks/useGetNoticeDetail";
 import { NoticeListItem } from "@/features/notice/types/notice";
@@ -54,16 +56,17 @@ export default function NoticeAccordion(props: NoticeAccordionProps) {
 
         {/* 제목 줄에 시선이 맞도록 아래로 내린다 — 배지·날짜 줄이 위에 한 줄 더 있다 */}
         <View style={{ marginTop: 22 }}>
-          <ChevronDownIcon
-            size={14}
-            color="#C7C7C7"
-            style={{ transform: [{ rotate: isOpen ? "180deg" : "0deg" }] }}
-          />
+          <ExpandChevron expanded={isOpen} size={14} color="#C7C7C7" />
         </View>
       </TouchableOpacity>
 
       {isOpen && (
-        <View className="bg-band" style={{ paddingHorizontal: 14, paddingTop: 16, paddingBottom: 18 }}>
+        <Animated.View
+          entering={EXPAND_ENTERING}
+          exiting={EXPAND_EXITING}
+          className="bg-band"
+          style={{ paddingHorizontal: 14, paddingTop: 16, paddingBottom: 18 }}
+        >
           {isLoading || !detail ? (
             <Spinner size={18} />
           ) : (
@@ -71,7 +74,7 @@ export default function NoticeAccordion(props: NoticeAccordionProps) {
               {htmlToText(detail.content)}
             </Typography>
           )}
-        </View>
+        </Animated.View>
       )}
     </View>
   );

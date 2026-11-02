@@ -124,7 +124,7 @@ export default function PaymentMethodPicker(props: PaymentMethodPickerProps) {
         <View className="px-14 pt-10">
           <TouchableOpacity
             onPress={openIssuerSheet}
-            activeOpacity={0.6}
+            activeOpacity={0.55}
             className="h-48 flex-row items-center justify-between rounded-base border-[1px] border-borderButton bg-white px-13"
           >
             <Typography
@@ -166,7 +166,7 @@ function MethodTile(props: {
   return (
     <TouchableOpacity
       onPress={onPress}
-      activeOpacity={0.6}
+      activeOpacity={0.55}
       className="min-w-0 flex-1 items-center justify-center rounded-base"
       style={{
         height: 74,
@@ -223,7 +223,7 @@ function EasyPayRow(props: {
   return (
     <TouchableOpacity
       onPress={onPress}
-      activeOpacity={0.6}
+      activeOpacity={0.55}
       className="flex-row items-center rounded-base px-13"
       style={{
         minHeight: 52,
@@ -271,7 +271,7 @@ function IssuerSheet(props: {
               <TouchableOpacity
                 key={issuer}
                 onPress={() => onPick(issuer)}
-                activeOpacity={0.6}
+                activeOpacity={0.55}
                 className="items-center justify-center rounded-base"
                 style={{
                   // 3열 — 좌우 20 · 사이 7×2
@@ -300,7 +300,7 @@ function IssuerSheet(props: {
             <TouchableOpacity
               key={issuer}
               onPress={() => onPick(issuer)}
-              activeOpacity={0.6}
+              activeOpacity={0.55}
               className="flex-row items-center justify-between px-20"
               style={{
                 minHeight: 44,

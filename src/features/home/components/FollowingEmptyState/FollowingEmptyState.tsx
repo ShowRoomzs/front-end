@@ -38,7 +38,7 @@ export default function FollowingEmptyState(props: FollowingEmptyStateProps) {
       <Typography variant="promptBody" className="mt-8 text-center text-gray45">
         {"쇼룸을 팔로우하면 새 공구와 게시물이\n이 피드에 모여요"}
       </Typography>
-      <TouchableOpacity onPress={onPressSearch} activeOpacity={0.8} className="mt-20">
+      <TouchableOpacity onPress={onPressSearch} activeOpacity={0.55} className="mt-20">
         <View className="h-45 flex-row items-center justify-center rounded-base bg-rose px-22">
           <Typography variant="buttonInline" className="text-white">
             쇼룸 검색하기

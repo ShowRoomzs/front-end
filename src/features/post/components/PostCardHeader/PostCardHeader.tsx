@@ -47,13 +47,13 @@ export default function PostCardHeader(props: PostCardHeaderProps) {
 
   return (
     <View className="flex-row items-center px-14 pb-10" style={{ gap: 10 }}>
-      <TouchableOpacity onPress={() => onPressShowroom(showroomId)} activeOpacity={0.7}>
+      <TouchableOpacity onPress={() => onPressShowroom(showroomId)} activeOpacity={0.55}>
         <Avatar imageUrl={showroomImageUrl} size={36} hasOngoingGroupBuy={!hideRing && hasOngoingGroupBuy} />
       </TouchableOpacity>
 
       <TouchableOpacity
         onPress={() => onPressShowroom(showroomId)}
-        activeOpacity={0.7}
+        activeOpacity={0.55}
         className="min-w-0 flex-1 flex-row items-center"
         style={{ gap: 5 }}
       >
@@ -75,7 +75,7 @@ export default function PostCardHeader(props: PostCardHeaderProps) {
 
       <TouchableOpacity
         onPress={onPressMore}
-        activeOpacity={0.4}
+        activeOpacity={0.55}
         style={{ padding: MORE_HIT_SLOP_PADDING, margin: -MORE_HIT_SLOP_PADDING }}
       >
         <MoreIcon size={20} />

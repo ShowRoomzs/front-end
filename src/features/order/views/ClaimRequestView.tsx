@@ -499,7 +499,7 @@ export default function ClaimRequestView() {
             onPress={() =>
               setSelected(allSelected ? new Set() : new Set(form.items.map(item => item.orderProductId)))
             }
-            activeOpacity={0.6}
+            activeOpacity={0.55}
             className="flex-row items-center px-14"
             style={{ paddingTop: 16, paddingBottom: 6, gap: 10 }}
           >
@@ -536,7 +536,7 @@ export default function ClaimRequestView() {
                       return next;
                     })
                   }
-                  activeOpacity={0.6}
+                  activeOpacity={0.55}
                   className="flex-row items-start"
                   style={{ gap: 10 }}
                 >
@@ -590,7 +590,7 @@ export default function ClaimRequestView() {
                     setDetail("");
                     setImageUrls([]);
                   }}
-                  activeOpacity={0.6}
+                  activeOpacity={0.55}
                   className="flex-row items-center"
                   style={{ minHeight: 44, gap: 10 }}
                 >
@@ -727,7 +727,7 @@ export default function ClaimRequestView() {
               </View>
               <TouchableOpacity
                 onPress={() => setIsLater(prev => !prev)}
-                activeOpacity={0.6}
+                activeOpacity={0.55}
                 className="flex-row items-center"
                 style={{ minHeight: 40, gap: 9 }}
               >

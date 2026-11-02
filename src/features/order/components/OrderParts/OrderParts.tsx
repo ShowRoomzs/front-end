@@ -599,7 +599,7 @@ export function CloseHeader(props: { title: string; onClose: () => void }) {
         >
           {title}
         </Typography>
-        <TouchableOpacity onPress={onClose} activeOpacity={0.4} className="p-11">
+        <TouchableOpacity onPress={onClose} activeOpacity={0.55} className="p-11">
           <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
             <Path d="M6 6l12 12" stroke="#0F0F0F" strokeWidth={1.8} strokeLinecap="round" />
             <Path d="M18 6L6 18" stroke="#0F0F0F" strokeWidth={1.8} strokeLinecap="round" />
@@ -640,7 +640,7 @@ export function SelectField(props: {
     <TouchableOpacity
       onPress={onPress}
       disabled={locked}
-      activeOpacity={0.6}
+      activeOpacity={0.55}
       className="flex-row items-center justify-between rounded-base border-[1px] border-borderButton px-13"
       style={{ height, gap: 10, backgroundColor: locked ? "#F7F7F8" : "#FFFFFF" }}
     >

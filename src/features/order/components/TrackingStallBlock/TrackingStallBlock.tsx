@@ -93,7 +93,7 @@ export default function TrackingStallBlock(props: TrackingStallBlockProps) {
               <TouchableOpacity
                 key={option.choice}
                 onPress={() => setPicked(option.choice)}
-                activeOpacity={0.6}
+                activeOpacity={0.75}
                 className={`flex-row items-start rounded-base border-[1px] ${isOn ? "border-rose bg-roseTint" : "border-borderButton bg-white"}`}
                 style={{ gap: 11, paddingVertical: 14, paddingHorizontal: 13 }}
               >
@@ -134,7 +134,7 @@ export default function TrackingStallBlock(props: TrackingStallBlockProps) {
           <TouchableOpacity
             onPress={() => picked && onChoose(picked)}
             disabled={!canSubmit}
-            activeOpacity={0.8}
+            activeOpacity={0.75}
             className={`h-52 items-center justify-center rounded-base ${canSubmit ? "bg-rose" : "bg-fill"}`}
             style={{ marginTop: 4 }}
           >

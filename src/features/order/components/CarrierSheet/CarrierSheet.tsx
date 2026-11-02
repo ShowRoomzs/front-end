@@ -30,7 +30,7 @@ export default function CarrierSheet(props: {
           <TouchableOpacity
             key={carrier.code}
             onPress={() => onPick(carrier.code)}
-            activeOpacity={0.6}
+            activeOpacity={0.55}
             className="flex-row items-center justify-between px-20"
             style={{
               paddingVertical: 16,

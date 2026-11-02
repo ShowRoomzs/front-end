@@ -85,7 +85,7 @@ export default function TermsAgreementList(props: TermsAgreementListProps) {
     <View className="px-14 pt-6">
       <TouchableOpacity
         onPress={handleToggleAll}
-        activeOpacity={0.6}
+        activeOpacity={0.55}
         className="flex-row items-center border-b-[1px] border-dividerProduct py-16"
         style={{ gap: 11 }}
       >
@@ -99,7 +99,7 @@ export default function TermsAgreementList(props: TermsAgreementListProps) {
         <View key={term.key} className="flex-row items-center py-13" style={{ gap: 11 }}>
           <TouchableOpacity
             onPress={() => onChange({ ...value, [term.key]: !value[term.key] })}
-            activeOpacity={0.6}
+            activeOpacity={0.55}
             className="min-w-0 flex-1 flex-row items-center"
             style={{ gap: 11 }}
           >
@@ -118,7 +118,7 @@ export default function TermsAgreementList(props: TermsAgreementListProps) {
           {term.hasLink && (
             <TouchableOpacity
               onPress={() => onPressDetail?.(term.key)}
-              activeOpacity={0.6}
+              activeOpacity={0.55}
               style={{ paddingVertical: 8, marginVertical: -8 }}
             >
               <Typography

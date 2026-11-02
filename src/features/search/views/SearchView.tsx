@@ -137,7 +137,7 @@ export default function SearchView() {
               </Typography>
               <TouchableOpacity
                 onPress={removeAll}
-                activeOpacity={0.6}
+                activeOpacity={0.55}
                 style={{ paddingVertical: 10, marginVertical: -10 }}
               >
                 <Typography

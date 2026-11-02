@@ -204,7 +204,7 @@ export default function WithdrawalConfirmView() {
             {blockerCount > 0 && (
               <TouchableOpacity
                 onPress={() => mypageNavigation.navigate(MYPAGE_ROUTES.ORDER_AND_DELIVERY_SEARCH)}
-                activeOpacity={0.6}
+                activeOpacity={0.55}
                 className="flex-row items-center justify-between bg-white"
                 style={{ paddingVertical: 13, paddingHorizontal: 14, gap: 12 }}
               >
@@ -254,7 +254,7 @@ export default function WithdrawalConfirmView() {
         <TouchableOpacity
           onPress={() => !isBlocked && setAgreeConsent(prev => !prev)}
           disabled={isBlocked}
-          activeOpacity={0.6}
+          activeOpacity={0.55}
           className="flex-row items-start pb-14"
           style={{ gap: 10, opacity: isBlocked ? 0.5 : 1 }}
         >
@@ -291,7 +291,7 @@ export default function WithdrawalConfirmView() {
           <TouchableOpacity
             onPress={handlePressWithdraw}
             disabled={!canWithdraw}
-            activeOpacity={0.6}
+            activeOpacity={0.55}
             className="h-52 flex-1 flex-row items-center justify-center rounded-base"
             style={{
               borderWidth: 1,

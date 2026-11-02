@@ -51,7 +51,7 @@ export default function ShowroomRow(props: ShowroomRowProps) {
   return (
     <TouchableOpacity
       onPress={() => onPress(showroomId)}
-      activeOpacity={0.6}
+      activeOpacity={0.55}
       className="flex-row items-center px-14 py-8"
       style={{ gap: 12 }}
     >

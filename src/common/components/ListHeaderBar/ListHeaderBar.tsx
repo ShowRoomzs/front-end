@@ -32,7 +32,7 @@ export default function ListHeaderBar(props: ListHeaderBarProps) {
       {!!sortLabel && !!onPressSort && (
         <TouchableOpacity
           onPress={onPressSort}
-          activeOpacity={0.5}
+          activeOpacity={0.55}
           className="flex-row items-center"
           style={{
             gap: 4,

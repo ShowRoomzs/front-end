@@ -313,7 +313,7 @@ export default function OrderCancelView() {
             >
               <TouchableOpacity
                 onPress={() => setIsConfirmOpen(false)}
-                activeOpacity={0.6}
+                activeOpacity={0.55}
                 className="h-48 flex-1 items-center justify-center rounded-base border-[1px] border-borderButton bg-white"
               >
                 <Typography
@@ -391,7 +391,7 @@ function CancelDoneScreen(props: {
           >
             주문 취소
           </Typography>
-          <TouchableOpacity onPress={onClose} activeOpacity={0.4} className="p-11">
+          <TouchableOpacity onPress={onClose} activeOpacity={0.55} className="p-11">
             <CloseIcon size={22} color="#0F0F0F" thickness={1.8} />
           </TouchableOpacity>
         </View>

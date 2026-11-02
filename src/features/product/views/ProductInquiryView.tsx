@@ -183,7 +183,7 @@ export default function ProductInquiryView() {
             <FieldLabel label="문의 유형" />
             <TouchableOpacity
               onPress={openTypeSheet}
-              activeOpacity={0.6}
+              activeOpacity={0.55}
               className="h-48 flex-row items-center justify-between rounded-base border-[1px] border-borderButton px-13"
               style={{ marginTop: 9 }}
             >
@@ -225,7 +225,7 @@ export default function ProductInquiryView() {
             <TouchableOpacity
               onPress={() => setForm(prev => ({ ...prev, secret: !prev.secret }))}
               disabled={isEdit}
-              activeOpacity={0.6}
+              activeOpacity={0.55}
               className="flex-row items-center py-8"
               style={{ gap: 10 }}
             >

@@ -53,7 +53,7 @@ export default function ProductInquiryItem(props: ProductInquiryItemProps) {
       <TouchableOpacity
         onPress={() => onToggle(inquiry.id)}
         disabled={!isExpandable}
-        activeOpacity={0.7}
+        activeOpacity={0.55}
         className="px-14"
         style={{ paddingVertical: 16 }}
       >

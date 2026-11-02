@@ -427,7 +427,7 @@ export default function CheckoutView() {
             </Typography>
             <TouchableOpacity
               onPress={openMemoSheet}
-              activeOpacity={0.6}
+              activeOpacity={0.55}
               className="h-48 flex-row items-center justify-between rounded-base border-[1px] border-borderButton px-13"
               style={{ marginTop: 9 }}
             >
@@ -568,7 +568,7 @@ export default function CheckoutView() {
         top={
           <TouchableOpacity
             onPress={() => hasAddress && setIsAgreed(prev => !prev)}
-            activeOpacity={0.6}
+            activeOpacity={0.55}
             disabled={!hasAddress}
             className="flex-row items-start"
             style={{ gap: 10, paddingTop: 2, paddingBottom: 12 }}

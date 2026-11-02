@@ -1,9 +1,10 @@
 import { BottomSheetView } from "@gorhom/bottom-sheet";
 import { ReactNode } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { CheckIcon, ChevronRightIcon } from "@/common/components/DsIcon/icons";
+import PressableRow from "@/common/components/PressableRow/PressableRow";
 import Typography from "@/common/components/Typography/Typography";
 
 /**
@@ -76,10 +77,9 @@ export default function SheetList<T extends string>(props: SheetListProps<T>) {
         const showTopBorder = !isSelect || ix > 0;
 
         return (
-          <TouchableOpacity
+          <PressableRow
             key={item.value}
             onPress={() => onSelect(item.value)}
-            activeOpacity={0.6}
             className="flex-row items-center justify-between px-20"
             style={{
               gap: 12,
@@ -109,7 +109,7 @@ export default function SheetList<T extends string>(props: SheetListProps<T>) {
             </View>
 
             {isSelect ? isSelected && <CheckIcon size={19} /> : <ChevronRightIcon size={15} />}
-          </TouchableOpacity>
+          </PressableRow>
         );
       })}
 

@@ -54,7 +54,7 @@ export default function PostProductList(props: PostProductListProps) {
             key={product.productId}
             onPress={() => onPressProduct(product.productId, product.groupBuyId)}
             disabled={!canOpen}
-            activeOpacity={0.6}
+            activeOpacity={0.55}
             className="flex-row items-center"
             style={{
               gap: 12,
@@ -133,7 +133,7 @@ export default function PostProductList(props: PostProductListProps) {
         /* 외곽선 버튼은 시각 높이 38로 두고 상하 3 패딩으로 터치 영역만 44로 넓힌다 */
         <TouchableOpacity
           onPress={() => setIsExpanded(prev => !prev)}
-          activeOpacity={0.6}
+          activeOpacity={0.55}
           style={{ paddingVertical: 3, marginTop: 2 }}
         >
           <View

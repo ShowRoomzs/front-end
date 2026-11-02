@@ -290,7 +290,7 @@ export default function CartView() {
             <View className="flex-row items-center justify-between border-b-[0.5px] border-divider px-14 py-12">
               <TouchableOpacity
                 onPress={handleToggleAll}
-                activeOpacity={0.6}
+                activeOpacity={0.55}
                 className="flex-row items-center"
                 style={{ gap: 8 }}
               >
@@ -303,7 +303,7 @@ export default function CartView() {
               <TouchableOpacity
                 onPress={handlePressRemoveSelected}
                 disabled={selectedCount === 0}
-                activeOpacity={0.6}
+                activeOpacity={0.55}
                 style={{ paddingVertical: 8, marginVertical: -8 }}
               >
                 <Typography
@@ -345,7 +345,7 @@ export default function CartView() {
                 <TouchableOpacity
                   key={product.productId}
                   onPress={() => handlePressRecommendation(product.productId)}
-                  activeOpacity={0.8}
+                  activeOpacity={0.55}
                   style={{ width: 116 }}
                 >
                   <Image
@@ -402,7 +402,7 @@ export default function CartView() {
           <TouchableOpacity
             onPress={handlePressOrder}
             disabled={selectedCount === 0}
-            activeOpacity={0.8}
+            activeOpacity={0.75}
             className={`mt-12 h-52 flex-row items-center justify-center rounded-base ${
               selectedCount === 0 ? "bg-fill" : "bg-rose"
             }`}

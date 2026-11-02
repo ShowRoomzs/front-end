@@ -69,7 +69,7 @@ export default function ExchangeOptionSheet(props: ExchangeOptionSheetProps) {
               key={option.variantId}
               onPress={() => !option.soldOut && setTemp(option.variantId)}
               disabled={option.soldOut}
-              activeOpacity={0.6}
+              activeOpacity={0.55}
               className="flex-row items-center px-13"
               style={{
                 minHeight: 44,
@@ -102,7 +102,7 @@ export default function ExchangeOptionSheet(props: ExchangeOptionSheetProps) {
       <View className="flex-row px-20 pt-18" style={{ gap: 8 }}>
         <TouchableOpacity
           onPress={onCancel}
-          activeOpacity={0.6}
+          activeOpacity={0.55}
           className="h-52 flex-1 items-center justify-center rounded-base border-[1px] border-borderButton bg-white"
         >
           <Typography style={{ fontSize: 15, fontWeight: "600", lineHeight: 15 }} className="text-ink76">

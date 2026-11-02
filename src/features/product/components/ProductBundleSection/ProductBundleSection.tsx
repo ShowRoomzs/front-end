@@ -50,7 +50,7 @@ export default function ProductBundleSection(props: ProductBundleSectionProps) {
           <TouchableOpacity
             key={product.id}
             onPress={() => onPressProduct(product.id)}
-            activeOpacity={0.6}
+            activeOpacity={0.55}
             style={{ width: CARD_WIDTH }}
           >
             <View

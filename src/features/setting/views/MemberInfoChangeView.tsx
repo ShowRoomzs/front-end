@@ -103,7 +103,7 @@ export default function MemberInfoChangeView() {
       >
         <TouchableOpacity
           onPress={() => setAgreeConsent(prev => !prev)}
-          activeOpacity={0.6}
+          activeOpacity={0.55}
           className="flex-row items-start pb-14"
           style={{ gap: 10 }}
         >

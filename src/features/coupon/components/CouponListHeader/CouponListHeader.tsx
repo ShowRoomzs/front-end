@@ -17,7 +17,7 @@ export default function CouponListHeader(props: CouponListHeaderProps) {
       className={cn(wrapperClassName, "py-10 border-b-[1px] border-gray2")}
       centered
       renderLeft={
-        <TouchableOpacity onPress={onPressBack} activeOpacity={0.7}>
+        <TouchableOpacity onPress={onPressBack} activeOpacity={0.55}>
           <Icon icon={COMMON_ASSETS.back} />
         </TouchableOpacity>
       }

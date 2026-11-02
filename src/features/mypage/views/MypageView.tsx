@@ -164,12 +164,12 @@ export default function MypageView() {
         <View className="flex-row" style={{ gap: 18 }}>
           <TouchableOpacity
             onPress={handlePressSetting}
-            activeOpacity={0.6}
+            activeOpacity={0.55}
             style={{ padding: 9, margin: -9 }}
           >
             <Icon icon={COMMON_ASSETS.setting} width={25} height={25} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={handlePressCart} activeOpacity={0.6} style={{ padding: 9, margin: -9 }}>
+          <TouchableOpacity onPress={handlePressCart} activeOpacity={0.55} style={{ padding: 9, margin: -9 }}>
             <CartIcon size={25} />
             <CountBadge count={cartItemCount} />
           </TouchableOpacity>

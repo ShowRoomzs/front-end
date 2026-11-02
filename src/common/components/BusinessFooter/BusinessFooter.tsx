@@ -45,7 +45,7 @@ export default function BusinessFooter(props: BusinessFooterProps) {
     <View className="bg-band px-14" style={{ paddingTop: 20, paddingBottom: 26, marginTop }}>
       <TouchableOpacity
         onPress={() => setIsExpanded(prev => !prev)}
-        activeOpacity={0.6}
+        activeOpacity={0.55}
         className="flex-row items-center"
         style={{ gap: 5, paddingVertical: 6, marginVertical: -6 }}
       >

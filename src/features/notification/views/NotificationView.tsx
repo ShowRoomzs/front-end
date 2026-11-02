@@ -309,7 +309,7 @@ function NoticeBar(props: { text: string; action: string; onPress: () => void })
       </Typography>
       <TouchableOpacity
         onPress={props.onPress}
-        activeOpacity={0.6}
+        activeOpacity={0.55}
         style={{ paddingVertical: 12, marginVertical: -12 }}
       >
         <Typography
@@ -332,7 +332,7 @@ function NotificationRow(props: { item: NotificationItem; isUnread: boolean; onP
   return (
     <TouchableOpacity
       onPress={onPress}
-      activeOpacity={0.7}
+      activeOpacity={0.55}
       className="flex-row items-start px-14"
       style={{ gap: 12, paddingVertical: 12 }}
     >

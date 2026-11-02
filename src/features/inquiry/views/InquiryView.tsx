@@ -263,7 +263,7 @@ export default function InquiryView() {
             <FieldLabel label="문의 유형" />
             <TouchableOpacity
               onPress={openTypeSheet}
-              activeOpacity={0.6}
+              activeOpacity={0.55}
               className="h-48 flex-row items-center justify-between rounded-base border-[1px] border-borderButton px-13"
               style={{ marginTop: 9 }}
             >

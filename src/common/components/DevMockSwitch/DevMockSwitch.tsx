@@ -31,7 +31,7 @@ export default function DevMockSwitch<T extends string>(props: DevMockSwitchProp
           <TouchableOpacity
             key={option.value}
             onPress={() => onPick(option.value)}
-            activeOpacity={0.6}
+            activeOpacity={0.55}
             className="rounded-full border-[1px] px-10 py-6"
             style={{
               borderColor: isCurrent ? "#1A1A1A" : "#E3E3E5",

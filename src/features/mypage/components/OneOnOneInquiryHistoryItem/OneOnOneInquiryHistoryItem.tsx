@@ -35,7 +35,7 @@ export default function OneOnOneInquiryHistoryItem(props: OneOnOneInquiryHistory
   return (
     <TouchableOpacity
       onPress={handlePress}
-      activeOpacity={0.6}
+      activeOpacity={0.55}
       className="bg-white px-14 py-15"
       accessibilityRole="button"
     >
@@ -55,7 +55,7 @@ export default function OneOnOneInquiryHistoryItem(props: OneOnOneInquiryHistory
         </Typography>
 
         {isWaiting && (
-          <TouchableOpacity onPress={handlePressMore} activeOpacity={0.5} hitSlop={10}>
+          <TouchableOpacity onPress={handlePressMore} activeOpacity={0.55} hitSlop={10}>
             <MoreIcon size={20} />
           </TouchableOpacity>
         )}

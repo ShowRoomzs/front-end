@@ -43,7 +43,7 @@ export default function FollowButton(props: FollowButtonProps) {
   return (
     <TouchableOpacity
       onPress={onPress}
-      activeOpacity={0.7}
+      activeOpacity={0.55}
       style={{ paddingVertical: HIT_SLOP_PADDING, marginVertical: -HIT_SLOP_PADDING }}
       className={className}
     >

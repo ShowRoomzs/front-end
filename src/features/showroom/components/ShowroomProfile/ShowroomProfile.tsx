@@ -79,7 +79,7 @@ export default function ShowroomProfile(props: ShowroomProfileProps) {
       <View className="mt-14 flex-row" style={{ gap: 8 }}>
         <TouchableOpacity
           onPress={() => onPressFollow(showroom.showroomId, showroom.isFollowing)}
-          activeOpacity={0.6}
+          activeOpacity={0.75}
           className={`h-44 flex-1 flex-row items-center justify-center rounded-base ${
             showroom.isFollowing ? "border-[1px] border-borderButton bg-white" : "bg-rose"
           }`}
@@ -92,7 +92,7 @@ export default function ShowroomProfile(props: ShowroomProfileProps) {
         {!!showroom.instagramUrl && (
           <TouchableOpacity
             onPress={handlePressInstagram}
-            activeOpacity={0.6}
+            activeOpacity={0.55}
             className="h-44 w-44 items-center justify-center rounded-base border-[1px] border-borderButton"
           >
             <Icon icon={COMMON_ASSETS.instagramGlyph} width={22} height={22} />

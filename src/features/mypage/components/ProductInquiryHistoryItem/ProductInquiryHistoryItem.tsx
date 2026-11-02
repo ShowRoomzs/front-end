@@ -45,7 +45,7 @@ export default function ProductInquiryHistoryItem(props: ProductInquiryHistoryIt
     <View className="bg-white">
       <TouchableOpacity
         onPress={handlePress}
-        activeOpacity={isAnswered ? 0.6 : 1}
+        activeOpacity={isAnswered ? 0.55 : 1}
         disabled={!isAnswered}
         className="px-14 py-15"
       >
@@ -83,7 +83,7 @@ export default function ProductInquiryHistoryItem(props: ProductInquiryHistoryIt
               <ExpandChevron expanded={isOpen} size={14} color="#C7C7C7" />
             </View>
           ) : (
-            <TouchableOpacity onPress={handlePressMore} activeOpacity={0.5} hitSlop={10}>
+            <TouchableOpacity onPress={handlePressMore} activeOpacity={0.55} hitSlop={10}>
               <MoreIcon size={20} />
             </TouchableOpacity>
           )}

@@ -111,7 +111,7 @@ export default function SuspensionNoticeSheet(props: SuspensionNoticeSheetProps)
       <View className="flex-row px-20" style={{ paddingTop: 18, gap: 8 }}>
         <TouchableOpacity
           onPress={onPressClose}
-          activeOpacity={0.6}
+          activeOpacity={0.55}
           className="h-52 flex-1 items-center justify-center rounded-base border-[1px] border-borderButton"
         >
           <Typography style={{ fontSize: 15, fontWeight: "600", lineHeight: 15 }} className="text-ink76">

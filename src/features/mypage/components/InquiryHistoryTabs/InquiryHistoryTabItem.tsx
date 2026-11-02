@@ -28,7 +28,7 @@ export default function InquiryHistoryTabItem(props: InquiryHistoryTabItemProps)
   return (
     <TouchableOpacity
       onPress={onPress}
-      activeOpacity={0.6}
+      activeOpacity={0.55}
       className="h-46 flex-1 flex-row items-center justify-center"
       style={{ gap: 5, ...(isActive ? { borderBottomWidth: 2, borderBottomColor: "#0F0F0F" } : null) }}
     >

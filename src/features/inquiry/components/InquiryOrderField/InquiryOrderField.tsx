@@ -124,7 +124,7 @@ export default function InquiryOrderField(props: InquiryOrderFieldProps) {
           {!locked && (
             <TouchableOpacity
               onPress={() => onChange(null)}
-              activeOpacity={0.4}
+              activeOpacity={0.55}
               className="items-center justify-center"
               style={{ width: 44, height: 44, marginRight: -10, marginVertical: -12 }}
             >
@@ -135,7 +135,7 @@ export default function InquiryOrderField(props: InquiryOrderFieldProps) {
       ) : (
         <TouchableOpacity
           onPress={open}
-          activeOpacity={0.6}
+          activeOpacity={0.55}
           className="h-48 flex-row items-center justify-between rounded-base border-[1px] border-borderButton px-13"
           style={{ marginTop: 9 }}
         >
@@ -235,7 +235,7 @@ function InquiryOrderSheet(props: InquiryOrderSheetProps) {
               <TouchableOpacity
                 key={order.orderId}
                 onPress={() => onSelect(selection)}
-                activeOpacity={0.7}
+                activeOpacity={0.75}
                 className={`px-20 ${isSelected ? "bg-roseTint" : "bg-white"} ${ix > 0 ? "border-t-[0.5px] border-dividerProduct" : ""}`}
                 style={{ paddingVertical: 14 }}
               >
@@ -285,7 +285,7 @@ function InquiryOrderSheet(props: InquiryOrderSheetProps) {
       <View className="border-t-[0.5px] border-divider px-20 pt-14">
         <TouchableOpacity
           onPress={() => onSelect(null)}
-          activeOpacity={0.6}
+          activeOpacity={0.55}
           className="h-48 flex-row items-center justify-center rounded-base border-[1px] border-borderButton"
         >
           <Typography style={{ fontSize: 15, fontWeight: "600", lineHeight: 15 }} className="text-ink76">

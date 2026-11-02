@@ -232,7 +232,7 @@ export default function AddressFormView() {
               </View>
               <TouchableOpacity
                 onPress={handlePressSearchAddress}
-                activeOpacity={0.6}
+                activeOpacity={0.55}
                 className="h-48 flex-row items-center rounded-base border-[1px] border-borderButton bg-white px-16"
               >
                 <Typography
@@ -271,7 +271,7 @@ export default function AddressFormView() {
 
             <TouchableOpacity
               onPress={openMemoSheet}
-              activeOpacity={0.6}
+              activeOpacity={0.55}
               className="h-48 flex-row items-center justify-between rounded-base border-[1px] border-borderButton px-13"
               style={{ marginTop: 9 }}
             >
@@ -312,7 +312,7 @@ export default function AddressFormView() {
           <View className="px-14 pt-16">
             <TouchableOpacity
               onPress={() => setForm(prev => ({ ...prev, default: !prev.default }))}
-              activeOpacity={0.6}
+              activeOpacity={0.55}
               className="flex-row items-center py-8"
               style={{ gap: 10 }}
             >

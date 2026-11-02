@@ -105,7 +105,7 @@ export default function PortOnePaymentModal(props: PortOnePaymentModalProps) {
                 onClose(paymentId);
               }
             }}
-            activeOpacity={0.4}
+            activeOpacity={0.55}
             className="p-11"
           >
             <CloseIcon size={22} color="#0F0F0F" thickness={1.8} />

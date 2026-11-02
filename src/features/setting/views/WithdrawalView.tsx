@@ -76,7 +76,7 @@ export default function WithdrawalView() {
               <TouchableOpacity
                 key={option.code}
                 onPress={() => setReason(isSelected ? null : option.code)}
-                activeOpacity={0.6}
+                activeOpacity={0.75}
                 className="flex-row items-center rounded-base px-13 py-11"
                 style={{
                   gap: 10,
@@ -144,7 +144,7 @@ export default function WithdrawalView() {
         <TouchableOpacity
           onPress={handleNext}
           disabled={!reason}
-          activeOpacity={0.6}
+          activeOpacity={0.55}
           className="h-52 flex-1 flex-row items-center justify-center rounded-base"
           style={{
             borderWidth: 1,

@@ -70,7 +70,7 @@ export default function OrderHistoryView() {
           </View>
           <TouchableOpacity
             onPress={() => open(COMMON_ROUTES.ORDER_DETAIL, { orderId: order.orderId })}
-            activeOpacity={0.5}
+            activeOpacity={0.55}
             className="flex-row items-center"
             style={{ gap: 2, paddingVertical: 15, paddingLeft: 12, marginVertical: -15 }}
           >

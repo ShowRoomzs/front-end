@@ -79,7 +79,7 @@ export default function ReportSheetContent(props: ReportSheetContentProps) {
         <TouchableOpacity
           onPress={() => submit(detailReason, detail.trim())}
           disabled={!canSubmit}
-          activeOpacity={0.8}
+          activeOpacity={0.55}
           className="mt-16"
         >
           <View
@@ -108,7 +108,7 @@ export default function ReportSheetContent(props: ReportSheetContentProps) {
       items={items}
       onSelect={handleSelect}
       footer={
-        <TouchableOpacity onPress={onClose} activeOpacity={0.6} className="px-20 py-15">
+        <TouchableOpacity onPress={onClose} activeOpacity={0.55} className="px-20 py-15">
           <Typography variant="menuPassive" className="text-gray45">
             취소
           </Typography>

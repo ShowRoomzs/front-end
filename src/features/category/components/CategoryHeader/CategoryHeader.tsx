@@ -19,10 +19,10 @@ export default function CategoryHeader(props: CategoryHeaderProps) {
       renderLeft={<Typography className="text-black text-16 font-semibold">카테고리</Typography>}
       renderRight={
         <HStack className="items-center" gap={16}>
-          <TouchableOpacity onPress={onPressSearch} activeOpacity={0.5}>
+          <TouchableOpacity onPress={onPressSearch} activeOpacity={0.55}>
             <Icon icon={COMMON_ASSETS.search} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={onPressCart} activeOpacity={0.5}>
+          <TouchableOpacity onPress={onPressCart} activeOpacity={0.55}>
             <Icon icon={COMMON_ASSETS.cart} />
           </TouchableOpacity>
         </HStack>

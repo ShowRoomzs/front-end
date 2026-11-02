@@ -32,7 +32,7 @@ export default function InquiryListHeader(props: InquiryListHeaderProps) {
 
       <TouchableOpacity
         onPress={onToggleWaitingOnly}
-        activeOpacity={0.5}
+        activeOpacity={0.55}
         className="flex-row items-center"
         style={{
           gap: 6,

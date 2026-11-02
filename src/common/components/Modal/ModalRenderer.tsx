@@ -90,7 +90,7 @@ export default function ModalRenderer() {
                     hide();
                     button.onPress?.();
                   }}
-                  activeOpacity={isOutline ? 0.6 : 0.75}
+                  activeOpacity={isOutline ? 0.55 : 0.75}
                   className={`h-48 flex-1 flex-row items-center justify-center rounded-base ${
                     isOutline ? "border-[1px] border-borderButton bg-white" : "bg-rose"
                   }`}

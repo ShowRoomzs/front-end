@@ -422,7 +422,7 @@ export default function ProductDetailView() {
     ) : (
       <TouchableOpacity
         onPress={handleOpenOptionSheet}
-        activeOpacity={0.8}
+        activeOpacity={0.75}
         className="h-52 flex-row items-center justify-center rounded-base bg-rose"
       >
         <Typography variant="buttonPrimary" className="text-white">
@@ -499,7 +499,7 @@ export default function ProductDetailView() {
                 <TouchableOpacity
                   key={tab.id}
                   onPress={() => setSelectedTab(tab.id)}
-                  activeOpacity={0.7}
+                  activeOpacity={0.55}
                   className="h-46 flex-1 items-center justify-center"
                   style={isActive ? { borderBottomWidth: 2, borderBottomColor: "#0F0F0F" } : undefined}
                 >

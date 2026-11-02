@@ -69,7 +69,7 @@ export default function PostCaption(props: PostCaptionProps) {
       )}
 
       <TouchableOpacity
-        activeOpacity={isTruncated ? 0.6 : 1}
+        activeOpacity={isTruncated ? 0.55 : 1}
         onPress={() => isTruncated && setIsExpanded(true)}
       >
         <View>

@@ -35,7 +35,7 @@ export default function ImageUploader(props: ImageUploaderProps) {
         <TouchableOpacity
           onPress={onAddImage}
           disabled={isFull}
-          activeOpacity={0.6}
+          activeOpacity={0.55}
           className="items-center justify-center rounded-base"
           style={{
             width: TILE_SIZE,
@@ -74,7 +74,7 @@ export default function ImageUploader(props: ImageUploaderProps) {
 
             <TouchableOpacity
               onPress={() => onRemoveImage(index)}
-              activeOpacity={0.7}
+              activeOpacity={0.55}
               className="absolute items-center justify-center rounded-full bg-ink"
               style={{
                 top: -BADGE_OFFSET,

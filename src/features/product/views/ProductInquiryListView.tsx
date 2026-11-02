@@ -142,7 +142,7 @@ export default function ProductInquiryListView() {
         ) : (
           <TouchableOpacity
             onPress={handlePressWrite}
-            activeOpacity={0.8}
+            activeOpacity={0.75}
             className="h-52 flex-row items-center justify-center rounded-base bg-rose"
           >
             <Typography variant="buttonPrimary" className="text-white">

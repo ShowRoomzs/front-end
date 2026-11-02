@@ -1,6 +1,7 @@
-import { TouchableOpacity, View } from "react-native";
+import { View } from "react-native";
 
 import { ChevronRightIcon } from "@/common/components/DsIcon/icons";
+import PressableRow from "@/common/components/PressableRow/PressableRow";
 import SectionLabel from "@/common/components/SectionLabel/SectionLabel";
 import Typography from "@/common/components/Typography/Typography";
 
@@ -37,11 +38,10 @@ export default function MenuGroup(props: MenuGroupProps) {
     <View className="bg-white">
       <SectionLabel label={title} className="pb-6 pt-18" />
       {items.map(item => (
-        <TouchableOpacity
+        <PressableRow
           key={item.key}
           onPress={item.onPress}
           disabled={!item.onPress}
-          activeOpacity={0.6}
           className="flex-row items-center justify-between px-14"
           /* 액션 행은 15, 열람만 하는 도움말은 14 — 높이로도 위계가 갈린다(시안 C 마이) */
           style={{ paddingVertical: item.isPassive ? 14 : 15 }}
@@ -57,7 +57,7 @@ export default function MenuGroup(props: MenuGroupProps) {
           ) : (
             !!item.onPress && <ChevronRightIcon size={16} />
           )}
-        </TouchableOpacity>
+        </PressableRow>
       ))}
     </View>
   );

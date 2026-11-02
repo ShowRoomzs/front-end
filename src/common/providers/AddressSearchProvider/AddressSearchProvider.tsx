@@ -63,7 +63,7 @@ export default function AddressSearchProvider(props: AddressSearchProviderProps)
             >
               주소 검색
             </Typography>
-            <TouchableOpacity onPress={handleRequestClose} activeOpacity={0.4} className="p-11">
+            <TouchableOpacity onPress={handleRequestClose} activeOpacity={0.55} className="p-11">
               <CloseIcon size={20} color="#0F0F0F" />
             </TouchableOpacity>
           </View>

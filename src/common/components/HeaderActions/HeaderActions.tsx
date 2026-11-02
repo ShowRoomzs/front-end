@@ -39,7 +39,7 @@ export default function HeaderActions(props: HeaderActionsProps) {
             params: { keyword: "" },
           })
         }
-        activeOpacity={0.6}
+        activeOpacity={0.55}
         style={{ padding: ICON_HIT_SLOP_PADDING, margin: -ICON_HIT_SLOP_PADDING }}
       >
         <SearchIcon size={25} color="#0F0F0F" />
@@ -48,7 +48,7 @@ export default function HeaderActions(props: HeaderActionsProps) {
       {showCart && (
         <TouchableOpacity
           onPress={() => navigation.navigate(ROOT_ROUTES.COMMON, { screen: COMMON_ROUTES.CART })}
-          activeOpacity={0.6}
+          activeOpacity={0.55}
           style={{ padding: ICON_HIT_SLOP_PADDING, margin: -ICON_HIT_SLOP_PADDING }}
         >
           <CartIcon size={25} />

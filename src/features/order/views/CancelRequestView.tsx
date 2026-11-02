@@ -587,7 +587,7 @@ export default function CancelRequestView() {
             >
               <TouchableOpacity
                 onPress={() => setIsConfirmOpen(false)}
-                activeOpacity={0.6}
+                activeOpacity={0.55}
                 className="h-48 flex-1 items-center justify-center rounded-base border-[1px] border-borderButton bg-white"
               >
                 <Typography

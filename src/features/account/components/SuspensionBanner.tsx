@@ -46,7 +46,7 @@ export default function SuspensionBanner() {
       </Typography>
       <TouchableOpacity
         onPress={() => open(SUSPENSION_SHEET_ID)}
-        activeOpacity={0.6}
+        activeOpacity={0.55}
         style={{ paddingVertical: 12, paddingLeft: 8, marginVertical: -12 }}
       >
         <Typography

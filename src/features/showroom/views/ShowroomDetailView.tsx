@@ -111,7 +111,7 @@ export default function ShowroomDetailView() {
     <View className="flex-1 bg-white">
       <View className="border-b-[0.5px] border-divider bg-white">
         <View className="h-46 flex-row items-center" style={{ gap: 6, paddingLeft: 2, paddingRight: 12 }}>
-          <TouchableOpacity onPress={() => commonNavigation.goBack()} activeOpacity={0.4} className="p-11">
+          <TouchableOpacity onPress={() => commonNavigation.goBack()} activeOpacity={0.55} className="p-11">
             <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
               <Path
                 d="M15 5l-7 7 7 7"

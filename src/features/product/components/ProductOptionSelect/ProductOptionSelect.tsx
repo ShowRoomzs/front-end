@@ -97,7 +97,7 @@ export default function ProductOptionSelect(props: ProductOptionSelectProps) {
         <TouchableOpacity
           key={item.optionId}
           onPress={() => !item.isSoldOut && onSelect(item.optionId)}
-          activeOpacity={item.isSoldOut ? 1 : 0.6}
+          activeOpacity={item.isSoldOut ? 1 : 0.55}
           style={{
             flexDirection: "row",
             alignItems: "center",
@@ -155,7 +155,7 @@ export default function ProductOptionSelect(props: ProductOptionSelectProps) {
     >
       <TouchableOpacity
         onPress={handlePressHeader}
-        activeOpacity={isLocked ? 1 : 0.6}
+        activeOpacity={isLocked ? 1 : 0.55}
         style={{
           flexDirection: "row",
           alignItems: "center",

@@ -87,7 +87,7 @@ export default function ProductDetailInquiry(props: ProductDetailInquiryProps) {
         ) : (
           <TouchableOpacity
             onPress={handlePressHeaderWrite}
-            activeOpacity={0.5}
+            activeOpacity={0.55}
             className="flex-row items-center"
             style={{ gap: 3, paddingVertical: 10, paddingHorizontal: 4, margin: -10 }}
           >

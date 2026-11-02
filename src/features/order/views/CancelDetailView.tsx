@@ -377,7 +377,7 @@ function DevStatusSwitch(props: { current: CancelPhase; onPick: (phase: CancelPh
         <TouchableOpacity
           key={option.phase}
           onPress={() => props.onPick(option.phase)}
-          activeOpacity={0.6}
+          activeOpacity={0.55}
           className="rounded-full border-[1px] px-10 py-6"
           style={{
             borderColor: option.phase === props.current ? "#1A1A1A" : "#E3E3E5",

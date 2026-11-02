@@ -120,7 +120,7 @@ export default function SocialButton(props: SocialButtonProps) {
 
   return (
     <TouchableOpacity
-      activeOpacity={0.8}
+      activeOpacity={0.55}
       onPress={handlePress}
       className={cn(getDefaultWrapperClassName(), getWrapperClassNameByVariant())}
       style={{ gap: 9 }}

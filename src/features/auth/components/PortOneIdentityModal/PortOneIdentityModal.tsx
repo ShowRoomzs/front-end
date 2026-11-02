@@ -46,7 +46,7 @@ export default function PortOneIdentityModal(props: PortOneIdentityModalProps) {
           </Typography>
           <TouchableOpacity
             onPress={() => finish(true)}
-            activeOpacity={0.6}
+            activeOpacity={0.55}
             style={{ padding: 10, margin: -10 }}
           >
             <CloseIcon size={18} color="#0F0F0F" />

@@ -83,7 +83,7 @@ export default function CartItemRow(props: CartItemRowProps) {
           </Typography>
           <TouchableOpacity
             onPress={() => onPressRemove(item.cartId)}
-            activeOpacity={0.5}
+            activeOpacity={0.55}
             style={{ padding: 6, margin: -6 }}
           >
             <CloseIcon size={14} />
@@ -106,7 +106,7 @@ export default function CartItemRow(props: CartItemRowProps) {
             {!isUnavailable && (
               <TouchableOpacity
                 onPress={() => onPressChangeOption(item)}
-                activeOpacity={0.5}
+                activeOpacity={0.55}
                 style={{ paddingVertical: 6, marginVertical: -6 }}
               >
                 <Typography

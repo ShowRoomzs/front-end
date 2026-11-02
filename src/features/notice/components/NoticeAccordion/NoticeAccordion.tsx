@@ -34,7 +34,7 @@ export default function NoticeAccordion(props: NoticeAccordionProps) {
     <View className="border-t-[0.5px] border-dividerProduct bg-white">
       <TouchableOpacity
         onPress={() => setIsOpen(prev => !prev)}
-        activeOpacity={0.7}
+        activeOpacity={0.55}
         className="flex-row items-start px-14 py-16"
         style={{ gap: 10 }}
       >

@@ -38,7 +38,7 @@ export default function FilterChips<T extends string>(props: FilterChipsProps<T>
           <TouchableOpacity
             key={item.value}
             onPress={() => onSelect(item.value)}
-            activeOpacity={0.7}
+            activeOpacity={0.55}
             style={{ paddingVertical: HIT_SLOP_PADDING }}
           >
             <View

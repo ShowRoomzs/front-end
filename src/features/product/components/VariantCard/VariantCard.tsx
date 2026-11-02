@@ -46,7 +46,7 @@ export default function VariantCard(props: VariantCardProps) {
         {canRemove && (
           <TouchableOpacity
             onPress={onRemove}
-            activeOpacity={0.4}
+            activeOpacity={0.55}
             className="items-center justify-center"
             style={{ width: 24, height: 24, marginTop: -4, marginRight: -4 }}
           >

@@ -58,7 +58,7 @@ export default function RecentSearchList(props: RecentSearchListProps) {
             ) : (
               <TouchableOpacity
                 onPress={() => onPressKeyword(item.term)}
-                activeOpacity={0.6}
+                activeOpacity={0.55}
                 className="flex-row items-center px-14 py-8"
                 style={{ gap: 12 }}
               >
@@ -74,7 +74,7 @@ export default function RecentSearchList(props: RecentSearchListProps) {
 
           <TouchableOpacity
             onPress={() => onDeleteKeyword(item.id)}
-            activeOpacity={0.6}
+            activeOpacity={0.55}
             style={{ padding: DELETE_HIT_SLOP_PADDING, marginRight: 14 - DELETE_HIT_SLOP_PADDING }}
           >
             <CloseIcon size={14} color="#C7C7C7" />

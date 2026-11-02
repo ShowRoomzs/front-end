@@ -30,7 +30,7 @@ export default function SearchField(props: SearchFieldProps) {
 
   return (
     <View className="flex-row items-center bg-white pb-12 pt-2" style={{ paddingRight: 16, gap: 6 }}>
-      <TouchableOpacity onPress={onPressBack} activeOpacity={0.4} className="p-11">
+      <TouchableOpacity onPress={onPressBack} activeOpacity={0.55} className="p-11">
         <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
           <Path
             d="M15 5l-7 7 7 7"
@@ -57,7 +57,7 @@ export default function SearchField(props: SearchFieldProps) {
         {keyword.length > 0 && (
           <TouchableOpacity
             onPress={() => onChangeKeyword("")}
-            activeOpacity={0.6}
+            activeOpacity={0.55}
             style={{ padding: CLEAR_HIT_SLOP_PADDING, margin: -CLEAR_HIT_SLOP_PADDING }}
           >
             <View

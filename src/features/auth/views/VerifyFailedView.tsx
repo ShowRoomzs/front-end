@@ -64,7 +64,7 @@ export default function VerifyFailedView() {
 
             <TouchableOpacity
               onPress={() => toast.show("문자 인증은 PASS 인증창에서 선택할 수 있어요")}
-              activeOpacity={0.5}
+              activeOpacity={0.55}
               className="h-44 flex-row items-center justify-center"
             >
               <Typography

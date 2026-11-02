@@ -35,7 +35,7 @@ export default function OrderStatusCard(props: OrderStatusCardProps) {
             key={item.key}
             onPress={onPressStatus}
             disabled={isEmpty}
-            activeOpacity={0.6}
+            activeOpacity={0.55}
             className="flex-1 items-center"
           >
             <Typography

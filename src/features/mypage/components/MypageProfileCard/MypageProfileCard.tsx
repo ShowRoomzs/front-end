@@ -20,7 +20,7 @@ export default function MypageProfileCard(props: MypageProfileCardProps) {
   return (
     <TouchableOpacity
       onPress={onPressProfile}
-      activeOpacity={0.7}
+      activeOpacity={0.55}
       className="flex-row items-center bg-white px-14 py-20"
       style={{ gap: 14 }}
     >

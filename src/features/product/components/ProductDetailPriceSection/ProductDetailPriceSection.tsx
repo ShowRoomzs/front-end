@@ -45,13 +45,7 @@ export default function ProductDetailPriceSection(props: ProductDetailPriceSecti
             </Typography>
           </HStack>
         </VStack>
-        <Button
-          activeOpacity={0.7}
-          onPress={onPressCoupon}
-          size="md"
-          className="px-15 py-10 mt-auto"
-          variant="primary"
-        >
+        <Button onPress={onPressCoupon} size="md" className="px-15 py-10 mt-auto" variant="primary">
           <HStack gap={8.5}>
             <Icon icon={COMMON_ASSETS.downloadIcon} />
             <Typography className="text-13 text-white font-semibold">쿠폰 받기</Typography>

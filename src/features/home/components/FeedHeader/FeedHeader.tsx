@@ -38,7 +38,7 @@ export default function FeedHeader(props: FeedHeaderProps) {
       >
         <TouchableOpacity
           onPress={onPressSearch}
-          activeOpacity={0.7}
+          activeOpacity={0.55}
           className="h-38 flex-1 flex-row items-center rounded-base bg-fill px-12"
           style={{ gap: 8 }}
         >
@@ -51,7 +51,7 @@ export default function FeedHeader(props: FeedHeaderProps) {
         <View className="flex-row" style={{ gap: 18 }}>
           <TouchableOpacity
             onPress={onPressNotification}
-            activeOpacity={0.6}
+            activeOpacity={0.55}
             style={{ padding: ICON_HIT_SLOP_PADDING, margin: -ICON_HIT_SLOP_PADDING }}
           >
             <BellIcon size={25} />
@@ -60,7 +60,7 @@ export default function FeedHeader(props: FeedHeaderProps) {
 
           <TouchableOpacity
             onPress={onPressCart}
-            activeOpacity={0.6}
+            activeOpacity={0.55}
             style={{ padding: ICON_HIT_SLOP_PADDING, margin: -ICON_HIT_SLOP_PADDING }}
           >
             <CartIcon size={25} />

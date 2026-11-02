@@ -247,7 +247,7 @@ function SettingRow(props: SettingRowProps) {
     <TouchableOpacity
       onPress={onPress}
       disabled={disabled}
-      activeOpacity={0.6}
+      activeOpacity={0.55}
       className={`flex-row items-center justify-between px-14 ${className}`}
     >
       <Typography

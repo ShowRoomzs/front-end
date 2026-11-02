@@ -23,7 +23,7 @@ export default function CategoryDetailHeader(props: CategoryDetailHeaderProps) {
       className={cn("px-20", className)}
       renderLeft={
         <HStack className="items-center" gap={8}>
-          <TouchableOpacity onPress={onPressBack}>
+          <TouchableOpacity activeOpacity={0.55} onPress={onPressBack}>
             <Icon icon={COMMON_ASSETS.back} />
           </TouchableOpacity>
           <Typography className="text-black text-14 font-semibold">{subCategory.name}</Typography>
@@ -31,10 +31,10 @@ export default function CategoryDetailHeader(props: CategoryDetailHeaderProps) {
       }
       renderRight={
         <HStack className="items-center" gap={16}>
-          <TouchableOpacity onPress={onPressSearch} activeOpacity={0.5}>
+          <TouchableOpacity onPress={onPressSearch} activeOpacity={0.55}>
             <Icon icon={COMMON_ASSETS.search} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={onPressCart} activeOpacity={0.5}>
+          <TouchableOpacity onPress={onPressCart} activeOpacity={0.55}>
             <Icon icon={COMMON_ASSETS.cart} />
           </TouchableOpacity>
         </HStack>

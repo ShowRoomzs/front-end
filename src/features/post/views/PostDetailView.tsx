@@ -75,7 +75,7 @@ export default function PostDetailView() {
         <View className="flex-row items-center px-14 py-13" style={{ gap: 10 }}>
           <TouchableOpacity
             onPress={() => handlePressShowroom(post.showroomId)}
-            activeOpacity={0.7}
+            activeOpacity={0.55}
             className="min-w-0 flex-1 flex-row items-center"
             style={{ gap: 10 }}
           >
@@ -92,7 +92,7 @@ export default function PostDetailView() {
 
           <TouchableOpacity
             onPress={() => handlePressMore(post.postId)}
-            activeOpacity={0.4}
+            activeOpacity={0.55}
             style={{ padding: 11, margin: -11 }}
           >
             <MoreIcon size={20} color="#8E8E8E" vertical />

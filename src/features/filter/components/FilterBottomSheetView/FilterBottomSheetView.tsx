@@ -159,19 +159,13 @@ export default function FilterBottomSheetView(props: FilterBottomSheetViewProps)
           contentContainerStyle={{ gap: 20 }}
         />
         <HStack gap={6} className="px-10 items-center w-full">
-          <Button onPress={onPressReset} activeOpacity={0.7} size="xl" variant="ghost">
+          <Button onPress={onPressReset} size="xl" variant="ghost">
             <HStack className="items-center" gap={8}>
               <Icon icon={COMMON_ASSETS.reset} />
               <Typography className="text-black text-16 font-medium">재설정</Typography>
             </HStack>
           </Button>
-          <Button
-            onPress={handlePressApply}
-            activeOpacity={0.7}
-            className="flex-1"
-            size="xl"
-            variant="primary"
-          >
+          <Button onPress={handlePressApply} className="flex-1" size="xl" variant="primary">
             {`${previewContent?.length || 0}개의 상품 보기`}
           </Button>
         </HStack>

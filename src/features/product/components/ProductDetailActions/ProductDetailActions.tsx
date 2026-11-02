@@ -26,7 +26,7 @@ export default function ProductDetailActions(props: ProductDetailActionsProps) {
 
   return (
     <HStack gap={6} className="px-10 items-center w-full">
-      <Button className="w-60" onPress={handlePressLike} activeOpacity={0.7} size="xl" variant="ghost">
+      <Button className="w-60" onPress={handlePressLike} size="xl" variant="ghost">
         <VStack className="items-center" gap={8}>
           <Icon
             width={23}
@@ -37,7 +37,7 @@ export default function ProductDetailActions(props: ProductDetailActionsProps) {
           <Typography className="text-gray9 text-12 font-medium">{likeCount}</Typography>
         </VStack>
       </Button>
-      <Button onPress={onPressPurchase} activeOpacity={0.7} className="flex-1" size="xl" variant="primary">
+      <Button onPress={onPressPurchase} className="flex-1" size="xl" variant="primary">
         구매하기
       </Button>
     </HStack>

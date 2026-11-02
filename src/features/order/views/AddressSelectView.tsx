@@ -99,7 +99,7 @@ export default function AddressSelectView() {
         <View className="px-14 pb-4 pt-14">
           <TouchableOpacity
             onPress={handlePressAdd}
-            activeOpacity={0.6}
+            activeOpacity={0.55}
             className="h-44 flex-row items-center justify-center rounded-base"
             style={{ borderWidth: 1, borderStyle: "dashed", borderColor: "#DCDCDE", gap: 6 }}
           >
@@ -125,7 +125,7 @@ export default function AddressSelectView() {
               <TouchableOpacity
                 key={address.id}
                 onPress={() => setPickedId(address.id)}
-                activeOpacity={0.7}
+                activeOpacity={0.55}
                 className="flex-row items-start px-14 py-16"
                 style={{
                   gap: 11,

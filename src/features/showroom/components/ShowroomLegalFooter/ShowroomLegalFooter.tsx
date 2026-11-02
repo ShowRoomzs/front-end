@@ -89,7 +89,7 @@ export default function ShowroomLegalFooter() {
         </Typography>
         <TouchableOpacity
           onPress={handlePressBusinessInfo}
-          activeOpacity={0.6}
+          activeOpacity={0.55}
           style={{ paddingVertical: LINK_ROW_HIT_SLOP, marginVertical: -LINK_ROW_HIT_SLOP }}
         >
           <Typography
@@ -110,7 +110,7 @@ export default function ShowroomLegalFooter() {
           <TouchableOpacity
             key={link.key}
             onPress={link.onPress}
-            activeOpacity={0.6}
+            activeOpacity={0.55}
             style={{ paddingVertical: LINK_ROW_HIT_SLOP, marginVertical: -LINK_ROW_HIT_SLOP }}
           >
             <Typography

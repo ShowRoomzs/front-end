@@ -1108,7 +1108,7 @@ function DevReshipSwitch(props: { current: DevReshipMock; onPick: (mock: DevResh
         <TouchableOpacity
           key={option.mock}
           onPress={() => props.onPick(option.mock)}
-          activeOpacity={0.6}
+          activeOpacity={0.55}
           className="rounded-full border-[1px] px-10 py-6"
           style={{
             borderColor: option.mock === props.current ? "#1A1A1A" : "#E3E3E5",

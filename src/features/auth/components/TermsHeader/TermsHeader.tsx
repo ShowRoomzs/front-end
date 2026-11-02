@@ -27,7 +27,7 @@ export default function TermsHeader(props: NativeStackHeaderProps) {
     <Header
       className="px-20 py-20"
       renderRight={
-        <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.goBack()}>
+        <TouchableOpacity activeOpacity={0.55} onPress={() => navigation.goBack()}>
           <Icon icon={COMMON_ASSETS.closeBlack} />
         </TouchableOpacity>
       }

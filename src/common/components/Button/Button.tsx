@@ -39,7 +39,7 @@ export default function Button(props: ButtonProps) {
     size = "md",
     variant = "primary",
     style,
-    activeOpacity = 0.7,
+    activeOpacity,
   } = props;
 
   const getDefaultClassName = () => {
@@ -128,7 +128,8 @@ export default function Button(props: ButtonProps) {
       onPress={handlePress}
       className={cn(getDefaultClassName(), getClassNameBySize(), getClassNameByVariant(), className)}
       style={style}
-      activeOpacity={activeOpacity}
+      // §08 누름 — 로즈 CTA .75 · 그 밖 .55
+      activeOpacity={activeOpacity ?? (variant === "primary-point" ? 0.75 : 0.55)}
     >
       {content}
     </TouchableOpacity>

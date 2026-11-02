@@ -92,7 +92,7 @@ export default function ProductCard(props: ProductCardProps) {
   const showCountSection = product.wishCount > 0 || product.reviewCount > 0;
 
   return (
-    <TouchableOpacity className="relative" onPress={handlePress} activeOpacity={0.7}>
+    <TouchableOpacity className="relative" onPress={handlePress} activeOpacity={0.55}>
       <Pressable onPress={handlePressLike} style={pressableStyle}>
         <Icon icon={COMMON_ASSETS.bigLikeIcon} variant={product.isWished ? "active" : "default"} />
       </Pressable>

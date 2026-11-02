@@ -25,7 +25,7 @@ export default function OutlineButton(props: OutlineButtonProps) {
   return (
     <TouchableOpacity
       onPress={onPress}
-      activeOpacity={0.5}
+      activeOpacity={0.55}
       style={{ paddingVertical: HIT_SLOP_PADDING }}
       className={className}
     >

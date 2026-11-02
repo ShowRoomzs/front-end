@@ -31,7 +31,7 @@ export default function CollapsibleSection(props: CollapsibleSectionProps) {
     <View>
       <TouchableOpacity
         onPress={() => setIsExpanded(prev => !prev)}
-        activeOpacity={0.7}
+        activeOpacity={0.55}
         className="flex-row items-center px-14"
         style={{ gap: 10, paddingVertical: 17 }}
       >

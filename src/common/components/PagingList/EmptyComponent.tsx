@@ -9,10 +9,16 @@ import { COMMON_ASSETS } from "@/common/utils/assets";
 interface EmptyComponentProps {
   isLoading: boolean;
   hasItems: boolean;
+  /** 첫 진입 자리 표시는 PagingList가 목록 위에 겹쳐 그리므로 여기서는 비워 둔다 */
+  hasSkeleton?: boolean;
 }
 
 export default function EmptyComponent(props: EmptyComponentProps) {
-  const { isLoading, hasItems } = props;
+  const { isLoading, hasItems, hasSkeleton = false } = props;
+
+  if (isLoading && hasSkeleton) {
+    return null;
+  }
 
   if (isLoading) {
     return (

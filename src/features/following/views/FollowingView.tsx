@@ -17,6 +17,7 @@ import { useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { useUserStore } from "@/common/stores/useUserStore";
 import ShowroomRow from "@/features/showroom/components/ShowroomRow/ShowroomRow";
+import ShowroomRowSkeleton from "@/features/showroom/components/ShowroomRowSkeleton/ShowroomRowSkeleton";
 import { useGetFollowingShowrooms } from "@/features/showroom/hooks/useGetFollowingShowrooms";
 import { useUpdateShowroomFollow } from "@/features/showroom/hooks/useUpdateShowroomFollow";
 import {
@@ -75,6 +76,8 @@ export default function FollowingView() {
   }, [refetch]);
 
   const isEmpty = !isLoading && content.length === 0;
+  /** 첫 진입 대기 — 개수를 아직 모르므로 0이라고 적지 않는다 */
+  const isFirstLoading = isLoading && content.length === 0;
 
   const sortItems = useMemo(
     () =>
@@ -185,6 +188,8 @@ export default function FollowingView() {
         data={content}
         pageInfo={pageInfo}
         isLoading={isLoading || isFetchingNextPage}
+        skeleton={<ShowroomRowSkeleton withButton />}
+        skeletonCount={8}
         onLoadMore={fetchNextPage}
         keyExtractor={item => String(item.showroomId)}
         renderItem={renderItem}
@@ -192,7 +197,9 @@ export default function FollowingView() {
         ListHeaderComponent={
           isEmpty ? null : (
             <ListHeaderBar
-              countLabel={`팔로잉 쇼룸 ${pageInfo?.totalElements ?? content.length}`}
+              countLabel={
+                isFirstLoading ? "팔로잉 쇼룸" : `팔로잉 쇼룸 ${pageInfo?.totalElements ?? content.length}`
+              }
               sortLabel={FOLLOWING_SHOWROOM_SORT_LABEL[sort]}
               onPressSort={openSortSheet}
             />

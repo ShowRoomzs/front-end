@@ -15,6 +15,7 @@ import FeedHeader from "@/features/home/components/FeedHeader/FeedHeader";
 import FollowingEmptyState from "@/features/home/components/FollowingEmptyState/FollowingEmptyState";
 import { useNotificationBadge } from "@/features/notification/hooks/useNotificationBadge";
 import PostCard from "@/features/post/components/PostCard/PostCard";
+import PostCardSkeleton from "@/features/post/components/PostCardSkeleton/PostCardSkeleton";
 import { useFeedActions } from "@/features/post/hooks/useFeedActions";
 import { useGetFollowingFeed } from "@/features/post/hooks/useGetFollowingFeed";
 import { useGetRecommendedFeed } from "@/features/post/hooks/useGetRecommendedFeed";
@@ -205,6 +206,8 @@ export default function HomeView() {
         data={rows}
         pageInfo={pageInfo}
         isLoading={isLoading}
+        skeleton={<PostCardSkeleton />}
+        skeletonCount={2}
         onLoadMore={handleLoadMore}
         keyExtractor={row => row.key}
         renderItem={renderItem}

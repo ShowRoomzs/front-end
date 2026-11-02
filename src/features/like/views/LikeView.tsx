@@ -14,6 +14,7 @@ import { useBottomSheet } from "@/common/hooks/useBottomSheet";
 import { useBottomSheetContext } from "@/common/providers/BottomSheetProvider";
 import { useUserStore } from "@/common/stores/useUserStore";
 import PostCard from "@/features/post/components/PostCard/PostCard";
+import PostCardSkeleton from "@/features/post/components/PostCardSkeleton/PostCardSkeleton";
 import { useFeedActions } from "@/features/post/hooks/useFeedActions";
 import { useGetLikedPosts } from "@/features/post/hooks/useGetLikedPosts";
 import {
@@ -81,6 +82,8 @@ export default function LikeView() {
   }, [refetch]);
 
   const isEmpty = !isLoading && content.length === 0;
+  /** 첫 진입 대기 — 개수를 아직 모르므로 0이라고 적지 않는다 */
+  const isFirstLoading = isLoading && content.length === 0;
 
   const sortItems = useMemo(
     () =>
@@ -151,6 +154,8 @@ export default function LikeView() {
         data={content}
         pageInfo={pageInfo}
         isLoading={isLoading || isFetchingNextPage}
+        skeleton={<PostCardSkeleton />}
+        skeletonCount={2}
         onLoadMore={fetchNextPage}
         keyExtractor={item => String(item.post.postId)}
         renderItem={renderItem}
@@ -158,7 +163,11 @@ export default function LikeView() {
         ListHeaderComponent={
           isEmpty ? null : (
             <ListHeaderBar
-              countLabel={`좋아요한 게시물 ${pageInfo?.totalElements ?? content.length}`}
+              countLabel={
+                isFirstLoading
+                  ? "좋아요한 게시물"
+                  : `좋아요한 게시물 ${pageInfo?.totalElements ?? content.length}`
+              }
               sortLabel={LIKED_POST_SORT_LABEL[sort]}
               paddingBottom={4}
               onPressSort={openSortSheet}

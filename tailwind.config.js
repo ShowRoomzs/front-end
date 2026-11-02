@@ -48,6 +48,8 @@ module.exports = {
         heartClosed: "#C8C8CA", // 마감된 공구의 하트
         chevron: "#C7C7C7", // 셰브런 · 품절 취소선
         badgeClosedBg: "#F1F1F2", // 마감 D-day 배지 배경
+        skeleton: "#EFEFF1", // 스켈레톤 블록 (§07)
+        skeletonSub: "#F2F2F4", // 스켈레톤 보조 블록 — 두 번째 줄 · 아이디처럼 덜 중요한 자리
         roleInfluencerText: "#6B48CC", // INFLUENCER 역할 칩 텍스트
 
         // ── 기존 스케일 — 디자인 시스템 값으로 전면 교체 ────────────

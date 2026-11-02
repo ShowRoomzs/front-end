@@ -14,6 +14,7 @@ import RecentSearchList from "@/features/search/components/RecentSearchList/Rece
 import SearchField from "@/features/search/components/SearchField/SearchField";
 import { useRecentSearch } from "@/features/search/hooks/useRecentSearch";
 import ShowroomRow from "@/features/showroom/components/ShowroomRow/ShowroomRow";
+import ShowroomRowSkeleton from "@/features/showroom/components/ShowroomRowSkeleton/ShowroomRowSkeleton";
 import { useGetActiveShowrooms, useSearchShowrooms } from "@/features/showroom/hooks/useSearchShowrooms";
 import { ShowroomSearchItem } from "@/features/showroom/types/showroom";
 
@@ -197,13 +198,19 @@ export default function SearchView() {
         data={content}
         pageInfo={pageInfo}
         isLoading={isLoading || isFetchingNextPage}
+        skeleton={<ShowroomRowSkeleton />}
+        skeletonCount={8}
         onLoadMore={fetchNextPage}
         keyExtractor={item => String(item.showroomId)}
         renderItem={renderItem}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
           <SectionLabel
-            label={`검색 결과 ${pageInfo?.totalElements ?? content.length}`}
+            label={
+              isLoading && content.length === 0
+                ? "검색 결과"
+                : `검색 결과 ${pageInfo?.totalElements ?? content.length}`
+            }
             className="pb-4 pt-16"
           />
         }

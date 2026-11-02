@@ -14,6 +14,7 @@ import { useCommonNavigation } from "@/common/router";
 import { COMMON_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
 import PostCard from "@/features/post/components/PostCard/PostCard";
+import PostCardSkeleton from "@/features/post/components/PostCardSkeleton/PostCardSkeleton";
 import { useFeedActions } from "@/features/post/hooks/useFeedActions";
 import { useGetShowroomPosts } from "@/features/post/hooks/useGetShowroomPosts";
 import { usePostImpressions } from "@/features/post/hooks/usePostImpressions";
@@ -131,6 +132,8 @@ export default function ShowroomDetailView() {
         data={generalPosts}
         pageInfo={pageInfo}
         isLoading={isLoading || isFetchingNextPage}
+        skeleton={<PostCardSkeleton />}
+        skeletonCount={2}
         onLoadMore={fetchNextPage}
         keyExtractor={item => String(item.post.postId)}
         renderItem={renderItem}

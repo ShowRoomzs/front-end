@@ -1,4 +1,4 @@
-import { Image, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
 
 import Checkbox from "@/common/components/Checkbox/Checkbox";
 import { CloseIcon } from "@/common/components/DsIcon/icons";
@@ -52,14 +52,20 @@ export default function CartItemRow(props: CartItemRowProps) {
         />
         {isUnavailable && (
           <>
-            {/* 탈색만으로는 여전히 선명해 판매중 상품과 구분되지 않는다 — 흰 베일을 겹친다 */}
+            {/*
+              탈색만으로는 여전히 선명해 판매중 상품과 구분되지 않는다 — 흰 베일을 겹친다.
+              `inset-0` 클래스는 이 프로젝트에서 위치를 잡지 못해(왼쪽 위에 붙는다) absoluteFill로 덮는다
+            */}
             <View
-              className="absolute inset-0 rounded-thumbnail bg-white"
-              style={{ opacity: 0.55 }}
+              className="rounded-thumbnail bg-white"
+              style={[StyleSheet.absoluteFill, { opacity: 0.55 }]}
               pointerEvents="none"
             />
             {!!availability.label && (
-              <View className="absolute inset-0 items-center justify-center" pointerEvents="none">
+              <View
+                style={[StyleSheet.absoluteFill, { alignItems: "center", justifyContent: "center" }]}
+                pointerEvents="none"
+              >
                 <Typography
                   style={{ fontSize: 12, fontWeight: "600", lineHeight: 12 }}
                   className="text-gray62"

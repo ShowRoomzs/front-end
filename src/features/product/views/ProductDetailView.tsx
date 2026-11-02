@@ -30,6 +30,7 @@ import ProductDeliveryPolicy from "@/features/product/components/ProductDelivery
 import ProductDetailBrandSection from "@/features/product/components/ProductDetailBrandSection/ProductDetailBrandSection";
 import ProductDetailInfo from "@/features/product/components/ProductDetailInfo/ProductDetailInfo";
 import ProductDetailInquiry from "@/features/product/components/ProductDetailInquiry/ProductDetailInquiry";
+import ProductDetailTabBar from "@/features/product/components/ProductDetailTabBar/ProductDetailTabBar";
 import ProductGallery from "@/features/product/components/ProductGallery/ProductGallery";
 import ProductGroupBuyRow from "@/features/product/components/ProductGroupBuyRow/ProductGroupBuyRow";
 import ProductNoticeTable, {
@@ -484,35 +485,7 @@ export default function ProductDetailView() {
           {/* 배송 블록과 탭 사이에도 밴드가 들어간다 — 상품 정보와 탭은 읽는 단위가 다르다(시안 C7) */}
           <View className="h-5 bg-band" />
 
-          {/*
-            상세정보 본문이 WebView라, 안드로이드에서는 네이티브 뷰 순서상 WebView가 이 줄 위로
-            올라와 탭이 눌리지 않는다. zIndex(iOS)와 elevation(Android)으로 위에 고정한다.
-          */}
-          <View
-            className="flex-row border-b-[0.5px] border-divider bg-white"
-            style={{ zIndex: 2, elevation: 2 }}
-          >
-            {TABS.map(tab => {
-              const isActive = tab.id === selectedTab;
-
-              return (
-                <TouchableOpacity
-                  key={tab.id}
-                  onPress={() => setSelectedTab(tab.id)}
-                  activeOpacity={0.55}
-                  className="h-46 flex-1 items-center justify-center"
-                  style={isActive ? { borderBottomWidth: 2, borderBottomColor: "#0F0F0F" } : undefined}
-                >
-                  <Typography
-                    style={{ fontSize: 14, fontWeight: isActive ? "600" : "400", lineHeight: 14 }}
-                    className={isActive ? "text-ink" : "text-gray55"}
-                  >
-                    {tab.label}
-                  </Typography>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
+          <ProductDetailTabBar tabs={TABS} selectedId={selectedTab} onSelect={setSelectedTab} />
 
           {renderTabBody()}
         </ScrollView>

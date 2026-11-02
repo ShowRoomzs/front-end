@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useState } from "react";
-import { DimensionValue, StyleProp, View, ViewStyle } from "react-native";
+import { DimensionValue, StyleProp, StyleSheet, View, ViewStyle } from "react-native";
 import Animated, {
   Easing,
   FadeOut,
@@ -100,6 +100,28 @@ export function SkeletonBlock(props: SkeletonBlockProps) {
     />
   );
 }
+
+/**
+ * 콘텐츠 위에 겹치는 스켈레톤 — 흰 바탕째 그려 아래를 가리고, 내려갈 때 바탕째 흐려져
+ * 막 그려진 콘텐츠와 200ms 크로스페이드가 된다.
+ *
+ * 로딩 분기와 콘텐츠 분기를 갈아 끼우면 스켈레톤이 부모째 사라져 퇴장 애니메이션이 돌지 않는다
+ * (목록의 빈 상태 자리도 마찬가지). 그래서 콘텐츠와 **같은 부모 안에 형제로** 두고 `visible`만 내린다.
+ * `top`으로 머리말처럼 가리지 않을 높이를 비운다.
+ */
+export function SkeletonOverlay(props: { visible: boolean; top?: number; children: ReactNode }) {
+  const { visible, top = 0, children } = props;
+
+  if (!visible) {
+    return null;
+  }
+
+  return <Skeleton style={[overlayStyles.overlay, { top }]}>{children}</Skeleton>;
+}
+
+const overlayStyles = StyleSheet.create({
+  overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: "#FFFFFF", overflow: "hidden" },
+});
 
 /** 같은 자리 표시를 n번 되풀이한다 — 목록 첫 진입 */
 export function SkeletonRepeat(props: { count: number; children: ReactNode }) {

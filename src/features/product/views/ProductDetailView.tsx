@@ -8,7 +8,7 @@ import BusinessFooter from "@/common/components/BusinessFooter/BusinessFooter";
 import CollapsibleSection from "@/common/components/CollapsibleSection/CollapsibleSection";
 import HeaderActions from "@/common/components/HeaderActions/HeaderActions";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
-import Spinner from "@/common/components/Spinner/Spinner";
+import { SkeletonOverlay } from "@/common/components/Skeleton/Skeleton";
 import Typography from "@/common/components/Typography/Typography";
 import { useBottomSheet } from "@/common/hooks/useBottomSheet";
 import { usePermissionPress } from "@/common/hooks/usePermissionPress";
@@ -30,6 +30,7 @@ import ProductDeliveryPolicy from "@/features/product/components/ProductDelivery
 import ProductDetailBrandSection from "@/features/product/components/ProductDetailBrandSection/ProductDetailBrandSection";
 import ProductDetailInfo from "@/features/product/components/ProductDetailInfo/ProductDetailInfo";
 import ProductDetailInquiry from "@/features/product/components/ProductDetailInquiry/ProductDetailInquiry";
+import ProductDetailSkeleton from "@/features/product/components/ProductDetailSkeleton/ProductDetailSkeleton";
 import ProductDetailTabBar from "@/features/product/components/ProductDetailTabBar/ProductDetailTabBar";
 import ProductGallery from "@/features/product/components/ProductGallery/ProductGallery";
 import ProductGroupBuyRow from "@/features/product/components/ProductGroupBuyRow/ProductGroupBuyRow";
@@ -436,60 +437,68 @@ export default function ProductDetailView() {
     <View className="flex-1 bg-white">
       <ScreenHeader onPressBack={commonNavigation.goBack} renderRight={<HeaderActions />} />
 
-      {isLoading || !productDetail ? (
-        <View className="flex-1 items-center justify-center px-40">
-          {isLoading ? (
-            <Spinner />
-          ) : (
+      {/*
+        로딩 중에는 스켈레톤을 본문 자리에 겹쳐 두고, 다 오면 200ms로 흐려지며 본문에 넘긴다(§07).
+        본문과 스켈레톤이 같은 부모 안에 있어야 퇴장 애니메이션이 돈다.
+      */}
+      <View className="flex-1">
+        {!isLoading && !productDetail && (
+          <View className="flex-1 items-center justify-center px-40">
             <Typography style={{ fontSize: 13, lineHeight: 22.1 }} className="text-center text-gray45">
               {(productDetailError as AxiosError<CustomErrorResponse<string, { message?: string }>> | null)
                 ?.response?.data?.message || "상품 정보를 불러오지 못했어요. 잠시 후 다시 시도해 주세요."}
             </Typography>
-          )}
-        </View>
-      ) : (
-        <ScrollView
-          stickyHeaderIndices={[6]}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingBottom: bottom + BOTTOM_CTA_HEIGHT + (suspension ? SUSPENDED_LINE_HEIGHT : 0),
-          }}
-        >
-          <ProductGallery
-            representativeImageUrl={productDetail.representativeImageUrl}
-            coverImageUrls={productDetail.coverImageUrls}
-          />
-          <ProductDetailBrandSection
-            marketName={productDetail.marketName}
-            brandSiteUrl={productDetail.brandSiteUrl}
-            onPressBrandSite={handlePressBrandSite}
-          />
-          <ProductPriceBlock
-            name={productDetail.name}
-            regularPrice={productDetail.regularPrice}
-            discountRate={productDetail.discountRate}
-            salePrice={productDetail.salePrice}
-            isUnavailable={isUnavailable}
-            belowPrice={
-              productDetail.groupBuy ? (
-                <ProductGroupBuyRow
-                  groupBuy={productDetail.groupBuy}
-                  saleState={saleState}
-                  onPressShowroom={handlePressShowroom}
-                />
-              ) : null
-            }
-          />
-          <View className="mt-18 h-5 bg-band" />
-          <ProductDeliveryBlock delivery={productDetail.delivery} />
-          {/* 배송 블록과 탭 사이에도 밴드가 들어간다 — 상품 정보와 탭은 읽는 단위가 다르다(시안 C7) */}
-          <View className="h-5 bg-band" />
+          </View>
+        )}
 
-          <ProductDetailTabBar tabs={TABS} selectedId={selectedTab} onSelect={setSelectedTab} />
+        {!!productDetail && (
+          <ScrollView
+            stickyHeaderIndices={[6]}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{
+              paddingBottom: bottom + BOTTOM_CTA_HEIGHT + (suspension ? SUSPENDED_LINE_HEIGHT : 0),
+            }}
+          >
+            <ProductGallery
+              representativeImageUrl={productDetail.representativeImageUrl}
+              coverImageUrls={productDetail.coverImageUrls}
+            />
+            <ProductDetailBrandSection
+              marketName={productDetail.marketName}
+              brandSiteUrl={productDetail.brandSiteUrl}
+              onPressBrandSite={handlePressBrandSite}
+            />
+            <ProductPriceBlock
+              name={productDetail.name}
+              regularPrice={productDetail.regularPrice}
+              discountRate={productDetail.discountRate}
+              salePrice={productDetail.salePrice}
+              isUnavailable={isUnavailable}
+              belowPrice={
+                productDetail.groupBuy ? (
+                  <ProductGroupBuyRow
+                    groupBuy={productDetail.groupBuy}
+                    saleState={saleState}
+                    onPressShowroom={handlePressShowroom}
+                  />
+                ) : null
+              }
+            />
+            <View className="mt-18 h-5 bg-band" />
+            <ProductDeliveryBlock delivery={productDetail.delivery} />
+            {/* 배송 블록과 탭 사이에도 밴드가 들어간다 — 상품 정보와 탭은 읽는 단위가 다르다(시안 C7) */}
+            <View className="h-5 bg-band" />
 
-          {renderTabBody()}
-        </ScrollView>
-      )}
+            <ProductDetailTabBar tabs={TABS} selectedId={selectedTab} onSelect={setSelectedTab} />
+
+            {renderTabBody()}
+          </ScrollView>
+        )}
+
+        <SkeletonOverlay visible={isLoading}>
+          <ProductDetailSkeleton />
+        </SkeletonOverlay>
+      </View>
 
       <View
         className="absolute bottom-0 left-0 right-0 border-t-[0.5px] border-divider bg-white px-14 pt-12"

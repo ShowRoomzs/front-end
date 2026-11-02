@@ -8,7 +8,7 @@ import HeaderActions from "@/common/components/HeaderActions/HeaderActions";
 import LikeButton from "@/common/components/LikeButton/LikeButton";
 import MediaCarousel from "@/common/components/MediaCarousel/MediaCarousel";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
-import Spinner from "@/common/components/Spinner/Spinner";
+import { SkeletonOverlay } from "@/common/components/Skeleton/Skeleton";
 import Typography from "@/common/components/Typography/Typography";
 import { useCommonNavigation } from "@/common/router";
 import { COMMON_ROUTES } from "@/common/router/routes";
@@ -16,6 +16,7 @@ import { CommonStackParamList } from "@/common/router/types";
 import { formatRelativeTime } from "@/common/utils/formatRelativeTime";
 import { lightHaptic } from "@/common/utils/haptics";
 import PostBadgeRow from "@/features/post/components/PostBadgeRow/PostBadgeRow";
+import PostDetailSkeleton from "@/features/post/components/PostDetailSkeleton/PostDetailSkeleton";
 import PostProductList from "@/features/post/components/PostProductList/PostProductList";
 import { useFeedActions } from "@/features/post/hooks/useFeedActions";
 import { useGetPostDetail } from "@/features/post/hooks/useGetPostDetail";
@@ -44,145 +45,152 @@ export default function PostDetailView() {
   const { data: post, isLoading } = useGetPostDetail(postId);
   const { handlePressShowroom, handlePressProduct, handlePressLike, handlePressMore } = useFeedActions();
 
-  if (isLoading || !post) {
-    return (
-      <View className="flex-1 bg-white">
-        <ScreenHeader title="게시물" onPressBack={navigation.goBack} renderRight={<HeaderActions />} />
-        <View className="flex-1 items-center justify-center">
-          <Spinner />
-        </View>
-      </View>
-    );
-  }
-
-  const { groupBuy } = post;
-  const hasMedia = post.imageUrls.length > 0;
-  const likeLocked = post.likeLocked || groupBuy?.status === "CLOSED";
+  const groupBuy = post?.groupBuy;
+  const hasMedia = !!post && post.imageUrls.length > 0;
+  const likeLocked = !!post?.likeLocked || groupBuy?.status === "CLOSED";
 
   /** 사진 더블탭 — 좋아요만 하고 해제는 하지 않는다(§08). 이미 눌렀으면 하트만 띄운다 */
   const handleDoubleTapMedia = () => {
-    if (!post.isLiked) {
+    if (post && !post.isLiked) {
       lightHaptic();
       handlePressLike(post.postId, false);
     }
   };
 
+  /*
+    로딩 중에는 스켈레톤을 본문 자리에 겹쳐 두고, 다 오면 200ms로 흐려지며 본문에 넘긴다(§07).
+    본문과 스켈레톤이 같은 부모 안에 있어야 퇴장 애니메이션이 돈다.
+  */
   return (
     <View className="flex-1 bg-white">
       <ScreenHeader title="게시물" onPressBack={navigation.goBack} renderRight={<HeaderActions />} />
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: bottom + 30 }}>
-        <View className="flex-row items-center px-14 py-13" style={{ gap: 10 }}>
-          <TouchableOpacity
-            onPress={() => handlePressShowroom(post.showroomId)}
-            activeOpacity={0.55}
-            className="min-w-0 flex-1 flex-row items-center"
-            style={{ gap: 10 }}
+      <View className="flex-1">
+        {!!post && (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: bottom + 30 }}
           >
-            <Avatar imageUrl={post.showroomImageUrl} size={36} hasOngoingGroupBuy={!!groupBuy} />
-            <View className="min-w-0 flex-1 flex-row items-center" style={{ gap: 5 }}>
-              <Typography variant="handle" className="shrink text-ink" numberOfLines={1}>
-                {post.showroomName}
-              </Typography>
-              <Typography style={{ fontSize: 13, lineHeight: 16.9 }} className="flex-none text-gray55">
-                · {formatRelativeTime(post.publishedAt)}
-              </Typography>
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            onPress={() => handlePressMore(post.postId)}
-            activeOpacity={0.55}
-            style={{ padding: 11, margin: -11 }}
-          >
-            <MoreIcon size={20} color="#8E8E8E" vertical />
-          </TouchableOpacity>
-        </View>
-
-        {!!groupBuy && <PostBadgeRow groupBuy={groupBuy} style={{ paddingTop: 4 }} />}
-
-        {!!groupBuy && (
-          <Typography
-            style={{
-              fontSize: 17,
-              fontWeight: "700",
-              lineHeight: 24.65,
-              letterSpacing: -0.4,
-              paddingTop: 11,
-            }}
-            className="px-14 text-ink"
-          >
-            {groupBuy.title}
-          </Typography>
-        )}
-
-        {!!post.content && (
-          <Typography
-            style={{ fontSize: 14, lineHeight: 24.5, marginTop: groupBuy ? 9 : 11 }}
-            className="px-14 text-ink76"
-          >
-            {post.content}
-          </Typography>
-        )}
-
-        {hasMedia && (
-          <View style={{ marginTop: 14 }}>
-            <MediaCarousel
-              imageUrls={post.imageUrls}
-              width={width}
-              aspectRatio={post.aspectRatio}
-              onDoubleTap={likeLocked ? undefined : handleDoubleTapMedia}
-            />
-          </View>
-        )}
-
-        {!!groupBuy && groupBuy.products.length > 0 && (
-          <>
-            <View className="flex-row items-baseline px-14 pb-10 pt-20" style={{ gap: 7 }}>
-              <Typography
-                style={{ fontSize: 15, fontWeight: "700", lineHeight: 15, letterSpacing: -0.2 }}
-                className="text-ink"
+            <View className="flex-row items-center px-14 py-13" style={{ gap: 10 }}>
+              <TouchableOpacity
+                onPress={() => handlePressShowroom(post.showroomId)}
+                activeOpacity={0.55}
+                className="min-w-0 flex-1 flex-row items-center"
+                style={{ gap: 10 }}
               >
-                공구 상품
-              </Typography>
-              <Typography style={{ fontSize: 15, fontWeight: "700", lineHeight: 15 }} className="text-gray45">
-                {groupBuy.products.length}
-              </Typography>
+                <Avatar imageUrl={post.showroomImageUrl} size={36} hasOngoingGroupBuy={!!groupBuy} />
+                <View className="min-w-0 flex-1 flex-row items-center" style={{ gap: 5 }}>
+                  <Typography variant="handle" className="shrink text-ink" numberOfLines={1}>
+                    {post.showroomName}
+                  </Typography>
+                  <Typography style={{ fontSize: 13, lineHeight: 16.9 }} className="flex-none text-gray55">
+                    · {formatRelativeTime(post.publishedAt)}
+                  </Typography>
+                </View>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => handlePressMore(post.postId)}
+                activeOpacity={0.55}
+                style={{ padding: 11, margin: -11 }}
+              >
+                <MoreIcon size={20} color="#8E8E8E" vertical />
+              </TouchableOpacity>
             </View>
 
-            <PostProductList
-              products={groupBuy.products}
-              isClosed={groupBuy.status === "CLOSED"}
-              expandedByDefault
-              onPressProduct={handlePressProduct}
-            />
-          </>
-        )}
+            {!!groupBuy && <PostBadgeRow groupBuy={groupBuy} style={{ paddingTop: 4 }} />}
 
-        <View className="flex-row px-14" style={{ paddingTop: 14 }}>
-          <LikeButton
-            isLiked={post.isLiked}
-            likeCount={post.likeCount}
-            likeLocked={likeLocked}
-            onPress={() => handlePressLike(post.postId, post.isLiked)}
-          />
-        </View>
+            {!!groupBuy && (
+              <Typography
+                style={{
+                  fontSize: 17,
+                  fontWeight: "700",
+                  lineHeight: 24.65,
+                  letterSpacing: -0.4,
+                  paddingTop: 11,
+                }}
+                className="px-14 text-ink"
+              >
+                {groupBuy.title}
+              </Typography>
+            )}
 
-        {/*
+            {!!post.content && (
+              <Typography
+                style={{ fontSize: 14, lineHeight: 24.5, marginTop: groupBuy ? 9 : 11 }}
+                className="px-14 text-ink76"
+              >
+                {post.content}
+              </Typography>
+            )}
+
+            {hasMedia && (
+              <View style={{ marginTop: 14 }}>
+                <MediaCarousel
+                  imageUrls={post.imageUrls}
+                  width={width}
+                  aspectRatio={post.aspectRatio}
+                  onDoubleTap={likeLocked ? undefined : handleDoubleTapMedia}
+                />
+              </View>
+            )}
+
+            {!!groupBuy && groupBuy.products.length > 0 && (
+              <>
+                <View className="flex-row items-baseline px-14 pb-10 pt-20" style={{ gap: 7 }}>
+                  <Typography
+                    style={{ fontSize: 15, fontWeight: "700", lineHeight: 15, letterSpacing: -0.2 }}
+                    className="text-ink"
+                  >
+                    공구 상품
+                  </Typography>
+                  <Typography
+                    style={{ fontSize: 15, fontWeight: "700", lineHeight: 15 }}
+                    className="text-gray45"
+                  >
+                    {groupBuy.products.length}
+                  </Typography>
+                </View>
+
+                <PostProductList
+                  products={groupBuy.products}
+                  isClosed={groupBuy.status === "CLOSED"}
+                  expandedByDefault
+                  onPressProduct={handlePressProduct}
+                />
+              </>
+            )}
+
+            <View className="flex-row px-14" style={{ paddingTop: 14 }}>
+              <LikeButton
+                isLiked={post.isLiked}
+                likeCount={post.likeCount}
+                likeLocked={likeLocked}
+                onPress={() => handlePressLike(post.postId, post.isLiked)}
+              />
+            </View>
+
+            {/*
           통신판매중개자 고지 — 공구 게시물만(1021 기-34 【잠정】). 브랜드명을 아직 못 받으면
           판매 부분을 빼고 추천 · 고지만 적는다 — 「○○브랜드」 같은 자리표시를 내보내지 않는다.
         */}
-        {!!groupBuy && (
-          <View
-            className="mx-14 rounded-base bg-band"
-            style={{ marginTop: 22, paddingVertical: 13, paddingHorizontal: 14 }}
-          >
-            <Typography style={{ fontSize: 11.5, lineHeight: 18.98 }} className="text-gray45">
-              {`${groupBuy.brandName ? `판매 ${groupBuy.brandName} · ` : ""}추천 ${post.showroomName}님 — SHOWROOMZ는 통신판매중개자로서 거래 당사자가 아닙니다`}
-            </Typography>
-          </View>
+            {!!groupBuy && (
+              <View
+                className="mx-14 rounded-base bg-band"
+                style={{ marginTop: 22, paddingVertical: 13, paddingHorizontal: 14 }}
+              >
+                <Typography style={{ fontSize: 11.5, lineHeight: 18.98 }} className="text-gray45">
+                  {`${groupBuy.brandName ? `판매 ${groupBuy.brandName} · ` : ""}추천 ${post.showroomName}님 — SHOWROOMZ는 통신판매중개자로서 거래 당사자가 아닙니다`}
+                </Typography>
+              </View>
+            )}
+          </ScrollView>
         )}
-      </ScrollView>
+
+        <SkeletonOverlay visible={isLoading || !post}>
+          <PostDetailSkeleton />
+        </SkeletonOverlay>
+      </View>
     </View>
   );
 }

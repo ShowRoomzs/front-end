@@ -4,7 +4,7 @@ import { FlatList, FlatListProps, StyleSheet, View } from "react-native";
 import { DEFAULT_ON_END_REACHED_THRESHOLD } from "@/common/components/PagingList/config";
 import EmptyComponent from "@/common/components/PagingList/EmptyComponent";
 import FooterComponent from "@/common/components/PagingList/FooterComponent";
-import Skeleton, { SkeletonRepeat } from "@/common/components/Skeleton/Skeleton";
+import { SkeletonOverlay, SkeletonRepeat } from "@/common/components/Skeleton/Skeleton";
 import { PageInfo } from "@/common/types/page";
 
 interface PagingListProps<T> extends Omit<FlatListProps<T>, "data"> {
@@ -101,10 +101,10 @@ function PagingListInner<T>(props: PagingListProps<T>, ref: Ref<FlatList<T>>) {
         }
       />
 
-      {!!skeleton && isFirstLoading && (
-        <Skeleton style={[styles.overlay, { top: header ? headerHeight : 0 }]}>
+      {!!skeleton && (
+        <SkeletonOverlay visible={isFirstLoading} top={header ? headerHeight : 0}>
           <SkeletonRepeat count={skeletonCount}>{skeleton}</SkeletonRepeat>
-        </Skeleton>
+        </SkeletonOverlay>
       )}
     </View>
   );
@@ -113,7 +113,6 @@ function PagingListInner<T>(props: PagingListProps<T>, ref: Ref<FlatList<T>>) {
 const styles = StyleSheet.create({
   // FlatList(ScrollView)의 기본 늘어남을 그대로 물려받는다 — 감싸도 부모 배치가 바뀌지 않게
   container: { flexGrow: 1, flexShrink: 1 },
-  overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: "#FFFFFF", overflow: "hidden" },
 });
 
 // forwardRef가 제네릭을 지워 버리므로 캐스팅으로 되살린다

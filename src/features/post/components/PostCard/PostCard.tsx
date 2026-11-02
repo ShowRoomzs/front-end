@@ -4,6 +4,7 @@ import { TouchableWithoutFeedback, useWindowDimensions, View } from "react-nativ
 import LikeButton from "@/common/components/LikeButton/LikeButton";
 import MediaCarousel from "@/common/components/MediaCarousel/MediaCarousel";
 import Typography from "@/common/components/Typography/Typography";
+import { lightHaptic } from "@/common/utils/haptics";
 import PostBadgeRow from "@/features/post/components/PostBadgeRow/PostBadgeRow";
 import PostCaption from "@/features/post/components/PostCaption/PostCaption";
 import PostCardHeader from "@/features/post/components/PostCardHeader/PostCardHeader";
@@ -66,13 +67,22 @@ function PostCard(props: PostCardProps) {
    * 좋아요는 끝난 뒤에도 해제할 수 있어야 해서 누를 수 있음이 보여야 한다.
    */
   const dimmedStyle = groupBuy?.status === "CLOSED" ? { opacity: 0.5 } : undefined;
+  const likeLocked = post.likeLocked || groupBuy?.status === "CLOSED";
+
+  /** 사진 더블탭 — 좋아요만 하고 해제는 하지 않는다(§08). 이미 눌렀으면 하트만 띄운다 */
+  const handleDoubleTapMedia = () => {
+    if (!post.isLiked) {
+      lightHaptic();
+      onPressLike(post.postId, false);
+    }
+  };
 
   const likeRow = (
     <View className="flex-row px-14" style={{ paddingTop: hasMedia && !groupBuy ? 4 : 14 }}>
       <LikeButton
         isLiked={post.isLiked}
         likeCount={post.likeCount}
-        likeLocked={post.likeLocked || groupBuy?.status === "CLOSED"}
+        likeLocked={likeLocked}
         onPress={() => onPressLike(post.postId, post.isLiked)}
       />
     </View>
@@ -144,7 +154,12 @@ function PostCard(props: PostCardProps) {
             한 번 더 보는 화면이었다. 터치 래퍼를 걷어내면 옆으로 넘기는 제스처도 가로채지 않는다.
           */}
           {hasMedia && (
-            <MediaCarousel imageUrls={post.imageUrls} width={width} aspectRatio={post.aspectRatio} />
+            <MediaCarousel
+              imageUrls={post.imageUrls}
+              width={width}
+              aspectRatio={post.aspectRatio}
+              onDoubleTap={likeLocked ? undefined : handleDoubleTapMedia}
+            />
           )}
 
           {likeRow}

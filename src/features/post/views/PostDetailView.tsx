@@ -14,6 +14,7 @@ import { useCommonNavigation } from "@/common/router";
 import { COMMON_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
 import { formatRelativeTime } from "@/common/utils/formatRelativeTime";
+import { lightHaptic } from "@/common/utils/haptics";
 import PostBadgeRow from "@/features/post/components/PostBadgeRow/PostBadgeRow";
 import PostProductList from "@/features/post/components/PostProductList/PostProductList";
 import { useFeedActions } from "@/features/post/hooks/useFeedActions";
@@ -56,6 +57,15 @@ export default function PostDetailView() {
 
   const { groupBuy } = post;
   const hasMedia = post.imageUrls.length > 0;
+  const likeLocked = post.likeLocked || groupBuy?.status === "CLOSED";
+
+  /** 사진 더블탭 — 좋아요만 하고 해제는 하지 않는다(§08). 이미 눌렀으면 하트만 띄운다 */
+  const handleDoubleTapMedia = () => {
+    if (!post.isLiked) {
+      lightHaptic();
+      handlePressLike(post.postId, false);
+    }
+  };
 
   return (
     <View className="flex-1 bg-white">
@@ -117,7 +127,12 @@ export default function PostDetailView() {
 
         {hasMedia && (
           <View style={{ marginTop: 14 }}>
-            <MediaCarousel imageUrls={post.imageUrls} width={width} aspectRatio={post.aspectRatio} />
+            <MediaCarousel
+              imageUrls={post.imageUrls}
+              width={width}
+              aspectRatio={post.aspectRatio}
+              onDoubleTap={likeLocked ? undefined : handleDoubleTapMedia}
+            />
           </View>
         )}
 
@@ -148,7 +163,7 @@ export default function PostDetailView() {
           <LikeButton
             isLiked={post.isLiked}
             likeCount={post.likeCount}
-            likeLocked={post.likeLocked || groupBuy?.status === "CLOSED"}
+            likeLocked={likeLocked}
             onPress={() => handlePressLike(post.postId, post.isLiked)}
           />
         </View>

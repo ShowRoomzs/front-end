@@ -1,6 +1,7 @@
 import { TouchableOpacity, View } from "react-native";
 
 import { BellIcon, CartIcon, SearchIcon } from "@/common/components/DsIcon/icons";
+import { CountBadge, DotBadge } from "@/common/components/IconBadge/IconBadge";
 import Typography from "@/common/components/Typography/Typography";
 import SuspensionBanner from "@/features/account/components/SuspensionBanner";
 
@@ -19,7 +20,6 @@ interface FeedHeaderProps {
 }
 
 const ICON_HIT_SLOP_PADDING = 9;
-const CART_BADGE_MAX = 99;
 
 export default function FeedHeader(props: FeedHeaderProps) {
   const {
@@ -29,9 +29,6 @@ export default function FeedHeader(props: FeedHeaderProps) {
     onPressNotification,
     onPressCart,
   } = props;
-
-  // 표시 범위 1~99, 0이면 배지 없음
-  const badgeCount = Math.min(cartCount, CART_BADGE_MAX);
 
   return (
     <>
@@ -58,12 +55,7 @@ export default function FeedHeader(props: FeedHeaderProps) {
             style={{ padding: ICON_HIT_SLOP_PADDING, margin: -ICON_HIT_SLOP_PADDING }}
           >
             <BellIcon size={25} />
-            {hasUnreadNotification && (
-              <View
-                className="absolute rounded-full border-[1.5px] border-white bg-rose"
-                style={{ top: 6, right: 6, width: 7, height: 7 }}
-              />
-            )}
+            <DotBadge visible={hasUnreadNotification} />
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -72,16 +64,7 @@ export default function FeedHeader(props: FeedHeaderProps) {
             style={{ padding: ICON_HIT_SLOP_PADDING, margin: -ICON_HIT_SLOP_PADDING }}
           >
             <CartIcon size={25} />
-            {badgeCount > 0 && (
-              <View
-                className="absolute flex-row items-center justify-center rounded-full border-[1.5px] border-white bg-rose"
-                style={{ top: 6, right: 6, minWidth: 18, height: 18, paddingHorizontal: 3 }}
-              >
-                <Typography style={{ fontSize: 10, lineHeight: 10 }} className="text-white">
-                  {badgeCount}
-                </Typography>
-              </View>
-            )}
+            <CountBadge count={cartCount} />
           </TouchableOpacity>
         </View>
       </View>

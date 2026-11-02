@@ -8,6 +8,7 @@ import BusinessFooter from "@/common/components/BusinessFooter/BusinessFooter";
 import { CartIcon } from "@/common/components/DsIcon/icons";
 import GroupBand from "@/common/components/GroupBand/GroupBand";
 import Icon from "@/common/components/Icon/Icon";
+import { CountBadge } from "@/common/components/IconBadge/IconBadge";
 import LoginPrompt from "@/common/components/LoginPrompt/LoginPrompt";
 import MenuGroup, { MenuItem } from "@/common/components/MenuGroup/MenuGroup";
 import Typography from "@/common/components/Typography/Typography";
@@ -170,16 +171,7 @@ export default function MypageView() {
           </TouchableOpacity>
           <TouchableOpacity onPress={handlePressCart} activeOpacity={0.6} style={{ padding: 9, margin: -9 }}>
             <CartIcon size={25} />
-            {cartItemCount > 0 && (
-              <View
-                className="absolute flex-row items-center justify-center rounded-full border-[1.5px] border-white bg-rose"
-                style={{ top: 6, right: 6, minWidth: 18, height: 18, paddingHorizontal: 3 }}
-              >
-                <Typography style={{ fontSize: 10, lineHeight: 10 }} className="text-white">
-                  {Math.min(cartItemCount, 99)}
-                </Typography>
-              </View>
-            )}
+            <CountBadge count={cartItemCount} />
           </TouchableOpacity>
         </View>
       </View>

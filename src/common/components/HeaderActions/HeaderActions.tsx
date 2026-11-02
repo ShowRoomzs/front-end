@@ -1,7 +1,7 @@
 import { TouchableOpacity, View } from "react-native";
 
 import { CartIcon, SearchIcon } from "@/common/components/DsIcon/icons";
-import Typography from "@/common/components/Typography/Typography";
+import { CountBadge } from "@/common/components/IconBadge/IconBadge";
 import { useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { useCartItemCount } from "@/features/cart/hooks/useGetCart";
@@ -12,23 +12,13 @@ import { useCartItemCount } from "@/features/cart/hooks/useGetCart";
  * C2 팔로잉 · C3 좋아요 · C5 게시물이 같은 쌍을 쓴다. 화면마다 따로 그리면 아이콘 간격(18)과
  * 배지 위치가 조금씩 어긋나므로 한 곳에서 잡는다.
  *
- * 장바구니 배지는 **로즈를 쓰는 몇 안 되는 자리**다(공구 신호). 표시 범위는 1~99이고 0이면
- * 배지를 그리지 않는다 — 0을 표기하면 비어 있다는 사실이 알림처럼 보인다.
+ * 장바구니 배지는 **로즈를 쓰는 몇 안 되는 자리**다(공구 신호). 표시 범위 · 위치 · 범프는
+ * `CountBadge`가 맡는다.
  *
  * 비로그인 화면에서는 장바구니를 숨긴다(`showCart={false}`) — 로그인 유도 하나만 남기는
  * 자리에서 장바구니로 빠져나갈 길을 함께 두면 무엇을 하라는 화면인지 흐려진다(C2 1c · C3 1b).
  */
 const ICON_HIT_SLOP_PADDING = 9;
-const CART_BADGE_MAX = 99;
-
-/**
- * 배지를 아이콘 모서리에 얹는 좌표(터치 영역 기준).
- *
- * 터치 영역이 아이콘보다 사방 9px 크므로 이 값이 6이면 **아이콘 위·오른쪽으로 3px**만 삐져나온다.
- * 예전 값(-5 / -7)은 14px이나 올라가 헤더 바깥으로 나갔고, 안드로이드에서 잘려 보였다.
- * 헤더마다 아이콘 위 여유가 다르므로(마이 5 · 홈 8.5 · 공용 5) 3px을 넘기면 안 된다.
- */
-const BADGE_INSET = 6;
 
 interface HeaderActionsProps {
   /** 기본 true — 비로그인 상태에서만 끈다 */
@@ -39,8 +29,6 @@ export default function HeaderActions(props: HeaderActionsProps) {
   const { showCart = true } = props;
   const navigation = useMainNavigation();
   const itemCount = useCartItemCount();
-
-  const cartCount = Math.min(itemCount, CART_BADGE_MAX);
 
   return (
     <View className="flex-row" style={{ gap: 18 }}>
@@ -64,16 +52,7 @@ export default function HeaderActions(props: HeaderActionsProps) {
           style={{ padding: ICON_HIT_SLOP_PADDING, margin: -ICON_HIT_SLOP_PADDING }}
         >
           <CartIcon size={25} />
-          {cartCount > 0 && (
-            <View
-              className="absolute flex-row items-center justify-center rounded-full border-[1.5px] border-white bg-rose"
-              style={{ top: BADGE_INSET, right: BADGE_INSET, minWidth: 18, height: 18, paddingHorizontal: 3 }}
-            >
-              <Typography style={{ fontSize: 10, lineHeight: 10 }} className="text-white">
-                {cartCount}
-              </Typography>
-            </View>
-          )}
+          <CountBadge count={itemCount} />
         </TouchableOpacity>
       )}
     </View>

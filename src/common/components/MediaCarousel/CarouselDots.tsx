@@ -1,5 +1,8 @@
+import { useEffect } from "react";
 import { View } from "react-native";
+import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 
+import { MOTION_DURATION, MOTION_EASING, MOTION_REDUCE } from "@/common/constants/motion";
 import { cn } from "@/common/utils/cn";
 
 /**
@@ -14,6 +17,8 @@ import { cn } from "@/common/utils/cn";
  *
  * 끝 도트 축소 — 5개가 모두 같은 크기면 "이게 전부"로 읽히므로, 그 방향에 남은 장이 있는 쪽의
  * 맨 끝 도트만 4px(#EAEAEC)로 줄여 더 있다는 신호를 준다. 숫자 카운터(1/12)는 쓰지 않는다.
+ *
+ * 디자인 시스템 §08 — 도트 전환(색 · 크기)은 160ms standard.
  */
 interface CarouselDotsProps {
   count: number;
@@ -57,6 +62,52 @@ function getDotColor(placement: "below" | "inside", state: { isActive: boolean; 
   return state.isShrunk ? "#EAEAEC" : "#DEDEE0";
 }
 
+interface AnimatedDotProps {
+  size: number;
+  color: string;
+  placement: "below" | "inside";
+  isActive: boolean;
+}
+
+function AnimatedDot(props: AnimatedDotProps) {
+  const { size, color, placement, isActive } = props;
+  const animatedSize = useSharedValue(size);
+  const animatedColor = useSharedValue(color);
+
+  useEffect(() => {
+    const timing = {
+      duration: MOTION_DURATION.fast,
+      easing: MOTION_EASING.standard,
+      reduceMotion: MOTION_REDUCE,
+    };
+
+    animatedSize.value = withTiming(size, timing);
+    animatedColor.value = withTiming(color, timing);
+  }, [animatedColor, animatedSize, color, size]);
+
+  const dotStyle = useAnimatedStyle(() => ({
+    width: animatedSize.value,
+    height: animatedSize.value,
+    borderRadius: animatedSize.value / 2,
+    backgroundColor: animatedColor.value,
+  }));
+
+  return (
+    <Animated.View
+      style={[
+        // 어떤 사진 위에서도 보이게 — 방향 없는 옅은 그림자(시안 `0 0 3px`)
+        placement === "inside" && {
+          shadowColor: "#000",
+          shadowOpacity: isActive ? 0.25 : 0.18,
+          shadowRadius: 3,
+          shadowOffset: { width: 0, height: 0 },
+        },
+        dotStyle,
+      ]}
+    />
+  );
+}
+
 export default function CarouselDots(props: CarouselDotsProps) {
   const { count, activeIndex, placement = "below" } = props;
 
@@ -96,24 +147,13 @@ export default function CarouselDots(props: CarouselDotsProps) {
         const isShrunk = (position === 0 && hasMoreBefore) || (position === visibleCount - 1 && hasMoreAfter);
         const size = isShrunk ? DOT_SIZE_SHRUNK : DOT_SIZE;
 
-        const backgroundColor = getDotColor(placement, { isActive, isShrunk });
-
         return (
-          <View
+          <AnimatedDot
             key={`dot-${index}`}
-            style={{
-              width: size,
-              height: size,
-              borderRadius: size / 2,
-              backgroundColor,
-              // 어떤 사진 위에서도 보이게 — 방향 없는 옥은 그림자(시안 `0 0 3px`)
-              ...(placement === "inside" && {
-                shadowColor: "#000",
-                shadowOpacity: isActive ? 0.25 : 0.18,
-                shadowRadius: 3,
-                shadowOffset: { width: 0, height: 0 },
-              }),
-            }}
+            size={size}
+            color={getDotColor(placement, { isActive, isShrunk })}
+            placement={placement}
+            isActive={isActive}
           />
         );
       })}

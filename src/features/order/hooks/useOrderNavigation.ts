@@ -2,14 +2,9 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { useCallback } from "react";
 
-import { toast } from "@/common/providers/ToastProvider";
 import { useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
-import {
-  CANCEL_REQUEST_AVAILABLE,
-  CANCEL_REQUEST_NOT_READY_MESSAGE,
-} from "@/features/order/services/cancelRequestService";
 import { OrderItemAction, OrderItemRow } from "@/features/order/types/order";
 
 type CommonScreen = keyof CommonStackParamList;
@@ -86,10 +81,6 @@ export function useOrderNavigation() {
           }
           return;
         case "CANCEL_REQUEST":
-          if (!CANCEL_REQUEST_AVAILABLE) {
-            toast.show(CANCEL_REQUEST_NOT_READY_MESSAGE);
-            return;
-          }
           open(COMMON_ROUTES.CANCEL_REQUEST, { orderId, orderProductId: item.orderProductId });
           return;
         case "CANCEL_DETAIL":

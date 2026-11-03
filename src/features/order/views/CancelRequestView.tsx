@@ -6,7 +6,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CheckIcon } from "@/common/components/DsIcon/icons";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import Spinner from "@/common/components/Spinner/Spinner";
-import Stepper from "@/common/components/Stepper/Stepper";
 import Typography from "@/common/components/Typography/Typography";
 import { toast } from "@/common/providers/ToastProvider";
 import { useCommonNavigation, useMainNavigation } from "@/common/router";
@@ -45,11 +44,11 @@ import { formatOrderDate, resolveErrorMessage, withOption, won } from "@/feature
  * 있다) · 버튼 「취소 요청하기」 · 완료 제목 「취소 요청이 접수되었어요」. 「완료」라고 쓰면
  * 거절됐을 때 약속을 어긴 셈이 되므로 끝까지 「요청」으로 표현한다.
  *
- * 상품이 여럿이면 **체크로 고르고**, 2개 이상 수량이면 취소 수량 스테퍼가 붙는다. 진입한 항목은
- * 미리 체크된다. 상품이 1개면 고를 것이 없어 체크박스를 두지 않는다.
+ * 상품이 여럿이면 **체크로 고른다**. 진입한 항목은 미리 체크된다. 상품이 1개면 고를 것이 없어
+ * 체크박스를 두지 않는다. 기타 사유는 상세 입력이 필수다(서버 검증과 같다).
  *
- * 취소 요청 API는 하위주문 id를 받는데 주문 응답이 아직 내리지 않아, 그 값이 오기 전까지는 DEV에서만
- * 목업으로 접수된다(`cancelRequestService.create`). 기타 사유는 상세 입력이 필수다(서버 검증과 같다).
+ * 서버의 취소 요청은 **한 하위주문(브랜드)의 항목 전량**이다 — 그래서 목록은 진입한 항목과 같은
+ * 하위주문만 세우고, 취소 수량 스테퍼는 두지 않는다(부분 수량을 고르게 하면 고른 것보다 많이 취소된다).
  */
 interface Line {
   orderProductId: number;
@@ -78,8 +77,12 @@ export default function CancelRequestView() {
     if (!order) {
       return [];
     }
+    const entry =
+      order.items.find(item => item.orderProductId === params.orderProductId) ??
+      order.items.find(item => item.status === "PREPARING");
+
     return order.items
-      .filter(item => item.status === "PREPARING")
+      .filter(item => item.status === "PREPARING" && item.deliveryGroupId === entry?.deliveryGroupId)
       .map(item => {
         const group = order.groups.find(candidate =>
           candidate.items.some(groupItem => groupItem.orderProductId === item.orderProductId)
@@ -103,10 +106,9 @@ export default function CancelRequestView() {
           },
         };
       });
-  }, [order]);
+  }, [order, params.orderProductId]);
 
   const [checked, setChecked] = useState<Record<number, boolean>>({});
-  const [quantities, setQuantities] = useState<Record<number, number>>({});
   const [reason, setReason] = useState<CancelRequestReason | null>(null);
   const [etcText, setEtcText] = useState("");
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
@@ -114,7 +116,6 @@ export default function CancelRequestView() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [done, setDone] = useState<{
     orderProductId: number;
-    devMockRequestId?: number;
     recarted: boolean;
   } | null>(null);
 
@@ -128,13 +129,11 @@ export default function CancelRequestView() {
       initial[line.orderProductId] = lines.length === 1 || line.orderProductId === params.orderProductId;
     });
     setChecked(initial);
-    setQuantities(Object.fromEntries(lines.map(line => [line.orderProductId, line.max])));
   }, [lines, params.orderProductId]);
 
   const isMulti = lines.length > 1;
   const selectedLines = lines.filter(line => checked[line.orderProductId]);
-  const qtyOf = (line: Line) => Math.min(quantities[line.orderProductId] ?? line.max, line.max);
-  const cancelSum = selectedLines.reduce((sum, line) => sum + line.unit * qtyOf(line), 0);
+  const cancelSum = selectedLines.reduce((sum, line) => sum + line.unit * line.max, 0);
 
   /**
    * 배송비 — 그룹(브랜드) 전체를 취소하면 그 배송비도 함께 돌아가고, 일부만 취소하면 남은 상품이
@@ -152,7 +151,7 @@ export default function CancelRequestView() {
 
       entry.total += line.unit * line.max;
       if (checked[line.orderProductId]) {
-        entry.cancelled += line.unit * qtyOf(line);
+        entry.cancelled += line.unit * line.max;
       }
       groups.set(line.shipping.groupKey, entry);
     });
@@ -185,7 +184,7 @@ export default function CancelRequestView() {
     }
     return { refund, line };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [checked, lines, quantities]);
+  }, [checked, lines]);
 
   const refund = cancelSum + shipping.refund;
   const isAllSelected = lines.length > 0 && selectedLines.length === lines.length;
@@ -208,20 +207,20 @@ export default function CancelRequestView() {
     }
     setIsSubmitting(true);
     try {
-      // 한 요청은 한 하위주문 — 고른 항목의 하위주문이 모두 같고 값이 있을 때만 서버로 보낸다
-      const groupIds = new Set(selectedLines.map(line => line.deliveryGroupId));
-      const deliveryGroupId = groupIds.size === 1 ? (selectedLines[0]?.deliveryGroupId ?? null) : null;
-      const result = await cancelRequestService.create({
+      // 한 요청은 한 하위주문 — 목록이 이미 진입 항목의 하위주문으로 좁혀져 있다
+      const deliveryGroupId = selectedLines[0]?.deliveryGroupId;
+
+      if (!deliveryGroupId) {
+        throw new Error("취소를 요청하지 못했어요.");
+      }
+      await cancelRequestService.create({
         orderId: order.orderId,
-        items: selectedLines.map(line => ({ orderProductId: line.orderProductId, quantity: qtyOf(line) })),
+        deliveryGroupId,
+        orderProductIds: selectedLines.map(line => line.orderProductId),
         reason,
         reasonDetail: reason === "ETC" ? etcText.trim() : undefined,
-        deliveryGroupId,
       });
-
-      if (result.source === "SERVER") {
-        invalidateOrderQueries();
-      }
+      invalidateOrderQueries();
 
       let recarted = false;
 
@@ -235,7 +234,7 @@ export default function CancelRequestView() {
                   productId: line.productId,
                   variantId: line.variantId,
                   groupBuyId: line.groupBuyId as number,
-                  quantity: qtyOf(line),
+                  quantity: line.max,
                 },
               ])
             )
@@ -247,7 +246,6 @@ export default function CancelRequestView() {
       successHaptic();
       setDone({
         orderProductId: selectedLines[0].orderProductId,
-        devMockRequestId: result.source === "DEV_MOCK" ? result.mockRequestId : undefined,
         recarted,
       });
     } catch (error) {
@@ -339,8 +337,8 @@ export default function CancelRequestView() {
                 thumbnailUrl={line.thumbnailUrl}
                 brand={line.brand}
                 name={line.productName}
-                meta={withOption(line.optionName, `${qtyOf(line)}개`, " / ")}
-                price={won(line.unit * qtyOf(line))}
+                meta={withOption(line.optionName, `${line.max}개`, " / ")}
+                price={won(line.unit * line.max)}
               />
             </View>
           ))}
@@ -353,7 +351,6 @@ export default function CancelRequestView() {
                 navigation.replace(COMMON_ROUTES.CANCEL_DETAIL, {
                   orderId: order.orderId,
                   orderProductId: done.orderProductId,
-                  devMockRequestId: done.devMockRequestId,
                 })
               }
             />
@@ -422,7 +419,6 @@ export default function CancelRequestView() {
 
           {lines.map((line, ix) => {
             const isChecked = !!checked[line.orderProductId];
-            const quantity = qtyOf(line);
 
             return (
               <View
@@ -446,31 +442,11 @@ export default function CancelRequestView() {
                       brand={line.brand}
                       name={line.productName}
                       option={withOption(line.optionName, `주문 ${line.max}개`)}
-                      price={won(line.unit * (isChecked ? quantity : line.max))}
+                      price={won(line.unit * line.max)}
                       dimmed={!isChecked}
                     />
                   </View>
                 </View>
-                {isChecked && line.max > 1 && (
-                  <View
-                    className="flex-row items-center justify-between"
-                    style={{ paddingTop: 12, paddingLeft: isMulti ? 31 : 0, gap: 10 }}
-                  >
-                    <Typography
-                      style={{ fontSize: 12.5, fontWeight: "500", lineHeight: 12.5 }}
-                      className="text-ink76"
-                    >
-                      취소 수량
-                    </Typography>
-                    <Stepper
-                      size="md"
-                      value={quantity}
-                      min={1}
-                      max={line.max}
-                      onChange={value => setQuantities(prev => ({ ...prev, [line.orderProductId]: value }))}
-                    />
-                  </View>
-                )}
                 <View className="h-14" />
               </View>
             );

@@ -5,7 +5,6 @@ import { queryClient } from "@/common/lib/queryClient";
 import { PageResponse } from "@/common/types/page";
 import { CART_QUERY_KEY } from "@/features/cart/constants/queryKey";
 import { ORDER_QUERY_KEY } from "@/features/order/constants/queryKey";
-import { withDevCancelRequestActions } from "@/features/order/services/cancelRequestService";
 import { claimService } from "@/features/order/services/claimService";
 import { orderService } from "@/features/order/services/orderService";
 import { ClaimType } from "@/features/order/types/claim";
@@ -45,10 +44,7 @@ export function useGetOrderList(enabled = true) {
       const response = await orderService.getList(page);
 
       return {
-        content: response.content.map(card => ({
-          ...card,
-          items: card.items.map(withDevCancelRequestActions),
-        })),
+        content: response.content,
         pageInfo: {
           currentPage: response.pageInfo.currentPage,
           hasNext: response.pageInfo.hasNext,
@@ -67,11 +63,7 @@ export function useGetOrderList(enabled = true) {
 export function useGetOrderDetail(orderId: number | undefined) {
   return useQuery({
     queryKey: [ORDER_QUERY_KEY.ORDER_DETAIL, orderId],
-    queryFn: async () => {
-      const detail = await orderService.getDetail(orderId as number);
-
-      return { ...detail, items: detail.items.map(withDevCancelRequestActions) };
-    },
+    queryFn: () => orderService.getDetail(orderId as number),
     enabled: !!orderId,
     staleTime: 0,
     gcTime: 0,

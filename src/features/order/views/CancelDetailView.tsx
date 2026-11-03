@@ -1,7 +1,7 @@
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
-import { ScrollView, TouchableOpacity, View } from "react-native";
+import { ScrollView, View } from "react-native";
 
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import Spinner from "@/common/components/Spinner/Spinner";
@@ -59,7 +59,7 @@ const PHASE_COLOR: Record<CancelPhase, string> = {
 export default function CancelDetailView() {
   const navigation = useCommonNavigation();
   const { params } = useRoute<RouteProp<CommonStackParamList, typeof COMMON_ROUTES.CANCEL_DETAIL>>();
-  const { orderId, orderProductId, devMockRequestId } = params;
+  const { orderId, orderProductId } = params;
   const { show: showModal } = useModal();
   const { open } = useOrderNavigation();
   const { data: order } = useGetOrderDetail(orderId);
@@ -69,11 +69,8 @@ export default function CancelDetailView() {
     isLoading,
     error,
   } = useQuery({
-    queryKey: [CANCEL_DETAIL_KEY, orderId, orderProductId, devMockRequestId],
-    queryFn: () =>
-      devMockRequestId
-        ? cancelRequestService.getMockDetail(devMockRequestId)
-        : cancelRequestService.getDetail(orderId, orderProductId),
+    queryKey: [CANCEL_DETAIL_KEY, orderId, orderProductId],
+    queryFn: () => cancelRequestService.getDetail(orderId, orderProductId),
     staleTime: 0,
     gcTime: 0,
     retry: false,
@@ -86,7 +83,7 @@ export default function CancelDetailView() {
   const cancelRequestId = detail?.cancelRequestId ?? null;
 
   const handlePressWithdraw = useCallback(() => {
-    if (!devMockRequestId && !cancelRequestId) {
+    if (!cancelRequestId) {
       return;
     }
     showModal({
@@ -98,13 +95,9 @@ export default function CancelDetailView() {
           label: "철회하기",
           onPress: async () => {
             try {
-              if (devMockRequestId) {
-                await cancelRequestService.withdrawMock(devMockRequestId);
-              } else if (cancelRequestId) {
-                await cancelRequestService.withdraw(orderId, cancelRequestId);
-                // 항목이 상품준비중으로 돌아간다 — 주문 내역 · 상세를 다시 읽는다
-                invalidateOrderQueries();
-              }
+              await cancelRequestService.withdraw(orderId, cancelRequestId);
+              // 항목이 상품준비중으로 돌아간다 — 주문 내역 · 상세를 다시 읽는다
+              invalidateOrderQueries();
               toast.success("취소 요청을 철회했어요");
               navigation.goBack();
             } catch (error) {
@@ -116,7 +109,7 @@ export default function CancelDetailView() {
         },
       ],
     });
-  }, [cancelRequestId, devMockRequestId, navigation, orderId, refresh, showModal]);
+  }, [cancelRequestId, navigation, orderId, refresh, showModal]);
 
   if (isLoading || !detail) {
     return (
@@ -294,15 +287,6 @@ export default function CancelDetailView() {
         )}
         <BulletNotes style={{ paddingHorizontal: 14, paddingTop: 18 }} notes={notesFor(detail)} />
 
-        {!!devMockRequestId && (
-          <DevStatusSwitch
-            current={detail.phase}
-            onPick={next => {
-              cancelRequestService.devSetPhase(devMockRequestId, next);
-              refresh();
-            }}
-          />
-        )}
         <View className="h-26" />
         <BottomSafeSpacer />
       </ScrollView>
@@ -355,43 +339,4 @@ function notesFor(detail: CancelDetail) {
     notes.push("카드사 처리에 2~3영업일이 더 걸릴 수 있어요.");
   }
   return notes;
-}
-
-/** DEV 목업 요청에서만 — 세 상태를 눈으로 확인하는 스위치(배포본에는 그리지 않는다) */
-function DevStatusSwitch(props: { current: CancelPhase; onPick: (phase: CancelPhase) => void }) {
-  if (!__DEV__) {
-    return null;
-  }
-  const options: Array<{ phase: CancelPhase; label: string }> = [
-    { phase: "REVIEWING", label: "확인 중" },
-    { phase: "CANCELLED", label: "취소 완료" },
-    { phase: "REJECTED", label: "거부" },
-  ];
-
-  return (
-    <View className="flex-row items-center px-14 pt-20" style={{ gap: 6 }}>
-      <Typography style={{ fontSize: 11, lineHeight: 11 }} className="text-gray55">
-        DEV 목업 상태
-      </Typography>
-      {options.map(option => (
-        <TouchableOpacity
-          key={option.phase}
-          onPress={() => props.onPick(option.phase)}
-          activeOpacity={0.55}
-          className="rounded-full border-[1px] px-10 py-6"
-          style={{
-            borderColor: option.phase === props.current ? "#1A1A1A" : "#E3E3E5",
-            backgroundColor: option.phase === props.current ? "#1A1A1A" : "#FFFFFF",
-          }}
-        >
-          <Typography
-            style={{ fontSize: 11, lineHeight: 11 }}
-            className={option.phase === props.current ? "text-white" : "text-ink76"}
-          >
-            {option.label}
-          </Typography>
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
 }

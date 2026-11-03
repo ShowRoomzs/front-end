@@ -10,6 +10,8 @@ import Spinner from "@/common/components/Spinner/Spinner";
 import Typography from "@/common/components/Typography/Typography";
 import { toast } from "@/common/providers/ToastProvider";
 import { useSettingsNavigation } from "@/common/router";
+import PortOneIdentityModal from "@/features/auth/components/PortOneIdentityModal/PortOneIdentityModal";
+import { useIdentityVerification } from "@/features/auth/hooks/useIdentityVerification";
 import { useGetAccountInfo, useReverifyIdentityMutation } from "@/features/setting/hooks/useAccountInfo";
 
 /**
@@ -24,6 +26,8 @@ import { useGetAccountInfo, useReverifyIdentityMutation } from "@/features/setti
  *
  * 동의 체크와 버튼은 하단 고정 영역에 함께 둔다 — 스크롤과 무관하게 항상 보이고,
  * 체크 → 버튼이 한 엄지 안에 들어온다.
+ *
+ * 갱신 API는 10분 안에 끝난 본인인증(purpose REVERIFY)을 요구한다 — 인증 → 갱신 순으로 부른다.
  */
 export default function MemberInfoChangeView() {
   const navigation = useSettingsNavigation();
@@ -32,21 +36,28 @@ export default function MemberInfoChangeView() {
 
   const { data: accountInfo, isLoading } = useGetAccountInfo();
   const { mutateAsync: reverify, isPending } = useReverifyIdentityMutation();
+  const { run: verify, isRunning, passWindow, handleFinish } = useIdentityVerification("REVERIFY");
 
-  const canVerify = agreeConsent && !isPending;
+  const canVerify = agreeConsent && !isPending && !isRunning;
 
   const handleReverify = useCallback(async () => {
     if (!canVerify) {
       return;
     }
     try {
+      const result = await verify();
+
+      if (result.status !== "SUCCESS") {
+        toast.show("본인인증에 실패했어요. 잠시 후 다시 시도해 주세요");
+        return;
+      }
       await reverify(true);
       setAgreeConsent(false);
       toast.success("회원정보가 최신 정보로 갱신되었어요");
     } catch {
       toast.show("본인인증에 실패했어요. 잠시 후 다시 시도해 주세요");
     }
-  }, [canVerify, reverify]);
+  }, [canVerify, reverify, verify]);
 
   const rows = [
     { label: "이름", value: accountInfo?.name },
@@ -149,6 +160,8 @@ export default function MemberInfoChangeView() {
           </Typography>
         </TouchableOpacity>
       </View>
+
+      <PortOneIdentityModal request={passWindow} onFinish={handleFinish} />
     </View>
   );
 }

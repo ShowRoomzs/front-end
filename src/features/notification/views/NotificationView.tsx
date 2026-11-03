@@ -17,7 +17,8 @@ import { useBottomSheetContext } from "@/common/providers/BottomSheetProvider";
 import { useCommonNavigation, useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, HOME_ROUTES, MYPAGE_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { SUSPENSION_SHEET_ID } from "@/features/account/constants/suspension";
-import { NOTIFICATION_BADGE_QUERY_KEY } from "@/features/notification/hooks/useNotificationBadge";
+import { HOME_SUMMARY_QUERY_KEY } from "@/features/home/hooks/useHomeSummary";
+import { HomeSummary } from "@/features/home/types/home";
 import { notificationService } from "@/features/notification/services/notificationService";
 import { NotificationItem, NotificationListResponse } from "@/features/notification/types/notification";
 import { Thumb } from "@/features/order/components/OrderParts/OrderParts";
@@ -120,7 +121,11 @@ export default function NotificationView() {
   useEffect(() => {
     void notificationService
       .seeBadge()
-      .then(() => queryClient.setQueryData([NOTIFICATION_BADGE_QUERY_KEY], 0))
+      .then(() =>
+        queryClient.setQueryData<HomeSummary>([HOME_SUMMARY_QUERY_KEY], summary =>
+          summary ? { ...summary, notificationBadgeCount: 0 } : summary
+        )
+      )
       .catch(() => undefined);
   }, []);
 

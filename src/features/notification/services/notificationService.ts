@@ -40,17 +40,4 @@ export const notificationService = {
       }
     }
   },
-  /** 종 배지 — C1 홈 요약의 `notificationBadgeCount`. 서버에 경로나 값이 없으면 0 */
-  getBadgeCount: async (): Promise<number> => {
-    try {
-      const { data } = await apiInstance.get<{ notificationBadgeCount?: number }>("/user/home/summary");
-
-      return data.notificationBadgeCount ?? 0;
-    } catch (error) {
-      if (isNotDeployed(error)) {
-        return 0;
-      }
-      throw error;
-    }
-  },
 };

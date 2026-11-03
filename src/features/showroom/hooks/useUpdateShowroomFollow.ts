@@ -7,6 +7,7 @@ import { PageResponse } from "@/common/types/page";
 import { lightHaptic, warningHaptic } from "@/common/utils/haptics";
 import { SUSPENSION_BLOCKED } from "@/features/account/constants/suspension";
 import { useSuspension } from "@/features/account/hooks/useAccountStatus";
+import { HOME_SUMMARY_QUERY_KEY } from "@/features/home/hooks/useHomeSummary";
 import { POST_QUERY_KEY } from "@/features/post/constants/queryKey";
 import { FeedItem } from "@/features/post/types/post";
 import { SHOWROOM_QUERY_KEY } from "@/features/showroom/constants/queryKey";
@@ -77,6 +78,8 @@ export function useUpdateShowroomFollow(keepFollowingList = false) {
         void queryClient.invalidateQueries({ queryKey: [SHOWROOM_QUERY_KEY.FOLLOWING_SHOWROOMS] });
       }
       void queryClient.invalidateQueries({ queryKey: [POST_QUERY_KEY.FOLLOWING_FEED] });
+      // 홈 빈 상태는 팔로우 수로 가른다 — 첫 팔로우 · 마지막 언팔로우 때 안내가 바뀐다
+      void queryClient.invalidateQueries({ queryKey: [HOME_SUMMARY_QUERY_KEY] });
     },
   });
 

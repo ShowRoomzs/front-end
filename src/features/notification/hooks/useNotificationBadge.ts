@@ -1,9 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
-
 import { useUserStore } from "@/common/stores/useUserStore";
-import { notificationService } from "@/features/notification/services/notificationService";
+import { useHomeSummary } from "@/features/home/hooks/useHomeSummary";
+import { HomeSummary } from "@/features/home/types/home";
 
-export const NOTIFICATION_BADGE_QUERY_KEY = "notificationBadge";
+const selectBadge = (summary: HomeSummary) => summary.notificationBadgeCount ?? 0;
 
 /**
  * C1 홈 종 배지 — C11 목록에 들어간 뒤 새로 온 알림 수(홈 요약 `notificationBadgeCount`).
@@ -11,11 +10,7 @@ export const NOTIFICATION_BADGE_QUERY_KEY = "notificationBadge";
  */
 export function useNotificationBadge() {
   const isLoggedIn = !!useUserStore(state => state.user);
-  const { data } = useQuery({
-    queryKey: [NOTIFICATION_BADGE_QUERY_KEY],
-    queryFn: notificationService.getBadgeCount,
-    enabled: isLoggedIn,
-  });
+  const { data } = useHomeSummary(selectBadge);
 
   return isLoggedIn ? (data ?? 0) : 0;
 }

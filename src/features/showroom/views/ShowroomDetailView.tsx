@@ -150,7 +150,14 @@ export default function ShowroomDetailView() {
 
               {!showroom.hasOngoingGroupBuy && (
                 <View className="px-14 pb-18">
-                  <InfoBanner message="지금은 진행 중인 공구가 없어요. 팔로우하면 새 공구가 열릴 때 알려드려요." />
+                  {/* 시안 문구는 팔로우 전 기준 — 이미 팔로우했으면 「팔로우하면」을 빼고 알림만 약속한다 */}
+                  <InfoBanner
+                    message={
+                      showroom.isFollowing
+                        ? "지금은 진행 중인 공구가 없어요. 새 공구가 열리면 알려드려요."
+                        : "지금은 진행 중인 공구가 없어요. 팔로우하면 새 공구가 열릴 때 알려드려요."
+                    }
+                  />
                 </View>
               )}
 
@@ -182,7 +189,11 @@ export default function ShowroomDetailView() {
               fill
               icon={<EmptyBoxIcon size={50} />}
               title="아직 올라온 게시물이 없어요"
-              description={"팔로우해 두면 첫 공구가 열릴 때\n가장 먼저 알려드려요"}
+              description={
+                showroom?.isFollowing
+                  ? "첫 공구가 열리면\n가장 먼저 알려드려요"
+                  : "팔로우해 두면 첫 공구가 열릴 때\n가장 먼저 알려드려요"
+              }
             />
           )
         }

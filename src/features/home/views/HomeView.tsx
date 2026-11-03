@@ -13,6 +13,8 @@ import { useCartItemCount } from "@/features/cart/hooks/useGetCart";
 import FeedCaughtUp from "@/features/home/components/FeedCaughtUp/FeedCaughtUp";
 import FeedHeader from "@/features/home/components/FeedHeader/FeedHeader";
 import FollowingEmptyState from "@/features/home/components/FollowingEmptyState/FollowingEmptyState";
+import { useHomeSummary } from "@/features/home/hooks/useHomeSummary";
+import { HomeSummary } from "@/features/home/types/home";
 import { useNotificationBadge } from "@/features/notification/hooks/useNotificationBadge";
 import PostCard from "@/features/post/components/PostCard/PostCard";
 import PostCardSkeleton from "@/features/post/components/PostCardSkeleton/PostCardSkeleton";
@@ -33,6 +35,10 @@ import { FeedItem } from "@/features/post/types/post";
  * 팔로잉이 0이면 쇼룸 목록을 나열하는 대신 추천 피드를 그대로 이어 붙인다. 이름만 있는 목록으로는
  * 팔로우를 결정할 근거가 없지만, 게시물을 보면 무엇을 파는 쇼룸인지 바로 판단할 수 있다 —
  * 빈 상태가 곧 발견(discovery) 피드가 된다.
+ *
+ * 빈 상태는 "팔로잉 피드가 비었다"가 아니라 "팔로우한 쇼룸이 없다"(홈 요약 `followingCount`)로
+ * 가른다. 팔로우는 했는데 그 쇼룸들이 아직 글을 안 올렸으면 [팔로우한 쇼룸이 없어요]는 거짓이라
+ * "모두 확인했어요" 블록을 둔다. 구버전 서버라 값이 없으면 피드가 비었는지로 판정한다.
  */
 type FeedRow =
   | { key: string; type: "post"; item: FeedItem; isRecommended: boolean }
@@ -40,6 +46,8 @@ type FeedRow =
   | { key: string; type: "emptyFollowing" }
   | { key: string; type: "band" }
   | { key: string; type: "sectionLabel"; label: string };
+
+const selectFollowingCount = (summary: HomeSummary) => summary.followingCount;
 
 export default function HomeView() {
   const inset = useSafeAreaInsets();
@@ -50,6 +58,7 @@ export default function HomeView() {
   const recommendedFeed = useGetRecommendedFeed();
   const cartItemCount = useCartItemCount();
   const notificationBadge = useNotificationBadge();
+  const followingCountQuery = useHomeSummary(selectFollowingCount);
 
   const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -75,6 +84,7 @@ export default function HomeView() {
 
   const hasFollowingPosts = followingFeed.content.length > 0;
   const isFollowingExhausted = !followingFeed.pageInfo?.hasNext;
+  const hasFollowedShowroom = hasFollowingPosts || (followingCountQuery.data ?? 0) > 0;
 
   const rows = useMemo((): Array<FeedRow> => {
     const followingRows: Array<FeedRow> = followingFeed.content.map(item => ({
@@ -100,7 +110,7 @@ export default function HomeView() {
       return followingRows;
     }
 
-    const divider: Array<FeedRow> = hasFollowingPosts
+    const divider: Array<FeedRow> = hasFollowedShowroom
       ? [
           { key: "band-top", type: "band" },
           { key: "caught-up", type: "caughtUp" },
@@ -117,7 +127,14 @@ export default function HomeView() {
       { key: "recommended-label", type: "sectionLabel", label: "회원님을 위한 추천" },
       ...recommendedRows,
     ];
-  }, [followingFeed.content, hasFollowingPosts, isFollowingExhausted, recommendedFeed.content, user]);
+  }, [
+    followingFeed.content,
+    hasFollowedShowroom,
+    hasFollowingPosts,
+    isFollowingExhausted,
+    recommendedFeed.content,
+    user,
+  ]);
 
   const handlePressSearch = useCallback(() => {
     navigation.navigate(ROOT_ROUTES.COMMON, {
@@ -188,10 +205,24 @@ export default function HomeView() {
   const pageInfo =
     user && followingFeed.pageInfo?.hasNext ? followingFeed.pageInfo : recommendedFeed.pageInfo;
   const isLoading =
+    followingCountQuery.isLoading ||
     followingFeed.isLoading ||
     recommendedFeed.isLoading ||
     followingFeed.isFetchingNextPage ||
     recommendedFeed.isFetchingNextPage;
+
+  /*
+    팔로잉 게시물도 추천도 비었을 때 — 목록 행이 하나도 없어 구분 줄이 들어가지
+    못하는 경우다. 이때만은 밑에 이어질 피드가 없으므로 안내를 가운데로 둔다 —
+    위쪽에 붙여 두면 아래가 통째로 빈 화면이 된다.
+  */
+  const emptyFeed = hasFollowedShowroom ? (
+    <View className="flex-1 justify-center bg-white pb-60">
+      <FeedCaughtUp />
+    </View>
+  ) : (
+    <FollowingEmptyState fill onPressSearch={handlePressSearch} />
+  );
 
   return (
     <View className="flex-1 bg-white">
@@ -213,14 +244,7 @@ export default function HomeView() {
         renderItem={renderItem}
         onViewableItemsChanged={handleViewableItemsChanged}
         viewabilityConfig={viewabilityConfig}
-        /*
-          팔로우도 없고 추천도 비었을 때 — 목록 행이 하나도 없어 `emptyFollowing` 줄이 들어가지
-          못하는 경우다. 이때만은 밑에 이어질 피드가 없으므로 안내를 가운데로 둔다 —
-          위쪽에 붙여 두면 아래가 통째로 빈 화면이 된다.
-        */
-        ListEmptyComponent={
-          isLoading ? undefined : <FollowingEmptyState fill onPressSearch={handlePressSearch} />
-        }
+        ListEmptyComponent={isLoading ? undefined : emptyFeed}
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}

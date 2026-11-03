@@ -22,9 +22,6 @@ import { useGetPublicProductInquiries } from "@/features/product/hooks/useGetPub
  * 이 탭은 **최근 3건 미리보기**만 두고 나머지는 [문의 전체 보기]로 C7-2에 넘긴다. 상세 안에서
  * 목록을 계속 늘리면 스크롤이 끝없이 길어지고 필터를 붙일 자리도 없다. 그래서 머리의 건수는
  * 잘라 낸 3건이 아니라 **전체 건수**다.
- *
- * ⚠️ 목록 데이터는 아직 서버가 주지 않는다 — `productInquiryService.getPublicList` 주석 참고.
- * 배포본은 목록이 `null`로 와서 「준비 중」을 그린다(문의 작성은 실제로 된다).
  */
 interface ProductDetailInquiryProps {
   productId: number;
@@ -63,8 +60,8 @@ export default function ProductDetailInquiry(props: ProductDetailInquiryProps) {
   const suspension = useSuspension();
   const writeActionLabel = suspension ? undefined : "상품 문의하기";
 
-  /** 공개 목록 API가 없는 배포본 — 목록 자리에 「준비 중」을 둔다 */
-  const isListReady = data !== null;
+  /** 받기 전에는 빈 상태를 그리지 않는다 — 「문의가 없어요」가 잠깐 비쳤다 바뀌면 거짓이 된다 */
+  const isListReady = data !== undefined;
   const totalCount = data?.totalCount ?? 0;
   const previewItems = (data?.items ?? []).slice(0, PREVIEW_COUNT);
 
@@ -110,16 +107,6 @@ export default function ProductDetailInquiry(props: ProductDetailInquiryProps) {
         </Typography>
       )}
 
-      {!isListReady && (
-        <EmptyState
-          icon={<SpeechBubbleIcon size={50} color="#D8D8DA" />}
-          title="문의 목록을 준비하고 있어요"
-          description={"궁금한 점을 남기시면\n판매자가 확인하고 답변해 드려요"}
-          paddingTop={40}
-          actionLabel={writeActionLabel}
-          onPressAction={handlePressWrite}
-        />
-      )}
       {isListReady && previewItems.length === 0 && (
         <EmptyState
           icon={<SpeechBubbleIcon size={50} color="#D8D8DA" />}

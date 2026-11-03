@@ -57,30 +57,29 @@ export type ProductInquiryHistoryParams = SizeParams & {
 };
 
 /**
- * C7 문의 탭의 **공개 목록** 항목.
+ * C7 문의 탭의 **공개 목록** 항목 — BE `PublicProductInquiryResponse`(`GET /v1/common/products/{productId}/inquiries`).
  *
- * ⚠️ 서버 미제공 — `GET /v1/common/products/{productId}/inquiries`가 아직 없다.
- * 지금 있는 `/v1/user/product-inquiries`는 로그인한 사람의 **자기 문의**만 주므로 남의 문의가
- * 보이지 않고, 응답에 작성자 이름도 없어 `수민** · 2026.08.08` 표기를 만들 수 없다.
- * 그래서 `productInquiryService.getPublicList`는 DEV에서만 `mocks/productInquiryMock.ts`를 쓰고,
- * 배포본은 `null`을 돌려줘 화면이 「준비 중」을 그린다.
- *
- * 필드는 BE `ProductInquiryResponse`를 그대로 따르고 **`authorName` 하나만 더했다.**
- * 서버가 공개 목록을 열 때 이 필드만 채워 주면 목업을 지우는 것으로 교체가 끝난다.
+ * 비밀글은 작성자 본인에게만 `content` · `imageUrls` · `answer`가 실린다. 남의 비밀글이면 셋 다 비어 오고
+ * 대체 문구는 화면이 채운다.
  */
 export interface PublicProductInquiry {
   id: number;
+  type: string;
   /** 작성 화면에서 고른 유형 — 목록에서 첫 단서가 된다 */
   typeName: string;
-  content: string;
+  status: ProductInquiryStatus;
   /** 지우지 않고 자물쇠 + 회색 대체 문구로 자리를 남긴다 — 숨기면 건수와 목록이 어긋난다 */
   secret: boolean;
-  status: ProductInquiryStatus;
-  answerContent: string | null;
-  /** 마스킹은 서버가 하는 편이 안전하지만, 화면에서도 `maskAuthorName`으로 한 번 더 가린다 */
+  /** 로그인한 소비자 본인이 쓴 문의 */
+  mine: boolean;
+  /** 남의 비밀글이면 null */
+  content: string | null;
+  imageUrls: Array<string>;
+  /** 서버가 앞 절반만 남기고 가려서 준다(수민초록 → 수민**) */
   authorName: string;
   createdAt: string;
-  answeredAt: string | null;
+  /** 답변 전이거나 남의 비밀글이면 null */
+  answer: { content: string; answeredAt: string | null } | null;
 }
 
 export interface PublicProductInquiryList {

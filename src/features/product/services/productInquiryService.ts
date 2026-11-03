@@ -10,35 +10,30 @@ import {
   PublicProductInquiryList,
 } from "@/features/product/types/productInquiry";
 
-/** 상품별 공개 문의 목록 API(`GET /v1/common/products/{productId}/inquiries`)가 서버에 생겼는가 */
-const PUBLIC_INQUIRY_LIST_AVAILABLE = false;
+/**
+ * 공개 목록은 한 번에 받아 C7 미리보기 · C7-2 유형 칩이 같이 쓴다. 상품 하나의 문의가 이만큼을 넘기면
+ * C7-2를 서버 페이지 · `type` 필터로 바꾼다.
+ */
+const PUBLIC_INQUIRY_PAGE_SIZE = 100;
+
+/** 서버 공통 `PageResponse` — 앱 공통 타입과 pageInfo 키가 다르다(`totalResults`) */
+interface PublicProductInquiryPage {
+  content: Array<PublicProductInquiry>;
+  pageInfo: { totalResults: number; hasNext: boolean };
+}
 
 export const productInquiryService = {
   /**
-   * 상품 상세에 공개되는 문의 목록 (C7 문의 탭 · C7-2 문의 전체).
-   *
-   * ⚠️ 서버 미제공(2026-10-21 main · feat/add 모두) — 상품별 **공개** 목록 API가 없다. 남의 문의가 보이지 않는
-   * `/user/product-inquiries`를 여기에 가져다 쓰지 않는다 — 그걸로 목록을 만들면 머리의 건수가 사람마다 달라져 거짓이 된다.
-   *
-   * - DEV 빌드: `mocks/productInquiryMock.ts`로 채워 아코디언 · 비밀글 · 답변 상태를 확인한다.
-   * - 배포본: `null`을 돌려준다 — 화면은 「준비 중」 안내를 그린다(「등록된 문의가 없어요」라고 쓰면 거짓이다).
-   *
-   * **API가 열리면** `PUBLIC_INQUIRY_LIST_AVAILABLE`을 true로 바꾸고 목업 분기와 파일을 지운다.
+   * 상품 상세에 공개되는 문의 목록 (C7 문의 탭 · C7-2 문의 전체). 비로그인도 열린다 — 로그인했으면
+   * 내 비밀글의 본문 · 답변이 함께 온다.
    */
-  getPublicList: async (productId: number): Promise<PublicProductInquiryList | null> => {
-    if (PUBLIC_INQUIRY_LIST_AVAILABLE) {
-      const { data: response } = await apiInstance.get<PageResponse<PublicProductInquiry>>(
-        `/common/products/${productId}/inquiries`
-      );
+  getPublicList: async (productId: number): Promise<PublicProductInquiryList> => {
+    const { data: response } = await apiInstance.get<PublicProductInquiryPage>(
+      `/common/products/${productId}/inquiries`,
+      { params: { page: 1, size: PUBLIC_INQUIRY_PAGE_SIZE } }
+    );
 
-      return { totalCount: response.pageInfo.totalElements, items: response.content };
-    }
-    if (__DEV__) {
-      const { buildProductInquiryMock } = await import("@/features/product/mocks/productInquiryMock");
-
-      return buildProductInquiryMock(productId);
-    }
-    return null;
+    return { totalCount: response.pageInfo.totalResults, items: response.content };
   },
   getCategories: async () => {
     const { data: response } = await apiInstance.get<ProductInquiryCategoryResponse>(

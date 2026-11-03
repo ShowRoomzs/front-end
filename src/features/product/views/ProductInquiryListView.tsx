@@ -28,9 +28,8 @@ import { useGetPublicProductInquiries } from "@/features/product/hooks/useGetPub
  * 항목은 상세와 **같은 컴포넌트**를 쓴다 — 같은 글이 두 화면에서 다르게 읽히면 어느 쪽이
  * 맞는 표기인지 알 수 없다. 질의도 같은 키를 공유해 넘어오는 순간 다시 부르지 않는다.
  *
- * 필터는 **서버가 아니라 화면이** 건다. 공개 목록 API가 아직 없어 유형 파라미터도 정해지지
- * 않았고, 유형은 5종뿐이라 받아 둔 목록에서 거르면 된다. 서버가 유형 필터를 지원하면
- * `selectedType`을 질의 파라미터로 올리면 된다.
+ * 필터는 **서버가 아니라 화면이** 건다. 유형은 5종뿐이라 받아 둔 목록에서 거르면 된다 — 칩도 받은
+ * 목록에서 세우므로 같은 목록을 써야 칩과 결과가 어긋나지 않는다. 문의가 많아지면 서버 `type` 필터로 올린다.
  */
 const ALL = "ALL";
 
@@ -90,22 +89,11 @@ export default function ProductInquiryListView() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ flexGrow: 1, paddingBottom: bottom + BOTTOM_CTA_HEIGHT }}
         >
-          {/* 공개 목록 API가 없는 배포본 — 거를 목록이 없으니 칩도 세우지 않는다 */}
-          {data !== null && (
-            <View className="pb-14 pt-12">
-              <FilterChips items={chips} selectedValue={selectedType} onSelect={setSelectedType} />
-            </View>
-          )}
+          <View className="pb-14 pt-12">
+            <FilterChips items={chips} selectedValue={selectedType} onSelect={setSelectedType} />
+          </View>
 
-          {data === null && (
-            <EmptyState
-              fill
-              icon={<SpeechBubbleIcon size={50} color="#D8D8DA" />}
-              title="문의 목록을 준비하고 있어요"
-              description={"궁금한 점을 남기시면\n판매자가 확인하고 답변해 드려요"}
-            />
-          )}
-          {data !== null && visibleItems.length === 0 && (
+          {visibleItems.length === 0 && (
             <EmptyState
               fill
               icon={<SpeechBubbleIcon size={50} color="#D8D8DA" />}

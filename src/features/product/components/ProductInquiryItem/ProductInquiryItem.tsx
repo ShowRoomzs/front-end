@@ -7,7 +7,6 @@ import ExpandChevron from "@/common/components/ExpandChevron/ExpandChevron";
 import Typography from "@/common/components/Typography/Typography";
 import { EXPAND_ENTERING, EXPAND_EXITING } from "@/common/constants/motion";
 import { PublicProductInquiry } from "@/features/product/types/productInquiry";
-import { maskAuthorName } from "@/features/product/utils/maskAuthorName";
 
 /**
  * 공개 문의 한 건 — 아코디언 (시안 C7 문의 탭 · C7-2 문의 전체).
@@ -23,7 +22,7 @@ import { maskAuthorName } from "@/features/product/utils/maskAuthorName";
  *
  * **비밀글은 지우지 않는다.** 자물쇠 + 회색 대체 문구로 자리를 남긴다 — 숨기면 머리의 건수와
  * 목록의 줄 수가 어긋나고, 글을 쓴 사람도 자기 문의가 접수됐는지 확인할 수 없다.
- * 본문은 애초에 서버가 내려주지 않아야 하므로, 대체 문구는 **화면이** 채운다.
+ * 남의 비밀글은 서버가 본문을 비워 보내므로 대체 문구는 **화면이** 채운다. 내 비밀글은 본문이 와서 자물쇠만 단다.
  */
 interface ProductInquiryItemProps {
   inquiry: PublicProductInquiry;
@@ -44,8 +43,10 @@ export default function ProductInquiryItem(props: ProductInquiryItemProps) {
   const { inquiry, sellerName, isExpanded, onToggle } = props;
 
   const isAnswered = inquiry.status === "ANSWERED";
-  /** 비밀글은 펼칠 내용이 없고, 미답변은 아직 드러날 답변이 없다 */
-  const isExpandable = isAnswered && !inquiry.secret;
+  /** 남의 비밀글은 본문이 오지 않는다 */
+  const isHidden = inquiry.content === null;
+  /** 남의 비밀글은 펼칠 내용이 없고, 미답변은 아직 드러날 답변이 없다 */
+  const isExpandable = isAnswered && !!inquiry.answer;
   const isOpen = isExpandable && isExpanded;
 
   return (
@@ -83,10 +84,10 @@ export default function ProductInquiryItem(props: ProductInquiryItemProps) {
 
           <Typography
             style={{ fontSize: 14, lineHeight: 22.4 }}
-            className={`min-w-0 flex-1 ${inquiry.secret ? "text-gray55" : "text-ink"}`}
+            className={`min-w-0 flex-1 ${isHidden ? "text-gray55" : "text-ink"}`}
             numberOfLines={isOpen ? EXPANDED_LINE_CLAMP : 1}
           >
-            {inquiry.secret ? SECRET_PLACEHOLDER : inquiry.content}
+            {inquiry.content ?? SECRET_PLACEHOLDER}
           </Typography>
 
           {isExpandable && (
@@ -95,7 +96,7 @@ export default function ProductInquiryItem(props: ProductInquiryItemProps) {
         </View>
 
         <Typography style={{ fontSize: 11.5, lineHeight: 11.5, marginTop: 7 }} className="text-gray45">
-          {`${maskAuthorName(inquiry.authorName)} · ${dayjs(inquiry.createdAt).format(DATE_FORMAT)}`}
+          {`${inquiry.authorName} · ${dayjs(inquiry.createdAt).format(DATE_FORMAT)}`}
         </Typography>
       </TouchableOpacity>
 
@@ -125,15 +126,15 @@ export default function ProductInquiryItem(props: ProductInquiryItemProps) {
 
               <View className="flex-1" />
 
-              {!!inquiry.answeredAt && (
+              {!!inquiry.answer?.answeredAt && (
                 <Typography style={{ fontSize: 11, lineHeight: 11 }} className="text-gray55">
-                  {dayjs(inquiry.answeredAt).format(DATE_FORMAT)}
+                  {dayjs(inquiry.answer.answeredAt).format(DATE_FORMAT)}
                 </Typography>
               )}
             </View>
 
             <Typography style={{ fontSize: 13.5, lineHeight: 22.95, marginTop: 8 }} className="text-ink76">
-              {inquiry.answerContent}
+              {inquiry.answer?.content}
             </Typography>
           </View>
         </Animated.View>

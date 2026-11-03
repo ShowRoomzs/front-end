@@ -52,7 +52,8 @@ export default function AddressSearchProvider(props: AddressSearchProviderProps)
       <Modal
         visible={visible}
         animationType="slide"
-        presentationStyle="pageSheet"
+        // iOS pageSheet는 뒤 화면이 비치는 카드로 뜬다 — 안드로이드처럼 전체 화면(상단 인셋은 아래 SafeAreaView가 맡는다)
+        presentationStyle="fullScreen"
         onRequestClose={handleRequestClose}
       >
         <SafeAreaView edges={["top"]} className="flex-1 bg-white">

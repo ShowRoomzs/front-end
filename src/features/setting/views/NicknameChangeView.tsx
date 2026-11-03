@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { ScrollView, TouchableOpacity, View } from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
@@ -20,7 +20,7 @@ import { useUpdateUserMutation } from "@/features/user/hooks/useUpdateUserMutati
  */
 export default function NicknameChangeView() {
   const navigation = useSettingsNavigation();
-  const { bottom } = useSafeAreaInsets();
+  const { top, bottom } = useSafeAreaInsets();
   const { user } = useUserStore();
   const { mutateAsync: updateUser, isPending } = useUpdateUserMutation();
 
@@ -51,40 +51,46 @@ export default function NicknameChangeView() {
   }, [canSave, navigation, nickname, updateUser, user]);
 
   return (
-    <View className="flex-1 bg-white">
-      <ScreenHeader title="닉네임 변경" onPressBack={navigation.goBack} />
+    <KeyboardAvoidingView
+      className="flex-1"
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={top}
+    >
+      <View className="flex-1 bg-white">
+        <ScreenHeader title="닉네임 변경" onPressBack={navigation.goBack} />
 
-      <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        <View className="px-14 pb-4 pt-22">
-          <NicknameField
-            value={nickname}
-            onChangeText={setNickname}
-            isError={isError}
-            isAvailable={isAvailable}
-            message={message}
-            placeholder="새 닉네임을 입력해 주세요"
-            autoFocus
-          />
-        </View>
-      </ScrollView>
+        <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+          <View className="px-14 pb-4 pt-22">
+            <NicknameField
+              value={nickname}
+              onChangeText={setNickname}
+              isError={isError}
+              isAvailable={isAvailable}
+              message={message}
+              placeholder="새 닉네임을 입력해 주세요"
+              autoFocus
+            />
+          </View>
+        </ScrollView>
 
-      <View
-        className="border-t-[0.5px] border-divider bg-white px-14 pt-12"
-        style={{ paddingBottom: bottom + 26 }}
-      >
-        <TouchableOpacity
-          onPress={handleSave}
-          disabled={!canSave}
-          activeOpacity={0.75}
-          className={`h-52 flex-row items-center justify-center rounded-base ${
-            canSave ? "bg-rose" : "bg-fill"
-          }`}
+        <View
+          className="border-t-[0.5px] border-divider bg-white px-14 pt-12"
+          style={{ paddingBottom: bottom + 26 }}
         >
-          <Typography variant="buttonPrimary" className={canSave ? "text-white" : "text-gray71"}>
-            저장
-          </Typography>
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleSave}
+            disabled={!canSave}
+            activeOpacity={0.75}
+            className={`h-52 flex-row items-center justify-center rounded-base ${
+              canSave ? "bg-rose" : "bg-fill"
+            }`}
+          >
+            <Typography variant="buttonPrimary" className={canSave ? "text-white" : "text-gray71"}>
+              저장
+            </Typography>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }

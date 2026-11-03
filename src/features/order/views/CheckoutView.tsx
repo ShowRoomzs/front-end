@@ -1,6 +1,7 @@
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ScrollView, TextInput, TouchableOpacity, View } from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView, TextInput, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Circle, Path } from "react-native-svg";
 
 import { ChevronDownIcon } from "@/common/components/DsIcon/icons";
@@ -63,6 +64,7 @@ const MEMO_CUSTOM = "직접 입력";
 const MEMO_MAX_LENGTH = 50;
 
 export default function CheckoutView() {
+  const { top } = useSafeAreaInsets();
   const navigation = useCommonNavigation();
   const { params } = useRoute<RouteProp<CommonStackParamList, typeof COMMON_ROUTES.CHECKOUT>>();
   const { show: showModal } = useModal();
@@ -331,273 +333,279 @@ export default function CheckoutView() {
   const { summary } = checkout;
 
   return (
-    <View className="flex-1 bg-white">
-      <ScreenHeader title="주문/결제" onPressBack={navigation.goBack} />
+    <KeyboardAvoidingView
+      className="flex-1"
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={top}
+    >
+      <View className="flex-1 bg-white">
+        <ScreenHeader title="주문/결제" onPressBack={navigation.goBack} />
 
-      <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        <SectionTitle
-          title="배송지"
-          right={
-            hasAddress ? <SmallOutlineButton label="변경" onPress={handlePressChangeAddress} /> : undefined
-          }
-        />
+        <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+          <SectionTitle
+            title="배송지"
+            right={
+              hasAddress ? <SmallOutlineButton label="변경" onPress={handlePressChangeAddress} /> : undefined
+            }
+          />
 
-        {address ? (
-          <View className="px-14 pt-12">
-            <View className="flex-row items-center" style={{ gap: 6 }}>
-              <Typography
-                style={{ fontSize: 14.5, fontWeight: "600", lineHeight: 20.3 }}
-                className="text-ink"
-              >
-                {address.recipientName}
+          {address ? (
+            <View className="px-14 pt-12">
+              <View className="flex-row items-center" style={{ gap: 6 }}>
+                <Typography
+                  style={{ fontSize: 14.5, fontWeight: "600", lineHeight: 20.3 }}
+                  className="text-ink"
+                >
+                  {address.recipientName}
+                </Typography>
+                {!!address.isDefault && (
+                  <View className="rounded-base bg-roseTint px-8 py-4">
+                    <Typography variant="badge" className="text-roseText">
+                      기본 배송지
+                    </Typography>
+                  </View>
+                )}
+              </View>
+              <Typography style={{ fontSize: 13, lineHeight: 22.1, marginTop: 6 }} className="text-ink76">
+                {`${address.phoneNumber}\n(${address.zipCode}) ${address.address}${
+                  address.detailAddress ? `, ${address.detailAddress}` : ""
+                }`}
               </Typography>
-              {!!address.isDefault && (
-                <View className="rounded-base bg-roseTint px-8 py-4">
-                  <Typography variant="badge" className="text-roseText">
-                    기본 배송지
+            </View>
+          ) : (
+            <View className="px-14 pt-12">
+              <View
+                className="items-center rounded-base"
+                style={{
+                  borderWidth: 1,
+                  borderStyle: "dashed",
+                  borderColor: "#DCDCDE",
+                  paddingVertical: 26,
+                  paddingHorizontal: 16,
+                }}
+              >
+                <Svg width={30} height={30} viewBox="0 0 24 24" fill="none">
+                  <Path
+                    d="M12 21s7-5.4 7-11a7 7 0 0 0-14 0c0 5.6 7 11 7 11z"
+                    stroke="#C7C7C7"
+                    strokeWidth={1.4}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <Circle cx={12} cy={10} r={2.6} stroke="#C7C7C7" strokeWidth={1.4} />
+                </Svg>
+                <Typography
+                  style={{ fontSize: 14, fontWeight: "600", lineHeight: 21, marginTop: 13 }}
+                  className="text-ink"
+                >
+                  등록된 배송지가 없어요
+                </Typography>
+                <Typography
+                  style={{ fontSize: 12.5, lineHeight: 20, marginTop: 5 }}
+                  className="text-center text-gray45"
+                >
+                  배송지를 추가하면 주문을 이어갈 수 있어요
+                </Typography>
+                <TouchableOpacity
+                  onPress={handlePressAddAddress}
+                  activeOpacity={0.75}
+                  className="h-44 flex-row items-center rounded-base bg-rose px-20"
+                  style={{ marginTop: 16, gap: 6 }}
+                >
+                  <Svg width={15} height={15} viewBox="0 0 24 24" fill="none">
+                    <Path d="M12 6v12" stroke="#FFFFFF" strokeWidth={2.4} strokeLinecap="round" />
+                    <Path d="M6 12h12" stroke="#FFFFFF" strokeWidth={2.4} strokeLinecap="round" />
+                  </Svg>
+                  <Typography
+                    style={{ fontSize: 13.5, fontWeight: "600", lineHeight: 13.5 }}
+                    className="text-white"
+                  >
+                    배송지 추가
+                  </Typography>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+
+          {hasAddress && (
+            <View className="px-14 pt-18">
+              <Typography style={{ fontSize: 13, fontWeight: "600", lineHeight: 13 }} className="text-ink76">
+                배송 요청사항
+              </Typography>
+              <TouchableOpacity
+                onPress={openMemoSheet}
+                activeOpacity={0.55}
+                className="h-48 flex-row items-center justify-between rounded-base border-[1px] border-borderButton px-13"
+                style={{ marginTop: 9 }}
+              >
+                <Typography
+                  style={{ fontSize: 14.5, lineHeight: 14.5 }}
+                  className={memoPreset ? "text-ink" : "text-gray71"}
+                >
+                  {memoPreset ?? "요청사항을 선택해 주세요"}
+                </Typography>
+                <ChevronDownIcon size={14} color="#C7C7C7" />
+              </TouchableOpacity>
+
+              {memoPreset === MEMO_CUSTOM && (
+                <View
+                  className="h-48 flex-row items-center rounded-base border-[1px] border-borderButton px-13"
+                  style={{ marginTop: 8, gap: 10 }}
+                >
+                  <TextInput
+                    value={customMemo}
+                    onChangeText={setCustomMemo}
+                    placeholder="예) 부재 시 문 앞에 놓아주세요"
+                    placeholderTextColor="#B5B5B5"
+                    maxLength={MEMO_MAX_LENGTH}
+                    className="m-0 min-w-0 flex-1 p-0 text-ink"
+                    style={{ fontSize: 14.5, fontFamily: "Pretendard-Regular" }}
+                  />
+                  <Typography style={{ fontSize: 11.5, lineHeight: 11.5 }} className="text-gray45">
+                    {customMemo.length}/{MEMO_MAX_LENGTH}
                   </Typography>
                 </View>
               )}
             </View>
-            <Typography style={{ fontSize: 13, lineHeight: 22.1, marginTop: 6 }} className="text-ink76">
-              {`${address.phoneNumber}\n(${address.zipCode}) ${address.address}${
-                address.detailAddress ? `, ${address.detailAddress}` : ""
-              }`}
-            </Typography>
-          </View>
-        ) : (
-          <View className="px-14 pt-12">
-            <View
-              className="items-center rounded-base"
-              style={{
-                borderWidth: 1,
-                borderStyle: "dashed",
-                borderColor: "#DCDCDE",
-                paddingVertical: 26,
-                paddingHorizontal: 16,
-              }}
-            >
-              <Svg width={30} height={30} viewBox="0 0 24 24" fill="none">
-                <Path
-                  d="M12 21s7-5.4 7-11a7 7 0 0 0-14 0c0 5.6 7 11 7 11z"
-                  stroke="#C7C7C7"
-                  strokeWidth={1.4}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <Circle cx={12} cy={10} r={2.6} stroke="#C7C7C7" strokeWidth={1.4} />
-              </Svg>
-              <Typography
-                style={{ fontSize: 14, fontWeight: "600", lineHeight: 21, marginTop: 13 }}
-                className="text-ink"
-              >
-                등록된 배송지가 없어요
-              </Typography>
-              <Typography
-                style={{ fontSize: 12.5, lineHeight: 20, marginTop: 5 }}
-                className="text-center text-gray45"
-              >
-                배송지를 추가하면 주문을 이어갈 수 있어요
-              </Typography>
-              <TouchableOpacity
-                onPress={handlePressAddAddress}
-                activeOpacity={0.75}
-                className="h-44 flex-row items-center rounded-base bg-rose px-20"
-                style={{ marginTop: 16, gap: 6 }}
-              >
-                <Svg width={15} height={15} viewBox="0 0 24 24" fill="none">
-                  <Path d="M12 6v12" stroke="#FFFFFF" strokeWidth={2.4} strokeLinecap="round" />
-                  <Path d="M6 12h12" stroke="#FFFFFF" strokeWidth={2.4} strokeLinecap="round" />
-                </Svg>
-                <Typography
-                  style={{ fontSize: 13.5, fontWeight: "600", lineHeight: 13.5 }}
-                  className="text-white"
-                >
-                  배송지 추가
-                </Typography>
-              </TouchableOpacity>
+          )}
+
+          <Band marginTop={20} />
+
+          <SectionTitle title="주문 상품" count={summary.itemCount} />
+          {items.map(item => (
+            <View key={`${item.cartId ?? item.variantId}`} className="px-14 pt-14">
+              <ProductLine
+                thumbnailUrl={item.thumbnailUrl}
+                brand={item.brand}
+                name={item.productName}
+                option={optionWithQuantity(item.optionName, item.quantity)}
+                price={won(item.price.salePrice * item.quantity)}
+              />
             </View>
-          </View>
-        )}
+          ))}
 
-        {hasAddress && (
-          <View className="px-14 pt-18">
-            <Typography style={{ fontSize: 13, fontWeight: "600", lineHeight: 13 }} className="text-ink76">
-              배송 요청사항
-            </Typography>
-            <TouchableOpacity
-              onPress={openMemoSheet}
-              activeOpacity={0.55}
-              className="h-48 flex-row items-center justify-between rounded-base border-[1px] border-borderButton px-13"
-              style={{ marginTop: 9 }}
-            >
-              <Typography
-                style={{ fontSize: 14.5, lineHeight: 14.5 }}
-                className={memoPreset ? "text-ink" : "text-gray71"}
-              >
-                {memoPreset ?? "요청사항을 선택해 주세요"}
-              </Typography>
-              <ChevronDownIcon size={14} color="#C7C7C7" />
-            </TouchableOpacity>
-
-            {memoPreset === MEMO_CUSTOM && (
-              <View
-                className="h-48 flex-row items-center rounded-base border-[1px] border-borderButton px-13"
-                style={{ marginTop: 8, gap: 10 }}
-              >
-                <TextInput
-                  value={customMemo}
-                  onChangeText={setCustomMemo}
-                  placeholder="예) 부재 시 문 앞에 놓아주세요"
-                  placeholderTextColor="#B5B5B5"
-                  maxLength={MEMO_MAX_LENGTH}
-                  className="m-0 min-w-0 flex-1 p-0 text-ink"
-                  style={{ fontSize: 14.5, fontFamily: "Pretendard-Regular" }}
-                />
-                <Typography style={{ fontSize: 11.5, lineHeight: 11.5 }} className="text-gray45">
-                  {customMemo.length}/{MEMO_MAX_LENGTH}
-                </Typography>
-              </View>
-            )}
-          </View>
-        )}
-
-        <Band marginTop={20} />
-
-        <SectionTitle title="주문 상품" count={summary.itemCount} />
-        {items.map(item => (
-          <View key={`${item.cartId ?? item.variantId}`} className="px-14 pt-14">
-            <ProductLine
-              thumbnailUrl={item.thumbnailUrl}
-              brand={item.brand}
-              name={item.productName}
-              option={optionWithQuantity(item.optionName, item.quantity)}
-              price={won(item.price.salePrice * item.quantity)}
-            />
-          </View>
-        ))}
-
-        {/*
+          {/*
           발송 시기 고지 — 결제 버튼보다 위에 있어야 한다(결정 3·15). 「발송 예정일 MM.DD · 공구 마감 후 N영업일 이내
           발송」 — 날짜·정책 문구는 그룹(브랜드 · 공구)마다 서버가 준다. 여러 그룹이면 그룹마다 한 줄씩.
         */}
-        <View
-          className="mx-14 flex-row items-center rounded-base bg-band px-12 py-10"
-          style={{ marginTop: 12, gap: 8 }}
-        >
-          <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
-            <Path d="M3.5 7.5h11v9h-11z" stroke="#3C3C3C" strokeWidth={1.6} />
-            <Path d="M14.5 10.5h3.5l2.5 3v3h-6" stroke="#3C3C3C" strokeWidth={1.6} />
-            <Circle cx={7} cy={17.5} r={1.6} stroke="#3C3C3C" strokeWidth={1.6} />
-            <Circle cx={17} cy={17.5} r={1.6} stroke="#3C3C3C" strokeWidth={1.6} />
-          </Svg>
-          <View className="min-w-0 flex-1" style={{ gap: 2 }}>
-            {checkout.groups.map(group => (
-              <Typography
-                key={`${group.marketId}-${group.groupBuyId}`}
-                style={{ fontSize: 12.5, lineHeight: 18.75 }}
-                className="text-ink76"
-              >
-                {checkout.groups.length > 1 ? `${group.marketName} · ` : ""}
-                {group.expectedShipDueDate ? "발송 예정일 " : ""}
-                {!!group.expectedShipDueDate && (
-                  <Typography
-                    style={{ fontSize: 12.5, fontWeight: "600", lineHeight: 18.75 }}
-                    className="text-ink"
-                  >
-                    {formatMonthDay(group.expectedShipDueDate)}
-                  </Typography>
-                )}
-                {group.expectedShipDueDate ? " · " : ""}
-                {group.shipDueText ?? "공구 마감 후 순차 발송 (주말·공휴일 제외)"}
-              </Typography>
-            ))}
-          </View>
-        </View>
-
-        <Band marginTop={20} />
-
-        <View className="flex-row items-baseline px-14" style={{ paddingTop: 18, gap: 8 }}>
-          <Typography
-            style={{ fontSize: 15, fontWeight: "700", lineHeight: 15, letterSpacing: -0.2 }}
-            className="text-ink"
+          <View
+            className="mx-14 flex-row items-center rounded-base bg-band px-12 py-10"
+            style={{ marginTop: 12, gap: 8 }}
           >
-            결제수단
+            <Svg width={16} height={16} viewBox="0 0 24 24" fill="none">
+              <Path d="M3.5 7.5h11v9h-11z" stroke="#3C3C3C" strokeWidth={1.6} />
+              <Path d="M14.5 10.5h3.5l2.5 3v3h-6" stroke="#3C3C3C" strokeWidth={1.6} />
+              <Circle cx={7} cy={17.5} r={1.6} stroke="#3C3C3C" strokeWidth={1.6} />
+              <Circle cx={17} cy={17.5} r={1.6} stroke="#3C3C3C" strokeWidth={1.6} />
+            </Svg>
+            <View className="min-w-0 flex-1" style={{ gap: 2 }}>
+              {checkout.groups.map(group => (
+                <Typography
+                  key={`${group.marketId}-${group.groupBuyId}`}
+                  style={{ fontSize: 12.5, lineHeight: 18.75 }}
+                  className="text-ink76"
+                >
+                  {checkout.groups.length > 1 ? `${group.marketName} · ` : ""}
+                  {group.expectedShipDueDate ? "발송 예정일 " : ""}
+                  {!!group.expectedShipDueDate && (
+                    <Typography
+                      style={{ fontSize: 12.5, fontWeight: "600", lineHeight: 18.75 }}
+                      className="text-ink"
+                    >
+                      {formatMonthDay(group.expectedShipDueDate)}
+                    </Typography>
+                  )}
+                  {group.expectedShipDueDate ? " · " : ""}
+                  {group.shipDueText ?? "공구 마감 후 순차 발송 (주말·공휴일 제외)"}
+                </Typography>
+              ))}
+            </View>
+          </View>
+
+          <Band marginTop={20} />
+
+          <View className="flex-row items-baseline px-14" style={{ paddingTop: 18, gap: 8 }}>
+            <Typography
+              style={{ fontSize: 15, fontWeight: "700", lineHeight: 15, letterSpacing: -0.2 }}
+              className="text-ink"
+            >
+              결제수단
+            </Typography>
+            <Typography style={{ fontSize: 12, lineHeight: 12 }} className="text-gray45">
+              카드 · 간편결제
+            </Typography>
+          </View>
+          <PaymentMethodPicker
+            sheetId="checkout-card-issuer"
+            methods={checkout.paymentMethods}
+            value={selection}
+            onChange={setSelection}
+          />
+
+          <Band marginTop={14} />
+
+          <SectionTitle title="결제 금액" />
+          <View className="px-14" style={{ paddingTop: 13, gap: 7 }}>
+            <AmountRow label="총 상품 가격" value={won(summary.productTotal)} />
+            {summary.discountTotal > 0 && (
+              <AmountRow
+                label="공동구매 할인"
+                value={`−${won(summary.discountTotal)}`}
+                valueColor="#CF3D61"
+                valueWeight="600"
+              />
+            )}
+            <AmountRow
+              label="배송비"
+              value={summary.deliveryFeeTotal > 0 ? won(summary.deliveryFeeTotal) : "무료배송"}
+            />
+          </View>
+          <TotalRow label="총 결제 금액" value={won(summary.totalAmount)} />
+
+          <Typography style={{ fontSize: 11.5, lineHeight: 19.55 }} className="px-14 pb-26 pt-20 text-gray45">
+            쇼룸즈는 통신판매중개자로서 거래 당사자가 아니며, 상품·배송·환불 책임은 판매자에게 있습니다.
           </Typography>
-          <Typography style={{ fontSize: 12, lineHeight: 12 }} className="text-gray45">
-            카드 · 간편결제
-          </Typography>
-        </View>
-        <PaymentMethodPicker
-          sheetId="checkout-card-issuer"
-          methods={checkout.paymentMethods}
-          value={selection}
-          onChange={setSelection}
+        </ScrollView>
+
+        <BottomCta
+          label={ctaLabel}
+          enabled={isReady}
+          loading={payment.isBusy}
+          onPress={handlePressPay}
+          top={
+            <TouchableOpacity
+              onPress={() => hasAddress && setIsAgreed(prev => !prev)}
+              activeOpacity={0.55}
+              disabled={!hasAddress}
+              className="flex-row items-start"
+              style={{ gap: 10, paddingTop: 2, paddingBottom: 12 }}
+            >
+              <View style={{ marginTop: 1 }}>
+                <RoundCheck isChecked={isAgreed} disabled={!hasAddress} />
+              </View>
+              <Typography style={{ fontSize: 12.5, lineHeight: 20 }} className="min-w-0 flex-1 text-ink76">
+                <Typography
+                  style={{ fontSize: 12.5, fontWeight: "600", lineHeight: 20 }}
+                  className="text-roseText"
+                >
+                  [필수]
+                </Typography>{" "}
+                주문 내용을 확인했으며 결제에 동의합니다
+              </Typography>
+            </TouchableOpacity>
+          }
         />
 
-        <Band marginTop={14} />
-
-        <SectionTitle title="결제 금액" />
-        <View className="px-14" style={{ paddingTop: 13, gap: 7 }}>
-          <AmountRow label="총 상품 가격" value={won(summary.productTotal)} />
-          {summary.discountTotal > 0 && (
-            <AmountRow
-              label="공동구매 할인"
-              value={`−${won(summary.discountTotal)}`}
-              valueColor="#CF3D61"
-              valueWeight="600"
-            />
-          )}
-          <AmountRow
-            label="배송비"
-            value={summary.deliveryFeeTotal > 0 ? won(summary.deliveryFeeTotal) : "무료배송"}
-          />
-        </View>
-        <TotalRow label="총 결제 금액" value={won(summary.totalAmount)} />
-
-        <Typography style={{ fontSize: 11.5, lineHeight: 19.55 }} className="px-14 pb-26 pt-20 text-gray45">
-          쇼룸즈는 통신판매중개자로서 거래 당사자가 아니며, 상품·배송·환불 책임은 판매자에게 있습니다.
-        </Typography>
-      </ScrollView>
-
-      <BottomCta
-        label={ctaLabel}
-        enabled={isReady}
-        loading={payment.isBusy}
-        onPress={handlePressPay}
-        top={
-          <TouchableOpacity
-            onPress={() => hasAddress && setIsAgreed(prev => !prev)}
-            activeOpacity={0.55}
-            disabled={!hasAddress}
-            className="flex-row items-start"
-            style={{ gap: 10, paddingTop: 2, paddingBottom: 12 }}
-          >
-            <View style={{ marginTop: 1 }}>
-              <RoundCheck isChecked={isAgreed} disabled={!hasAddress} />
-            </View>
-            <Typography style={{ fontSize: 12.5, lineHeight: 20 }} className="min-w-0 flex-1 text-ink76">
-              <Typography
-                style={{ fontSize: 12.5, fontWeight: "600", lineHeight: 20 }}
-                className="text-roseText"
-              >
-                [필수]
-              </Typography>{" "}
-              주문 내용을 확인했으며 결제에 동의합니다
-            </Typography>
-          </TouchableOpacity>
-        }
-      />
-
-      <PortOnePaymentModal
-        payment={payment.paymentWindow}
-        onComplete={(paymentId, result) => void payment.confirm(paymentId, result, false)}
-        onClose={paymentId => void payment.confirm(paymentId, undefined, true)}
-        onError={() => {
-          payment.openPaymentWindow(null);
-          toast.show("결제창을 열지 못했어요. 다시 시도해 주세요.");
-        }}
-      />
-    </View>
+        <PortOnePaymentModal
+          payment={payment.paymentWindow}
+          onComplete={(paymentId, result) => void payment.confirm(paymentId, result, false)}
+          onClose={paymentId => void payment.confirm(paymentId, undefined, true)}
+          onError={() => {
+            payment.openPaymentWindow(null);
+            toast.show("결제창을 열지 못했어요. 다시 시도해 주세요.");
+          }}
+        />
+      </View>
+    </KeyboardAvoidingView>
   );
 }

@@ -185,7 +185,12 @@ export default function LikeView() {
           )
         }
         refreshControl={
-          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} tintColor="#F2456E" />
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={handleRefresh}
+            colors={["#F2456E"]}
+            tintColor="#F2456E"
+          />
         }
         // 빈 안내가 남는 세로 공간을 차지해야 가운데 정렬이 의미를 갖는다
         contentContainerStyle={{ flexGrow: 1, paddingBottom: inset.bottom + BOTTOM_TABS_HEIGHT }}

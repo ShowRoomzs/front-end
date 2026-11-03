@@ -53,6 +53,7 @@ export default function SearchField(props: SearchFieldProps) {
           returnKeyType="search"
           autoFocus
           className="flex-1 p-0 text-14 text-ink"
+          style={{ fontFamily: "Pretendard-Regular" }}
         />
         {keyword.length > 0 && (
           <TouchableOpacity

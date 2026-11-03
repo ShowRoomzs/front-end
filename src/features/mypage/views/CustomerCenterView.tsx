@@ -78,6 +78,7 @@ export default function CustomerCenterView() {
             placeholder="궁금한 내용을 검색해 보세요"
             placeholderTextColor="#8E8E8E"
             className="flex-1 p-0 text-14 text-ink"
+            style={{ fontFamily: "Pretendard-Regular" }}
           />
         </View>
       </View>

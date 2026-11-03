@@ -1,6 +1,7 @@
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { useCallback, useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, TextInput, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Typography from "@/common/components/Typography/Typography";
 import { useBottomSheet } from "@/common/hooks/useBottomSheet";
@@ -44,6 +45,7 @@ import { resolveErrorMessage, RETURN_TO_MISSING, returnToLines } from "@/feature
 const CARRIER_SHEET_ID = "claim-invoice-carrier";
 
 export default function ClaimInvoiceView() {
+  const { top } = useSafeAreaInsets();
   const navigation = useCommonNavigation();
   const { params } = useRoute<RouteProp<CommonStackParamList, typeof COMMON_ROUTES.CLAIM_INVOICE>>();
   const { claimId } = params;
@@ -96,7 +98,11 @@ export default function ClaimInvoiceView() {
   const returnLines = returnToLines(detail?.info.returnTo, " / ");
 
   return (
-    <KeyboardAvoidingView className="flex-1" behavior={Platform.OS === "ios" ? "padding" : undefined}>
+    <KeyboardAvoidingView
+      className="flex-1"
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={top}
+    >
       <View className="flex-1 bg-white">
         <CloseHeader title="회수 송장 등록" onClose={navigation.goBack} />
 

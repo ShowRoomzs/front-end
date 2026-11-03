@@ -2,6 +2,7 @@ import { RouteProp, useRoute } from "@react-navigation/native";
 import { randomUUID } from "expo-crypto";
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { KeyboardAvoidingView, Platform, ScrollView, TextInput, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import ImageUploader from "@/common/components/ImageUploader/ImageUploader";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
@@ -93,6 +94,7 @@ function isSellerFault(feeBearer?: string) {
 }
 
 export default function ClaimRequestView() {
+  const { top } = useSafeAreaInsets();
   const navigation = useCommonNavigation();
   const mainNavigation = useMainNavigation();
   const { params } = useRoute<RouteProp<CommonStackParamList, typeof COMMON_ROUTES.CLAIM_REQUEST>>();
@@ -489,7 +491,11 @@ export default function ClaimRequestView() {
   })();
 
   return (
-    <KeyboardAvoidingView className="flex-1" behavior={Platform.OS === "ios" ? "padding" : undefined}>
+    <KeyboardAvoidingView
+      className="flex-1"
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={top}
+    >
       <View className="flex-1 bg-white">
         <ScreenHeader title={`${kw} 요청`} onPressBack={navigation.goBack} />
 

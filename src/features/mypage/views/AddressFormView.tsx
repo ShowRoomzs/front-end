@@ -77,7 +77,7 @@ export default function AddressFormView() {
   const navigation = useNavigation();
   const route = useRoute<AddressFormRoute>();
   const onSaved = route.params && "onSaved" in route.params ? route.params.onSaved : undefined;
-  const { bottom } = useSafeAreaInsets();
+  const { top, bottom } = useSafeAreaInsets();
   const { openAddressSearch } = useAddressSearch();
   const { close: closeMemoSheet } = useBottomSheetContext();
 
@@ -192,7 +192,11 @@ export default function AddressFormView() {
   }, [addAddressMutation, addressId, form, isEdit, memoValue, navigation, onSaved, updateAddressMutation]);
 
   return (
-    <KeyboardAvoidingView className="flex-1" behavior={Platform.OS === "ios" ? "padding" : undefined}>
+    <KeyboardAvoidingView
+      className="flex-1"
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={top}
+    >
       <View className="flex-1 bg-white">
         <ScreenHeader title={isEdit ? "배송지 수정" : "배송지 추가"} onPressBack={navigation.goBack} />
 

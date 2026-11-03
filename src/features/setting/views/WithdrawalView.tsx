@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { ScrollView, TextInput, TouchableOpacity, View } from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView, TextInput, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 
@@ -24,7 +24,7 @@ const CUSTOM_REASON_MAX_LENGTH = 200;
 
 export default function WithdrawalView() {
   const navigation = useSettingsNavigation();
-  const { bottom } = useSafeAreaInsets();
+  const { top, bottom } = useSafeAreaInsets();
   const { data: info, isLoading } = useGetWithdrawalInfo();
 
   const [reason, setReason] = useState<WithdrawalReasonCode | null>(null);
@@ -52,121 +52,132 @@ export default function WithdrawalView() {
   }
 
   return (
-    <View className="flex-1 bg-white">
-      <ScreenHeader title="회원 탈퇴" onPressBack={navigation.goBack} />
+    <KeyboardAvoidingView
+      className="flex-1"
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={top}
+    >
+      <View className="flex-1 bg-white">
+        <ScreenHeader title="회원 탈퇴" onPressBack={navigation.goBack} />
 
-      <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        <View className="px-14 pb-6 pt-22">
-          <Typography
-            style={{ fontSize: 18, fontWeight: "700", lineHeight: 27, letterSpacing: -0.5 }}
-            className="text-ink"
-          >
-            {"더 나았던 이유를\n알려주실 수 있나요?"}
-          </Typography>
-          <Typography style={{ fontSize: 13, lineHeight: 22.1, marginTop: 9 }} className="text-gray45">
-            서비스 개선에만 사용하고 계정 정보와 분리해 보관합니다 · 선택하지 않아도 탈퇴할 수 있어요
-          </Typography>
-        </View>
+        <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+          <View className="px-14 pb-6 pt-22">
+            <Typography
+              style={{ fontSize: 18, fontWeight: "700", lineHeight: 27, letterSpacing: -0.5 }}
+              className="text-ink"
+            >
+              {"더 나았던 이유를\n알려주실 수 있나요?"}
+            </Typography>
+            <Typography style={{ fontSize: 13, lineHeight: 22.1, marginTop: 9 }} className="text-gray45">
+              서비스 개선에만 사용하고 계정 정보와 분리해 보관합니다 · 선택하지 않아도 탈퇴할 수 있어요
+            </Typography>
+          </View>
 
-        <View className="px-14 pt-16" style={{ gap: 8 }}>
-          {info.reasons.map(option => {
-            const isSelected = reason === option.code;
+          <View className="px-14 pt-16" style={{ gap: 8 }}>
+            {info.reasons.map(option => {
+              const isSelected = reason === option.code;
 
-            return (
-              <TouchableOpacity
-                key={option.code}
-                onPress={() => setReason(isSelected ? null : option.code)}
-                activeOpacity={0.75}
-                className="flex-row items-center rounded-base px-13 py-11"
-                style={{
-                  gap: 10,
-                  minHeight: 46,
-                  borderWidth: 1,
-                  borderColor: isSelected ? "#F2456E" : "#E3E3E5",
-                  backgroundColor: isSelected ? "#FEF4F6" : "#FFFFFF",
-                }}
-              >
-                <View
-                  className="items-center justify-center rounded-full"
+              return (
+                <TouchableOpacity
+                  key={option.code}
+                  onPress={() => setReason(isSelected ? null : option.code)}
+                  activeOpacity={0.75}
+                  className="flex-row items-center rounded-base px-13 py-11"
                   style={{
-                    width: 19,
-                    height: 19,
-                    borderWidth: 1.5,
-                    borderColor: isSelected ? "#F2456E" : "#DEDEE0",
-                    backgroundColor: isSelected ? "#F2456E" : "#FFFFFF",
+                    gap: 10,
+                    minHeight: 46,
+                    borderWidth: 1,
+                    borderColor: isSelected ? "#F2456E" : "#E3E3E5",
+                    backgroundColor: isSelected ? "#FEF4F6" : "#FFFFFF",
                   }}
                 >
-                  <Svg width={11} height={11} viewBox="0 0 24 24" fill="none">
-                    <Path
-                      d="M4.5 12.5l5 5 10-11"
-                      stroke={isSelected ? "#FFFFFF" : "#DEDEE0"}
-                      strokeWidth={3.2}
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </Svg>
-                </View>
-                <Typography
-                  style={{ fontSize: 13.5, fontWeight: isSelected ? "600" : "400", lineHeight: 19.6 }}
-                  className={isSelected ? "text-[#CF3D61]" : "text-ink76"}
-                >
-                  {option.label}
-                </Typography>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        {reason === "ETC" && (
-          <View className="px-14 pt-12">
-            <View className="rounded-base border-[1px] border-borderButton p-13" style={{ minHeight: 88 }}>
-              <TextInput
-                value={customReason}
-                onChangeText={setCustomReason}
-                placeholder="어떤 점이 아쉬웠는지 알려주세요 (선택)"
-                placeholderTextColor="#B5B5B5"
-                maxLength={CUSTOM_REASON_MAX_LENGTH}
-                multiline
-                className="m-0 p-0 text-13.5 text-ink"
-                style={{ fontSize: 13.5, lineHeight: 21.6, textAlignVertical: "top" }}
-              />
-            </View>
+                  <View
+                    className="items-center justify-center rounded-full"
+                    style={{
+                      width: 19,
+                      height: 19,
+                      borderWidth: 1.5,
+                      borderColor: isSelected ? "#F2456E" : "#DEDEE0",
+                      backgroundColor: isSelected ? "#F2456E" : "#FFFFFF",
+                    }}
+                  >
+                    <Svg width={11} height={11} viewBox="0 0 24 24" fill="none">
+                      <Path
+                        d="M4.5 12.5l5 5 10-11"
+                        stroke={isSelected ? "#FFFFFF" : "#DEDEE0"}
+                        strokeWidth={3.2}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </Svg>
+                  </View>
+                  <Typography
+                    style={{ fontSize: 13.5, fontWeight: isSelected ? "600" : "400", lineHeight: 19.6 }}
+                    className={isSelected ? "text-[#CF3D61]" : "text-ink76"}
+                  >
+                    {option.label}
+                  </Typography>
+                </TouchableOpacity>
+              );
+            })}
           </View>
-        )}
 
-        <View className="h-24" />
-      </ScrollView>
+          {reason === "ETC" && (
+            <View className="px-14 pt-12">
+              <View className="rounded-base border-[1px] border-borderButton p-13" style={{ minHeight: 88 }}>
+                <TextInput
+                  value={customReason}
+                  onChangeText={setCustomReason}
+                  placeholder="어떤 점이 아쉬웠는지 알려주세요 (선택)"
+                  placeholderTextColor="#B5B5B5"
+                  maxLength={CUSTOM_REASON_MAX_LENGTH}
+                  multiline
+                  className="m-0 p-0 text-13.5 text-ink"
+                  style={{
+                    fontSize: 13.5,
+                    lineHeight: 21.6,
+                    fontFamily: "Pretendard-Regular",
+                    textAlignVertical: "top",
+                  }}
+                />
+              </View>
+            </View>
+          )}
 
-      <View
-        className="flex-row border-t-[0.5px] border-divider bg-white px-14 pt-12"
-        style={{ gap: 8, paddingBottom: bottom + 26 }}
-      >
-        <TouchableOpacity
-          onPress={handleNext}
-          disabled={!reason}
-          activeOpacity={0.55}
-          className="h-52 flex-1 flex-row items-center justify-center rounded-base"
-          style={{
-            borderWidth: 1,
-            borderColor: reason ? "#DCDCDE" : "transparent",
-            backgroundColor: reason ? "#FFFFFF" : "#F4F4F5",
-          }}
+          <View className="h-24" />
+        </ScrollView>
+
+        <View
+          className="flex-row border-t-[0.5px] border-divider bg-white px-14 pt-12"
+          style={{ gap: 8, paddingBottom: bottom + 26 }}
         >
-          <Typography variant="buttonPrimary" className={reason ? "text-ink76" : "text-gray71"}>
-            다음 단계로
-          </Typography>
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleNext}
+            disabled={!reason}
+            activeOpacity={0.55}
+            className="h-52 flex-1 flex-row items-center justify-center rounded-base"
+            style={{
+              borderWidth: 1,
+              borderColor: reason ? "#DCDCDE" : "transparent",
+              backgroundColor: reason ? "#FFFFFF" : "#F4F4F5",
+            }}
+          >
+            <Typography variant="buttonPrimary" className={reason ? "text-ink76" : "text-gray71"}>
+              다음 단계로
+            </Typography>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          onPress={navigation.goBack}
-          activeOpacity={0.75}
-          className="h-52 flex-1 flex-row items-center justify-center rounded-base bg-rose"
-        >
-          <Typography variant="buttonPrimary" className="text-white">
-            계속 사용하기
-          </Typography>
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={navigation.goBack}
+            activeOpacity={0.75}
+            className="h-52 flex-1 flex-row items-center justify-center rounded-base bg-rose"
+          >
+            <Typography variant="buttonPrimary" className="text-white">
+              계속 사용하기
+            </Typography>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }

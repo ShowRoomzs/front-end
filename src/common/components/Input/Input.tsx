@@ -137,6 +137,7 @@ const Input = forwardRef<TextInput, InputProps>((props, ref) => {
           className={cn("flex-1", inputClassName)}
           placeholderTextColor="#8E8E8E"
           {...inputProps}
+          style={[{ fontFamily: "Pretendard-Regular" }, inputProps.style]}
           onChangeText={handleChangeText}
         />
       </View>

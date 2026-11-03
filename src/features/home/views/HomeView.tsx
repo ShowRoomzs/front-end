@@ -222,7 +222,12 @@ export default function HomeView() {
           isLoading ? undefined : <FollowingEmptyState fill onPressSearch={handlePressSearch} />
         }
         refreshControl={
-          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} tintColor="#F2456E" />
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={handleRefresh}
+            colors={["#F2456E"]}
+            tintColor="#F2456E"
+          />
         }
         contentContainerStyle={{ flexGrow: 1, paddingBottom: inset.bottom + BOTTOM_TABS_HEIGHT }}
         showsVerticalScrollIndicator={false}

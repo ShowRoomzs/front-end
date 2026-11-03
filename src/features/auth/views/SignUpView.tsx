@@ -1,7 +1,7 @@
 import { CommonActions, RouteProp, useRoute } from "@react-navigation/native";
 import { AxiosError } from "axios";
 import { useCallback, useState } from "react";
-import { ScrollView, TouchableOpacity, View } from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import GroupBand from "@/common/components/GroupBand/GroupBand";
@@ -43,7 +43,7 @@ export default function SignUpView() {
   const route = useRoute<RouteProp<AuthStackParamList, typeof AUTH_ROUTES.SIGN_UP>>();
   const authNavigation = useAuthNavigation();
   const navigation = useMainNavigation();
-  const { bottom } = useSafeAreaInsets();
+  const { top, bottom } = useSafeAreaInsets();
   const { show: showModal } = useModal();
 
   const { onSuccessLogin, registerToken } = route.params || {};
@@ -117,52 +117,58 @@ export default function SignUpView() {
   }, [canSubmit, login, navigation, nickname, onSuccessLogin, registerAsync, registerToken, terms]);
 
   return (
-    <View className="flex-1 bg-white">
-      <ScreenHeader title="회원가입" onPressBack={handlePressBack} />
+    <KeyboardAvoidingView
+      className="flex-1"
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={top}
+    >
+      <View className="flex-1 bg-white">
+        <ScreenHeader title="회원가입" onPressBack={handlePressBack} />
 
-      <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        <View className="border-b-[0.5px] border-dividerProduct px-14 pb-20 pt-22">
-          <Typography
-            style={{ fontSize: 18, fontWeight: "700", lineHeight: 27, letterSpacing: -0.5 }}
-            className="text-ink"
-          >
-            {"거의 다 왔어요!\n닉네임만 정하면 끝이에요"}
-          </Typography>
-        </View>
+        <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+          <View className="border-b-[0.5px] border-dividerProduct px-14 pb-20 pt-22">
+            <Typography
+              style={{ fontSize: 18, fontWeight: "700", lineHeight: 27, letterSpacing: -0.5 }}
+              className="text-ink"
+            >
+              {"거의 다 왔어요!\n닉네임만 정하면 끝이에요"}
+            </Typography>
+          </View>
 
-        <View className="px-14 pb-20 pt-20">
-          <NicknameField
-            value={nickname}
-            onChangeText={setNickname}
-            isError={isError}
-            isAvailable={isAvailable}
-            message={message}
-            autoFocus
-          />
-        </View>
+          <View className="px-14 pb-20 pt-20">
+            <NicknameField
+              value={nickname}
+              onChangeText={setNickname}
+              isError={isError}
+              isAvailable={isAvailable}
+              message={message}
+              autoFocus
+            />
+          </View>
 
-        <GroupBand height={5} />
+          <GroupBand height={5} />
 
-        <TermsAgreementList value={terms} onChange={setTerms} onPressDetail={handlePressDetail} />
-      </ScrollView>
+          <TermsAgreementList value={terms} onChange={setTerms} onPressDetail={handlePressDetail} />
+        </ScrollView>
 
-      <View
-        className="border-t-[0.5px] border-divider bg-white px-14 pt-12"
-        style={{ paddingBottom: bottom + 26 }}
-      >
-        <TouchableOpacity
-          onPress={handleSubmit}
-          disabled={!canSubmit}
-          activeOpacity={0.75}
-          className={`h-52 flex-row items-center justify-center rounded-base ${
-            canSubmit ? "bg-rose" : "bg-fill"
-          }`}
+        <View
+          className="border-t-[0.5px] border-divider bg-white px-14 pt-12"
+          style={{ paddingBottom: bottom + 26 }}
         >
-          <Typography variant="buttonPrimary" className={canSubmit ? "text-white" : "text-gray71"}>
-            동의하고 가입 완료
-          </Typography>
-        </TouchableOpacity>
+          <TouchableOpacity
+            onPress={handleSubmit}
+            disabled={!canSubmit}
+            activeOpacity={0.75}
+            className={`h-52 flex-row items-center justify-center rounded-base ${
+              canSubmit ? "bg-rose" : "bg-fill"
+            }`}
+          >
+            <Typography variant="buttonPrimary" className={canSubmit ? "text-white" : "text-gray71"}>
+              동의하고 가입 완료
+            </Typography>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }

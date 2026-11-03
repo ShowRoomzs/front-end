@@ -68,6 +68,7 @@ export default function NicknameField(props: NicknameFieldProps) {
           autoCapitalize="none"
           autoCorrect={false}
           className="min-w-0 flex-1 p-0 text-15 text-ink"
+          style={{ fontFamily: "Pretendard-Regular" }}
         />
         <Typography style={{ fontSize: 12.5, lineHeight: 12.5 }} className="flex-none text-gray45">
           {value.length}/{NICKNAME_MAX_LENGTH}

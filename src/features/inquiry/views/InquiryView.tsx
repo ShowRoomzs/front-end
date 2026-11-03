@@ -61,7 +61,7 @@ const REFUND_ACCOUNT_TYPE = "CANCEL_EXCHANGE_RETURN";
 
 export default function InquiryView() {
   const navigation = useMypageNavigation();
-  const { bottom } = useSafeAreaInsets();
+  const { top, bottom } = useSafeAreaInsets();
   // 시트 등록보다 먼저 닫기가 필요하므로 컨텍스트에서 직접 받는다
   const { close: closeTypeSheet } = useBottomSheetContext();
   const { params } = useRoute<RouteProp<MypageStackParamList, typeof MYPAGE_ROUTES.INQUIRY_REGISTER>>();
@@ -254,7 +254,11 @@ export default function InquiryView() {
   }, [createInquiry, form, imageUrls, isEdit, navigation, sanctionAppeal, updateInquiry, uploadImages]);
 
   return (
-    <KeyboardAvoidingView className="flex-1" behavior={Platform.OS === "ios" ? "padding" : undefined}>
+    <KeyboardAvoidingView
+      className="flex-1"
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={top}
+    >
       <View className="flex-1 bg-white">
         <ScreenHeader title="1:1 문의" onPressBack={navigation.goBack} />
 
@@ -302,7 +306,12 @@ export default function InquiryView() {
                 maxLength={CONTENT_MAX_LENGTH}
                 multiline
                 className="m-0 flex-1 p-0 text-ink"
-                style={{ fontSize: 14, lineHeight: 23.8, textAlignVertical: "top" }}
+                style={{
+                  fontSize: 14,
+                  lineHeight: 23.8,
+                  fontFamily: "Pretendard-Regular",
+                  textAlignVertical: "top",
+                }}
               />
             </View>
           </View>

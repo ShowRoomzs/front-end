@@ -1,6 +1,7 @@
 import { RouteProp, useRoute } from "@react-navigation/native";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ScrollView, TextInput, TouchableOpacity, View } from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView, TextInput, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { CheckIcon } from "@/common/components/DsIcon/icons";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
@@ -66,6 +67,7 @@ interface Line {
 }
 
 export default function CancelRequestView() {
+  const { top } = useSafeAreaInsets();
   const navigation = useCommonNavigation();
   const mainNavigation = useMainNavigation();
   const { params } = useRoute<RouteProp<CommonStackParamList, typeof COMMON_ROUTES.CANCEL_REQUEST>>();
@@ -376,245 +378,251 @@ export default function CancelRequestView() {
   }
 
   return (
-    <View className="flex-1 bg-white">
-      <ScreenHeader title="주문 취소" onPressBack={navigation.goBack} />
+    <KeyboardAvoidingView
+      className="flex-1"
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={top}
+    >
+      <View className="flex-1 bg-white">
+        <ScreenHeader title="주문 취소" onPressBack={navigation.goBack} />
 
-      <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        {isMulti ? (
-          <View
-            className="flex-row items-center justify-between px-14"
-            style={{ paddingTop: 16, paddingBottom: 2 }}
-          >
-            <TouchableOpacity
-              onPress={() =>
-                setChecked(Object.fromEntries(lines.map(line => [line.orderProductId, !isAllSelected])))
-              }
-              activeOpacity={0.55}
-              className="flex-row items-center"
-              style={{ gap: 10, padding: 11, margin: -11 }}
+        <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+          {isMulti ? (
+            <View
+              className="flex-row items-center justify-between px-14"
+              style={{ paddingTop: 16, paddingBottom: 2 }}
             >
-              <RoundCheck isChecked={isAllSelected} />
-              <Typography style={{ fontSize: 14, fontWeight: "600", lineHeight: 14 }} className="text-ink">
-                전체 선택
-              </Typography>
-            </TouchableOpacity>
-            <Typography style={{ fontSize: 12, lineHeight: 12 }} className="text-gray45">
-              {formatOrderDate(order.orderedAt)} 주문
-            </Typography>
-          </View>
-        ) : (
-          <SectionTitle
-            title="취소할 상품"
-            right={
+              <TouchableOpacity
+                onPress={() =>
+                  setChecked(Object.fromEntries(lines.map(line => [line.orderProductId, !isAllSelected])))
+                }
+                activeOpacity={0.55}
+                className="flex-row items-center"
+                style={{ gap: 10, padding: 11, margin: -11 }}
+              >
+                <RoundCheck isChecked={isAllSelected} />
+                <Typography style={{ fontSize: 14, fontWeight: "600", lineHeight: 14 }} className="text-ink">
+                  전체 선택
+                </Typography>
+              </TouchableOpacity>
               <Typography style={{ fontSize: 12, lineHeight: 12 }} className="text-gray45">
                 {formatOrderDate(order.orderedAt)} 주문
               </Typography>
-            }
-          />
-        )}
-
-        {lines.map((line, ix) => {
-          const isChecked = !!checked[line.orderProductId];
-          const quantity = qtyOf(line);
-
-          return (
-            <View
-              key={line.orderProductId}
-              className="px-14 pt-14"
-              style={ix > 0 ? { borderTopWidth: 0.5, borderTopColor: "#F0F0F0" } : undefined}
-            >
-              <View className="flex-row items-start" style={{ gap: 10 }}>
-                {isMulti && (
-                  <TouchableOpacity
-                    onPress={() => setChecked(prev => ({ ...prev, [line.orderProductId]: !isChecked }))}
-                    activeOpacity={0.55}
-                    style={{ padding: 11, margin: -11, marginRight: -1 }}
-                  >
-                    <RoundCheck isChecked={isChecked} />
-                  </TouchableOpacity>
-                )}
-                <View className="min-w-0 flex-1">
-                  <ProductLine
-                    thumbnailUrl={line.thumbnailUrl}
-                    brand={line.brand}
-                    name={line.productName}
-                    option={withOption(line.optionName, `주문 ${line.max}개`)}
-                    price={won(line.unit * (isChecked ? quantity : line.max))}
-                    dimmed={!isChecked}
-                  />
-                </View>
-              </View>
-              {isChecked && line.max > 1 && (
-                <View
-                  className="flex-row items-center justify-between"
-                  style={{ paddingTop: 12, paddingLeft: isMulti ? 31 : 0, gap: 10 }}
-                >
-                  <Typography
-                    style={{ fontSize: 12.5, fontWeight: "500", lineHeight: 12.5 }}
-                    className="text-ink76"
-                  >
-                    취소 수량
-                  </Typography>
-                  <Stepper
-                    size="md"
-                    value={quantity}
-                    min={1}
-                    max={line.max}
-                    onChange={value => setQuantities(prev => ({ ...prev, [line.orderProductId]: value }))}
-                  />
-                </View>
-              )}
-              <View className="h-14" />
             </View>
-          );
-        })}
+          ) : (
+            <SectionTitle
+              title="취소할 상품"
+              right={
+                <Typography style={{ fontSize: 12, lineHeight: 12 }} className="text-gray45">
+                  {formatOrderDate(order.orderedAt)} 주문
+                </Typography>
+              }
+            />
+          )}
 
-        <Band marginTop={6} />
-
-        <SectionTitle title="취소 사유" />
-        <View className="px-14" style={{ marginTop: 6 }}>
-          {CANCEL_REQUEST_REASONS.map(option => {
-            const isSelected = reason === option.code;
+          {lines.map((line, ix) => {
+            const isChecked = !!checked[line.orderProductId];
+            const quantity = qtyOf(line);
 
             return (
-              <TouchableOpacity
-                key={option.code}
-                onPress={() => setReason(option.code)}
-                activeOpacity={0.55}
-                className="flex-row items-center"
-                style={{ minHeight: 44, gap: 11 }}
+              <View
+                key={line.orderProductId}
+                className="px-14 pt-14"
+                style={ix > 0 ? { borderTopWidth: 0.5, borderTopColor: "#F0F0F0" } : undefined}
               >
-                <RadioDot isSelected={isSelected} />
-                <Typography
-                  style={{ fontSize: 14, fontWeight: isSelected ? "600" : "400", lineHeight: 20.3 }}
-                  className={`min-w-0 flex-1 ${isSelected ? "text-ink" : "text-ink76"}`}
-                >
-                  {option.label}
-                </Typography>
-              </TouchableOpacity>
+                <View className="flex-row items-start" style={{ gap: 10 }}>
+                  {isMulti && (
+                    <TouchableOpacity
+                      onPress={() => setChecked(prev => ({ ...prev, [line.orderProductId]: !isChecked }))}
+                      activeOpacity={0.55}
+                      style={{ padding: 11, margin: -11, marginRight: -1 }}
+                    >
+                      <RoundCheck isChecked={isChecked} />
+                    </TouchableOpacity>
+                  )}
+                  <View className="min-w-0 flex-1">
+                    <ProductLine
+                      thumbnailUrl={line.thumbnailUrl}
+                      brand={line.brand}
+                      name={line.productName}
+                      option={withOption(line.optionName, `주문 ${line.max}개`)}
+                      price={won(line.unit * (isChecked ? quantity : line.max))}
+                      dimmed={!isChecked}
+                    />
+                  </View>
+                </View>
+                {isChecked && line.max > 1 && (
+                  <View
+                    className="flex-row items-center justify-between"
+                    style={{ paddingTop: 12, paddingLeft: isMulti ? 31 : 0, gap: 10 }}
+                  >
+                    <Typography
+                      style={{ fontSize: 12.5, fontWeight: "500", lineHeight: 12.5 }}
+                      className="text-ink76"
+                    >
+                      취소 수량
+                    </Typography>
+                    <Stepper
+                      size="md"
+                      value={quantity}
+                      min={1}
+                      max={line.max}
+                      onChange={value => setQuantities(prev => ({ ...prev, [line.orderProductId]: value }))}
+                    />
+                  </View>
+                )}
+                <View className="h-14" />
+              </View>
             );
           })}
-          {reason === "ETC" && (
-            <View
-              className="rounded-base border-[1px] border-borderButton p-12"
-              style={{ marginTop: 4, minHeight: 80 }}
-            >
-              <TextInput
-                value={etcText}
-                onChangeText={setEtcText}
-                placeholder="취소 사유를 적어주세요"
-                placeholderTextColor="#B5B5B5"
-                multiline
-                maxLength={CANCEL_REASON_DETAIL_MAX}
-                className="m-0 flex-1 p-0 text-ink"
-                style={{
-                  fontSize: 13.5,
-                  lineHeight: 22.3,
-                  fontFamily: "Pretendard-Regular",
-                  textAlignVertical: "top",
-                }}
-              />
-            </View>
-          )}
-        </View>
 
-        <Band marginTop={20} />
+          <Band marginTop={6} />
 
-        <SectionTitle title="환불 정보" />
-        <View
-          className="mx-14 flex-row items-baseline justify-between border-b-[0.5px] border-dividerProduct"
-          style={{ marginTop: 14, paddingBottom: 14, gap: 12 }}
-        >
-          <Typography style={{ fontSize: 14, fontWeight: "600", lineHeight: 14 }} className="text-ink">
-            환불 예정 금액
-          </Typography>
-          <Typography
-            style={{ fontSize: 17, fontWeight: "700", lineHeight: 17, letterSpacing: -0.4 }}
-            className="text-ink"
+          <SectionTitle title="취소 사유" />
+          <View className="px-14" style={{ marginTop: 6 }}>
+            {CANCEL_REQUEST_REASONS.map(option => {
+              const isSelected = reason === option.code;
+
+              return (
+                <TouchableOpacity
+                  key={option.code}
+                  onPress={() => setReason(option.code)}
+                  activeOpacity={0.55}
+                  className="flex-row items-center"
+                  style={{ minHeight: 44, gap: 11 }}
+                >
+                  <RadioDot isSelected={isSelected} />
+                  <Typography
+                    style={{ fontSize: 14, fontWeight: isSelected ? "600" : "400", lineHeight: 20.3 }}
+                    className={`min-w-0 flex-1 ${isSelected ? "text-ink" : "text-ink76"}`}
+                  >
+                    {option.label}
+                  </Typography>
+                </TouchableOpacity>
+              );
+            })}
+            {reason === "ETC" && (
+              <View
+                className="rounded-base border-[1px] border-borderButton p-12"
+                style={{ marginTop: 4, minHeight: 80 }}
+              >
+                <TextInput
+                  value={etcText}
+                  onChangeText={setEtcText}
+                  placeholder="취소 사유를 적어주세요"
+                  placeholderTextColor="#B5B5B5"
+                  multiline
+                  maxLength={CANCEL_REASON_DETAIL_MAX}
+                  className="m-0 flex-1 p-0 text-ink"
+                  style={{
+                    fontSize: 13.5,
+                    lineHeight: 22.3,
+                    fontFamily: "Pretendard-Regular",
+                    textAlignVertical: "top",
+                  }}
+                />
+              </View>
+            )}
+          </View>
+
+          <Band marginTop={20} />
+
+          <SectionTitle title="환불 정보" />
+          <View
+            className="mx-14 flex-row items-baseline justify-between border-b-[0.5px] border-dividerProduct"
+            style={{ marginTop: 14, paddingBottom: 14, gap: 12 }}
           >
-            {won(refund)}
-          </Typography>
-        </View>
-        <View className="px-14 pt-8">
-          <AmountRow label="배송비" fontSize={12.5} valueColor="#3C3C3C" value={shipping.line} />
-        </View>
-        <BulletNotes
-          style={{ paddingHorizontal: 14, paddingTop: 16 }}
-          notes={[
-            "브랜드가 배송 준비를 시작해 이미 발송된 경우, 취소 요청이 거절되고 주문하신 상품을 받으실 수 있어요.",
-            "결제 수단으로 결제 취소되며, 카드사 처리에 2~3영업일이 더 걸릴 수 있어요.",
-          ]}
-        />
-        <View className="h-26" />
-      </ScrollView>
-
-      <BottomCta label={ctaLabel} enabled={isReady} onPress={() => setIsConfirmOpen(true)} />
-
-      {isConfirmOpen && (
-        <View
-          className="absolute bottom-0 left-0 right-0 top-0 items-center justify-center"
-          style={{ backgroundColor: "rgba(0,0,0,0.45)", paddingHorizontal: 32, zIndex: 10 }}
-        >
-          <View className="w-full overflow-hidden rounded-base bg-white">
-            <View style={{ paddingHorizontal: 22, paddingTop: 26, paddingBottom: 6 }}>
-              <Typography
-                style={{ fontSize: 16.5, fontWeight: "700", lineHeight: 24.75, letterSpacing: -0.3 }}
-                className="text-center text-ink"
-              >
-                주문을 취소할까요?
-              </Typography>
-              <Typography
-                style={{ fontSize: 13, lineHeight: 22.1, marginTop: 6 }}
-                className="text-center text-gray45"
-              >
-                환불 예정 금액 {won(refund)}
-              </Typography>
-              <TouchableOpacity
-                onPress={() => setRecart(prev => !prev)}
-                activeOpacity={0.55}
-                className="flex-row items-center justify-center"
-                style={{ marginTop: 14, minHeight: 44, gap: 9 }}
-              >
-                <RoundCheck isChecked={recart} />
-                <Typography style={{ fontSize: 14, lineHeight: 19.6 }} className="text-ink76">
-                  장바구니에 다시 담기
-                </Typography>
-              </TouchableOpacity>
-            </View>
-            <View
-              className="flex-row"
-              style={{ gap: 8, paddingHorizontal: 18, paddingTop: 12, paddingBottom: 18 }}
+            <Typography style={{ fontSize: 14, fontWeight: "600", lineHeight: 14 }} className="text-ink">
+              환불 예정 금액
+            </Typography>
+            <Typography
+              style={{ fontSize: 17, fontWeight: "700", lineHeight: 17, letterSpacing: -0.4 }}
+              className="text-ink"
             >
-              <TouchableOpacity
-                onPress={() => setIsConfirmOpen(false)}
-                activeOpacity={0.55}
-                className="h-48 flex-1 items-center justify-center rounded-base border-[1px] border-borderButton bg-white"
-              >
+              {won(refund)}
+            </Typography>
+          </View>
+          <View className="px-14 pt-8">
+            <AmountRow label="배송비" fontSize={12.5} valueColor="#3C3C3C" value={shipping.line} />
+          </View>
+          <BulletNotes
+            style={{ paddingHorizontal: 14, paddingTop: 16 }}
+            notes={[
+              "브랜드가 배송 준비를 시작해 이미 발송된 경우, 취소 요청이 거절되고 주문하신 상품을 받으실 수 있어요.",
+              "결제 수단으로 결제 취소되며, 카드사 처리에 2~3영업일이 더 걸릴 수 있어요.",
+            ]}
+          />
+          <View className="h-26" />
+        </ScrollView>
+
+        <BottomCta label={ctaLabel} enabled={isReady} onPress={() => setIsConfirmOpen(true)} />
+
+        {isConfirmOpen && (
+          <View
+            className="absolute bottom-0 left-0 right-0 top-0 items-center justify-center"
+            style={{ backgroundColor: "rgba(0,0,0,0.45)", paddingHorizontal: 32, zIndex: 10 }}
+          >
+            <View className="w-full overflow-hidden rounded-base bg-white">
+              <View style={{ paddingHorizontal: 22, paddingTop: 26, paddingBottom: 6 }}>
                 <Typography
-                  style={{ fontSize: 15, fontWeight: "600", lineHeight: 15 }}
-                  className="text-ink76"
+                  style={{ fontSize: 16.5, fontWeight: "700", lineHeight: 24.75, letterSpacing: -0.3 }}
+                  className="text-center text-ink"
                 >
-                  닫기
+                  주문을 취소할까요?
                 </Typography>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={handleSubmit}
-                disabled={isSubmitting}
-                activeOpacity={0.75}
-                className="h-48 flex-1 items-center justify-center rounded-base bg-rose"
-                style={{ opacity: isSubmitting ? 0.75 : 1 }}
-              >
                 <Typography
-                  style={{ fontSize: 15, fontWeight: "600", lineHeight: 15 }}
-                  className="text-white"
+                  style={{ fontSize: 13, lineHeight: 22.1, marginTop: 6 }}
+                  className="text-center text-gray45"
                 >
-                  취소 요청하기
+                  환불 예정 금액 {won(refund)}
                 </Typography>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => setRecart(prev => !prev)}
+                  activeOpacity={0.55}
+                  className="flex-row items-center justify-center"
+                  style={{ marginTop: 14, minHeight: 44, gap: 9 }}
+                >
+                  <RoundCheck isChecked={recart} />
+                  <Typography style={{ fontSize: 14, lineHeight: 19.6 }} className="text-ink76">
+                    장바구니에 다시 담기
+                  </Typography>
+                </TouchableOpacity>
+              </View>
+              <View
+                className="flex-row"
+                style={{ gap: 8, paddingHorizontal: 18, paddingTop: 12, paddingBottom: 18 }}
+              >
+                <TouchableOpacity
+                  onPress={() => setIsConfirmOpen(false)}
+                  activeOpacity={0.55}
+                  className="h-48 flex-1 items-center justify-center rounded-base border-[1px] border-borderButton bg-white"
+                >
+                  <Typography
+                    style={{ fontSize: 15, fontWeight: "600", lineHeight: 15 }}
+                    className="text-ink76"
+                  >
+                    닫기
+                  </Typography>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={handleSubmit}
+                  disabled={isSubmitting}
+                  activeOpacity={0.75}
+                  className="h-48 flex-1 items-center justify-center rounded-base bg-rose"
+                  style={{ opacity: isSubmitting ? 0.75 : 1 }}
+                >
+                  <Typography
+                    style={{ fontSize: 15, fontWeight: "600", lineHeight: 15 }}
+                    className="text-white"
+                  >
+                    취소 요청하기
+                  </Typography>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
-      )}
-    </View>
+        )}
+      </View>
+    </KeyboardAvoidingView>
   );
 }

@@ -56,9 +56,11 @@ export default function ProductDetailInfo(props: ProductDetailInfoProps) {
     <html>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
         <style>
           * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { margin: 0; padding: 16px; overflow: hidden; }
+          /* 글꼴을 안 주면 iOS WKWebView는 영문 · 숫자를 Times(명조)로 그린다 — 앱과 같은 Pretendard, 없으면 시스템 고딕 */
+          body { margin: 0; padding: 16px; overflow: hidden; font-family: Pretendard, -apple-system, "Apple SD Gothic Neo", sans-serif; -webkit-text-size-adjust: 100%; }
           img { max-width: 100%; height: auto; }
         </style>
       </head>

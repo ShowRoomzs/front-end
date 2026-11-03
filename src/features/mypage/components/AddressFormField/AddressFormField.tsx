@@ -62,7 +62,7 @@ const AddressFormField = forwardRef<TextInput, AddressFormFieldProps>((props, re
           keyboardType={keyboardType}
           maxLength={maxLength}
           className="m-0 p-0 text-ink"
-          style={{ fontSize: 15, lineHeight: 21 }}
+          style={{ fontSize: 15, lineHeight: 21, fontFamily: "Pretendard-Regular" }}
         />
       </View>
     </View>

@@ -8,6 +8,7 @@ import {
   SUSPENSION_CANNOT,
   formatShortDate,
   formatSuspendedAt,
+  toKstDateKey,
 } from "@/features/account/constants/suspension";
 import { Suspension } from "@/features/account/types/accountStatus";
 
@@ -40,7 +41,7 @@ export default function SuspensionNoticeSheet(props: SuspensionNoticeSheetProps)
     {
       key: "자동 해제",
       value: term?.autoReleaseAt
-        ? `${term.autoReleaseAt.slice(0, 10)} · 기간이 끝나면 자동으로 해제돼요`
+        ? `${toKstDateKey(term.autoReleaseAt)} · 기간이 끝나면 자동으로 해제돼요`
         : null,
     },
   ].filter(row => !!row.value);

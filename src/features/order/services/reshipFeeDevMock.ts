@@ -34,8 +34,14 @@ function kstDate(offsetDays: number) {
   return new Date(Date.now() + KST_OFFSET_MS + offsetDays * DAY_MS).toISOString().slice(0, 10);
 }
 
-function kstNow() {
-  return new Date(Date.now() + KST_OFFSET_MS).toISOString().slice(0, 19);
+/** 서버 시각 규약(2026-10-29~) — LocalDateTime은 UTC 순간(`…Z`) */
+function serverNow() {
+  return new Date().toISOString().slice(0, 19) + "Z";
+}
+
+/** 한국 날짜의 23:59:59를 UTC 순간으로 — 보관 기한 같은 「그날까지」 값 */
+function kstEndOfDay(date: string) {
+  return new Date(Date.parse(`${date}T23:59:59+09:00`)).toISOString().slice(0, 19) + "Z";
 }
 
 /** 반려된 항목이 있는 상세에만 덧씌운다 — 반려가 없으면 「상품 다시 받기」 자체가 없는 화면이다 */
@@ -79,9 +85,11 @@ export function applyDevReshipMock(
       amount: AMOUNT,
       dueDate: isPaid ? null : kstDate(isOverdue ? -1 : 14),
       overdue: isOverdue,
-      settledAt: isPaid ? kstNow() : null,
+      settledAt: isPaid ? serverNow() : null,
       methodLabel: isPaid ? (paidMethodLabel ?? "신한카드") : null,
-      storage: isOverdue ? { noticeCount: 2, storageDueAt: kstDate(90), phase: "STORING" } : null,
+      storage: isOverdue
+        ? { noticeCount: 2, storageDueAt: kstEndOfDay(kstDate(90)), phase: "STORING" }
+        : null,
       ...(isCollect ? { collectFreight: AMOUNT } : {}),
     },
     // 반품 전체 반려는 환불액이 없다 — 착불 운임은 결제로 받는다

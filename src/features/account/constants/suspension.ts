@@ -43,12 +43,26 @@ export function formatSuspendedAt(value: string | null) {
   return new Date(epoch + KST_OFFSET_MS).toISOString().slice(0, 16).replace("T", " ");
 }
 
-/** 날짜 기준 값 → 「10.14(수)」 — 앞 10자리를 그대로 읽는다 */
+/**
+ * 서버 시각 → 한국 날짜 「2026-10-17」. 기한 · 자동 해제도 UTC 순간(`…Z`)이라 한국 시각으로 옮긴 뒤 날짜를 뗀다
+ * (한국 10-17 00:00 = `2026-10-16T15:00:00Z`). 시간대가 없으면 앞 10자리를 그대로 쓴다
+ */
+export function toKstDateKey(value: string) {
+  const hasZone = /(Z|[+-]d{2}:?d{2})$/.test(value);
+  const epoch = Date.parse(value);
+
+  if (!hasZone || Number.isNaN(epoch)) {
+    return value.slice(0, 10);
+  }
+  return new Date(epoch + KST_OFFSET_MS).toISOString().slice(0, 10);
+}
+
+/** 서버 시각 → 「10.14(수)」(한국 날짜) */
 export function formatShortDate(value: string | null) {
   if (!value) {
     return null;
   }
-  const [year, month, day] = value.slice(0, 10).split("-").map(Number);
+  const [year, month, day] = toKstDateKey(value).split("-").map(Number);
   const weekday = WEEKDAYS[new Date(Date.UTC(year, month - 1, day)).getUTCDay()];
 
   return `${String(month).padStart(2, "0")}.${String(day).padStart(2, "0")}(${weekday})`;

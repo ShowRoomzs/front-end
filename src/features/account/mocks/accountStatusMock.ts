@@ -15,6 +15,11 @@ function kstDate(offsetDays: number) {
   return new Date(Date.now() + KST_OFFSET_MS + offsetDays * DAY_MS).toISOString().slice(0, 10);
 }
 
+/** 그 한국 날짜의 한국 시각 HH:mm:ss를 서버처럼 UTC 순간(`…Z`)으로 */
+function kstAt(date: string, time: string) {
+  return new Date(Date.parse(`${date}T${time}+09:00`)).toISOString().slice(0, 19) + "Z";
+}
+
 export function buildAccountStatusMock(mock: Exclude<DevAccountStatusMock, "OFF">): AccountStatusResponse {
   if (mock === "RELEASED") {
     return {
@@ -36,9 +41,9 @@ export function buildAccountStatusMock(mock: Exclude<DevAccountStatusMock, "OFF"
       pendingAppealInquiryId: null,
       term: {
         endsOn,
-        autoReleaseAt: `${kstDate(7)}T00:00:00Z`,
+        autoReleaseAt: kstAt(kstDate(7), "00:00:00"),
         periodDays: 7,
-        appealDeadlineAt: `${kstDate(3)}T23:59:59Z`,
+        appealDeadlineAt: kstAt(kstDate(3), "23:59:59"),
         appealReviewBusinessDays: null,
       },
     },

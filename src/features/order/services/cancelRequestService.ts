@@ -29,10 +29,9 @@ const mockRequests = new Map<number, CancelDetail>();
 
 let mockSeq = 9000;
 
-function nowKst() {
-  const now = new Date(Date.now() + 9 * 60 * 60 * 1000);
-
-  return now.toISOString().slice(0, 19);
+/** 서버 시각 규약(2026-10-29~) — LocalDateTime은 UTC 순간(`…Z`) */
+function serverNow() {
+  return new Date().toISOString().slice(0, 19) + "Z";
 }
 
 export interface CreateCancelRequestInput {
@@ -117,7 +116,7 @@ export const cancelRequestService = {
       withdrawable: phase === "REVIEWING",
       notices: MOCK_NOTICES[phase],
       respondDueAt: phase === "REVIEWING" ? found.respondDueAt : null,
-      decidedAt: phase === "REVIEWING" ? null : nowKst(),
+      decidedAt: phase === "REVIEWING" ? null : serverNow(),
       rejection:
         phase === "REJECTED"
           ? {
@@ -132,7 +131,7 @@ export const cancelRequestService = {
               status: "DONE",
               statusLabel: "환불 완료",
               methodLabel: null,
-              refundedAt: nowKst(),
+              refundedAt: serverNow(),
             }
           : null,
     });
@@ -184,7 +183,7 @@ async function createMock(input: CreateCancelRequestInput) {
     autoApproved: false,
     withdrawable: true,
     notices: MOCK_NOTICES.REVIEWING,
-    requestedAt: nowKst(),
+    requestedAt: serverNow(),
     respondDueAt: null,
     decidedAt: null,
     reasonLabel: CANCEL_REQUEST_REASONS.find(item => item.code === input.reason)?.text ?? "",

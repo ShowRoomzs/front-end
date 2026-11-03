@@ -21,6 +21,7 @@ import { NOTIFICATION_BADGE_QUERY_KEY } from "@/features/notification/hooks/useN
 import { notificationService } from "@/features/notification/services/notificationService";
 import { NotificationItem, NotificationListResponse } from "@/features/notification/types/notification";
 import { Thumb } from "@/features/order/components/OrderParts/OrderParts";
+import { formatMonthDay } from "@/features/order/utils/orderFormat";
 import { useGetNotificationSettings } from "@/features/setting/hooks/useGetNotificationSettings";
 
 /**
@@ -366,13 +367,8 @@ function NotificationRow(props: { item: NotificationItem; isUnread: boolean; onP
             }}
             className={item.todoDueAt ? "text-roseText" : "text-gray45"}
           >
-            {/*
-              할 일 기한은 KST 벽시계(「○일 23:59:59」)인데 서버 직렬화가 `Z`를 붙인다 — UTC로 읽으면 다음 날이 된다.
-              날짜 부분을 그대로 쓴다
-            */}
-            {item.todoDueAt
-              ? `${item.body} · ${item.todoDueAt.slice(5, 7)}.${item.todoDueAt.slice(8, 10)}까지`
-              : item.body}
+            {/* 할 일 기한은 UTC 순간(`…Z`, 한국 23:59:59 = 14:59:59Z) — 한국 날짜로 옮겨 읽는다 */}
+            {item.todoDueAt ? `${item.body} · ${formatMonthDay(item.todoDueAt)}까지` : item.body}
           </Typography>
         )}
         <Typography style={{ fontSize: 12, lineHeight: 12, marginTop: 5 }} className="text-gray45">

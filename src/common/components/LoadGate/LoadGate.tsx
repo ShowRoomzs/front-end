@@ -31,10 +31,12 @@ interface LoadGateProps {
   skeleton: ReactNode;
   /** 본문 — 데이터가 생기면 넘긴다. 없으면 자리 표시나 오류가 그 자리를 채운다 */
   children?: ReactNode;
+  /** 아래에 겹쳐 뜨는 고정 버튼 높이 — 전체 오류를 그만큼 위로 올려 가운데를 잡는다 */
+  insetBottom?: number;
 }
 
 export default function LoadGate(props: LoadGateProps) {
-  const { query, skeleton, children } = props;
+  const { query, skeleton, children, insetBottom } = props;
   const hasContent = children !== undefined && children !== null && children !== false;
   const isWaiting = !hasContent && query.isFetching;
   const isFailed = !hasContent && !query.isFetching && query.isError;
@@ -42,7 +44,9 @@ export default function LoadGate(props: LoadGateProps) {
   return (
     <View className="flex-1">
       {children}
-      {isFailed && <ErrorState error={query.error} onRetry={() => void query.refetch()} />}
+      {isFailed && (
+        <ErrorState error={query.error} onRetry={() => void query.refetch()} insetBottom={insetBottom} />
+      )}
       <SkeletonOverlay visible={isWaiting}>{skeleton}</SkeletonOverlay>
     </View>
   );

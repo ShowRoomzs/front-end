@@ -1,8 +1,9 @@
-import { useCallback, useMemo, useState } from "react";
+import { ReactElement, useCallback, useMemo, useState } from "react";
 import { ListRenderItemInfo, RefreshControl, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { BOTTOM_TABS_HEIGHT } from "@/common/components/BottomTabs/config";
+import ErrorState from "@/common/components/ErrorState/ErrorState";
 import GroupBand from "@/common/components/GroupBand/GroupBand";
 import PagingList from "@/common/components/PagingList/PagingList";
 import SectionLabel from "@/common/components/SectionLabel/SectionLabel";
@@ -204,12 +205,29 @@ export default function HomeView() {
 
   const pageInfo =
     user && followingFeed.pageInfo?.hasNext ? followingFeed.pageInfo : recommendedFeed.pageInfo;
+  const isEmpty = rows.length === 0;
+  const isFetchingFeed = (!!user && followingFeed.isFetching) || recommendedFeed.isFetching;
   const isLoading =
     followingCountQuery.isLoading ||
     followingFeed.isLoading ||
     recommendedFeed.isLoading ||
     followingFeed.isFetchingNextPage ||
-    recommendedFeed.isFetchingNextPage;
+    recommendedFeed.isFetchingNextPage ||
+    // 오류 뒤 [다시 시도] — 상태가 error로 남아 isLoading이 서지 않으므로 받는 중이면 자리 표시를 띄운다
+    (isEmpty && isFetchingFeed);
+
+  /*
+    한 번도 못 받았을 때만 전체 오류(§07) — 실패를 빈 피드로 그리면 「팔로우한 쇼룸이 없어요」라는
+    거짓 안내가 된다. 이미 받은 게시물이 있으면 갱신 실패로 지우지 않는다.
+  */
+  const failedFeed = [recommendedFeed, ...(user ? [followingFeed] : [])].find(feed => feed.isError);
+  const handleRetry = useCallback(() => {
+    void followingCountQuery.refetch();
+    if (user) {
+      void followingFeed.refetch();
+    }
+    void recommendedFeed.refetch();
+  }, [followingCountQuery, followingFeed, recommendedFeed, user]);
 
   /*
     팔로잉 게시물도 추천도 비었을 때 — 목록 행이 하나도 없어 구분 줄이 들어가지
@@ -223,6 +241,14 @@ export default function HomeView() {
   ) : (
     <FollowingEmptyState fill onPressSearch={handlePressSearch} />
   );
+
+  let listEmpty: ReactElement | undefined = emptyFeed;
+
+  if (isLoading) {
+    listEmpty = undefined;
+  } else if (failedFeed) {
+    listEmpty = <ErrorState error={failedFeed.error} onRetry={handleRetry} />;
+  }
 
   return (
     <View className="flex-1 bg-white">
@@ -244,7 +270,7 @@ export default function HomeView() {
         renderItem={renderItem}
         onViewableItemsChanged={handleViewableItemsChanged}
         viewabilityConfig={viewabilityConfig}
-        ListEmptyComponent={isLoading ? undefined : emptyFeed}
+        ListEmptyComponent={listEmpty}
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}

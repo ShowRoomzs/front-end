@@ -20,6 +20,8 @@ interface ErrorStateProps {
   onRetry?: () => void;
   /** 화면에 이 안내밖에 없을 때 남는 세로 공간 가운데에 둔다 */
   fill?: boolean;
+  /** 아래에 겹쳐 뜨는 고정 버튼 높이 — 그만큼 빼고 가운데를 잡는다 */
+  insetBottom?: number;
 }
 
 const CONNECTION_TITLE = "연결이 원활하지 않아요";
@@ -33,7 +35,7 @@ export function isConnectionError(error: unknown) {
 }
 
 export default function ErrorState(props: ErrorStateProps) {
-  const { error, onRetry, fill = true } = props;
+  const { error, onRetry, fill = true, insetBottom = 0 } = props;
   const isConnection = isConnectionError(error);
   const serverMessage = (error as AxiosError<{ message?: string }> | undefined)?.response?.data?.message;
 
@@ -42,7 +44,10 @@ export default function ErrorState(props: ErrorStateProps) {
   const canRetry = isConnection && !!onRetry;
 
   return (
-    <View className={fill ? "flex-1 items-center justify-center px-40" : "items-center px-40 py-26"}>
+    <View
+      className={fill ? "flex-1 items-center justify-center px-40" : "items-center px-40 py-26"}
+      style={insetBottom ? { paddingBottom: insetBottom } : undefined}
+    >
       <WifiOffIcon />
 
       <Typography

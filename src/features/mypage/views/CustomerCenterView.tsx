@@ -90,6 +90,7 @@ export default function CustomerCenterView() {
 
       <LoadGate
         query={faqQuery}
+        insetBottom={bottom + BOTTOM_CTA_HEIGHT}
         skeleton={
           <SkeletonRepeat count={8}>
             <FaqRowSkeleton />

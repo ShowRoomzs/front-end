@@ -20,9 +20,14 @@ export const linking: LinkingOptions<RootStackParamList> = {
     screens: {
       [ROOT_ROUTES.COMMON]: {
         screens: {
-          [COMMON_ROUTES.SHOWROOM_DETAIL]: "showroom/:showroomId",
-          [COMMON_ROUTES.POST_DETAIL]: "post/:postId",
-          [COMMON_ROUTES.PRODUCT_DETAIL]: "product/:productId",
+          // 주소에서 읽은 값은 문자열이다 — 숫자로 바꿔 두지 않으면 앱 안에서 넘긴 번호(숫자)와
+          // 쿼리 키 · 비교(`!==`)가 어긋나 같은 상품 · 게시물이 다른 것으로 취급된다
+          [COMMON_ROUTES.SHOWROOM_DETAIL]: { path: "showroom/:showroomId", parse: { showroomId: Number } },
+          [COMMON_ROUTES.POST_DETAIL]: { path: "post/:postId", parse: { postId: Number } },
+          [COMMON_ROUTES.PRODUCT_DETAIL]: {
+            path: "product/:productId",
+            parse: { productId: Number, groupBuyId: Number },
+          },
         },
       },
     },

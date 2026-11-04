@@ -1,7 +1,11 @@
 import { apiInstance } from "@/common/lib/apiInstance";
 import { PageParams } from "@/common/types/page";
+import { isDevMockProduct } from "@/features/product/mocks/devMockIds";
 import { ProductListParams } from "@/features/product/types/params";
 import { ProductDetailResponse, ProductListResponse, StockResponse } from "@/features/product/types/product";
+
+/** DEV 목업 상품 — DEV에서만 불러온다(`devMockIds` 참고). 서버 실패를 가리는 대체가 아니라 정해진 번호에만 쓴다 */
+const loadDevMockProduct = () => import("@/features/product/mocks/devMockProduct");
 
 /**
  * 상품 목록 · 상세 · 재고. 실패는 그대로 던진다 — 화면이 오류를 보여준다.
@@ -15,6 +19,9 @@ export const productService = {
     return response;
   },
   getDetail: async (productId: number, groupBuyId?: number) => {
+    if (isDevMockProduct(productId)) {
+      return (await loadDevMockProduct()).getDevMockProductDetail();
+    }
     const { data: response } = await apiInstance.get<ProductDetailResponse>(`/common/products/${productId}`, {
       params: { groupBuyId },
     });
@@ -22,6 +29,9 @@ export const productService = {
     return response;
   },
   getStock: async (productId: number, variantIds: Array<number>, groupBuyId?: number | null) => {
+    if (isDevMockProduct(productId)) {
+      return (await loadDevMockProduct()).getDevMockStock(variantIds);
+    }
     const { data: response } = await apiInstance.get<StockResponse>(
       `/common/products/${productId}/variants`,
       {

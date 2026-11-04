@@ -1,4 +1,4 @@
-import { TouchableOpacity, View } from "react-native";
+import { Pressable, StyleSheet, TouchableOpacity, View } from "react-native";
 import Animated, { useAnimatedStyle } from "react-native-reanimated";
 
 import Typography from "@/common/components/Typography/Typography";
@@ -33,12 +33,32 @@ export default function ModalRenderer() {
     return null;
   }
 
+  /*
+    딤을 탭하면 [취소]와 같다(§08) — 아무것도 실행하지 않고 닫는다.
+    하는 일이 없는 버튼(머무르는 쪽: 취소 · 이어서 하기 · 닫기)이 있는 모달만 그렇게 한다.
+    버튼마다 할 일이 있는 모달(누르면 이전 화면으로 가는 [확인] 하나 등)은 답을 받아야 하므로 딤으로 닫지 않는다.
+    `closable`을 정해 두면 그 값을 따르고, 닫힐 때 `onClose`를 부른다.
+  */
+  const isDimDismissible = currentModal.closable ?? !!currentModal.buttons?.some(button => !button.onPress);
+
+  const handlePressDim = () => {
+    hide();
+    currentModal.onClose?.();
+  };
+
   return (
     <View
       className="absolute bottom-0 left-0 right-0 top-0 z-[9998] items-center justify-center"
       style={{ paddingHorizontal: 32 }}
     >
       <Animated.View className="absolute bottom-0 left-0 right-0 top-0 bg-black" style={backdropStyle} />
+      <Pressable
+        style={StyleSheet.absoluteFill}
+        onPress={handlePressDim}
+        disabled={!isDimDismissible}
+        accessibilityLabel="닫기"
+        accessible={isDimDismissible}
+      />
 
       <Animated.View className="w-full overflow-hidden rounded-base bg-white" style={modalStyle}>
         <View style={{ paddingHorizontal: 22, paddingTop: 26, paddingBottom: 20 }}>

@@ -75,6 +75,9 @@ export const modal = {
       title,
       message,
       centered,
+      // 딤 탭은 [취소]와 같다(§08)
+      closable: true,
+      onClose: onCancel,
       buttons: [
         {
           label: cancelLabel,

@@ -500,39 +500,42 @@ export default function ProductDetailView() {
         </SkeletonOverlay>
       </View>
 
-      <View
-        className="absolute bottom-0 left-0 right-0 border-t-[0.5px] border-divider bg-white px-14 pt-12"
-        style={{ paddingBottom: bottom + 26 }}
-      >
-        {isUnavailable ? (
-          /*
+      {/* 상품을 아직 못 받았거나 못 받으면 하단 버튼 줄을 그리지 않는다 — 열 옵션도, 팔로우할 쇼룸도 없다 */}
+      {!!productDetail && (
+        <View
+          className="absolute bottom-0 left-0 right-0 border-t-[0.5px] border-divider bg-white px-14 pt-12"
+          style={{ paddingBottom: bottom + 26 }}
+        >
+          {isUnavailable ? (
+            /*
             살 수 없다고 화면을 막고 끝내지 않는다 — 이 공구는 끝났어도 같은 쇼룸의 다음 공구가
             남아 있고, 그때 알림을 받을 유일한 방법이 팔로우다(시안 C7 판매 종료).
           */
-          <View style={{ gap: 9 }}>
-            <View className="h-38 flex-row items-center justify-center">
-              <Typography
-                style={{ fontSize: 12.5, fontWeight: "500", lineHeight: 12.5 }}
-                className="text-gray45"
+            <View style={{ gap: 9 }}>
+              <View className="h-38 flex-row items-center justify-center">
+                <Typography
+                  style={{ fontSize: 12.5, fontWeight: "500", lineHeight: 12.5 }}
+                  className="text-gray45"
+                >
+                  {saleStateMessage(saleState)}
+                </Typography>
+              </View>
+              <TouchableOpacity
+                onPress={handlePressFollowShowroom}
+                activeOpacity={0.75}
+                className="h-52 flex-row items-center justify-center rounded-base bg-rose"
+                style={{ gap: 7 }}
               >
-                {saleStateMessage(saleState)}
-              </Typography>
+                <Typography variant="buttonPrimary" className="text-white">
+                  쇼룸 팔로우하고 다음 공구 받기
+                </Typography>
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity
-              onPress={handlePressFollowShowroom}
-              activeOpacity={0.75}
-              className="h-52 flex-row items-center justify-center rounded-base bg-rose"
-              style={{ gap: 7 }}
-            >
-              <Typography variant="buttonPrimary" className="text-white">
-                쇼룸 팔로우하고 다음 공구 받기
-              </Typography>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          renderBuyButton()
-        )}
-      </View>
+          ) : (
+            renderBuyButton()
+          )}
+        </View>
+      )}
 
       <PurchaseBlockedModal
         blockedBy={blockedBy}

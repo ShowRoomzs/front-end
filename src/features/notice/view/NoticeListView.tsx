@@ -5,6 +5,7 @@ import PagingList from "@/common/components/PagingList/PagingList";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import { useMypageNavigation } from "@/common/router";
 import NoticeAccordion from "@/features/notice/components/NoticeAccordion/NoticeAccordion";
+import NoticeRowSkeleton from "@/features/notice/components/NoticeRowSkeleton/NoticeRowSkeleton";
 import useGetNoticeList from "@/features/notice/hooks/useGetNoticeList";
 import { NoticeListItem } from "@/features/notice/types/notice";
 
@@ -29,6 +30,8 @@ export default function NoticeListView() {
         isLoading={isFetching}
         onLoadMore={fetchNextPage}
         renderItem={renderItem}
+        skeleton={<NoticeRowSkeleton />}
+        skeletonCount={10}
         showsVerticalScrollIndicator={false}
       />
     </View>

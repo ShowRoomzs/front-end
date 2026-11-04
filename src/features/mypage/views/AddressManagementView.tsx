@@ -5,13 +5,14 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { EmptyPinIcon } from "@/common/components/DsIcon/icons";
 import EmptyState from "@/common/components/EmptyState/EmptyState";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
-import Spinner from "@/common/components/Spinner/Spinner";
+import { SkeletonOverlay, SkeletonRepeat } from "@/common/components/Skeleton/Skeleton";
 import Typography from "@/common/components/Typography/Typography";
 import { useModal } from "@/common/providers/ModalProvider";
 import { toast } from "@/common/providers/ToastProvider";
 import { useMypageNavigation } from "@/common/router";
 import { MYPAGE_ROUTES } from "@/common/router/routes";
 import AddressRow from "@/features/mypage/components/AddressRow/AddressRow";
+import AddressRowSkeleton from "@/features/mypage/components/AddressRowSkeleton/AddressRowSkeleton";
 import { useAddressMutation } from "@/features/mypage/hooks/useAddressMutation/useAddressMutation";
 import { useGetAddressList } from "@/features/mypage/hooks/useGetAddressList";
 import { Address } from "@/features/mypage/types/address";
@@ -97,30 +98,35 @@ export default function AddressManagementView() {
     <View className="flex-1 bg-white">
       <ScreenHeader title="배송지 관리" onPressBack={navigation.goBack} />
 
-      <FlatList
-        data={addressList}
-        keyExtractor={item => String(item.id)}
-        renderItem={renderItem}
-        showsVerticalScrollIndicator={false}
-        // 빈 안내가 남는 세로 공간을 차지해야 가운데 정렬이 의미를 갖는다
-        contentContainerStyle={{ flexGrow: 1 }}
-        ListFooterComponent={<View className="h-26" />}
-        ListEmptyComponent={
-          /* 로딩 중에는 빈 상태를 띄우지 않는다 — "없어요"가 잠깐 떴다 사라지면 오해가 남는다 */
-          isLoading ? (
-            <View className="flex-1 items-center justify-center">
-              <Spinner />
-            </View>
-          ) : (
-            <EmptyState
-              fill
-              icon={<EmptyPinIcon size={50} />}
-              title="저장된 배송지가 없어요"
-              description={"배송지를 미리 등록해 두면\n주문할 때 주소를 다시 쓰지 않아도 돼요"}
-            />
-          )
-        }
-      />
+      <View className="flex-1">
+        <FlatList
+          data={addressList}
+          keyExtractor={item => String(item.id)}
+          renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
+          // 빈 안내가 남는 세로 공간을 차지해야 가운데 정렬이 의미를 갖는다
+          contentContainerStyle={{ flexGrow: 1 }}
+          ListFooterComponent={<View className="h-26" />}
+          ListEmptyComponent={
+            /* 로딩 중에는 빈 상태를 띄우지 않는다 — "없어요"가 잠깐 떴다 사라지면 오해가 남는다 */
+            isLoading ? null : (
+              <EmptyState
+                fill
+                icon={<EmptyPinIcon size={50} />}
+                title="저장된 배송지가 없어요"
+                description={"배송지를 미리 등록해 두면\n주문할 때 주소를 다시 쓰지 않아도 돼요"}
+              />
+            )
+          }
+        />
+
+        <SkeletonOverlay visible={isLoading}>
+          <AddressRowSkeleton isFirst />
+          <SkeletonRepeat count={3}>
+            <AddressRowSkeleton />
+          </SkeletonRepeat>
+        </SkeletonOverlay>
+      </View>
 
       <View
         className="border-t-[0.5px] border-divider bg-white px-14 pt-12"

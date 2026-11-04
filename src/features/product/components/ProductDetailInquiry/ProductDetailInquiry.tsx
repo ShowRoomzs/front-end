@@ -3,6 +3,7 @@ import { TouchableOpacity, View } from "react-native";
 
 import { ChevronRightIcon, SpeechBubbleIcon } from "@/common/components/DsIcon/icons";
 import EmptyState from "@/common/components/EmptyState/EmptyState";
+import Skeleton, { SkeletonRepeat } from "@/common/components/Skeleton/Skeleton";
 import Typography from "@/common/components/Typography/Typography";
 import { usePermissionPress } from "@/common/hooks/usePermissionPress";
 import { useCommonNavigation } from "@/common/router";
@@ -10,6 +11,7 @@ import { COMMON_ROUTES } from "@/common/router/routes";
 import { SUSPENSION_BLOCKED } from "@/features/account/constants/suspension";
 import { useSuspension } from "@/features/account/hooks/useAccountStatus";
 import ProductInquiryItem from "@/features/product/components/ProductInquiryItem/ProductInquiryItem";
+import ProductInquiryItemSkeleton from "@/features/product/components/ProductInquiryItemSkeleton/ProductInquiryItemSkeleton";
 import { useGetPublicProductInquiries } from "@/features/product/hooks/useGetPublicProductInquiries";
 
 /**
@@ -107,6 +109,13 @@ export default function ProductDetailInquiry(props: ProductDetailInquiryProps) {
         </Typography>
       )}
 
+      {!isListReady && (
+        <Skeleton>
+          <SkeletonRepeat count={2}>
+            <ProductInquiryItemSkeleton />
+          </SkeletonRepeat>
+        </Skeleton>
+      )}
       {isListReady && previewItems.length === 0 && (
         <EmptyState
           icon={<SpeechBubbleIcon size={50} color="#D8D8DA" />}

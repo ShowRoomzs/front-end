@@ -7,7 +7,7 @@ import { SpeechBubbleIcon } from "@/common/components/DsIcon/icons";
 import EmptyState from "@/common/components/EmptyState/EmptyState";
 import FilterChips, { FilterChipItem } from "@/common/components/FilterChips/FilterChips";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
-import Spinner from "@/common/components/Spinner/Spinner";
+import { SkeletonBlock, SkeletonOverlay, SkeletonRepeat } from "@/common/components/Skeleton/Skeleton";
 import Typography from "@/common/components/Typography/Typography";
 import { usePermissionPress } from "@/common/hooks/usePermissionPress";
 import { useCommonNavigation } from "@/common/router";
@@ -17,6 +17,7 @@ import SuspensionBlockedLine, { SuspendedButton } from "@/features/account/compo
 import { SUSPENSION_BLOCKED } from "@/features/account/constants/suspension";
 import { useSuspension } from "@/features/account/hooks/useAccountStatus";
 import ProductInquiryItem from "@/features/product/components/ProductInquiryItem/ProductInquiryItem";
+import ProductInquiryItemSkeleton from "@/features/product/components/ProductInquiryItemSkeleton/ProductInquiryItemSkeleton";
 import { useGetPublicProductInquiries } from "@/features/product/hooks/useGetPublicProductInquiries";
 
 /**
@@ -80,42 +81,52 @@ export default function ProductInquiryListView() {
     <View className="flex-1 bg-white">
       <ScreenHeader title="상품 문의" onPressBack={navigation.goBack} />
 
-      {isLoading ? (
-        <View className="flex-1 items-center justify-center">
-          <Spinner />
-        </View>
-      ) : (
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ flexGrow: 1, paddingBottom: bottom + BOTTOM_CTA_HEIGHT }}
-        >
-          <View className="pb-14 pt-12">
-            <FilterChips items={chips} selectedValue={selectedType} onSelect={setSelectedType} />
-          </View>
+      <View className="flex-1">
+        {!isLoading && (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: bottom + BOTTOM_CTA_HEIGHT }}
+          >
+            <View className="pb-14 pt-12">
+              <FilterChips items={chips} selectedValue={selectedType} onSelect={setSelectedType} />
+            </View>
 
-          {visibleItems.length === 0 && (
-            <EmptyState
-              fill
-              icon={<SpeechBubbleIcon size={50} color="#D8D8DA" />}
-              title={selectedType === ALL ? "아직 등록된 문의가 없어요" : "이 유형의 문의가 아직 없어요"}
-              description={
-                selectedType === ALL
-                  ? "궁금한 점을 남기시면\n판매자가 확인하고 답변해 드려요"
-                  : "다른 유형을 보시거나\n직접 문의를 남겨 보세요"
-              }
-            />
-          )}
-          {visibleItems.map(inquiry => (
-            <ProductInquiryItem
-              key={inquiry.id}
-              inquiry={inquiry}
-              sellerName={sellerName}
-              isExpanded={expandedIds.includes(inquiry.id)}
-              onToggle={handleToggle}
-            />
-          ))}
-        </ScrollView>
-      )}
+            {visibleItems.length === 0 && (
+              <EmptyState
+                fill
+                icon={<SpeechBubbleIcon size={50} color="#D8D8DA" />}
+                title={selectedType === ALL ? "아직 등록된 문의가 없어요" : "이 유형의 문의가 아직 없어요"}
+                description={
+                  selectedType === ALL
+                    ? "궁금한 점을 남기시면\n판매자가 확인하고 답변해 드려요"
+                    : "다른 유형을 보시거나\n직접 문의를 남겨 보세요"
+                }
+              />
+            )}
+            {visibleItems.map(inquiry => (
+              <ProductInquiryItem
+                key={inquiry.id}
+                inquiry={inquiry}
+                sellerName={sellerName}
+                isExpanded={expandedIds.includes(inquiry.id)}
+                onToggle={handleToggle}
+              />
+            ))}
+          </ScrollView>
+        )}
+
+        {/* 칩 줄은 받은 목록에서 세우므로 칩 자리까지 함께 가린다 — 칩 위아래 터치 여백 5를 더한다 */}
+        <SkeletonOverlay visible={isLoading}>
+          <View className="flex-row px-14" style={{ gap: 6, paddingTop: 12 + 5, paddingBottom: 14 + 5 }}>
+            <SkeletonBlock width={52} height={34} radius={8} />
+            <SkeletonBlock width={64} height={34} radius={8} />
+            <SkeletonBlock width={64} height={34} radius={8} />
+          </View>
+          <SkeletonRepeat count={6}>
+            <ProductInquiryItemSkeleton />
+          </SkeletonRepeat>
+        </SkeletonOverlay>
+      </View>
 
       <View
         className="absolute bottom-0 left-0 right-0 border-t-[0.5px] border-divider bg-white px-14 pt-12"

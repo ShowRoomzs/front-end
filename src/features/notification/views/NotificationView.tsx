@@ -10,7 +10,7 @@ import DevMockSwitch from "@/common/components/DevMockSwitch/DevMockSwitch";
 import { BellIcon, SpeechBubbleIcon } from "@/common/components/DsIcon/icons";
 import EmptyState from "@/common/components/EmptyState/EmptyState";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
-import Spinner from "@/common/components/Spinner/Spinner";
+import { SkeletonBlock, SkeletonOverlay, SkeletonRepeat } from "@/common/components/Skeleton/Skeleton";
 import Typography from "@/common/components/Typography/Typography";
 import { queryClient } from "@/common/lib/queryClient";
 import { useBottomSheetContext } from "@/common/providers/BottomSheetProvider";
@@ -239,61 +239,79 @@ export default function NotificationView() {
     <View className="flex-1 bg-white">
       <ScreenHeader title="알림" onPressBack={navigation.goBack} />
 
-      {isLoading ? (
-        <View className="flex-1 items-center justify-center">
-          <Spinner />
-        </View>
-      ) : (
-        <FlatList
-          data={rows}
-          keyExtractor={row => row.key}
-          renderItem={renderRow}
-          onEndReached={() => hasNextPage && !isFetchingNextPage && void fetchNextPage()}
-          contentContainerStyle={{ flexGrow: 1 }}
-          ListHeaderComponent={
-            <>
-              <DevMockSwitch
-                label="DEV 알림"
-                options={DEV_NOTIFICATION_OPTIONS}
-                current={devMock}
-                onPick={setDevMock}
+      <View className="flex-1">
+        {!isLoading && (
+          <FlatList
+            data={rows}
+            keyExtractor={row => row.key}
+            renderItem={renderRow}
+            onEndReached={() => hasNextPage && !isFetchingNextPage && void fetchNextPage()}
+            contentContainerStyle={{ flexGrow: 1 }}
+            ListHeaderComponent={
+              <>
+                <DevMockSwitch
+                  label="DEV 알림"
+                  options={DEV_NOTIFICATION_OPTIONS}
+                  current={devMock}
+                  onPick={setDevMock}
+                />
+                {isOsOff && (
+                  <NoticeBar
+                    text="기기 알림이 꺼져 있어 주문 · 배송 소식을 놓칠 수 있어요"
+                    action="설정 열기"
+                    onPress={() => void Linking.openSettings()}
+                  />
+                )}
+                {!isAdAgreed && (
+                  <NoticeBar
+                    text="팔로우한 쇼룸의 새 공구 알림은 광고성 정보 수신에 동의해야 받을 수 있어요"
+                    action="동의하기"
+                    onPress={() => goMypage(MYPAGE_ROUTES.SETTINGS)}
+                  />
+                )}
+              </>
+            }
+            ListEmptyComponent={
+              <EmptyState
+                fill
+                icon={<BellIcon size={50} color="#D8D8DA" />}
+                title="아직 받은 알림이 없어요"
+                description={"주문 · 배송 소식과 팔로우한 쇼룸의\n새 공구를 여기서 알려드려요"}
               />
-              {isOsOff && (
-                <NoticeBar
-                  text="기기 알림이 꺼져 있어 주문 · 배송 소식을 놓칠 수 있어요"
-                  action="설정 열기"
-                  onPress={() => void Linking.openSettings()}
-                />
-              )}
-              {!isAdAgreed && (
-                <NoticeBar
-                  text="팔로우한 쇼룸의 새 공구 알림은 광고성 정보 수신에 동의해야 받을 수 있어요"
-                  action="동의하기"
-                  onPress={() => goMypage(MYPAGE_ROUTES.SETTINGS)}
-                />
-              )}
-            </>
-          }
-          ListEmptyComponent={
-            <EmptyState
-              fill
-              icon={<BellIcon size={50} color="#D8D8DA" />}
-              title="아직 받은 알림이 없어요"
-              description={"주문 · 배송 소식과 팔로우한 쇼룸의\n새 공구를 여기서 알려드려요"}
-            />
-          }
-          ListFooterComponent={
-            rows.length > 0 ? (
-              <Typography
-                style={{ fontSize: 12, lineHeight: 20.4 }}
-                className="px-14 pb-30 pt-22 text-center text-gray45"
-              >
-                최근 90일 알림까지 보여드려요
-              </Typography>
-            ) : null
-          }
-        />
-      )}
+            }
+            ListFooterComponent={
+              rows.length > 0 ? (
+                <Typography
+                  style={{ fontSize: 12, lineHeight: 20.4 }}
+                  className="px-14 pb-30 pt-22 text-center text-gray45"
+                >
+                  최근 90일 알림까지 보여드려요
+                </Typography>
+              ) : null
+            }
+          />
+        )}
+
+        <SkeletonOverlay visible={isLoading}>
+          <SkeletonRepeat count={9}>
+            <NotificationRowSkeleton />
+          </SkeletonRepeat>
+        </SkeletonOverlay>
+      </View>
+    </View>
+  );
+}
+
+/** 알림 행 자리 표시 — NotificationRow와 같은 틀(px-14 · py-12 · 간격 12 · 이미지 44 · 문장 두 줄 + 시각) */
+function NotificationRowSkeleton() {
+  return (
+    <View className="flex-row items-start px-14" style={{ gap: 12, paddingVertical: 12 }}>
+      <SkeletonBlock width={44} height={44} radius={22} />
+      <View className="min-w-0 flex-1" style={{ gap: 7, paddingTop: 4 }}>
+        <SkeletonBlock width="86%" height={11} />
+        <SkeletonBlock width="54%" height={11} />
+        <SkeletonBlock width="18%" height={9} sub />
+      </View>
     </View>
   );
 }

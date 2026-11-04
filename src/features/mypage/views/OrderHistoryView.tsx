@@ -6,11 +6,12 @@ import Svg, { Path } from "react-native-svg";
 import { ChevronRightIcon } from "@/common/components/DsIcon/icons";
 import EmptyState from "@/common/components/EmptyState/EmptyState";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
-import Spinner from "@/common/components/Spinner/Spinner";
+import Skeleton, { SkeletonOverlay, SkeletonRepeat } from "@/common/components/Skeleton/Skeleton";
 import Typography from "@/common/components/Typography/Typography";
 import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { HOME_ROUTES, useMypageNavigation } from "@/common/router";
 import { COMMON_ROUTES } from "@/common/router/routes";
+import OrderCardSkeleton from "@/features/order/components/OrderCardSkeleton/OrderCardSkeleton";
 import OrderItemCard from "@/features/order/components/OrderItemCard/OrderItemCard";
 import { Band, BottomSafeSpacer } from "@/features/order/components/OrderParts/OrderParts";
 import { useOrderNavigation } from "@/features/order/hooks/useOrderNavigation";
@@ -105,59 +106,64 @@ export default function OrderHistoryView() {
     <View className="flex-1 bg-white">
       <ScreenHeader title="주문 내역" onPressBack={navigation.goBack} />
 
-      <FlatList
-        data={content}
-        keyExtractor={order => String(order.orderId)}
-        renderItem={renderItem}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ flexGrow: 1 }}
-        refreshControl={
-          <RefreshControl refreshing={isRefetching && !isFetchingNextPage} onRefresh={refetch} />
-        }
-        onEndReached={() => {
-          if (hasNextPage && !isFetchingNextPage) {
-            void fetchNextPage();
+      <View className="flex-1">
+        <FlatList
+          data={content}
+          keyExtractor={order => String(order.orderId)}
+          renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ flexGrow: 1 }}
+          refreshControl={
+            <RefreshControl refreshing={isRefetching && !isFetchingNextPage} onRefresh={refetch} />
           }
-        }}
-        onEndReachedThreshold={0.4}
-        ListFooterComponent={
-          <>
-            <ListFooter
-              isEmpty={content.length === 0}
-              isFetching={isFetchingNextPage}
-              hasNext={!!hasNextPage}
-            />
-            <BottomSafeSpacer />
-          </>
-        }
-        ListEmptyComponent={
-          isLoading ? (
-            <View className="flex-1 items-center justify-center">
-              <Spinner />
-            </View>
-          ) : (
-            <EmptyState
-              fill
-              icon={
-                <Svg width={50} height={50} viewBox="0 0 24 24" fill="none">
-                  <Path d="M6 4.5h9l3.5 3.5v11.5h-12.5z" stroke="#D8D8DA" strokeWidth={1.2} />
-                  <Path d="M9 12.5h6" stroke="#D8D8DA" strokeWidth={1.2} />
-                  <Path d="M9 16h4" stroke="#D8D8DA" strokeWidth={1.2} />
-                </Svg>
-              }
-              title="아직 주문 내역이 없어요"
-              description="마음에 드는 공구를 찾아보세요"
-              actionLabel="공구 구경하기"
-              onPressAction={handlePressBrowse}
-            />
-          )
-        }
-      />
+          onEndReached={() => {
+            if (hasNextPage && !isFetchingNextPage) {
+              void fetchNextPage();
+            }
+          }}
+          onEndReachedThreshold={0.4}
+          ListFooterComponent={
+            <>
+              <ListFooter
+                isEmpty={content.length === 0}
+                isFetching={isFetchingNextPage}
+                hasNext={!!hasNextPage}
+              />
+              <BottomSafeSpacer />
+            </>
+          }
+          ListEmptyComponent={
+            // 받는 동안은 위에 겹친 스켈레톤이 맡는다 — 「없어요」가 비치지 않게 비워 둔다
+            isLoading ? null : (
+              <EmptyState
+                fill
+                icon={
+                  <Svg width={50} height={50} viewBox="0 0 24 24" fill="none">
+                    <Path d="M6 4.5h9l3.5 3.5v11.5h-12.5z" stroke="#D8D8DA" strokeWidth={1.2} />
+                    <Path d="M9 12.5h6" stroke="#D8D8DA" strokeWidth={1.2} />
+                    <Path d="M9 16h4" stroke="#D8D8DA" strokeWidth={1.2} />
+                  </Svg>
+                }
+                title="아직 주문 내역이 없어요"
+                description="마음에 드는 공구를 찾아보세요"
+                actionLabel="공구 구경하기"
+                onPressAction={handlePressBrowse}
+              />
+            )
+          }
+        />
+
+        <SkeletonOverlay visible={isLoading}>
+          <SkeletonRepeat count={3}>
+            <OrderCardSkeleton />
+          </SkeletonRepeat>
+        </SkeletonOverlay>
+      </View>
     </View>
   );
 }
 
-/** 다음 페이지를 받는 중이면 스피너, 끝이면 「최근 6개월」 안내 — 마지막 페이지 하단 고정 문구 */
+/** 다음 페이지를 받는 중이면 카드 자리 표시 하나, 끝이면 「최근 6개월」 안내 — 마지막 페이지 하단 고정 문구 */
 function ListFooter(props: { isEmpty: boolean; isFetching: boolean; hasNext: boolean }) {
   const { isEmpty, isFetching, hasNext } = props;
 
@@ -166,9 +172,9 @@ function ListFooter(props: { isEmpty: boolean; isFetching: boolean; hasNext: boo
   }
   if (isFetching) {
     return (
-      <View className="items-center py-24">
-        <Spinner />
-      </View>
+      <Skeleton>
+        <OrderCardSkeleton />
+      </Skeleton>
     );
   }
   if (hasNext) {

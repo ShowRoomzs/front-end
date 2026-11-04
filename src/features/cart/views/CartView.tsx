@@ -9,7 +9,7 @@ import EmptyState from "@/common/components/EmptyState/EmptyState";
 import GroupBand from "@/common/components/GroupBand/GroupBand";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import SectionLabel from "@/common/components/SectionLabel/SectionLabel";
-import Spinner from "@/common/components/Spinner/Spinner";
+import { SkeletonOverlay } from "@/common/components/Skeleton/Skeleton";
 import Typography from "@/common/components/Typography/Typography";
 import { useBottomSheet } from "@/common/hooks/useBottomSheet";
 import { useBottomTab } from "@/common/hooks/useBottomTab";
@@ -23,6 +23,7 @@ import { CustomErrorResponse } from "@/common/types/error";
 import { formatPrice } from "@/common/utils/formatPrice";
 import CartGroupSection from "@/features/cart/components/CartGroupSection/CartGroupSection";
 import CartOptionBottomSheet from "@/features/cart/components/CartOptionBottomSheet/CartOptionBottomSheet";
+import CartSkeleton from "@/features/cart/components/CartSkeleton/CartSkeleton";
 import { useDeleteCartManyMutation } from "@/features/cart/hooks/useDeleteManyCartMutation";
 import { useGetCart } from "@/features/cart/hooks/useGetCart";
 import { useGetCartRecommendations } from "@/features/cart/hooks/useGetCartRecommendations";
@@ -255,134 +256,135 @@ export default function CartView() {
     navigation.navigate(COMMON_ROUTES.CHECKOUT, { cartItemIds });
   }, [effectiveSelectedIds, navigation, selectableIds]);
 
-  if (isLoading) {
-    return (
-      <View className="flex-1 bg-white">
-        <ScreenHeader title="장바구니" onPressBack={navigation.goBack} />
-        <View className="flex-1 items-center justify-center">
-          <Spinner />
-        </View>
-      </View>
-    );
-  }
-
   const isEmpty = allItems.length === 0;
 
   return (
     <View className="flex-1 bg-white">
       <ScreenHeader title="장바구니" onPressBack={navigation.goBack} />
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ flexGrow: 1, paddingBottom: isEmpty ? 24 : ctaHeight + BOTTOM_CTA_GAP }}
-      >
-        {isEmpty ? (
-          <EmptyState
-            fill
-            icon={<EmptyBagIcon size={52} />}
-            title="장바구니가 비어 있어요"
-            description={"진행 중인 공동구매를 둘러보고\n마음에 드는 상품을 담아보세요"}
-            actionLabel="공동구매 둘러보기"
-            onPressAction={handlePressBrowse}
-          />
-        ) : (
-          <>
-            <View className="flex-row items-center justify-between border-b-[0.5px] border-divider px-14 py-12">
-              <TouchableOpacity
-                onPress={handleToggleAll}
-                activeOpacity={0.55}
-                className="flex-row items-center"
-                style={{ gap: 8 }}
-              >
-                <Checkbox isChecked={isAllSelected} onChange={handleToggleAll} />
-                <Typography style={{ fontSize: 13, fontWeight: "500", lineHeight: 18 }} className="text-ink">
-                  전체 선택 {selectedCount}/{selectableIds.length}
-                </Typography>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                onPress={handlePressRemoveSelected}
-                disabled={selectedCount === 0}
-                activeOpacity={0.55}
-                style={{ paddingVertical: 8, marginVertical: -8 }}
-              >
-                <Typography
-                  style={{ fontSize: 12.5, fontWeight: "600", lineHeight: 18 }}
-                  className={selectedCount === 0 ? "text-gray62" : "text-gray45"}
-                >
-                  선택 삭제
-                </Typography>
-              </TouchableOpacity>
-            </View>
-
-            {groups.map((group, ix) => (
-              <View key={group.groupBuyId ?? `market-${group.marketId}`}>
-                {ix > 0 && <GroupBand height={5} />}
-                <CartGroupSection
-                  group={group}
-                  selectedIds={effectiveSelectedIds}
-                  onToggleSelect={handleToggleSelect}
-                  onToggleGroup={handleToggleGroup}
-                  onChangeQuantity={handleChangeQuantity}
-                  onPressChangeOption={handlePressChangeOption}
-                  onPressRemove={cartId => handleRemove([cartId])}
-                />
-              </View>
-            ))}
-          </>
-        )}
-
-        {!!recommendations?.products.length && (
-          <>
-            <GroupBand height={8} />
-            <SectionLabel label="팔로우한 쇼룸의 공구" className="pb-4 pt-18" />
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 14, paddingVertical: 10, gap: 12 }}
-            >
-              {recommendations.products.map(product => (
-                <TouchableOpacity
-                  key={product.productId}
-                  onPress={() => handlePressRecommendation(product.productId)}
-                  activeOpacity={0.55}
-                  style={{ width: 116 }}
-                >
-                  <Image
-                    source={{ uri: product.thumbnailUrl }}
-                    style={{ width: 116, height: 116, borderRadius: 4 }}
-                    resizeMode="cover"
-                  />
-                  <Typography variant="caption" className="mt-8 text-gray45" numberOfLines={1}>
-                    {product.marketName}
-                  </Typography>
-                  <Typography variant="productName" className="text-ink80" numberOfLines={2}>
-                    {product.productName}
-                  </Typography>
-                  <View className="mt-4 flex-row items-baseline" style={{ gap: 6 }}>
-                    {product.price.discountRate > 0 && (
-                      <Typography
-                        style={{ fontSize: 13, fontWeight: "700", lineHeight: 13 }}
-                        className="text-rose"
-                      >
-                        {product.price.discountRate}%
-                      </Typography>
-                    )}
+      {/* 받는 동안은 비운 채 위에 스켈레톤을 겹친다 — 받은 뒤 같은 부모 안에서 크로스페이드된다 */}
+      <View className="flex-1">
+        {!isLoading && (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: isEmpty ? 24 : ctaHeight + BOTTOM_CTA_GAP }}
+          >
+            {isEmpty ? (
+              <EmptyState
+                fill
+                icon={<EmptyBagIcon size={52} />}
+                title="장바구니가 비어 있어요"
+                description={"진행 중인 공동구매를 둘러보고\n마음에 드는 상품을 담아보세요"}
+                actionLabel="공동구매 둘러보기"
+                onPressAction={handlePressBrowse}
+              />
+            ) : (
+              <>
+                <View className="flex-row items-center justify-between border-b-[0.5px] border-divider px-14 py-12">
+                  <TouchableOpacity
+                    onPress={handleToggleAll}
+                    activeOpacity={0.55}
+                    className="flex-row items-center"
+                    style={{ gap: 8 }}
+                  >
+                    <Checkbox isChecked={isAllSelected} onChange={handleToggleAll} />
                     <Typography
-                      style={{ fontSize: 13, fontWeight: "700", lineHeight: 13 }}
+                      style={{ fontSize: 13, fontWeight: "500", lineHeight: 18 }}
                       className="text-ink"
                     >
-                      {formatPrice(product.price.salePrice)}원
+                      전체 선택 {selectedCount}/{selectableIds.length}
                     </Typography>
-                  </View>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-          </>
-        )}
-      </ScrollView>
+                  </TouchableOpacity>
 
-      {!isEmpty && (
+                  <TouchableOpacity
+                    onPress={handlePressRemoveSelected}
+                    disabled={selectedCount === 0}
+                    activeOpacity={0.55}
+                    style={{ paddingVertical: 8, marginVertical: -8 }}
+                  >
+                    <Typography
+                      style={{ fontSize: 12.5, fontWeight: "600", lineHeight: 18 }}
+                      className={selectedCount === 0 ? "text-gray62" : "text-gray45"}
+                    >
+                      선택 삭제
+                    </Typography>
+                  </TouchableOpacity>
+                </View>
+
+                {groups.map((group, ix) => (
+                  <View key={group.groupBuyId ?? `market-${group.marketId}`}>
+                    {ix > 0 && <GroupBand height={5} />}
+                    <CartGroupSection
+                      group={group}
+                      selectedIds={effectiveSelectedIds}
+                      onToggleSelect={handleToggleSelect}
+                      onToggleGroup={handleToggleGroup}
+                      onChangeQuantity={handleChangeQuantity}
+                      onPressChangeOption={handlePressChangeOption}
+                      onPressRemove={cartId => handleRemove([cartId])}
+                    />
+                  </View>
+                ))}
+              </>
+            )}
+
+            {!!recommendations?.products.length && (
+              <>
+                <GroupBand height={8} />
+                <SectionLabel label="팔로우한 쇼룸의 공구" className="pb-4 pt-18" />
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ paddingHorizontal: 14, paddingVertical: 10, gap: 12 }}
+                >
+                  {recommendations.products.map(product => (
+                    <TouchableOpacity
+                      key={product.productId}
+                      onPress={() => handlePressRecommendation(product.productId)}
+                      activeOpacity={0.55}
+                      style={{ width: 116 }}
+                    >
+                      <Image
+                        source={{ uri: product.thumbnailUrl }}
+                        style={{ width: 116, height: 116, borderRadius: 4 }}
+                        resizeMode="cover"
+                      />
+                      <Typography variant="caption" className="mt-8 text-gray45" numberOfLines={1}>
+                        {product.marketName}
+                      </Typography>
+                      <Typography variant="productName" className="text-ink80" numberOfLines={2}>
+                        {product.productName}
+                      </Typography>
+                      <View className="mt-4 flex-row items-baseline" style={{ gap: 6 }}>
+                        {product.price.discountRate > 0 && (
+                          <Typography
+                            style={{ fontSize: 13, fontWeight: "700", lineHeight: 13 }}
+                            className="text-rose"
+                          >
+                            {product.price.discountRate}%
+                          </Typography>
+                        )}
+                        <Typography
+                          style={{ fontSize: 13, fontWeight: "700", lineHeight: 13 }}
+                          className="text-ink"
+                        >
+                          {formatPrice(product.price.salePrice)}원
+                        </Typography>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </>
+            )}
+          </ScrollView>
+        )}
+
+        <SkeletonOverlay visible={isLoading}>
+          <CartSkeleton />
+        </SkeletonOverlay>
+      </View>
+
+      {!isLoading && !isEmpty && (
         <View
           className="absolute bottom-0 left-0 right-0 border-t-[0.5px] border-divider bg-white px-14 pt-12"
           style={{ paddingBottom: bottom + 26 }}

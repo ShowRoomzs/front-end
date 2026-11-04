@@ -13,6 +13,8 @@ import { MOTION_DURATION, MOTION_EASING, MOTION_REDUCE } from "@/common/constant
  *
  * 상세정보 본문이 WebView라, 안드로이드에서는 네이티브 뷰 순서상 WebView가 이 줄 위로
  * 올라와 탭이 눌리지 않는다. zIndex(iOS)와 elevation(Android)으로 위에 고정한다.
+ * elevation은 안드로이드에서 그림자도 그려 iOS · 시안(0.5px 구분선만)과 달라진다 — 그림자 색만 지운다
+ * (API 28+. 그 아래에서는 옅은 그림자가 남는다).
  */
 interface ProductDetailTabBarProps<T extends string> {
   tabs: Array<{ id: T; label: string }>;
@@ -46,7 +48,7 @@ export default function ProductDetailTabBar<T extends string>(props: ProductDeta
   return (
     <View
       className="flex-row border-b-[0.5px] border-divider bg-white"
-      style={{ zIndex: 2, elevation: 2 }}
+      style={{ zIndex: 2, elevation: 2, shadowColor: "transparent" }}
       onLayout={e => setBarWidth(e.nativeEvent.layout.width)}
     >
       {tabs.map(tab => {

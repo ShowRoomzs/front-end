@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TextProps, TextStyle } from "react-native";
+import { Platform, StyleSheet, Text, TextProps, TextStyle } from "react-native";
 
 import { TYPOGRAPHY_TOKENS, TypographyVariant } from "@/common/components/Typography/tokens";
 import { cn } from "@/common/utils/cn";
@@ -58,6 +58,35 @@ const WEIGHT_BY_CLASS: Record<string, string> = {
 
 const WEIGHT_CLASS_PATTERN = /\bfont-(thin|extralight|light|normal|medium|semibold|bold|extrabold|black)\b/g;
 
+/** Pretendard 4종 공통 hhea (1950 + 494) / 2048 — iOS가 재는 글꼴 고유 줄높이 비율 */
+const PRETENDARD_LINE_HEIGHT_RATIO = 1.1934;
+
+/** RN 기본 글자 크기 — fontSize 없이 lineHeight만 준 경우 */
+const DEFAULT_FONT_SIZE = 14;
+
+/**
+ * iOS에서 행간이 글꼴 고유 줄높이보다 좁을 때 글자를 가운데로 되돌린다.
+ *
+ * RN iOS는 행간이 글꼴 줄높이 **이상**일 때만 baselineOffset으로 글자를 줄 가운데에 둔다.
+ * 그보다 좁으면 보정을 건너뛰어 글자가 줄 아래쪽에 붙고, 결과적으로 (글꼴 줄높이 − 행간) / 2 만큼
+ * 위로 뜬다 — 가격 15/1처럼 행간 1인 토큰에서 1.5px 가까이. 안드로이드는 이 경우에도 가운데라
+ * 같은 칸 안에서 글자만 내려 맞춘다(레이아웃 높이는 그대로).
+ */
+function iosBaselineShift(style: TextStyle | undefined): TextStyle | null {
+  if (Platform.OS !== "ios" || typeof style?.lineHeight !== "number") {
+    return null;
+  }
+
+  const fontLineHeight = (style.fontSize ?? DEFAULT_FONT_SIZE) * PRETENDARD_LINE_HEIGHT_RATIO;
+  const shift = (fontLineHeight - style.lineHeight) / 2;
+
+  if (shift <= 0) {
+    return null;
+  }
+
+  return { transform: [{ translateY: shift }, ...(Array.isArray(style.transform) ? style.transform : [])] };
+}
+
 function resolveWeight(style: TextStyle | undefined, className: string | undefined): string {
   if (style?.fontWeight) {
     return String(style.fontWeight);
@@ -86,7 +115,11 @@ export default function Typography(props: TypographyProps) {
   return (
     <Text
       className={cn(classNameWithoutWeight)}
-      style={[flattened, { fontFamily: FAMILY_BY_WEIGHT[weight], fontWeight: undefined }]}
+      style={[
+        flattened,
+        iosBaselineShift(flattened),
+        { fontFamily: FAMILY_BY_WEIGHT[weight], fontWeight: undefined },
+      ]}
       {...restProps}
     />
   );

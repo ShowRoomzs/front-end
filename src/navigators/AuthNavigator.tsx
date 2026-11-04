@@ -52,10 +52,15 @@ export default function AuthNavigator() {
           component={SignUpView}
           initialParams={{ onSuccessLogin }}
         />
+        {/*
+          iOS `modal`은 뒤 화면이 비치는 pageSheet 카드로 뜨고, 네비게이터 밖에 그려져 위 SafeAreaView 인셋도
+          받지 못한다. `containedModal`은 이 스택 안에 덮여 안드로이드처럼 전체 화면 · 인셋 아래에서 열린다
+          (안드로이드는 둘 다 같은 모달)
+        */}
         <Stack.Screen
           name={AUTH_ROUTES.TERMS}
           component={TermsView}
-          options={{ header: TermsHeader, presentation: "modal", animation: "slide_from_bottom" }}
+          options={{ header: TermsHeader, presentation: "containedModal", animation: "slide_from_bottom" }}
         />
       </Stack.Navigator>
     </SafeAreaView>

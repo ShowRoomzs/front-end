@@ -1,0 +1,2 @@
+# patch-package 패치는 줄바꿈이 바뀌면 적용에 실패한다 — 체크아웃에서도 LF로 둔다
+patches/*.patch text eol=lf

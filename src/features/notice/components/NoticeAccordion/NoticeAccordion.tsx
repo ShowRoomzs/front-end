@@ -5,7 +5,7 @@ import Animated from "react-native-reanimated";
 
 import Badge from "@/common/components/Badge/Badge";
 import ExpandChevron from "@/common/components/ExpandChevron/ExpandChevron";
-import Spinner from "@/common/components/Spinner/Spinner";
+import Skeleton, { SkeletonBlock } from "@/common/components/Skeleton/Skeleton";
 import Typography from "@/common/components/Typography/Typography";
 import { EXPAND_ENTERING, EXPAND_EXITING } from "@/common/constants/motion";
 import { htmlToText } from "@/common/utils/htmlToText";
@@ -68,7 +68,13 @@ export default function NoticeAccordion(props: NoticeAccordionProps) {
           style={{ paddingHorizontal: 14, paddingTop: 16, paddingBottom: 18 }}
         >
           {isLoading || !detail ? (
-            <Spinner size={18} />
+            <Skeleton>
+              <View style={{ gap: 12, paddingVertical: 5 }}>
+                <SkeletonBlock width="94%" height={11} />
+                <SkeletonBlock width="86%" height={11} />
+                <SkeletonBlock width="52%" height={11} sub />
+              </View>
+            </Skeleton>
           ) : (
             <Typography style={{ fontSize: 13.5, lineHeight: 23.6 }} className="text-ink76">
               {htmlToText(detail.content)}

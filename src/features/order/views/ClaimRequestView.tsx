@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import ImageUploader from "@/common/components/ImageUploader/ImageUploader";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
-import Spinner from "@/common/components/Spinner/Spinner";
+import Skeleton from "@/common/components/Skeleton/Skeleton";
 import Typography from "@/common/components/Typography/Typography";
 import { useBottomSheet } from "@/common/hooks/useBottomSheet";
 import { useImagePicker } from "@/common/hooks/useImagePicker";
@@ -38,6 +38,7 @@ import {
   SquareCheck,
   TotalRow,
 } from "@/features/order/components/OrderParts/OrderParts";
+import { OrderFormSkeleton } from "@/features/order/components/OrderSkeletons/OrderSkeletons";
 import PaymentMethodPicker, {
   RadioDot,
 } from "@/features/order/components/PaymentMethodPicker/PaymentMethodPicker";
@@ -449,7 +450,13 @@ export default function ClaimRequestView() {
     return (
       <View className="flex-1 bg-white">
         <ScreenHeader title={`${kw} 요청`} onPressBack={navigation.goBack} />
-        <View className="flex-1 items-center justify-center">{isLoading && <Spinner />}</View>
+        <View className="flex-1">
+          {isLoading && (
+            <Skeleton>
+              <OrderFormSkeleton />
+            </Skeleton>
+          )}
+        </View>
       </View>
     );
   }

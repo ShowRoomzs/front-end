@@ -4,11 +4,12 @@ import { ScrollView, TouchableOpacity, View } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
-import Spinner from "@/common/components/Spinner/Spinner";
+import Skeleton, { SkeletonRepeat } from "@/common/components/Skeleton/Skeleton";
 import Typography from "@/common/components/Typography/Typography";
 import { useCommonNavigation } from "@/common/router";
 import { COMMON_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
+import AddressRowSkeleton from "@/features/mypage/components/AddressRowSkeleton/AddressRowSkeleton";
 import { useGetAddressList } from "@/features/mypage/hooks/useGetAddressList";
 import { Address } from "@/features/mypage/types/address";
 import { BottomCta } from "@/features/order/components/OrderParts/OrderParts";
@@ -114,9 +115,12 @@ export default function AddressSelectView() {
         </View>
 
         {isLoading ? (
-          <View className="items-center pt-40">
-            <Spinner />
-          </View>
+          <Skeleton>
+            <AddressRowSkeleton isFirst />
+            <SkeletonRepeat count={2}>
+              <AddressRowSkeleton />
+            </SkeletonRepeat>
+          </Skeleton>
         ) : (
           (addresses ?? []).map((address, ix) => {
             const isPicked = address.id === pickedId;

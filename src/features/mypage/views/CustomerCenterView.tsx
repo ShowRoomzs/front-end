@@ -5,13 +5,15 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Accordion from "@/common/components/Accordion/Accordion";
 import { SearchIcon } from "@/common/components/DsIcon/icons";
 import FilterChips, { FilterChipItem } from "@/common/components/FilterChips/FilterChips";
+import LoadGate from "@/common/components/LoadGate/LoadGate";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
-import Spinner from "@/common/components/Spinner/Spinner";
+import { SkeletonRepeat } from "@/common/components/Skeleton/Skeleton";
 import Typography from "@/common/components/Typography/Typography";
 import { usePermissionPress } from "@/common/hooks/usePermissionPress";
 import { useMypageNavigation } from "@/common/router";
 import { MYPAGE_ROUTES } from "@/common/router/routes";
 import { useGetFaqCategories, useGetFaqList } from "@/features/faq/hooks/useGetFaq";
+import FaqRowSkeleton from "@/features/mypage/components/FaqRowSkeleton/FaqRowSkeleton";
 
 /**
  * C16 고객센터 — FAQ(운영자 게시 정적 콘텐츠) + 하단 고정 [1:1 문의하기].
@@ -31,9 +33,8 @@ export default function CustomerCenterView() {
   const [keyword, setKeyword] = useState("");
 
   const { data: categories } = useGetFaqCategories();
-  const { data: faqs, isLoading } = useGetFaqList(
-    selectedCategory === ALL_CATEGORY ? undefined : selectedCategory
-  );
+  const faqQuery = useGetFaqList(selectedCategory === ALL_CATEGORY ? undefined : selectedCategory);
+  const { data: faqs } = faqQuery;
 
   const chipItems = useMemo(
     (): Array<FilterChipItem<string>> =>
@@ -87,40 +88,45 @@ export default function CustomerCenterView() {
         <FilterChips items={chipItems} selectedValue={selectedCategory} onSelect={handleSelectCategory} />
       </View>
 
-      {isLoading ? (
-        <View className="flex-1 items-center justify-center">
-          <Spinner />
-        </View>
-      ) : (
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: bottom + BOTTOM_CTA_HEIGHT }}
-        >
-          {visibleFaqs.length === 0 ? (
-            <View className="items-center px-40 pb-60 pt-56">
-              <SearchIcon size={50} color="#D8D8DA" />
-              <Typography
-                style={{ fontSize: 15.5, fontWeight: "600", lineHeight: 23.25, marginTop: 18 }}
-                className="text-center text-ink"
-              >
-                {keyword.trim()
-                  ? `'${keyword.trim()}'에 대한 결과가 없어요`
-                  : "해당 분류의 질문이 아직 없어요"}
-              </Typography>
-              <Typography
-                style={{ fontSize: 13, lineHeight: 22.1, marginTop: 7 }}
-                className="text-center text-gray55"
-              >
-                {"다른 검색어로 찾아보거나\n아래에서 바로 문의할 수 있어요"}
-              </Typography>
-            </View>
-          ) : (
-            visibleFaqs.map(faq => (
-              <Accordion key={faq.id} label={faq.categoryName} title={faq.question} body={faq.answer} />
-            ))
-          )}
-        </ScrollView>
-      )}
+      <LoadGate
+        query={faqQuery}
+        skeleton={
+          <SkeletonRepeat count={8}>
+            <FaqRowSkeleton />
+          </SkeletonRepeat>
+        }
+      >
+        {!!faqs && (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: bottom + BOTTOM_CTA_HEIGHT }}
+          >
+            {visibleFaqs.length === 0 ? (
+              <View className="items-center px-40 pb-60 pt-56">
+                <SearchIcon size={50} color="#D8D8DA" />
+                <Typography
+                  style={{ fontSize: 15.5, fontWeight: "600", lineHeight: 23.25, marginTop: 18 }}
+                  className="text-center text-ink"
+                >
+                  {keyword.trim()
+                    ? `'${keyword.trim()}'에 대한 결과가 없어요`
+                    : "해당 분류의 질문이 아직 없어요"}
+                </Typography>
+                <Typography
+                  style={{ fontSize: 13, lineHeight: 22.1, marginTop: 7 }}
+                  className="text-center text-gray55"
+                >
+                  {"다른 검색어로 찾아보거나\n아래에서 바로 문의할 수 있어요"}
+                </Typography>
+              </View>
+            ) : (
+              visibleFaqs.map(faq => (
+                <Accordion key={faq.id} label={faq.categoryName} title={faq.question} body={faq.answer} />
+              ))
+            )}
+          </ScrollView>
+        )}
+      </LoadGate>
 
       <View
         className="absolute bottom-0 left-0 right-0 border-t-[0.5px] border-divider bg-white px-14 pt-12"

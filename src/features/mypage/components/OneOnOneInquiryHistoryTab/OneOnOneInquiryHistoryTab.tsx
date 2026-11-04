@@ -14,6 +14,7 @@ import { MYPAGE_ROUTES } from "@/common/router/routes";
 import { useGetInquiryHistory } from "@/features/inquiry/hooks/useGetInquiryHistory";
 import { useDeleteInquiryMutation } from "@/features/inquiry/hooks/useInquiryMutation/useDeleteInquiryMutation";
 import { InquiryHistory } from "@/features/inquiry/types/inquiry";
+import InquiryHistoryItemSkeleton from "@/features/mypage/components/InquiryHistoryItemSkeleton/InquiryHistoryItemSkeleton";
 import InquiryListHeader from "@/features/mypage/components/InquiryListHeader/InquiryListHeader";
 import OneOnOneInquiryHistoryItem from "@/features/mypage/components/OneOnOneInquiryHistoryItem/OneOnOneInquiryHistoryItem";
 
@@ -124,6 +125,8 @@ export default function OneOnOneInquiryHistoryTab() {
       pageInfo={pageInfo}
       ItemSeparatorComponent={() => <View className="h-0.5 bg-dividerProduct" />}
       isLoading={isFetching}
+      skeleton={<InquiryHistoryItemSkeleton />}
+      skeletonCount={6}
       onLoadMore={fetchNextPage}
       renderItem={renderItem}
       ListHeaderComponent={

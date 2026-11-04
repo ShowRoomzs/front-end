@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { CheckIcon, ChevronRightIcon, CloseIcon, EmptyBagIcon } from "@/common/components/DsIcon/icons";
 import FieldLabel from "@/common/components/FieldLabel/FieldLabel";
-import Spinner from "@/common/components/Spinner/Spinner";
+import Skeleton, { SkeletonBlock, SkeletonRepeat } from "@/common/components/Skeleton/Skeleton";
 import Typography from "@/common/components/Typography/Typography";
 import { useBottomSheet } from "@/common/hooks/useBottomSheet";
 import { useBottomSheetContext } from "@/common/providers/BottomSheetProvider";
@@ -168,6 +168,25 @@ function getCutoffDate() {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
+/** 시트 행 자리 표시 — 주문번호 · 날짜 줄 + 썸네일 64와 상품 두 줄(행과 같은 px-20 · py-14) */
+function OrderSheetRowSkeleton() {
+  return (
+    <View className="px-20" style={{ paddingVertical: 14 }}>
+      <View className="flex-row justify-between">
+        <SkeletonBlock width={128} height={10} sub />
+        <SkeletonBlock width={64} height={10} sub />
+      </View>
+      <View className="flex-row items-center" style={{ gap: 12, marginTop: 12 }}>
+        <SkeletonBlock width={64} height={64} />
+        <View className="min-w-0 flex-1" style={{ gap: 8 }}>
+          <SkeletonBlock width="26%" height={9} sub />
+          <SkeletonBlock width="70%" height={11} />
+        </View>
+      </View>
+    </View>
+  );
+}
+
 function InquiryOrderSheet(props: InquiryOrderSheetProps) {
   const { selectedOrderId, onSelect } = props;
   const { bottom } = useSafeAreaInsets();
@@ -205,9 +224,11 @@ function InquiryOrderSheet(props: InquiryOrderSheetProps) {
       </Typography>
 
       {isLoading && (
-        <View className="items-center" style={{ paddingVertical: 40 }}>
-          <Spinner />
-        </View>
+        <Skeleton>
+          <SkeletonRepeat count={3}>
+            <OrderSheetRowSkeleton />
+          </SkeletonRepeat>
+        </Skeleton>
       )}
 
       {!isLoading && orders.length === 0 && (

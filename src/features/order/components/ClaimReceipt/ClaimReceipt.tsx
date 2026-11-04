@@ -1,6 +1,6 @@
 import { ScrollView, View } from "react-native";
 
-import Spinner from "@/common/components/Spinner/Spinner";
+import Skeleton, { SkeletonBlock } from "@/common/components/Skeleton/Skeleton";
 import Typography from "@/common/components/Typography/Typography";
 import {
   AmountRow,
@@ -45,9 +45,9 @@ export default function ClaimReceipt(props: ClaimReceiptProps) {
     <View className="absolute bottom-0 left-0 right-0 top-0 bg-white" style={{ zIndex: 21 }}>
       <CloseHeader title={`${kw} 요청`} onClose={onClose} />
       {!detail ? (
-        <View className="flex-1 items-center justify-center">
-          <Spinner />
-        </View>
+        <Skeleton>
+          <ReceiptSkeleton />
+        </Skeleton>
       ) : (
         <ReceiptBody
           detail={detail}
@@ -57,6 +57,27 @@ export default function ClaimReceipt(props: ClaimReceiptProps) {
           onPressOrderList={onPressOrderList}
         />
       )}
+    </View>
+  );
+}
+
+/** 접수 제목 두 줄(19) → 안내 상자 → 주의 두 줄 → 보낼 곳 행 */
+function ReceiptSkeleton() {
+  return (
+    <View className="px-14 pt-24">
+      <View style={{ gap: 12 }}>
+        <SkeletonBlock width="62%" height={18} />
+        <SkeletonBlock width="44%" height={18} />
+      </View>
+      <SkeletonBlock height={46} radius={8} sub style={{ marginTop: 18 }} />
+      <View style={{ marginTop: 16, gap: 10 }}>
+        <SkeletonBlock width="88%" height={10} sub />
+        <SkeletonBlock width="66%" height={10} sub />
+      </View>
+      <View style={{ marginTop: 28, gap: 12 }}>
+        <SkeletonBlock width="40%" height={11} />
+        <SkeletonBlock width="78%" height={11} />
+      </View>
     </View>
   );
 }

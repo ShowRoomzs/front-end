@@ -5,9 +5,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Circle, Path } from "react-native-svg";
 
 import { ChevronRightIcon } from "@/common/components/DsIcon/icons";
+import LoadGate from "@/common/components/LoadGate/LoadGate";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import SectionLabel from "@/common/components/SectionLabel/SectionLabel";
-import Spinner from "@/common/components/Spinner/Spinner";
 import Typography from "@/common/components/Typography/Typography";
 import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { useModal } from "@/common/providers/ModalProvider";
@@ -16,6 +16,7 @@ import { HOME_ROUTES, SETTINGS_ROUTES, useMypageNavigation, useSettingsNavigatio
 import { MYPAGE_ROUTES } from "@/common/router/routes";
 import { SettingsStackParamList } from "@/common/router/types";
 import { useLogin } from "@/features/auth/hooks/useLogin";
+import { WithdrawalSkeleton } from "@/features/setting/components/SettingSkeletons/SettingSkeletons";
 import { useGetWithdrawalInfo } from "@/features/setting/hooks/useWithdrawal";
 import { useWithdrawlMutation } from "@/features/setting/hooks/useWithdrawlMutation";
 
@@ -86,7 +87,8 @@ export default function WithdrawalConfirmView() {
   const { logout } = useLogin();
 
   const { reason, customReason } = route.params ?? {};
-  const { data: info, isLoading } = useGetWithdrawalInfo();
+  const infoQuery = useGetWithdrawalInfo();
+  const { data: info } = infoQuery;
   const { mutateAsync: withdraw, isPending } = useWithdrawlMutation();
 
   const [agreeConsent, setAgreeConsent] = useState(false);
@@ -151,13 +153,11 @@ export default function WithdrawalConfirmView() {
     });
   }, [canWithdraw, handleWithdraw, info, showModal]);
 
-  if (isLoading || !info) {
+  if (!info) {
     return (
       <View className="flex-1 bg-white">
         <ScreenHeader title="회원 탈퇴" onPressBack={navigation.goBack} />
-        <View className="flex-1 items-center justify-center">
-          <Spinner />
-        </View>
+        <LoadGate key="gate" query={infoQuery} skeleton={<WithdrawalSkeleton rows={3} rowHeight={88} />} />
       </View>
     );
   }
@@ -166,86 +166,91 @@ export default function WithdrawalConfirmView() {
     <View className="flex-1 bg-white">
       <ScreenHeader title="회원 탈퇴" onPressBack={navigation.goBack} />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View className="px-14 pb-20 pt-24">
-          <Typography
-            style={{ fontSize: 18, fontWeight: "700", lineHeight: 27, letterSpacing: -0.5 }}
-            className="text-ink"
-          >
-            {"탈퇴하기 전에\n아래 내용을 확인해 주세요"}
-          </Typography>
-        </View>
-
-        {isBlocked && (
-          <View className="mx-14 mb-20 overflow-hidden rounded-base border-[1px] border-roseBorder">
-            <View className="flex-row bg-roseTint p-14" style={{ gap: 9 }}>
-              <View style={{ marginTop: 1 }}>
-                <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-                  <Circle cx={12} cy={12} r={8.5} stroke="#CF3D61" strokeWidth={1.6} />
-                  <Path d="M12 7.6v5.2" stroke="#CF3D61" strokeWidth={2.2} strokeLinecap="round" />
-                  <Path d="M12 16.3v.2" stroke="#CF3D61" strokeWidth={2.2} strokeLinecap="round" />
-                </Svg>
-              </View>
-              <View className="min-w-0 flex-1">
-                <Typography
-                  style={{ fontSize: 14, fontWeight: "600", lineHeight: 20.3 }}
-                  className="text-roseText"
-                >
-                  {suspensionReason
-                    ? "지금은 탈퇴할 수 없어요"
-                    : "진행 중인 주문이 있어 지금은 탈퇴할 수 없어요"}
-                </Typography>
-                <Typography style={{ fontSize: 12.5, lineHeight: 20, marginTop: 5 }} className="text-ink76">
-                  {suspensionReason ??
-                    "구매확정 전 주문 · 반품/교환 진행 중 · 재발송비 미결제 건이 끝나면 탈퇴할 수 있어요. 반품 가능 기간만 남은 주문은 탈퇴를 막지 않아요."}
-                </Typography>
-              </View>
-            </View>
-            {blockerCount > 0 && (
-              <TouchableOpacity
-                onPress={() => mypageNavigation.navigate(MYPAGE_ROUTES.ORDER_AND_DELIVERY_SEARCH)}
-                activeOpacity={0.55}
-                className="flex-row items-center justify-between bg-white"
-                style={{ paddingVertical: 13, paddingHorizontal: 14, gap: 12 }}
-              >
-                <Typography
-                  style={{ fontSize: 13.5, fontWeight: "500", lineHeight: 13.5 }}
-                  className="text-ink"
-                >
-                  {`진행 중 주문 ${blockerCount}건 보기`}
-                </Typography>
-                <ChevronRightIcon size={15} color="#C7C7C7" />
-              </TouchableOpacity>
-            )}
+      <LoadGate key="gate" query={infoQuery} skeleton={<WithdrawalSkeleton rows={3} rowHeight={88} />}>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View className="px-14 pb-20 pt-24">
+            <Typography
+              style={{ fontSize: 18, fontWeight: "700", lineHeight: 27, letterSpacing: -0.5 }}
+              className="text-ink"
+            >
+              {"탈퇴하기 전에\n아래 내용을 확인해 주세요"}
+            </Typography>
           </View>
-        )}
 
-        <SectionLabel label="탈퇴하면 이렇게 됩니다" className="pb-6 pt-0" />
-        <View className="px-14 pt-8" style={{ gap: 15 }}>
-          {WITHDRAWAL_NOTICES.map(notice => (
-            <View key={notice.key} className="flex-row" style={{ gap: 11 }}>
-              <View style={{ marginTop: 1 }}>
-                <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-                  {notice.icon}
-                </Svg>
+          {isBlocked && (
+            <View className="mx-14 mb-20 overflow-hidden rounded-base border-[1px] border-roseBorder">
+              <View className="flex-row bg-roseTint p-14" style={{ gap: 9 }}>
+                <View style={{ marginTop: 1 }}>
+                  <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+                    <Circle cx={12} cy={12} r={8.5} stroke="#CF3D61" strokeWidth={1.6} />
+                    <Path d="M12 7.6v5.2" stroke="#CF3D61" strokeWidth={2.2} strokeLinecap="round" />
+                    <Path d="M12 16.3v.2" stroke="#CF3D61" strokeWidth={2.2} strokeLinecap="round" />
+                  </Svg>
+                </View>
+                <View className="min-w-0 flex-1">
+                  <Typography
+                    style={{ fontSize: 14, fontWeight: "600", lineHeight: 20.3 }}
+                    className="text-roseText"
+                  >
+                    {suspensionReason
+                      ? "지금은 탈퇴할 수 없어요"
+                      : "진행 중인 주문이 있어 지금은 탈퇴할 수 없어요"}
+                  </Typography>
+                  <Typography style={{ fontSize: 12.5, lineHeight: 20, marginTop: 5 }} className="text-ink76">
+                    {suspensionReason ??
+                      "구매확정 전 주문 · 반품/교환 진행 중 · 재발송비 미결제 건이 끝나면 탈퇴할 수 있어요. 반품 가능 기간만 남은 주문은 탈퇴를 막지 않아요."}
+                  </Typography>
+                </View>
               </View>
-              <View className="min-w-0 flex-1">
-                <Typography
-                  style={{ fontSize: 14, fontWeight: "600", lineHeight: 19.6 }}
-                  className="text-ink"
+              {blockerCount > 0 && (
+                <TouchableOpacity
+                  onPress={() => mypageNavigation.navigate(MYPAGE_ROUTES.ORDER_AND_DELIVERY_SEARCH)}
+                  activeOpacity={0.55}
+                  className="flex-row items-center justify-between bg-white"
+                  style={{ paddingVertical: 13, paddingHorizontal: 14, gap: 12 }}
                 >
-                  {notice.title}
-                </Typography>
-                <Typography style={{ fontSize: 12.5, lineHeight: 20, marginTop: 4 }} className="text-gray45">
-                  {notice.description}
-                </Typography>
-              </View>
+                  <Typography
+                    style={{ fontSize: 13.5, fontWeight: "500", lineHeight: 13.5 }}
+                    className="text-ink"
+                  >
+                    {`진행 중 주문 ${blockerCount}건 보기`}
+                  </Typography>
+                  <ChevronRightIcon size={15} color="#C7C7C7" />
+                </TouchableOpacity>
+              )}
             </View>
-          ))}
-        </View>
+          )}
 
-        <View className="h-26" />
-      </ScrollView>
+          <SectionLabel label="탈퇴하면 이렇게 됩니다" className="pb-6 pt-0" />
+          <View className="px-14 pt-8" style={{ gap: 15 }}>
+            {WITHDRAWAL_NOTICES.map(notice => (
+              <View key={notice.key} className="flex-row" style={{ gap: 11 }}>
+                <View style={{ marginTop: 1 }}>
+                  <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+                    {notice.icon}
+                  </Svg>
+                </View>
+                <View className="min-w-0 flex-1">
+                  <Typography
+                    style={{ fontSize: 14, fontWeight: "600", lineHeight: 19.6 }}
+                    className="text-ink"
+                  >
+                    {notice.title}
+                  </Typography>
+                  <Typography
+                    style={{ fontSize: 12.5, lineHeight: 20, marginTop: 4 }}
+                    className="text-gray45"
+                  >
+                    {notice.description}
+                  </Typography>
+                </View>
+              </View>
+            ))}
+          </View>
+
+          <View className="h-26" />
+        </ScrollView>
+      </LoadGate>
 
       <View
         className="border-t-[0.5px] border-divider bg-white px-14 pt-14"

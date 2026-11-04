@@ -4,14 +4,15 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 
 import GroupBand from "@/common/components/GroupBand/GroupBand";
+import LoadGate from "@/common/components/LoadGate/LoadGate";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import SectionLabel from "@/common/components/SectionLabel/SectionLabel";
-import Spinner from "@/common/components/Spinner/Spinner";
 import Typography from "@/common/components/Typography/Typography";
 import { toast } from "@/common/providers/ToastProvider";
 import { useSettingsNavigation } from "@/common/router";
 import PortOneIdentityModal from "@/features/auth/components/PortOneIdentityModal/PortOneIdentityModal";
 import { useIdentityVerification } from "@/features/auth/hooks/useIdentityVerification";
+import { MemberInfoSkeleton } from "@/features/setting/components/SettingSkeletons/SettingSkeletons";
 import { useGetAccountInfo, useReverifyIdentityMutation } from "@/features/setting/hooks/useAccountInfo";
 
 /**
@@ -34,7 +35,8 @@ export default function MemberInfoChangeView() {
   const { bottom } = useSafeAreaInsets();
   const [agreeConsent, setAgreeConsent] = useState(false);
 
-  const { data: accountInfo, isLoading } = useGetAccountInfo();
+  const accountQuery = useGetAccountInfo();
+  const { data: accountInfo } = accountQuery;
   const { mutateAsync: reverify, isPending } = useReverifyIdentityMutation();
   const { run: verify, isRunning, passWindow, handleFinish } = useIdentityVerification("REVERIFY");
 
@@ -69,44 +71,49 @@ export default function MemberInfoChangeView() {
     <View className="flex-1 bg-white">
       <ScreenHeader title="회원정보" onPressBack={navigation.goBack} />
 
-      {isLoading ? (
-        <View className="flex-1 items-center justify-center">
-          <Spinner />
-        </View>
-      ) : (
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <SectionLabel label="계정" className="pb-6 pt-20" />
-          {rows.map(row => (
-            <View key={row.label} className="flex-row items-center justify-between p-14" style={{ gap: 12 }}>
-              <Typography style={{ fontSize: 14.5, lineHeight: 14.5 }} className="text-gray45">
-                {row.label}
+      <LoadGate query={accountQuery} skeleton={<MemberInfoSkeleton />}>
+        {!!accountInfo && (
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <SectionLabel label="계정" className="pb-6 pt-20" />
+            {rows.map(row => (
+              <View
+                key={row.label}
+                className="flex-row items-center justify-between p-14"
+                style={{ gap: 12 }}
+              >
+                <Typography style={{ fontSize: 14.5, lineHeight: 14.5 }} className="text-gray45">
+                  {row.label}
+                </Typography>
+                <Typography
+                  style={{ fontSize: 14.5, fontWeight: "600", lineHeight: 14.5 }}
+                  className="text-right text-ink"
+                >
+                  {row.value ?? "-"}
+                </Typography>
+              </View>
+            ))}
+
+            <View className="mt-10">
+              <GroupBand height={5} />
+            </View>
+
+            <View className="px-14 pt-20">
+              <Typography variant="sectionLabel" className="text-gray55">
+                회원정보 변경
               </Typography>
               <Typography
-                style={{ fontSize: 14.5, fontWeight: "600", lineHeight: 14.5 }}
-                className="text-right text-ink"
+                style={{ fontSize: 12.5, lineHeight: 21.25, marginTop: 10 }}
+                className="text-gray45"
               >
-                {row.value ?? "-"}
+                이름·생년월일·휴대폰번호는 본인인증으로 확인된 정보라 직접 수정할 수 없어요. 번호가 바뀌었거나
+                정보가 다르면 다시 인증해 최신 정보로 업데이트할 수 있어요.
               </Typography>
             </View>
-          ))}
 
-          <View className="mt-10">
-            <GroupBand height={5} />
-          </View>
-
-          <View className="px-14 pt-20">
-            <Typography variant="sectionLabel" className="text-gray55">
-              회원정보 변경
-            </Typography>
-            <Typography style={{ fontSize: 12.5, lineHeight: 21.25, marginTop: 10 }} className="text-gray45">
-              이름·생년월일·휴대폰번호는 본인인증으로 확인된 정보라 직접 수정할 수 없어요. 번호가 바뀌었거나
-              정보가 다르면 다시 인증해 최신 정보로 업데이트할 수 있어요.
-            </Typography>
-          </View>
-
-          <View className="h-20" />
-        </ScrollView>
-      )}
+            <View className="h-20" />
+          </ScrollView>
+        )}
+      </LoadGate>
 
       <View
         className="border-t-[0.5px] border-divider bg-white px-14 pt-14"

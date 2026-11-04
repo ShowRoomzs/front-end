@@ -4,8 +4,8 @@ import { KeyboardAvoidingView, Platform, ScrollView, TextInput, TouchableOpacity
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { CheckIcon, CloseIcon } from "@/common/components/DsIcon/icons";
+import LoadGate from "@/common/components/LoadGate/LoadGate";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
-import Spinner from "@/common/components/Spinner/Spinner";
 import Typography from "@/common/components/Typography/Typography";
 import { toast } from "@/common/providers/ToastProvider";
 import { useCommonNavigation, useMainNavigation } from "@/common/router";
@@ -25,6 +25,7 @@ import {
   RoundCheck,
   SectionTitle,
 } from "@/features/order/components/OrderParts/OrderParts";
+import { OrderFormSkeleton } from "@/features/order/components/OrderSkeletons/OrderSkeletons";
 import { RadioDot } from "@/features/order/components/PaymentMethodPicker/PaymentMethodPicker";
 import { invalidateOrderQueries, useGetOrderDetail } from "@/features/order/hooks/useOrderQueries";
 import { orderService } from "@/features/order/services/orderService";
@@ -62,7 +63,8 @@ export default function OrderCancelView() {
   const navigation = useCommonNavigation();
   const mainNavigation = useMainNavigation();
   const { params } = useRoute<RouteProp<CommonStackParamList, typeof COMMON_ROUTES.ORDER_CANCEL>>();
-  const { data: order, isLoading } = useGetOrderDetail(params.orderId);
+  const orderQuery = useGetOrderDetail(params.orderId);
+  const { data: order } = orderQuery;
 
   const [reason, setReason] = useState<ReasonValue | null>(null);
   const [etcText, setEtcText] = useState("");
@@ -126,13 +128,11 @@ export default function OrderCancelView() {
     }
   }, [etcText, isSubmitting, order, putBackToCart, reason, recart]);
 
-  if (isLoading || !order) {
+  if (!order) {
     return (
       <View className="flex-1 bg-white">
         <ScreenHeader title="주문 취소" onPressBack={navigation.goBack} />
-        <View className="flex-1 items-center justify-center">
-          <Spinner />
-        </View>
+        <LoadGate query={orderQuery} skeleton={<OrderFormSkeleton sections={1} />} />
       </View>
     );
   }

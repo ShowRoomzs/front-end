@@ -2,8 +2,8 @@ import { RouteProp, useFocusEffect, useRoute } from "@react-navigation/native";
 import { useCallback } from "react";
 import { ScrollView, View } from "react-native";
 
+import LoadGate from "@/common/components/LoadGate/LoadGate";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
-import Spinner from "@/common/components/Spinner/Spinner";
 import Typography from "@/common/components/Typography/Typography";
 import { useCommonNavigation } from "@/common/router";
 import { COMMON_ROUTES } from "@/common/router/routes";
@@ -15,6 +15,7 @@ import {
   ProductLine,
   UnderlineLink,
 } from "@/features/order/components/OrderParts/OrderParts";
+import { TrackingSkeleton } from "@/features/order/components/OrderSkeletons/OrderSkeletons";
 import {
   CarrierButtons,
   CarrierRows,
@@ -45,7 +46,8 @@ import {
 export default function CollectionTrackingView() {
   const navigation = useCommonNavigation();
   const { params } = useRoute<RouteProp<CommonStackParamList, typeof COMMON_ROUTES.COLLECTION_TRACKING>>();
-  const { data: tracking, isLoading, refetch } = useGetCollectionTracking(params.claimId);
+  const trackingQuery = useGetCollectionTracking(params.claimId);
+  const { data: tracking, refetch } = trackingQuery;
 
   // [송장 수정] 뒤 돌아오면 다시 읽는다
   useFocusEffect(
@@ -54,13 +56,11 @@ export default function CollectionTrackingView() {
     }, [refetch])
   );
 
-  if (isLoading || !tracking) {
+  if (!tracking) {
     return (
       <View className="flex-1 bg-white">
         <ScreenHeader title="회수 조회" onPressBack={navigation.goBack} />
-        <View className="flex-1 items-center justify-center">
-          <Spinner />
-        </View>
+        <LoadGate key="gate" query={trackingQuery} skeleton={<TrackingSkeleton />} />
       </View>
     );
   }
@@ -83,52 +83,54 @@ export default function CollectionTrackingView() {
     return (
       <View className="flex-1 bg-white">
         <ScreenHeader title="회수 조회" onPressBack={navigation.goBack} />
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <TrackingHeadline text={tracking.headline.text} sub={tracking.headline.sub} />
-          <StageBar labels={stages} current={-1} labelSize={11.5} />
-          <Band marginTop={22} />
+        <LoadGate key="gate" query={trackingQuery} skeleton={<TrackingSkeleton />}>
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <TrackingHeadline text={tracking.headline.text} sub={tracking.headline.sub} />
+            <StageBar labels={stages} current={-1} labelSize={11.5} />
+            <Band marginTop={22} />
 
-          <View className="px-14 pt-18" style={{ gap: 9 }}>
-            <KeyValueRow label="택배사" value={tracking.carrier?.label ?? "-"} />
-            <KeyValueRow label="회수 송장" value={tracking.trackingNumber ?? "-"} />
-            {!!tracking.invoiceRegisteredAt && (
-              <KeyValueRow label="등록 일시" value={formatMonthDayTime(tracking.invoiceRegisteredAt)} />
+            <View className="px-14 pt-18" style={{ gap: 9 }}>
+              <KeyValueRow label="택배사" value={tracking.carrier?.label ?? "-"} />
+              <KeyValueRow label="회수 송장" value={tracking.trackingNumber ?? "-"} />
+              {!!tracking.invoiceRegisteredAt && (
+                <KeyValueRow label="등록 일시" value={formatMonthDayTime(tracking.invoiceRegisteredAt)} />
+              )}
+            </View>
+
+            <View className="mx-14 rounded-base bg-band px-14 py-13" style={{ marginTop: 18 }}>
+              <Typography style={{ fontSize: 13, fontWeight: "600", lineHeight: 13 }} className="text-ink">
+                이런 경우일 수 있어요
+              </Typography>
+              <View style={{ marginTop: 9, gap: 4 }}>
+                {[
+                  "송장 번호 숫자가 빠졌거나 잘못 입력됐어요",
+                  "다른 택배사를 선택했어요",
+                  "편의점에 맡겼지만 아직 택배사가 가져가지 않았어요",
+                ].map(line => (
+                  <View key={line} className="flex-row" style={{ gap: 7 }}>
+                    <Typography style={{ fontSize: 12.5, lineHeight: 20.6 }} className="text-ink76">
+                      •
+                    </Typography>
+                    <Typography
+                      style={{ fontSize: 12.5, lineHeight: 20.6 }}
+                      className="min-w-0 flex-1 text-ink76"
+                    >
+                      {line}
+                    </Typography>
+                  </View>
+                ))}
+              </View>
+            </View>
+
+            {tracking.invoiceEditable && (
+              <View className="flex-row px-14 pt-16">
+                <OutlineAction label="송장 수정" height={44} fontSize={13} onPress={handlePressEditInvoice} />
+              </View>
             )}
-          </View>
-
-          <View className="mx-14 rounded-base bg-band px-14 py-13" style={{ marginTop: 18 }}>
-            <Typography style={{ fontSize: 13, fontWeight: "600", lineHeight: 13 }} className="text-ink">
-              이런 경우일 수 있어요
-            </Typography>
-            <View style={{ marginTop: 9, gap: 4 }}>
-              {[
-                "송장 번호 숫자가 빠졌거나 잘못 입력됐어요",
-                "다른 택배사를 선택했어요",
-                "편의점에 맡겼지만 아직 택배사가 가져가지 않았어요",
-              ].map(line => (
-                <View key={line} className="flex-row" style={{ gap: 7 }}>
-                  <Typography style={{ fontSize: 12.5, lineHeight: 20.6 }} className="text-ink76">
-                    •
-                  </Typography>
-                  <Typography
-                    style={{ fontSize: 12.5, lineHeight: 20.6 }}
-                    className="min-w-0 flex-1 text-ink76"
-                  >
-                    {line}
-                  </Typography>
-                </View>
-              ))}
-            </View>
-          </View>
-
-          {tracking.invoiceEditable && (
-            <View className="flex-row px-14 pt-16">
-              <OutlineAction label="송장 수정" height={44} fontSize={13} onPress={handlePressEditInvoice} />
-            </View>
-          )}
-          <View className="h-30" />
-          <BottomSafeSpacer />
-        </ScrollView>
+            <View className="h-30" />
+            <BottomSafeSpacer />
+          </ScrollView>
+        </LoadGate>
       </View>
     );
   }
@@ -144,84 +146,86 @@ export default function CollectionTrackingView() {
     <View className="flex-1 bg-white">
       <ScreenHeader title="회수 조회" onPressBack={navigation.goBack} />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <TrackingHeadline
-          date={tracking.headline.date ? formatMonthDayWeekday(tracking.headline.date) : undefined}
-          text={tracking.headline.text}
-          sub={tracking.headline.sub}
-        />
-
-        <StageBar labels={stages} current={tracking.stageIndex} labelSize={11.5} />
-        <View className="flex-row px-14 pt-8" style={{ gap: 6 }}>
-          <Typography
-            style={{
-              flex: 3,
-              fontSize: 10.5,
-              lineHeight: 13.65,
-              paddingTop: 5,
-              borderTopWidth: 0.5,
-              borderTopColor: "#EAEAEC",
-            }}
-            className="text-gray62"
-          >
-            택배사
-          </Typography>
-          <Typography
-            style={{
-              flex: 2,
-              fontSize: 10.5,
-              lineHeight: 13.65,
-              paddingTop: 5,
-              borderTopWidth: 0.5,
-              borderTopColor: "#EAEAEC",
-            }}
-            className="text-gray62"
-          >
-            브랜드
-          </Typography>
-        </View>
-
-        <Band marginTop={20} />
-
-        <View className="flex-row items-baseline justify-between px-14" style={{ paddingTop: 18, gap: 10 }}>
-          <Typography style={{ fontSize: 14, fontWeight: "700", lineHeight: 18.2 }} className="text-ink">
-            {kindLabel} 요청 · {formatOrderDate(tracking.requestedAt)}
-          </Typography>
-          <UnderlineLink
-            label={`${kindLabel} 상세`}
-            onPress={() => navigation.navigate(COMMON_ROUTES.CLAIM_DETAIL, { claimId: tracking.claimId })}
+      <LoadGate key="gate" query={trackingQuery} skeleton={<TrackingSkeleton />}>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <TrackingHeadline
+            date={tracking.headline.date ? formatMonthDayWeekday(tracking.headline.date) : undefined}
+            text={tracking.headline.text}
+            sub={tracking.headline.sub}
           />
-        </View>
-        <View className="px-14 pt-12">
-          <ProductLine
-            thumbnailUrl={tracking.item.thumbnailUrl}
-            brand={tracking.item.brandName}
-            name={tracking.item.productName}
-            option={tracking.item.optionLabel}
+
+          <StageBar labels={stages} current={tracking.stageIndex} labelSize={11.5} />
+          <View className="flex-row px-14 pt-8" style={{ gap: 6 }}>
+            <Typography
+              style={{
+                flex: 3,
+                fontSize: 10.5,
+                lineHeight: 13.65,
+                paddingTop: 5,
+                borderTopWidth: 0.5,
+                borderTopColor: "#EAEAEC",
+              }}
+              className="text-gray62"
+            >
+              택배사
+            </Typography>
+            <Typography
+              style={{
+                flex: 2,
+                fontSize: 10.5,
+                lineHeight: 13.65,
+                paddingTop: 5,
+                borderTopWidth: 0.5,
+                borderTopColor: "#EAEAEC",
+              }}
+              className="text-gray62"
+            >
+              브랜드
+            </Typography>
+          </View>
+
+          <Band marginTop={20} />
+
+          <View className="flex-row items-baseline justify-between px-14" style={{ paddingTop: 18, gap: 10 }}>
+            <Typography style={{ fontSize: 14, fontWeight: "700", lineHeight: 18.2 }} className="text-ink">
+              {kindLabel} 요청 · {formatOrderDate(tracking.requestedAt)}
+            </Typography>
+            <UnderlineLink
+              label={`${kindLabel} 상세`}
+              onPress={() => navigation.navigate(COMMON_ROUTES.CLAIM_DETAIL, { claimId: tracking.claimId })}
+            />
+          </View>
+          <View className="px-14 pt-12">
+            <ProductLine
+              thumbnailUrl={tracking.item.thumbnailUrl}
+              brand={tracking.item.brandName}
+              name={tracking.item.productName}
+              option={tracking.item.optionLabel}
+            />
+          </View>
+
+          <Band marginTop={20} />
+
+          <CarrierRows
+            carrier={tracking.carrier}
+            trackingNumber={tracking.trackingNumber}
+            invoiceLabel="회수 송장"
+            extraRows={[
+              { label: "보내는 분", value: tracking.sender },
+              { label: "받는 곳", value: tracking.receiver },
+            ]}
           />
-        </View>
+          <CarrierButtons carrier={tracking.carrier} />
 
-        <Band marginTop={20} />
+          <Band marginTop={20} />
 
-        <CarrierRows
-          carrier={tracking.carrier}
-          trackingNumber={tracking.trackingNumber}
-          invoiceLabel="회수 송장"
-          extraRows={[
-            { label: "보내는 분", value: tracking.sender },
-            { label: "받는 곳", value: tracking.receiver },
-          ]}
-        />
-        <CarrierButtons carrier={tracking.carrier} />
+          {eventRows.length > 0 && <Timeline rows={eventRows} firstFilled gap={18} />}
+          <DisclaimerLine text="택배 이력은 택배사 추적 정보이고, 입고·검수는 브랜드가 등록한 정보예요." />
 
-        <Band marginTop={20} />
-
-        {eventRows.length > 0 && <Timeline rows={eventRows} firstFilled gap={18} />}
-        <DisclaimerLine text="택배 이력은 택배사 추적 정보이고, 입고·검수는 브랜드가 등록한 정보예요." />
-
-        <View className="h-30" />
-        <BottomSafeSpacer />
-      </ScrollView>
+          <View className="h-30" />
+          <BottomSafeSpacer />
+        </ScrollView>
+      </LoadGate>
     </View>
   );
 }

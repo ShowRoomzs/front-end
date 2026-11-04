@@ -4,13 +4,14 @@ import { Image, ScrollView, View } from "react-native";
 
 import Avatar from "@/common/components/Avatar/Avatar";
 import GroupBand from "@/common/components/GroupBand/GroupBand";
+import LoadGate from "@/common/components/LoadGate/LoadGate";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
-import Spinner from "@/common/components/Spinner/Spinner";
 import Typography from "@/common/components/Typography/Typography";
 import { useMypageNavigation } from "@/common/router";
 import { MYPAGE_ROUTES } from "@/common/router/routes";
 import { MypageStackParamList } from "@/common/router/types";
 import { useGetInquiryDetail } from "@/features/inquiry/hooks/useGetInquiryDetail";
+import InquiryDetailSkeleton from "@/features/mypage/components/InquiryDetailSkeleton/InquiryDetailSkeleton";
 import InquiryItemMetaRow from "@/features/mypage/components/InquiryItemMetaRow/InquiryItemMetaRow";
 import InquiryOrderCard from "@/features/mypage/components/InquiryOrderCard/InquiryOrderCard";
 
@@ -32,15 +33,14 @@ export default function InquiryDetailView() {
   const route = useRoute<RouteProp<MypageStackParamList, typeof MYPAGE_ROUTES.INQUIRY_DETAIL>>();
   const { inquiryId } = route.params;
 
-  const { data: inquiry, isLoading } = useGetInquiryDetail(inquiryId);
+  const inquiryQuery = useGetInquiryDetail(inquiryId);
+  const { data: inquiry } = inquiryQuery;
 
-  if (isLoading || !inquiry) {
+  if (!inquiry) {
     return (
       <View className="flex-1 bg-white">
         <ScreenHeader title="문의 상세" onPressBack={navigation.goBack} />
-        <View className="flex-1 items-center justify-center">
-          <Spinner />
-        </View>
+        <LoadGate key="gate" query={inquiryQuery} skeleton={<InquiryDetailSkeleton />} />
       </View>
     );
   }
@@ -49,86 +49,91 @@ export default function InquiryDetailView() {
     <View className="flex-1 bg-white">
       <ScreenHeader title="문의 상세" onPressBack={navigation.goBack} />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View className="px-14 pb-16 pt-18">
-          <InquiryItemMetaRow
-            status={inquiry.status}
-            typeName={inquiry.typeName}
-            date={dayjs(inquiry.createdAt).format("YYYY.MM.DD")}
-          />
+      <LoadGate key="gate" query={inquiryQuery} skeleton={<InquiryDetailSkeleton />}>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View className="px-14 pb-16 pt-18">
+            <InquiryItemMetaRow
+              status={inquiry.status}
+              typeName={inquiry.typeName}
+              date={dayjs(inquiry.createdAt).format("YYYY.MM.DD")}
+            />
 
-          {!!inquiry.order && (
-            <View style={{ marginTop: 12 }}>
-              <InquiryOrderCard order={inquiry.order} size="md" />
-            </View>
-          )}
-        </View>
-
-        <GroupBand height={8} />
-
-        <View className="px-14 pt-18">
-          <View className="flex-row items-center" style={{ gap: 8 }}>
-            <Avatar imageUrl={inquiry.writerProfileImageUrl} size={28} />
-            <Typography style={{ fontSize: 13, fontWeight: "600", lineHeight: 13 }} className="text-ink">
-              {inquiry.writerNickname}
-            </Typography>
-            <Typography style={{ fontSize: 11.5, lineHeight: 11.5 }} className="text-gray45">
-              {dayjs(inquiry.createdAt).format(TIMESTAMP_FORMAT)}
-            </Typography>
+            {!!inquiry.order && (
+              <View style={{ marginTop: 12 }}>
+                <InquiryOrderCard order={inquiry.order} size="md" />
+              </View>
+            )}
           </View>
 
-          <Typography style={{ fontSize: 14, lineHeight: 24.5, marginTop: 10 }} className="text-ink">
-            {inquiry.content}
-          </Typography>
+          <GroupBand height={8} />
 
-          {inquiry.imageUrls.length > 0 && (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ gap: 8 }}
-              style={{ marginTop: 12 }}
-            >
-              {inquiry.imageUrls.map(url => (
-                <Image
-                  key={url}
-                  source={{ uri: url }}
-                  className="rounded-base"
-                  style={{ width: PHOTO_SIZE, height: PHOTO_SIZE }}
-                />
-              ))}
-            </ScrollView>
-          )}
-        </View>
-
-        <View className="px-14 pt-20">
-          {inquiry.answerContent ? (
-            <View className="rounded-base bg-band p-14">
-              <View className="flex-row items-center" style={{ gap: 8 }}>
-                <Typography style={{ fontSize: 13, fontWeight: "600", lineHeight: 13 }} className="text-ink">
-                  {inquiry.answererName}
-                </Typography>
-                <Typography style={{ fontSize: 11.5, lineHeight: 11.5 }} className="text-gray45">
-                  {inquiry.answeredAt ? dayjs(inquiry.answeredAt).format(TIMESTAMP_FORMAT) : ""}
-                </Typography>
-              </View>
-
-              <Typography style={{ fontSize: 14, lineHeight: 24.5, marginTop: 11 }} className="text-ink76">
-                {inquiry.answerContent}
+          <View className="px-14 pt-18">
+            <View className="flex-row items-center" style={{ gap: 8 }}>
+              <Avatar imageUrl={inquiry.writerProfileImageUrl} size={28} />
+              <Typography style={{ fontSize: 13, fontWeight: "600", lineHeight: 13 }} className="text-ink">
+                {inquiry.writerNickname}
+              </Typography>
+              <Typography style={{ fontSize: 11.5, lineHeight: 11.5 }} className="text-gray45">
+                {dayjs(inquiry.createdAt).format(TIMESTAMP_FORMAT)}
               </Typography>
             </View>
-          ) : (
-            /* 참고 고지는 아이콘 없이 11.5/1.7 #737373 — 디자인 시스템 05 안내 배너 */
-            <Typography
-              style={{ fontSize: 11.5, lineHeight: 19.55 }}
-              className="rounded-base bg-band p-13 text-gray45"
-            >
-              아직 답변이 등록되지 않았어요. 답변이 등록되면 알림으로 알려드려요.
-            </Typography>
-          )}
-        </View>
 
-        <View className="h-26" />
-      </ScrollView>
+            <Typography style={{ fontSize: 14, lineHeight: 24.5, marginTop: 10 }} className="text-ink">
+              {inquiry.content}
+            </Typography>
+
+            {inquiry.imageUrls.length > 0 && (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ gap: 8 }}
+                style={{ marginTop: 12 }}
+              >
+                {inquiry.imageUrls.map(url => (
+                  <Image
+                    key={url}
+                    source={{ uri: url }}
+                    className="rounded-base"
+                    style={{ width: PHOTO_SIZE, height: PHOTO_SIZE }}
+                  />
+                ))}
+              </ScrollView>
+            )}
+          </View>
+
+          <View className="px-14 pt-20">
+            {inquiry.answerContent ? (
+              <View className="rounded-base bg-band p-14">
+                <View className="flex-row items-center" style={{ gap: 8 }}>
+                  <Typography
+                    style={{ fontSize: 13, fontWeight: "600", lineHeight: 13 }}
+                    className="text-ink"
+                  >
+                    {inquiry.answererName}
+                  </Typography>
+                  <Typography style={{ fontSize: 11.5, lineHeight: 11.5 }} className="text-gray45">
+                    {inquiry.answeredAt ? dayjs(inquiry.answeredAt).format(TIMESTAMP_FORMAT) : ""}
+                  </Typography>
+                </View>
+
+                <Typography style={{ fontSize: 14, lineHeight: 24.5, marginTop: 11 }} className="text-ink76">
+                  {inquiry.answerContent}
+                </Typography>
+              </View>
+            ) : (
+              /* 참고 고지는 아이콘 없이 11.5/1.7 #737373 — 디자인 시스템 05 안내 배너 */
+              <Typography
+                style={{ fontSize: 11.5, lineHeight: 19.55 }}
+                className="rounded-base bg-band p-13 text-gray45"
+              >
+                아직 답변이 등록되지 않았어요. 답변이 등록되면 알림으로 알려드려요.
+              </Typography>
+            )}
+          </View>
+
+          <View className="h-26" />
+        </ScrollView>
+      </LoadGate>
     </View>
   );
 }

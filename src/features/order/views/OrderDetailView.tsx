@@ -2,8 +2,8 @@ import { RouteProp, useFocusEffect, useRoute } from "@react-navigation/native";
 import { useCallback } from "react";
 import { ScrollView, View } from "react-native";
 
+import LoadGate from "@/common/components/LoadGate/LoadGate";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
-import Spinner from "@/common/components/Spinner/Spinner";
 import Typography from "@/common/components/Typography/Typography";
 import { toast } from "@/common/providers/ToastProvider";
 import { useCommonNavigation } from "@/common/router";
@@ -23,6 +23,7 @@ import {
   TotalRow,
   UnderlineLink,
 } from "@/features/order/components/OrderParts/OrderParts";
+import { OrderDetailSkeleton } from "@/features/order/components/OrderSkeletons/OrderSkeletons";
 import { useOrderNavigation } from "@/features/order/hooks/useOrderNavigation";
 import { invalidateOrderQueries, useGetOrderDetail } from "@/features/order/hooks/useOrderQueries";
 import { orderService } from "@/features/order/services/orderService";
@@ -50,7 +51,8 @@ export default function OrderDetailView() {
   const navigation = useCommonNavigation();
   const { params } = useRoute<RouteProp<CommonStackParamList, typeof COMMON_ROUTES.ORDER_DETAIL>>();
   const { orderId } = params;
-  const { data: order, isLoading, refetch } = useGetOrderDetail(orderId);
+  const orderQuery = useGetOrderDetail(orderId);
+  const { data: order, refetch } = orderQuery;
   const suspension = useSuspension();
   const { open, handleItemAction, openCancelDetail } = useOrderNavigation();
 
@@ -86,13 +88,11 @@ export default function OrderDetailView() {
     });
   }, [navigation, order]);
 
-  if (isLoading || !order) {
+  if (!order) {
     return (
       <View className="flex-1 bg-white">
         <ScreenHeader title="주문 상세" onPressBack={navigation.goBack} />
-        <View className="flex-1 items-center justify-center">
-          <Spinner />
-        </View>
+        <LoadGate key="gate" query={orderQuery} skeleton={<OrderDetailSkeleton />} />
       </View>
     );
   }
@@ -108,155 +108,157 @@ export default function OrderDetailView() {
     <View className="flex-1 bg-white">
       <ScreenHeader title="주문 상세" onPressBack={navigation.goBack} />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View className="px-14 pt-20">
-          <Typography
-            style={{ fontSize: 19, fontWeight: "700", lineHeight: 24.7, letterSpacing: -0.4 }}
-            className="text-ink"
-          >
-            {formatOrderDate(order.orderedAt)}
-          </Typography>
-          <View className="flex-row items-center" style={{ marginTop: 7 }}>
-            <Typography style={{ fontSize: 12.5, lineHeight: 16.25 }} className="text-gray45">
-              주문번호 {order.orderNumber}
+      <LoadGate key="gate" query={orderQuery} skeleton={<OrderDetailSkeleton />}>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View className="px-14 pt-20">
+            <Typography
+              style={{ fontSize: 19, fontWeight: "700", lineHeight: 24.7, letterSpacing: -0.4 }}
+              className="text-ink"
+            >
+              {formatOrderDate(order.orderedAt)}
             </Typography>
-            <CopyButton onPress={() => copyToClipboard(order.orderNumber, "주문번호를 복사했어요")} />
+            <View className="flex-row items-center" style={{ marginTop: 7 }}>
+              <Typography style={{ fontSize: 12.5, lineHeight: 16.25 }} className="text-gray45">
+                주문번호 {order.orderNumber}
+              </Typography>
+              <CopyButton onPress={() => copyToClipboard(order.orderNumber, "주문번호를 복사했어요")} />
+            </View>
           </View>
-        </View>
 
-        {order.notices.map(notice => (
-          <OrderNoticeBlock key={notice.type} notice={notice} />
-        ))}
+          {order.notices.map(notice => (
+            <OrderNoticeBlock key={notice.type} notice={notice} />
+          ))}
 
-        <Band marginTop={20} />
+          <Band marginTop={20} />
 
-        <SectionTitle
-          title="배송지"
-          right={
-            order.addressChangeable ? (
-              <UnderlineLink label="배송지 변경" onPress={handlePressChangeAddress} />
-            ) : (
-              <Typography style={{ fontSize: 12, lineHeight: 12 }} className="text-gray45">
-                주문 시점 정보
-              </Typography>
-            )
-          }
-        />
-        <View className="px-14 pt-12">
-          <Typography style={{ fontSize: 14.5, fontWeight: "600", lineHeight: 20.3 }} className="text-ink">
-            {maskedAddress.recipientName}
-          </Typography>
-          <Typography style={{ fontSize: 13, lineHeight: 22.75, marginTop: 7 }} className="text-ink76">
-            {addressLines.join("\n")}
-            {!!(maskedAddress.memo || order.deliveryMemo) && (
-              <Typography style={{ fontSize: 13, lineHeight: 22.75 }} className="text-gray45">
-                {`\n${maskedAddress.memo ?? order.deliveryMemo}`}
-              </Typography>
-            )}
-          </Typography>
-        </View>
-
-        <Band marginTop={20} />
-
-        <SectionTitle title="주문 상품" count={order.itemCount} />
-        {order.items.map((item, ix) => (
-          <OrderItemCard
-            key={item.orderProductId}
-            item={item}
-            variant="detail"
-            isFirst={ix === 0}
-            onPressAction={action => handleItemAction(order.orderId, item, action)}
-            onPressClaim={claimId => open(COMMON_ROUTES.CLAIM_DETAIL, { claimId })}
-            onPressCancelRejection={() => openCancelDetail(order.orderId, item.orderProductId)}
+          <SectionTitle
+            title="배송지"
+            right={
+              order.addressChangeable ? (
+                <UnderlineLink label="배송지 변경" onPress={handlePressChangeAddress} />
+              ) : (
+                <Typography style={{ fontSize: 12, lineHeight: 12 }} className="text-gray45">
+                  주문 시점 정보
+                </Typography>
+              )
+            }
           />
-        ))}
+          <View className="px-14 pt-12">
+            <Typography style={{ fontSize: 14.5, fontWeight: "600", lineHeight: 20.3 }} className="text-ink">
+              {maskedAddress.recipientName}
+            </Typography>
+            <Typography style={{ fontSize: 13, lineHeight: 22.75, marginTop: 7 }} className="text-ink76">
+              {addressLines.join("\n")}
+              {!!(maskedAddress.memo || order.deliveryMemo) && (
+                <Typography style={{ fontSize: 13, lineHeight: 22.75 }} className="text-gray45">
+                  {`\n${maskedAddress.memo ?? order.deliveryMemo}`}
+                </Typography>
+              )}
+            </Typography>
+          </View>
 
-        <Band />
+          <Band marginTop={20} />
 
-        <SectionTitle title="결제 정보" />
-        <View className="px-14" style={{ paddingTop: 13, gap: 8 }}>
-          <AmountRow label="상품 금액" value={won(summary.productTotal)} />
-          {summary.discountTotal > 0 && (
-            <AmountRow
-              label="공동구매 할인"
-              value={`−${won(summary.discountTotal)}`}
-              valueColor="#CF3D61"
-              valueWeight="600"
+          <SectionTitle title="주문 상품" count={order.itemCount} />
+          {order.items.map((item, ix) => (
+            <OrderItemCard
+              key={item.orderProductId}
+              item={item}
+              variant="detail"
+              isFirst={ix === 0}
+              onPressAction={action => handleItemAction(order.orderId, item, action)}
+              onPressClaim={claimId => open(COMMON_ROUTES.CLAIM_DETAIL, { claimId })}
+              onPressCancelRejection={() => openCancelDetail(order.orderId, item.orderProductId)}
             />
-          )}
-          <AmountRow
-            label="배송비"
-            value={summary.deliveryFeeTotal > 0 ? won(summary.deliveryFeeTotal) : "무료배송"}
-          />
-        </View>
-        <TotalRow
-          label="결제 금액"
-          value={won(summary.totalAmount)}
-          prefix={
-            summary.discountRate ? (
-              // 로즈는 할인 수치에만 — 금액은 잉크
-              <Typography style={{ fontSize: 14, fontWeight: "700", lineHeight: 14 }} className="text-rose">
-                {summary.discountRate}%
-              </Typography>
-            ) : undefined
-          }
-        />
-        {!!order.payment && (
-          <View className="flex-row items-baseline justify-between px-14 pt-12" style={{ gap: 12 }}>
-            <Typography style={{ fontSize: 13, lineHeight: 19.5 }} className="text-gray45">
-              결제수단
-            </Typography>
-            <Typography style={{ fontSize: 13, fontWeight: "500", lineHeight: 19.5 }} className="text-ink">
-              {order.payment.methodLabel}
-            </Typography>
-          </View>
-        )}
+          ))}
 
-        {/*
+          <Band />
+
+          <SectionTitle title="결제 정보" />
+          <View className="px-14" style={{ paddingTop: 13, gap: 8 }}>
+            <AmountRow label="상품 금액" value={won(summary.productTotal)} />
+            {summary.discountTotal > 0 && (
+              <AmountRow
+                label="공동구매 할인"
+                value={`−${won(summary.discountTotal)}`}
+                valueColor="#CF3D61"
+                valueWeight="600"
+              />
+            )}
+            <AmountRow
+              label="배송비"
+              value={summary.deliveryFeeTotal > 0 ? won(summary.deliveryFeeTotal) : "무료배송"}
+            />
+          </View>
+          <TotalRow
+            label="결제 금액"
+            value={won(summary.totalAmount)}
+            prefix={
+              summary.discountRate ? (
+                // 로즈는 할인 수치에만 — 금액은 잉크
+                <Typography style={{ fontSize: 14, fontWeight: "700", lineHeight: 14 }} className="text-rose">
+                  {summary.discountRate}%
+                </Typography>
+              ) : undefined
+            }
+          />
+          {!!order.payment && (
+            <View className="flex-row items-baseline justify-between px-14 pt-12" style={{ gap: 12 }}>
+              <Typography style={{ fontSize: 13, lineHeight: 19.5 }} className="text-gray45">
+                결제수단
+              </Typography>
+              <Typography style={{ fontSize: 13, fontWeight: "500", lineHeight: 19.5 }} className="text-ink">
+                {order.payment.methodLabel}
+              </Typography>
+            </View>
+          )}
+
+          {/*
           구매확정 뒤 하자는 셀프 반품이 없다 — 1:1 문의로 접수하면 운영자가 반품을 대신 연다(결정 2).
           한 상품만 확정됐어도 그 상품의 하자 접수 길은 열려 있어야 하므로 전부가 아니라 하나라도 확정이면 보인다.
           개입할 것이 없는 종결 상태라 로즈를 쓰지 않는다.
         */}
-        {hasConfirmed && (
-          <View className="px-14 pt-20">
-            <View className="flex-row">
-              <OutlineAction
-                label="1:1 문의"
-                height={44}
-                fontSize={13}
-                onPress={() =>
-                  open(COMMON_ROUTES.INQUIRY_REGISTER, {
-                    orderId: order.orderId,
-                    orderNumber: order.orderNumber,
-                  })
-                }
-              />
+          {hasConfirmed && (
+            <View className="px-14 pt-20">
+              <View className="flex-row">
+                <OutlineAction
+                  label="1:1 문의"
+                  height={44}
+                  fontSize={13}
+                  onPress={() =>
+                    open(COMMON_ROUTES.INQUIRY_REGISTER, {
+                      orderId: order.orderId,
+                      orderNumber: order.orderNumber,
+                    })
+                  }
+                />
+              </View>
+              <Typography
+                style={{ fontSize: 12, lineHeight: 19.2, marginTop: 9 }}
+                className="text-center text-gray45"
+              >
+                상품에 하자가 있으면 1:1 문의로 접수해 주세요 — 확인 후 반품을 열어 드려요
+              </Typography>
             </View>
-            <Typography
-              style={{ fontSize: 12, lineHeight: 19.2, marginTop: 9 }}
-              className="text-center text-gray45"
-            >
-              상품에 하자가 있으면 1:1 문의로 접수해 주세요 — 확인 후 반품을 열어 드려요
-            </Typography>
-          </View>
-        )}
+          )}
 
-        {/*
+          {/*
           C20 1e — 배너를 본 사람이 주문까지 막혔다고 오해하지 않게, 이미 결제한 주문은 그대로 된다고 적는다.
           청약철회 · 반품 권리는 정지로 제한할 수 없어 이 화면의 버튼은 모두 평소대로 둔다.
         */}
-        {!!suspension && (
-          <>
-            <Band marginTop={22} />
-            <Typography style={{ fontSize: 12.5, lineHeight: 21.25 }} className="px-14 pt-18 text-gray45">
-              {SUSPENSION_ORDER_NOTE}
-            </Typography>
-          </>
-        )}
+          {!!suspension && (
+            <>
+              <Band marginTop={22} />
+              <Typography style={{ fontSize: 12.5, lineHeight: 21.25 }} className="px-14 pt-18 text-gray45">
+                {SUSPENSION_ORDER_NOTE}
+              </Typography>
+            </>
+          )}
 
-        <View className="h-30" />
-        <BottomSafeSpacer />
-      </ScrollView>
+          <View className="h-30" />
+          <BottomSafeSpacer />
+        </ScrollView>
+      </LoadGate>
     </View>
   );
 }

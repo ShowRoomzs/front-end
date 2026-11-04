@@ -3,8 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { ScrollView, View } from "react-native";
 
+import LoadGate from "@/common/components/LoadGate/LoadGate";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
-import Spinner from "@/common/components/Spinner/Spinner";
 import Typography from "@/common/components/Typography/Typography";
 import { queryClient } from "@/common/lib/queryClient";
 import { useModal } from "@/common/providers/ModalProvider/context";
@@ -24,6 +24,7 @@ import {
   SectionTitle,
   UnderlineLink,
 } from "@/features/order/components/OrderParts/OrderParts";
+import { ClaimDetailSkeleton } from "@/features/order/components/OrderSkeletons/OrderSkeletons";
 import { useOrderNavigation } from "@/features/order/hooks/useOrderNavigation";
 import { invalidateOrderQueries, useGetOrderDetail } from "@/features/order/hooks/useOrderQueries";
 import { cancelRequestService } from "@/features/order/services/cancelRequestService";
@@ -67,17 +68,14 @@ export default function CancelDetailView() {
   // 응답 기한은 서버 정책값(취소 요청 + N영업일) — 못 받으면 숫자 없이 적는다
   const respondDays = useGetPolicyValues().data?.cancelRequestRespondBusinessDays;
 
-  const {
-    data: detail,
-    isLoading,
-    error,
-  } = useQuery({
+  const detailQuery = useQuery({
     queryKey: [CANCEL_DETAIL_KEY, orderId, orderProductId],
     queryFn: () => cancelRequestService.getDetail(orderId, orderProductId),
     staleTime: 0,
     gcTime: 0,
     retry: false,
   });
+  const { data: detail } = detailQuery;
 
   const refresh = useCallback(() => {
     void queryClient.invalidateQueries({ queryKey: [CANCEL_DETAIL_KEY, orderId, orderProductId] });
@@ -114,19 +112,11 @@ export default function CancelDetailView() {
     });
   }, [cancelRequestId, navigation, orderId, refresh, showModal]);
 
-  if (isLoading || !detail) {
+  if (!detail) {
     return (
       <View className="flex-1 bg-white">
         <ScreenHeader title="취소 상세" onPressBack={navigation.goBack} />
-        <View className="flex-1 items-center justify-center px-40">
-          {isLoading ? (
-            <Spinner />
-          ) : (
-            <Typography style={{ fontSize: 13, lineHeight: 22.1 }} className="text-center text-gray45">
-              {resolveErrorMessage(error, "취소 내역을 불러오지 못했어요. 잠시 후 다시 시도해 주세요.")}
-            </Typography>
-          )}
-        </View>
+        <LoadGate key="gate" query={detailQuery} skeleton={<ClaimDetailSkeleton infoRows={3} />} />
       </View>
     );
   }
@@ -153,146 +143,155 @@ export default function CancelDetailView() {
     <View className="flex-1 bg-white">
       <ScreenHeader title="취소 상세" onPressBack={navigation.goBack} />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View className="flex-row items-end px-14" style={{ paddingTop: 22, paddingBottom: 18, gap: 12 }}>
-          <View className="min-w-0 flex-1">
-            <Typography
-              style={{ fontSize: 19, fontWeight: "700", lineHeight: 24.7, letterSpacing: -0.4 }}
-              className="text-ink"
-            >
-              {formatRequestedAt(detail.requestedAt ?? detail.decidedAt)}
-            </Typography>
-            <Typography style={{ fontSize: 12.5, lineHeight: 17.5, marginTop: 7 }} className="text-gray45">
-              주문번호 {detail.orderNumber}
-            </Typography>
-          </View>
-          <UnderlineLink
-            label="주문 상세"
-            onPress={() => open(COMMON_ROUTES.ORDER_DETAIL, { orderId: detail.orderId })}
-          />
-        </View>
-        <Band />
-
-        <SectionTitle title="취소 상품" count={`${detail.items.length}개`} />
-        <Typography
-          style={{ fontSize: 12.5, fontWeight: "600", lineHeight: 12.5, color: PHASE_COLOR[detail.phase] }}
-          className="px-14 pt-16"
-        >
-          {detail.phaseLabel}
-        </Typography>
-        {detail.items.map(item => (
-          <View key={item.orderProductId} className="px-14 pt-12">
-            <ProductBlock
-              thumbnailUrl={item.thumbnailUrl}
-              brand={rowOf(item.orderProductId)?.brandName ?? ""}
-              name={item.productName}
-              meta={withOption(item.optionName, `${item.quantity}개`, " / ")}
-              price={won(item.amount)}
+      <LoadGate key="gate" query={detailQuery} skeleton={<ClaimDetailSkeleton infoRows={3} />}>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View className="flex-row items-end px-14" style={{ paddingTop: 22, paddingBottom: 18, gap: 12 }}>
+            <View className="min-w-0 flex-1">
+              <Typography
+                style={{ fontSize: 19, fontWeight: "700", lineHeight: 24.7, letterSpacing: -0.4 }}
+                className="text-ink"
+              >
+                {formatRequestedAt(detail.requestedAt ?? detail.decidedAt)}
+              </Typography>
+              <Typography style={{ fontSize: 12.5, lineHeight: 17.5, marginTop: 7 }} className="text-gray45">
+                주문번호 {detail.orderNumber}
+              </Typography>
+            </View>
+            <UnderlineLink
+              label="주문 상세"
+              onPress={() => open(COMMON_ROUTES.ORDER_DETAIL, { orderId: detail.orderId })}
             />
           </View>
-        ))}
+          <Band />
 
-        {!isCancelled && (
-          <View
-            className="mx-14 rounded-base bg-band"
-            style={{ marginTop: 14, paddingVertical: 12, paddingHorizontal: 13 }}
+          <SectionTitle title="취소 상품" count={`${detail.items.length}개`} />
+          <Typography
+            style={{ fontSize: 12.5, fontWeight: "600", lineHeight: 12.5, color: PHASE_COLOR[detail.phase] }}
+            className="px-14 pt-16"
           >
-            <Typography style={{ fontSize: 12.5, lineHeight: 20 }} className="text-ink76">
-              {isPending
-                ? `브랜드가 확인하고 있어요. ${respondDays ? `보통 ${respondDays}영업일 안에 ` : ""}결과를 알림으로 알려드려요.`
-                : "브랜드가 취소 요청을 거부했어요. 주문은 그대로 배송돼요."}
-            </Typography>
-          </View>
-        )}
+            {detail.phaseLabel}
+          </Typography>
+          {detail.items.map(item => (
+            <View key={item.orderProductId} className="px-14 pt-12">
+              <ProductBlock
+                thumbnailUrl={item.thumbnailUrl}
+                brand={rowOf(item.orderProductId)?.brandName ?? ""}
+                name={item.productName}
+                meta={withOption(item.optionName, `${item.quantity}개`, " / ")}
+                price={won(item.amount)}
+              />
+            </View>
+          ))}
 
-        <View className="flex-row px-14 pt-12">
-          {isPending && detail.withdrawable && (
-            <OutlineAction label="취소 요청 철회" height={44} fontSize={13.5} onPress={handlePressWithdraw} />
+          {!isCancelled && (
+            <View
+              className="mx-14 rounded-base bg-band"
+              style={{ marginTop: 14, paddingVertical: 12, paddingHorizontal: 13 }}
+            >
+              <Typography style={{ fontSize: 12.5, lineHeight: 20 }} className="text-ink76">
+                {isPending
+                  ? `브랜드가 확인하고 있어요. ${respondDays ? `보통 ${respondDays}영업일 안에 ` : ""}결과를 알림으로 알려드려요.`
+                  : "브랜드가 취소 요청을 거부했어요. 주문은 그대로 배송돼요."}
+              </Typography>
+            </View>
           )}
-          {isCancelled && !!firstRow && (
-            <OutlineAction
-              label="재구매"
-              height={44}
-              fontSize={13.5}
-              onPress={() => open(COMMON_ROUTES.PRODUCT_DETAIL, { productId: firstRow.productId })}
+
+          <View className="flex-row px-14 pt-12">
+            {isPending && detail.withdrawable && (
+              <OutlineAction
+                label="취소 요청 철회"
+                height={44}
+                fontSize={13.5}
+                onPress={handlePressWithdraw}
+              />
+            )}
+            {isCancelled && !!firstRow && (
+              <OutlineAction
+                label="재구매"
+                height={44}
+                fontSize={13.5}
+                onPress={() => open(COMMON_ROUTES.PRODUCT_DETAIL, { productId: firstRow.productId })}
+              />
+            )}
+            {isRejected && !!firstItem && (
+              <OutlineAction
+                label="배송 조회"
+                height={44}
+                fontSize={13.5}
+                onPress={() =>
+                  open(COMMON_ROUTES.DELIVERY_TRACKING, {
+                    orderId: detail.orderId,
+                    orderProductId: firstItem.orderProductId,
+                  })
+                }
+              />
+            )}
+          </View>
+
+          <Band marginTop={20} />
+          <SectionTitle title="취소 신청 정보" style={{ paddingBottom: 8 }} />
+          <View className="px-14">
+            {!!detail.requestedAt && (
+              <InfoRow label="신청 일시" labelWidth={62} value={formatDateTimeFull(detail.requestedAt)} />
+            )}
+            <InfoRow
+              label={decidedLabel}
+              labelWidth={62}
+              value={detail.decidedAt ? formatDateTimeFull(detail.decidedAt) : "브랜드 확인 후 표시돼요"}
+              valueColor={detail.decidedAt ? "#0F0F0F" : "#9E9E9E"}
             />
-          )}
-          {isRejected && !!firstItem && (
-            <OutlineAction
-              label="배송 조회"
-              height={44}
-              fontSize={13.5}
-              onPress={() =>
-                open(COMMON_ROUTES.DELIVERY_TRACKING, {
-                  orderId: detail.orderId,
-                  orderProductId: firstItem.orderProductId,
-                })
+            <InfoRow
+              label="취소 사유"
+              labelWidth={62}
+              value={
+                detail.reasonDetail ? `${detail.reasonLabel}\n${detail.reasonDetail}` : detail.reasonLabel
               }
             />
-          )}
-        </View>
+            {isRejected && !!detail.rejection && (
+              <RejectRows detail={detail} brandName={firstRow?.brandName ?? ""} />
+            )}
+          </View>
 
-        <Band marginTop={20} />
-        <SectionTitle title="취소 신청 정보" style={{ paddingBottom: 8 }} />
-        <View className="px-14">
-          {!!detail.requestedAt && (
-            <InfoRow label="신청 일시" labelWidth={62} value={formatDateTimeFull(detail.requestedAt)} />
-          )}
-          <InfoRow
-            label={decidedLabel}
-            labelWidth={62}
-            value={detail.decidedAt ? formatDateTimeFull(detail.decidedAt) : "브랜드 확인 후 표시돼요"}
-            valueColor={detail.decidedAt ? "#0F0F0F" : "#9E9E9E"}
-          />
-          <InfoRow
-            label="취소 사유"
-            labelWidth={62}
-            value={detail.reasonDetail ? `${detail.reasonLabel}\n${detail.reasonDetail}` : detail.reasonLabel}
-          />
-          {isRejected && !!detail.rejection && (
-            <RejectRows detail={detail} brandName={firstRow?.brandName ?? ""} />
-          )}
-        </View>
-
-        <Band marginTop={14} />
-        <SectionTitle title="환불 정보" />
-        <View className="px-14 pt-14">
-          <AmountRow label="결제 금액" value={won(paidAmount)} labelColor="#3C3C3C" fontSize={13.5} />
-        </View>
-        <View
-          className="mx-14 flex-row items-baseline justify-between border-t-[0.5px] border-dividerProduct"
-          style={{ marginTop: 12, paddingTop: 12, gap: 12 }}
-        >
-          <Typography style={{ fontSize: 14, fontWeight: "600", lineHeight: 14 }} className="text-ink">
-            {isCancelled ? "환불 금액" : "환불 예정 금액"}
-          </Typography>
-          <Typography
-            style={{ fontSize: 17, fontWeight: "700", lineHeight: 17, letterSpacing: -0.4 }}
-            className={isRejected ? "text-gray62" : "text-ink"}
+          <Band marginTop={14} />
+          <SectionTitle title="환불 정보" />
+          <View className="px-14 pt-14">
+            <AmountRow label="결제 금액" value={won(paidAmount)} labelColor="#3C3C3C" fontSize={13.5} />
+          </View>
+          <View
+            className="mx-14 flex-row items-baseline justify-between border-t-[0.5px] border-dividerProduct"
+            style={{ marginTop: 12, paddingTop: 12, gap: 12 }}
           >
-            {won(refundAmount)}
-          </Typography>
-        </View>
-        {!isRejected && !!refundMethodLabel && (
-          <View className="px-14 pt-9">
-            <AmountRow label="환불 수단" value={refundMethodLabel} fontSize={12.5} valueColor="#3C3C3C" />
+            <Typography style={{ fontSize: 14, fontWeight: "600", lineHeight: 14 }} className="text-ink">
+              {isCancelled ? "환불 금액" : "환불 예정 금액"}
+            </Typography>
+            <Typography
+              style={{ fontSize: 17, fontWeight: "700", lineHeight: 17, letterSpacing: -0.4 }}
+              className={isRejected ? "text-gray62" : "text-ink"}
+            >
+              {won(refundAmount)}
+            </Typography>
           </View>
-        )}
-        {!!detail.refund?.statusLabel && (
-          <View className="px-14 pt-9">
-            <AmountRow
-              label="환불 상태"
-              value={detail.refund.statusLabel}
-              fontSize={12.5}
-              valueColor="#3C3C3C"
-            />
-          </View>
-        )}
-        <BulletNotes style={{ paddingHorizontal: 14, paddingTop: 18 }} notes={notesFor(detail)} />
+          {!isRejected && !!refundMethodLabel && (
+            <View className="px-14 pt-9">
+              <AmountRow label="환불 수단" value={refundMethodLabel} fontSize={12.5} valueColor="#3C3C3C" />
+            </View>
+          )}
+          {!!detail.refund?.statusLabel && (
+            <View className="px-14 pt-9">
+              <AmountRow
+                label="환불 상태"
+                value={detail.refund.statusLabel}
+                fontSize={12.5}
+                valueColor="#3C3C3C"
+              />
+            </View>
+          )}
+          <BulletNotes style={{ paddingHorizontal: 14, paddingTop: 18 }} notes={notesFor(detail)} />
 
-        <View className="h-26" />
-        <BottomSafeSpacer />
-      </ScrollView>
+          <View className="h-26" />
+          <BottomSafeSpacer />
+        </ScrollView>
+      </LoadGate>
     </View>
   );
 }

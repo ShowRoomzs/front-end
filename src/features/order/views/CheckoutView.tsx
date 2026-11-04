@@ -7,7 +7,7 @@ import Svg, { Circle, Path } from "react-native-svg";
 import { ChevronDownIcon } from "@/common/components/DsIcon/icons";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import SheetList from "@/common/components/SheetList/SheetList";
-import Spinner from "@/common/components/Spinner/Spinner";
+import Skeleton from "@/common/components/Skeleton/Skeleton";
 import Typography from "@/common/components/Typography/Typography";
 import { useBottomSheet } from "@/common/hooks/useBottomSheet";
 import { useBottomSheetContext } from "@/common/providers/BottomSheetProvider";
@@ -27,6 +27,7 @@ import {
   SmallOutlineButton,
   TotalRow,
 } from "@/features/order/components/OrderParts/OrderParts";
+import { OrderFormSkeleton } from "@/features/order/components/OrderSkeletons/OrderSkeletons";
 import PaymentMethodPicker from "@/features/order/components/PaymentMethodPicker/PaymentMethodPicker";
 import PortOnePaymentModal from "@/features/order/components/PortOnePaymentModal/PortOnePaymentModal";
 import { CheckoutPaymentOutcome, useCheckoutPayment } from "@/features/order/hooks/useCheckoutPayment";
@@ -322,7 +323,13 @@ export default function CheckoutView() {
     return (
       <View className="flex-1 bg-white">
         <ScreenHeader title="주문/결제" onPressBack={navigation.goBack} />
-        <View className="flex-1 items-center justify-center">{isLoading && <Spinner />}</View>
+        <View className="flex-1">
+          {isLoading && (
+            <Skeleton>
+              <OrderFormSkeleton />
+            </Skeleton>
+          )}
+        </View>
       </View>
     );
   }

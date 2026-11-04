@@ -3,10 +3,11 @@ import { KeyboardAvoidingView, Platform, ScrollView, TextInput, TouchableOpacity
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
 
+import LoadGate from "@/common/components/LoadGate/LoadGate";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
-import Spinner from "@/common/components/Spinner/Spinner";
 import Typography from "@/common/components/Typography/Typography";
 import { SETTINGS_ROUTES, useSettingsNavigation } from "@/common/router";
+import { WithdrawalSkeleton } from "@/features/setting/components/SettingSkeletons/SettingSkeletons";
 import { useGetWithdrawalInfo } from "@/features/setting/hooks/useWithdrawal";
 import { WithdrawalReasonCode } from "@/features/setting/types/withdrawal";
 
@@ -25,7 +26,8 @@ const CUSTOM_REASON_MAX_LENGTH = 200;
 export default function WithdrawalView() {
   const navigation = useSettingsNavigation();
   const { top, bottom } = useSafeAreaInsets();
-  const { data: info, isLoading } = useGetWithdrawalInfo();
+  const infoQuery = useGetWithdrawalInfo();
+  const { data: info } = infoQuery;
 
   const [reason, setReason] = useState<WithdrawalReasonCode | null>(null);
   const [customReason, setCustomReason] = useState("");
@@ -40,13 +42,11 @@ export default function WithdrawalView() {
     });
   }, [customReason, navigation, reason]);
 
-  if (isLoading || !info) {
+  if (!info) {
     return (
       <View className="flex-1 bg-white">
         <ScreenHeader title="회원 탈퇴" onPressBack={navigation.goBack} />
-        <View className="flex-1 items-center justify-center">
-          <Spinner />
-        </View>
+        <LoadGate key="gate" query={infoQuery} skeleton={<WithdrawalSkeleton rows={5} rowHeight={46} />} />
       </View>
     );
   }

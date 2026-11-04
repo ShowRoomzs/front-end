@@ -4,8 +4,8 @@ import { Image, ScrollView, TouchableOpacity, View } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
 import DevMockSwitch from "@/common/components/DevMockSwitch/DevMockSwitch";
+import LoadGate from "@/common/components/LoadGate/LoadGate";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
-import Spinner from "@/common/components/Spinner/Spinner";
 import Typography from "@/common/components/Typography/Typography";
 import { queryClient } from "@/common/lib/queryClient";
 import { useModal } from "@/common/providers/ModalProvider/context";
@@ -31,6 +31,7 @@ import {
   SectionTitle,
   UnderlineLink,
 } from "@/features/order/components/OrderParts/OrderParts";
+import { ClaimDetailSkeleton } from "@/features/order/components/OrderSkeletons/OrderSkeletons";
 import PaymentMethodPicker from "@/features/order/components/PaymentMethodPicker/PaymentMethodPicker";
 import PortOnePaymentModal from "@/features/order/components/PortOnePaymentModal/PortOnePaymentModal";
 import { ORDER_QUERY_KEY } from "@/features/order/constants/queryKey";
@@ -110,7 +111,8 @@ export default function ClaimDetailView() {
   const navigation = useCommonNavigation();
   const { params } = useRoute<RouteProp<CommonStackParamList, typeof COMMON_ROUTES.CLAIM_DETAIL>>();
   const { claimId } = params;
-  const { data: serverDetail, isLoading, refetch } = useGetClaimDetail(claimId);
+  const claimQuery = useGetClaimDetail(claimId);
+  const { data: serverDetail, refetch } = claimQuery;
   // DEV 빌드에서만 — 재발송비 결제 상태를 덧씌워 확인한다(`reshipFeeDevMock`)
   const [devReshipMock, setDevReshipMock] = useState<DevReshipMock>("OFF");
   const [devPaidLabel, setDevPaidLabel] = useState<string | null>(null);
@@ -337,13 +339,11 @@ export default function ClaimDetailView() {
     [detail, open]
   );
 
-  if (isLoading || !detail) {
+  if (!detail) {
     return (
       <View className="flex-1 bg-white">
         <ScreenHeader title="반품 · 교환 상세" onPressBack={navigation.goBack} />
-        <View className="flex-1 items-center justify-center">
-          <Spinner />
-        </View>
+        <LoadGate key="gate" query={claimQuery} skeleton={<ClaimDetailSkeleton />} />
       </View>
     );
   }
@@ -361,197 +361,199 @@ export default function ClaimDetailView() {
     <View className="flex-1 bg-white">
       <ScreenHeader title={`${kw} 상세`} onPressBack={navigation.goBack} />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View className="flex-row items-end px-14" style={{ paddingTop: 22, paddingBottom: 18, gap: 12 }}>
-          <View className="min-w-0 flex-1">
-            <Typography
-              style={{ fontSize: 19, fontWeight: "700", lineHeight: 24.7, letterSpacing: -0.4 }}
-              className="text-ink"
-            >
-              {formatRequestedAt(detail.requestedAt)}
-            </Typography>
-            <Typography style={{ fontSize: 12.5, lineHeight: 17.5, marginTop: 7 }} className="text-gray45">
-              주문번호 {detail.orderNumber}
-            </Typography>
+      <LoadGate key="gate" query={claimQuery} skeleton={<ClaimDetailSkeleton />}>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View className="flex-row items-end px-14" style={{ paddingTop: 22, paddingBottom: 18, gap: 12 }}>
+            <View className="min-w-0 flex-1">
+              <Typography
+                style={{ fontSize: 19, fontWeight: "700", lineHeight: 24.7, letterSpacing: -0.4 }}
+                className="text-ink"
+              >
+                {formatRequestedAt(detail.requestedAt)}
+              </Typography>
+              <Typography style={{ fontSize: 12.5, lineHeight: 17.5, marginTop: 7 }} className="text-gray45">
+                주문번호 {detail.orderNumber}
+              </Typography>
+            </View>
+            <UnderlineLink
+              label="주문 상세"
+              onPress={() => open(COMMON_ROUTES.ORDER_DETAIL, { orderId: detail.orderId })}
+            />
           </View>
-          <UnderlineLink
-            label="주문 상세"
-            onPress={() => open(COMMON_ROUTES.ORDER_DETAIL, { orderId: detail.orderId })}
-          />
-        </View>
-        <Band />
+          <Band />
 
-        <SectionTitle title={`${kw} 상품`} count={`${detail.items.length}개`} />
+          <SectionTitle title={`${kw} 상품`} count={`${detail.items.length}개`} />
 
-        {detail.guide.visible && <GuideBox detail={detail} />}
+          {detail.guide.visible && <GuideBox detail={detail} />}
 
-        {detail.items.map((item, ix) => (
-          <ClaimItemBlock
-            key={item.claimId}
-            item={item}
-            isExchange={isExchange}
-            showDivider={ix > 0}
-            onPressAction={action => handleItemAction(item, action)}
-          />
-        ))}
+          {detail.items.map((item, ix) => (
+            <ClaimItemBlock
+              key={item.claimId}
+              item={item}
+              isExchange={isExchange}
+              showDivider={ix > 0}
+              onPressAction={action => handleItemAction(item, action)}
+            />
+          ))}
 
-        {canApplyDevReshipMock(serverDetail) && (
-          <DevReshipSwitch
-            current={devReshipMock}
+          {canApplyDevReshipMock(serverDetail) && (
+            <DevReshipSwitch
+              current={devReshipMock}
+              onPick={mock => {
+                setDevReshipMock(mock);
+                setPayment({});
+              }}
+            />
+          )}
+          <DevMockSwitch
+            label="DEV 검수 판정"
+            options={isExchange ? DEV_INSPECTION_EXCHANGE_OPTIONS : DEV_INSPECTION_RETURN_OPTIONS}
+            current={
+              devInspectionMock === "EXCHANGE_OVERTURNED_PAID" ? "EXCHANGE_OVERTURNED" : devInspectionMock
+            }
             onPick={mock => {
-              setDevReshipMock(mock);
+              setDevInspectionMock(mock);
               setPayment({});
             }}
           />
-        )}
-        <DevMockSwitch
-          label="DEV 검수 판정"
-          options={isExchange ? DEV_INSPECTION_EXCHANGE_OPTIONS : DEV_INSPECTION_RETURN_OPTIONS}
-          current={
-            devInspectionMock === "EXCHANGE_OVERTURNED_PAID" ? "EXCHANGE_OVERTURNED" : devInspectionMock
-          }
-          onPick={mock => {
-            setDevInspectionMock(mock);
-            setPayment({});
-          }}
-        />
 
-        {!!detail.inspection && (
-          <ClaimInspectionBlock
-            inspection={detail.inspection}
-            brandName={focused?.brandName ?? ""}
-            initialFee={detail.refund?.returnDeduction}
-          />
-        )}
-        {isOverturnPayable && (
-          <PaymentMethodPicker
-            sheetId="claim-overturn-card-issuer"
-            methods={PAYMENT_METHODS}
-            value={payment}
-            onChange={setPayment}
-            issuerSheet="grid"
-            easyPayLabelSize={14.5}
-          />
-        )}
+          {!!detail.inspection && (
+            <ClaimInspectionBlock
+              inspection={detail.inspection}
+              brandName={focused?.brandName ?? ""}
+              initialFee={detail.refund?.returnDeduction}
+            />
+          )}
+          {isOverturnPayable && (
+            <PaymentMethodPicker
+              sheetId="claim-overturn-card-issuer"
+              methods={PAYMENT_METHODS}
+              value={payment}
+              onChange={setPayment}
+              issuerSheet="grid"
+              easyPayLabelSize={14.5}
+            />
+          )}
 
-        {/*
+          {/*
           교환 사유 번복 청구(OVERTURN_RESHIP)는 서버가 `reshipFee`로도 함께 내린다 — 결제 블록은 위 검수 판정이
           맡으므로 「상품 다시 받기」를 또 그리지 않는다(결제 수단 선택이 두 번 생긴다)
         */}
-        {/* CANCELLED(결제 취소 · 소멸)는 청구가 없어졌다 — 시안에 그릴 문구가 없어 블록을 두지 않는다 */}
-        {!!reshipFee &&
-          reshipFee.state !== "WAITING" &&
-          reshipFee.state !== "CANCELLED" &&
-          detail.inspection?.state !== "OVERTURN_PAYMENT_PENDING" && (
-            <ReshipFeeBlock
-              reshipFee={reshipFee}
-              kw={kw}
-              items={detail.items}
-              payment={payment}
-              onChangePayment={setPayment}
-            />
-          )}
+          {/* CANCELLED(결제 취소 · 소멸)는 청구가 없어졌다 — 시안에 그릴 문구가 없어 블록을 두지 않는다 */}
+          {!!reshipFee &&
+            reshipFee.state !== "WAITING" &&
+            reshipFee.state !== "CANCELLED" &&
+            detail.inspection?.state !== "OVERTURN_PAYMENT_PENDING" && (
+              <ReshipFeeBlock
+                reshipFee={reshipFee}
+                kw={kw}
+                items={detail.items}
+                payment={payment}
+                onChangePayment={setPayment}
+              />
+            )}
 
-        <Band marginTop={20} />
-        <SectionTitle title={`${kw} 신청 정보`} style={{ paddingBottom: 8 }} />
-        <View className="px-14">
-          <InfoRow label="신청 일시" value={formatDateTimeFull(detail.requestedAt)} />
-          <InfoRow
-            label="완료 일시"
-            value={completedLine ?? `${isExchange ? "새 상품 도착" : "검수"} 후 표시돼요`}
-            valueColor={completedLine ? "#0F0F0F" : "#9E9E9E"}
-          />
-          {!!purchaseConfirmLine(detail) && (
-            <InfoRow label="구매확정" value={purchaseConfirmLine(detail) as string} />
-          )}
-          <InfoRow label={`${kw} 사유`} value={detail.info.reasonLabel} />
-          <InfoRow label={`${kw} 방법`} value={detail.info.methodLabel} />
-          <InfoRow
-            label="회수 송장"
-            value={
-              detail.info.collectionInvoice
-                ? `${detail.info.collectionInvoice.carrierLabel} ${detail.info.collectionInvoice.trackingNumber}`
-                : `미등록 · ${formatDueDate(detail.info.invoiceDueDate)}까지 등록해 주세요`
-            }
-            valueColor={detail.info.collectionInvoice ? "#0F0F0F" : "#CF3D61"}
-          />
-          {!!detail.info.reshipInvoice && (
+          <Band marginTop={20} />
+          <SectionTitle title={`${kw} 신청 정보`} style={{ paddingBottom: 8 }} />
+          <View className="px-14">
+            <InfoRow label="신청 일시" value={formatDateTimeFull(detail.requestedAt)} />
             <InfoRow
-              label="재발송 송장"
-              value={`${detail.info.reshipInvoice.carrierLabel} ${detail.info.reshipInvoice.trackingNumber}`}
+              label="완료 일시"
+              value={completedLine ?? `${isExchange ? "새 상품 도착" : "검수"} 후 표시돼요`}
+              valueColor={completedLine ? "#0F0F0F" : "#9E9E9E"}
             />
-          )}
-          {!isExchange && !!detail.info.pickupFrom && (
-            <InfoRow label="반품 수거지" value={maskedLines(detail.info.pickupFrom)} />
-          )}
-          <InfoRow
-            label={`${kw} 도착지`}
-            value={(() => {
-              const lines = returnToLines(detail.info.returnTo, " / ");
-
-              return lines.isEmpty
-                ? RETURN_TO_MISSING
-                : [lines.head, lines.address].filter(Boolean).join("\n");
-            })()}
-          />
-          {isExchange && !!detail.info.reshipTo && (
-            <InfoRow label="교환받을 배송지" value={maskedLines(detail.info.reshipTo)}>
-              {detail.info.reshipAddressChangeable && (
-                <View className="flex-row" style={{ marginTop: 4 }}>
-                  <UnderlineLink label="배송지 변경" onPress={handleChangeReshipAddress} />
-                </View>
-              )}
-            </InfoRow>
-          )}
-        </View>
-
-        <Band marginTop={14} />
-        {!!detail.refund && <RefundSection detail={detail} onPressBankInquiry={handlePressBankInquiry} />}
-        {!detail.refund && !!detail.exchangePayment && (
-          <>
-            <SectionTitle title="결제 정보" />
-            <View className="px-14 pt-14">
-              <AmountRow
-                label="재발송 배송비"
-                value={won(detail.exchangePayment.reshipFee)}
-                labelColor="#3C3C3C"
-                fontSize={13.5}
+            {!!purchaseConfirmLine(detail) && (
+              <InfoRow label="구매확정" value={purchaseConfirmLine(detail) as string} />
+            )}
+            <InfoRow label={`${kw} 사유`} value={detail.info.reasonLabel} />
+            <InfoRow label={`${kw} 방법`} value={detail.info.methodLabel} />
+            <InfoRow
+              label="회수 송장"
+              value={
+                detail.info.collectionInvoice
+                  ? `${detail.info.collectionInvoice.carrierLabel} ${detail.info.collectionInvoice.trackingNumber}`
+                  : `미등록 · ${formatDueDate(detail.info.invoiceDueDate)}까지 등록해 주세요`
+              }
+              valueColor={detail.info.collectionInvoice ? "#0F0F0F" : "#CF3D61"}
+            />
+            {!!detail.info.reshipInvoice && (
+              <InfoRow
+                label="재발송 송장"
+                value={`${detail.info.reshipInvoice.carrierLabel} ${detail.info.reshipInvoice.trackingNumber}`}
               />
-            </View>
-            <View
-              className="mx-14 flex-row items-baseline justify-between border-t-[0.5px] border-dividerProduct"
-              style={{ marginTop: 12, paddingTop: 12, gap: 12 }}
-            >
-              <Typography style={{ fontSize: 14, fontWeight: "600", lineHeight: 14 }} className="text-ink">
-                결제 금액
-              </Typography>
-              <Typography
-                style={{ fontSize: 17, fontWeight: "700", lineHeight: 17, letterSpacing: -0.4 }}
-                className="text-ink"
+            )}
+            {!isExchange && !!detail.info.pickupFrom && (
+              <InfoRow label="반품 수거지" value={maskedLines(detail.info.pickupFrom)} />
+            )}
+            <InfoRow
+              label={`${kw} 도착지`}
+              value={(() => {
+                const lines = returnToLines(detail.info.returnTo, " / ");
+
+                return lines.isEmpty
+                  ? RETURN_TO_MISSING
+                  : [lines.head, lines.address].filter(Boolean).join("\n");
+              })()}
+            />
+            {isExchange && !!detail.info.reshipTo && (
+              <InfoRow label="교환받을 배송지" value={maskedLines(detail.info.reshipTo)}>
+                {detail.info.reshipAddressChangeable && (
+                  <View className="flex-row" style={{ marginTop: 4 }}>
+                    <UnderlineLink label="배송지 변경" onPress={handleChangeReshipAddress} />
+                  </View>
+                )}
+              </InfoRow>
+            )}
+          </View>
+
+          <Band marginTop={14} />
+          {!!detail.refund && <RefundSection detail={detail} onPressBankInquiry={handlePressBankInquiry} />}
+          {!detail.refund && !!detail.exchangePayment && (
+            <>
+              <SectionTitle title="결제 정보" />
+              <View className="px-14 pt-14">
+                <AmountRow
+                  label="재발송 배송비"
+                  value={won(detail.exchangePayment.reshipFee)}
+                  labelColor="#3C3C3C"
+                  fontSize={13.5}
+                />
+              </View>
+              <View
+                className="mx-14 flex-row items-baseline justify-between border-t-[0.5px] border-dividerProduct"
+                style={{ marginTop: 12, paddingTop: 12, gap: 12 }}
               >
-                {won(detail.exchangePayment.paidAmount)}
-              </Typography>
-            </View>
-            <View className="px-14 pt-9">
-              <AmountRow
-                label="결제 수단"
-                value={detail.exchangePayment.methodLabel}
-                fontSize={12.5}
-                valueColor="#3C3C3C"
+                <Typography style={{ fontSize: 14, fontWeight: "600", lineHeight: 14 }} className="text-ink">
+                  결제 금액
+                </Typography>
+                <Typography
+                  style={{ fontSize: 17, fontWeight: "700", lineHeight: 17, letterSpacing: -0.4 }}
+                  className="text-ink"
+                >
+                  {won(detail.exchangePayment.paidAmount)}
+                </Typography>
+              </View>
+              <View className="px-14 pt-9">
+                <AmountRow
+                  label="결제 수단"
+                  value={detail.exchangePayment.methodLabel}
+                  fontSize={12.5}
+                  valueColor="#3C3C3C"
+                />
+              </View>
+              <BulletNotes
+                style={{ paddingHorizontal: 14, paddingTop: 18, paddingBottom: 26 }}
+                notes={[
+                  "반송 택배비는 보내실 때 택배사에 직접 결제해요. 앱에서는 새 상품을 보내는 재발송 배송비만 결제돼요.",
+                  "요청을 철회하거나 검수에서 브랜드 귀책으로 확인되면 재발송 배송비는 결제 취소돼요.",
+                ]}
               />
-            </View>
-            <BulletNotes
-              style={{ paddingHorizontal: 14, paddingTop: 18, paddingBottom: 26 }}
-              notes={[
-                "반송 택배비는 보내실 때 택배사에 직접 결제해요. 앱에서는 새 상품을 보내는 재발송 배송비만 결제돼요.",
-                "요청을 철회하거나 검수에서 브랜드 귀책으로 확인되면 재발송 배송비는 결제 취소돼요.",
-              ]}
-            />
-          </>
-        )}
-        {!detail.refund && !detail.exchangePayment && <View className="h-26" />}
-        {!isPayable && <BottomSafeSpacer />}
-      </ScrollView>
+            </>
+          )}
+          {!detail.refund && !detail.exchangePayment && <View className="h-26" />}
+          {!isPayable && <BottomSafeSpacer />}
+        </ScrollView>
+      </LoadGate>
 
       {isPayable && (
         <BottomCta

@@ -408,3 +408,21 @@ export function EmptyPinIcon(props: DsIconProps) {
     </Svg>
   );
 }
+
+/**
+ * 연결 끊김 — 전체 오류(디자인 시스템 §07). 와이파이 세 줄 + 점 + 사선, 회색 중립 1.3.
+ * 사선만 한 단계 진한 #C4C4C6이다.
+ */
+export function WifiOffIcon(props: DsIconProps) {
+  const { size, color, rest } = base({ ...props, size: props.size ?? 46, color: props.color ?? "#D8D8DA" });
+
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...rest}>
+      <Path d="M2.5 8.5a15 15 0 0 1 19 0" stroke={color} strokeWidth={1.3} strokeLinecap="round" />
+      <Path d="M5.5 11.8a10.5 10.5 0 0 1 13 0" stroke={color} strokeWidth={1.3} strokeLinecap="round" />
+      <Path d="M8.5 15a6 6 0 0 1 7 0" stroke={color} strokeWidth={1.3} strokeLinecap="round" />
+      <Circle cx={12} cy={18.3} r={1} fill={color} />
+      <Path d="M4 4l16 16" stroke="#C4C4C6" strokeWidth={1.3} strokeLinecap="round" />
+    </Svg>
+  );
+}

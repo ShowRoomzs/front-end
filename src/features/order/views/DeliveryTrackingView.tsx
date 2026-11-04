@@ -5,8 +5,8 @@ import { ScrollView, View } from "react-native";
 
 import Accordion from "@/common/components/Accordion/Accordion";
 import DevMockSwitch from "@/common/components/DevMockSwitch/DevMockSwitch";
+import LoadGate from "@/common/components/LoadGate/LoadGate";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
-import Spinner from "@/common/components/Spinner/Spinner";
 import Typography from "@/common/components/Typography/Typography";
 import { queryClient } from "@/common/lib/queryClient";
 import { toast } from "@/common/providers/ToastProvider";
@@ -21,6 +21,7 @@ import {
   SectionTitle,
   UnderlineLink,
 } from "@/features/order/components/OrderParts/OrderParts";
+import { TrackingSkeleton } from "@/features/order/components/OrderSkeletons/OrderSkeletons";
 import {
   CarrierButtons,
   CarrierRows,
@@ -131,7 +132,8 @@ function buildDevStall(mock: Exclude<DevStallMock, "OFF">, choice: StallChoice |
 export default function DeliveryTrackingView() {
   const navigation = useCommonNavigation();
   const { params } = useRoute<RouteProp<CommonStackParamList, typeof COMMON_ROUTES.DELIVERY_TRACKING>>();
-  const { data: tracking, isLoading } = useGetTracking(params);
+  const trackingQuery = useGetTracking(params);
+  const { data: tracking } = trackingQuery;
   const { open } = useOrderNavigation();
 
   const [devStall, setDevStall] = useState<DevStallMock>("OFF");
@@ -164,13 +166,11 @@ export default function DeliveryTrackingView() {
   }));
   const collapsible = useCollapsibleRows(scanRows);
 
-  if (isLoading || !tracking) {
+  if (!tracking) {
     return (
       <View className="flex-1 bg-white">
         <ScreenHeader title="배송 조회" onPressBack={navigation.goBack} />
-        <View className="flex-1 items-center justify-center">
-          <Spinner />
-        </View>
+        <LoadGate key="gate" query={trackingQuery} skeleton={<TrackingSkeleton />} />
       </View>
     );
   }
@@ -184,130 +184,135 @@ export default function DeliveryTrackingView() {
     <View className="flex-1 bg-white">
       <ScreenHeader title="배송 조회" onPressBack={navigation.goBack} />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <DevMockSwitch
-          label="DEV 추적 정지"
-          options={DEV_STALL_OPTIONS}
-          current={devStall}
-          onPick={setDevStall}
-        />
-        {!!stall && (
-          <TrackingStallBlock stall={stall} isSubmitting={isChoosingStall} onChoose={chooseStall} />
-        )}
-
-        <TrackingHeadline
-          date={tracking.headline.date ? formatShortMonthDayWeekday(tracking.headline.date) : undefined}
-          text={tracking.headline.text}
-          sub={tracking.headline.sub}
-        />
-
-        <StageBar labels={STAGES} current={tracking.stageIndex} />
-
-        <Band marginTop={22} />
-
-        <View className="flex-row items-baseline justify-between px-14" style={{ paddingTop: 18, gap: 10 }}>
-          <View className="min-w-0 flex-row items-center" style={{ gap: 7 }}>
-            {hasContext && (
-              <View className="rounded-base bg-fill px-8 py-4">
-                <Typography variant="badge" className="text-gray45">
-                  {tracking.contextLabel}
-                </Typography>
-              </View>
-            )}
-            <Typography style={{ fontSize: 14, fontWeight: "700", lineHeight: 18.2 }} className="text-ink">
-              {formatOrderDate(tracking.orderedAt)} 주문
-            </Typography>
-          </View>
-          <UnderlineLink
-            label="주문 상세"
-            onPress={() => open(COMMON_ROUTES.ORDER_DETAIL, { orderId: tracking.orderId })}
+      <LoadGate key="gate" query={trackingQuery} skeleton={<TrackingSkeleton />}>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <DevMockSwitch
+            label="DEV 추적 정지"
+            options={DEV_STALL_OPTIONS}
+            current={devStall}
+            onPick={setDevStall}
           />
-        </View>
+          {!!stall && (
+            <TrackingStallBlock stall={stall} isSubmitting={isChoosingStall} onChoose={chooseStall} />
+          )}
 
-        <View className="px-14 pt-12">
-          <ProductLine
-            thumbnailUrl={item.thumbnailUrl}
-            brand={item.brandName}
-            name={item.productName}
-            option={optionWithQuantity(item.optionName, item.quantity)}
-            price={won(item.amount)}
+          <TrackingHeadline
+            date={tracking.headline.date ? formatShortMonthDayWeekday(tracking.headline.date) : undefined}
+            text={tracking.headline.text}
+            sub={tracking.headline.sub}
           />
-        </View>
-        {hasContext && !!tracking.contextNote && (
-          <View
-            className="mx-14 rounded-base bg-band"
-            style={{ marginTop: 14, paddingVertical: 11, paddingHorizontal: 13 }}
-          >
-            <Typography style={{ fontSize: 12.5, lineHeight: 20 }} className="text-ink76">
-              {tracking.contextNote}
-            </Typography>
+
+          <StageBar labels={STAGES} current={tracking.stageIndex} />
+
+          <Band marginTop={22} />
+
+          <View className="flex-row items-baseline justify-between px-14" style={{ paddingTop: 18, gap: 10 }}>
+            <View className="min-w-0 flex-row items-center" style={{ gap: 7 }}>
+              {hasContext && (
+                <View className="rounded-base bg-fill px-8 py-4">
+                  <Typography variant="badge" className="text-gray45">
+                    {tracking.contextLabel}
+                  </Typography>
+                </View>
+              )}
+              <Typography style={{ fontSize: 14, fontWeight: "700", lineHeight: 18.2 }} className="text-ink">
+                {formatOrderDate(tracking.orderedAt)} 주문
+              </Typography>
+            </View>
+            <UnderlineLink
+              label="주문 상세"
+              onPress={() => open(COMMON_ROUTES.ORDER_DETAIL, { orderId: tracking.orderId })}
+            />
           </View>
-        )}
 
-        <Band marginTop={20} />
+          <View className="px-14 pt-12">
+            <ProductLine
+              thumbnailUrl={item.thumbnailUrl}
+              brand={item.brandName}
+              name={item.productName}
+              option={optionWithQuantity(item.optionName, item.quantity)}
+              price={won(item.amount)}
+            />
+          </View>
+          {hasContext && !!tracking.contextNote && (
+            <View
+              className="mx-14 rounded-base bg-band"
+              style={{ marginTop: 14, paddingVertical: 11, paddingHorizontal: 13 }}
+            >
+              <Typography style={{ fontSize: 12.5, lineHeight: 20 }} className="text-ink76">
+                {tracking.contextNote}
+              </Typography>
+            </View>
+          )}
 
-        {isNotShipped ? (
-          /*
+          <Band marginTop={20} />
+
+          {isNotShipped ? (
+            /*
             추적할 것이 없는 상태 — 송장·이력·전화 버튼을 감추고 왜 없는지와 언제 생기는지로 채운다.
             「송장번호 —」 같은 빈 행을 남기면 발급 누락처럼 보인다.
           */
-          <>
-            <View className="px-14 pt-18" style={{ gap: 9 }}>
-              {!!tracking.shipDueAt && (
-                <KeyValueRow label="발송 예정" value={`${formatMonthDayWeekday(tracking.shipDueAt)} 예정`} />
-              )}
-              {!!tracking.groupBuyEndAt && (
-                <KeyValueRow label="공구 마감" value={formatDeadline(tracking.groupBuyEndAt)} />
-              )}
-            </View>
-            <NoticeBox style={{ marginTop: 18 }}>
-              <Typography style={{ fontSize: 12.5, lineHeight: 20 }} className="text-ink76">
-                공동구매는{" "}
-                <Typography
-                  style={{ fontSize: 12.5, fontWeight: "600", lineHeight: 20 }}
-                  className="text-ink76"
-                >
-                  마감 후 일괄 발송
+            <>
+              <View className="px-14 pt-18" style={{ gap: 9 }}>
+                {!!tracking.shipDueAt && (
+                  <KeyValueRow
+                    label="발송 예정"
+                    value={`${formatMonthDayWeekday(tracking.shipDueAt)} 예정`}
+                  />
+                )}
+                {!!tracking.groupBuyEndAt && (
+                  <KeyValueRow label="공구 마감" value={formatDeadline(tracking.groupBuyEndAt)} />
+                )}
+              </View>
+              <NoticeBox style={{ marginTop: 18 }}>
+                <Typography style={{ fontSize: 12.5, lineHeight: 20 }} className="text-ink76">
+                  공동구매는{" "}
+                  <Typography
+                    style={{ fontSize: 12.5, fontWeight: "600", lineHeight: 20 }}
+                    className="text-ink76"
+                  >
+                    마감 후 일괄 발송
+                  </Typography>
+                  돼요. 마감 전에는 송장이 생기지 않습니다.
                 </Typography>
-                돼요. 마감 전에는 송장이 생기지 않습니다.
-              </Typography>
-            </NoticeBox>
-          </>
-        ) : (
-          <>
-            <CarrierRows carrier={tracking.carrier} trackingNumber={tracking.trackingNumber} />
-            <CarrierButtons carrier={tracking.carrier} />
+              </NoticeBox>
+            </>
+          ) : (
+            <>
+              <CarrierRows carrier={tracking.carrier} trackingNumber={tracking.trackingNumber} />
+              <CarrierButtons carrier={tracking.carrier} />
 
-            <Band marginTop={20} />
+              <Band marginTop={20} />
 
-            {scanRows.length > 0 && <Timeline rows={collapsible.visible} />}
-            <DisclaimerLine text="택배사 배송 추적 정보로, 실제 배송 현황과 차이가 있을 수 있어요." />
-            {collapsible.canToggle && (
-              <ToggleRowsButton
-                isOpen={collapsible.isOpen}
-                total={scanRows.length}
-                onPress={collapsible.toggle}
-              />
-            )}
-          </>
-        )}
+              {scanRows.length > 0 && <Timeline rows={collapsible.visible} />}
+              <DisclaimerLine text="택배사 배송 추적 정보로, 실제 배송 현황과 차이가 있을 수 있어요." />
+              {collapsible.canToggle && (
+                <ToggleRowsButton
+                  isOpen={collapsible.isOpen}
+                  total={scanRows.length}
+                  onPress={collapsible.toggle}
+                />
+              )}
+            </>
+          )}
 
-        {/* 「배송완료인데 못 받았다」처럼 앱이 답해야 하는 질문은 배송완료 구간에서 생긴다 */}
-        {isDelivered && (
-          <>
-            <Band marginTop={22} />
-            <SectionTitle title="배송 관련 안내" />
-            <View style={{ paddingTop: 8 }}>
-              {buildFaq(tracking?.item.shipLeadBusinessDays).map(faq => (
-                <Accordion key={faq.q} title={faq.q} body={faq.a} withMarker={false} />
-              ))}
-            </View>
-          </>
-        )}
+          {/* 「배송완료인데 못 받았다」처럼 앱이 답해야 하는 질문은 배송완료 구간에서 생긴다 */}
+          {isDelivered && (
+            <>
+              <Band marginTop={22} />
+              <SectionTitle title="배송 관련 안내" />
+              <View style={{ paddingTop: 8 }}>
+                {buildFaq(tracking?.item.shipLeadBusinessDays).map(faq => (
+                  <Accordion key={faq.q} title={faq.q} body={faq.a} withMarker={false} />
+                ))}
+              </View>
+            </>
+          )}
 
-        <View className="h-30" />
-        <BottomSafeSpacer />
-      </ScrollView>
+          <View className="h-30" />
+          <BottomSafeSpacer />
+        </ScrollView>
+      </LoadGate>
     </View>
   );
 }

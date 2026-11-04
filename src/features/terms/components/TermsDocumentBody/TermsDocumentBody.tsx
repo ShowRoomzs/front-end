@@ -2,8 +2,9 @@ import { useMemo } from "react";
 import { ScrollView, View } from "react-native";
 
 import InfoBanner from "@/common/components/InfoBanner/InfoBanner";
-import Spinner from "@/common/components/Spinner/Spinner";
+import Skeleton from "@/common/components/Skeleton/Skeleton";
 import Typography from "@/common/components/Typography/Typography";
+import TermsBodySkeleton from "@/features/terms/components/TermsBodySkeleton/TermsBodySkeleton";
 import { useGetTermsDetail, useGetTermsList } from "@/features/terms/hooks/useGetTerms";
 import { TermsType } from "@/features/terms/types/terms";
 
@@ -41,9 +42,9 @@ export default function TermsDocumentBody(props: TermsDocumentBodyProps) {
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center">
-        <Spinner />
-      </View>
+      <Skeleton>
+        <TermsBodySkeleton />
+      </Skeleton>
     );
   }
 

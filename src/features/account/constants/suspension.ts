@@ -48,7 +48,7 @@ export function formatSuspendedAt(value: string | null) {
  * (한국 10-17 00:00 = `2026-10-16T15:00:00Z`). 시간대가 없으면 앞 10자리를 그대로 쓴다
  */
 export function toKstDateKey(value: string) {
-  const hasZone = /(Z|[+-]d{2}:?d{2})$/.test(value);
+  const hasZone = /(Z|[+-]\d{2}:?\d{2})$/.test(value);
   const epoch = Date.parse(value);
 
   if (!hasZone || Number.isNaN(epoch)) {

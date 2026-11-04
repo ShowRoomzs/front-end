@@ -13,6 +13,7 @@ import { useBottomSheetContext } from "@/common/providers/BottomSheetProvider";
 import { Thumb } from "@/features/order/components/OrderParts/OrderParts";
 import { useGetOrderList } from "@/features/order/hooks/useOrderQueries";
 import { OrderCard } from "@/features/order/types/order";
+import { formatDotDate, toKstDateKey } from "@/features/order/utils/orderFormat";
 
 /**
  * C12 문의 작성의 [관련 주문 (선택)].
@@ -45,9 +46,9 @@ const ORDER_SHEET_ID = "inquiry-order";
 const MIN_BOTTOM_PADDING = 20;
 const RECENT_MONTHS = 6;
 
-/** 2026-08-03T… → 2026.08.03 */
+/** 서버 시각(UTC · `…Z`) → 한국 날짜 「2026.08.03」 */
 export function formatInquiryOrderDate(value: string | null | undefined) {
-  return value ? value.slice(0, 10).replace(/-/g, ".") : null;
+  return formatDotDate(value) || null;
 }
 
 /** 주문 한 건을 시트 행 · 요약 카드로 — 상품이 여럿이면 첫 상품에 `외 N건`을 붙인다 */
@@ -158,7 +159,7 @@ interface InquiryOrderSheetProps {
   onSelect: (selection: InquiryOrderSelection | null) => void;
 }
 
-/** 6개월 전 날짜 — `orderedAt` 앞 10자리와 문자열로 비교한다(서버 시각을 기기 시간대로 바꾸지 않는다) */
+/** 6개월 전 날짜 — `orderedAt`을 한국 날짜(`toKstDateKey`)로 바꿔 문자열로 비교한다 */
 function getCutoffDate() {
   const date = new Date();
 
@@ -175,7 +176,7 @@ function InquiryOrderSheet(props: InquiryOrderSheetProps) {
 
   const cutoff = useMemo(getCutoffDate, []);
   const orders = useMemo(
-    () => content.filter(order => order.orderedAt.slice(0, 10) >= cutoff),
+    () => content.filter(order => toKstDateKey(order.orderedAt) >= cutoff),
     [content, cutoff]
   );
 
@@ -186,7 +187,7 @@ function InquiryOrderSheet(props: InquiryOrderSheetProps) {
   const lastOrderedAt = content.at(-1)?.orderedAt;
 
   useEffect(() => {
-    if (hasNextPage && !isFetchingNextPage && lastOrderedAt && lastOrderedAt.slice(0, 10) >= cutoff) {
+    if (hasNextPage && !isFetchingNextPage && lastOrderedAt && toKstDateKey(lastOrderedAt) >= cutoff) {
       void fetchNextPage();
     }
   }, [cutoff, fetchNextPage, hasNextPage, isFetchingNextPage, lastOrderedAt]);

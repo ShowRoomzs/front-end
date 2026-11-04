@@ -6,9 +6,9 @@ import { formatPrice } from "@/common/utils/formatPrice";
 /**
  * 주문 화면의 날짜·금액·오류 표기.
  *
- * 주문·클레임 API 시각은 `yyyy-MM-dd'T'HH:mm:ss` **KST · 오프셋 없음**이다(back-end `OrderDto.TIME_PATTERN`).
- * `new Date(문자열)`로 읽으면 기기 시간대에 따라 해석이 갈리므로 문자열을 **쪼개서** 쓴다.
- * 전역 직렬화(`JacksonConfig`)를 타는 값은 `…Z`(UTC)로 오므로, 시간대가 붙은 값만 KST로 옮겨 읽는다.
+ * 주문·클레임 API 시각은 `yyyy-MM-dd'T'HH:mm:ss'Z'` **UTC**다(back-end `OrderDto.TIME_PATTERN`, 58 계획 1-6 ①).
+ * 시간대가 붙은 값은 KST로 옮겨 읽고, 붙지 않은 값(옛 응답 · 목업)만 문자열을 쪼개 벽시계 그대로 쓴다.
+ * 날짜만 필요해도 문자열 앞 10자리를 자르지 말 것 — 한국 0~9시 주문이 전날로 보인다.
  */
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
@@ -94,6 +94,20 @@ export function formatDateTimeFull(value: string | null | undefined): string {
   const p = parse(value);
 
   return p ? `${p.year}-${pad(p.month)}-${pad(p.day)} ${pad(p.hour)}:${pad(p.minute)}:${pad(p.second)}` : "";
+}
+
+/** 2026.09.16 — 문의 주문 선택 시트의 주문일 */
+export function formatDotDate(value: string | null | undefined): string {
+  const p = parse(value);
+
+  return p ? `${p.year}.${pad(p.month)}.${pad(p.day)}` : "";
+}
+
+/** 한국 날짜 「2026-09-16」 — 날짜끼리 문자열로 비교할 때 */
+export function toKstDateKey(value: string | null | undefined): string {
+  const p = parse(value);
+
+  return p ? `${p.year}-${pad(p.month)}-${pad(p.day)}` : "";
 }
 
 /** 09.16 */

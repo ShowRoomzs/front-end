@@ -166,7 +166,7 @@ export default function LikeView() {
               countLabel={
                 isFirstLoading
                   ? "좋아요한 게시물"
-                  : `좋아요한 게시물 ${pageInfo?.totalElements ?? content.length}`
+                  : `좋아요한 게시물 ${pageInfo?.totalResults ?? content.length}`
               }
               sortLabel={LIKED_POST_SORT_LABEL[sort]}
               paddingBottom={4}

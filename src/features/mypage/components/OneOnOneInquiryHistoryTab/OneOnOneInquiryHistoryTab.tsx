@@ -116,7 +116,7 @@ export default function OneOnOneInquiryHistoryTab() {
     [handlePressItem, handlePressMore]
   );
 
-  const total = pageInfo?.totalElements ?? inquiries.length;
+  const total = pageInfo?.totalResults ?? inquiries.length;
 
   return (
     <PagingList<InquiryHistory>

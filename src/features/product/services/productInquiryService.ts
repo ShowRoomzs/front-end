@@ -16,19 +16,13 @@ import {
  */
 const PUBLIC_INQUIRY_PAGE_SIZE = 100;
 
-/** 서버 공통 `PageResponse` — 앱 공통 타입과 pageInfo 키가 다르다(`totalResults`) */
-interface PublicProductInquiryPage {
-  content: Array<PublicProductInquiry>;
-  pageInfo: { totalResults: number; hasNext: boolean };
-}
-
 export const productInquiryService = {
   /**
    * 상품 상세에 공개되는 문의 목록 (C7 문의 탭 · C7-2 문의 전체). 비로그인도 열린다 — 로그인했으면
    * 내 비밀글의 본문 · 답변이 함께 온다.
    */
   getPublicList: async (productId: number): Promise<PublicProductInquiryList> => {
-    const { data: response } = await apiInstance.get<PublicProductInquiryPage>(
+    const { data: response } = await apiInstance.get<PageResponse<PublicProductInquiry>>(
       `/common/products/${productId}/inquiries`,
       { params: { page: 1, size: PUBLIC_INQUIRY_PAGE_SIZE } }
     );

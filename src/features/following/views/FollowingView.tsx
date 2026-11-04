@@ -198,7 +198,7 @@ export default function FollowingView() {
           isEmpty ? null : (
             <ListHeaderBar
               countLabel={
-                isFirstLoading ? "팔로잉 쇼룸" : `팔로잉 쇼룸 ${pageInfo?.totalElements ?? content.length}`
+                isFirstLoading ? "팔로잉 쇼룸" : `팔로잉 쇼룸 ${pageInfo?.totalResults ?? content.length}`
               }
               sortLabel={FOLLOWING_SHOWROOM_SORT_LABEL[sort]}
               onPressSort={openSortSheet}

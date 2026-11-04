@@ -43,17 +43,7 @@ export function useGetOrderList(enabled = true) {
     queryFn: async page => {
       const response = await orderService.getList(page);
 
-      return {
-        content: response.content,
-        pageInfo: {
-          currentPage: response.pageInfo.currentPage,
-          hasNext: response.pageInfo.hasNext,
-          isLast: !response.pageInfo.hasNext,
-          pageSize: response.pageInfo.limit,
-          totalElements: response.pageInfo.totalResults,
-          totalPages: response.pageInfo.totalPages,
-        },
-      } satisfies PageResponse<OrderCard>;
+      return { content: response.content, pageInfo: response.pageInfo } satisfies PageResponse<OrderCard>;
     },
     enabled,
     staleTime: 0,

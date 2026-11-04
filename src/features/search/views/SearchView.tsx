@@ -209,7 +209,7 @@ export default function SearchView() {
             label={
               isLoading && content.length === 0
                 ? "검색 결과"
-                : `검색 결과 ${pageInfo?.totalElements ?? content.length}`
+                : `검색 결과 ${pageInfo?.totalResults ?? content.length}`
             }
             className="pb-4 pt-16"
           />

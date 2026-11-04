@@ -63,9 +63,9 @@ function PagingListInner<T>(props: PagingListProps<T>, ref: Ref<FlatList<T>>) {
         return;
       }
 
-      const { hasNext, isLast } = pageInfo;
+      const { hasNext } = pageInfo;
 
-      if (!hasNext || isLast) {
+      if (!hasNext) {
         return;
       }
 

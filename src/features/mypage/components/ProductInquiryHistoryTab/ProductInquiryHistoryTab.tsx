@@ -110,7 +110,7 @@ export default function ProductInquiryHistoryTab() {
     [handlePressMore]
   );
 
-  const total = pageInfo?.totalElements ?? inquiries.length;
+  const total = pageInfo?.totalResults ?? inquiries.length;
 
   return (
     <PagingList<ProductInquiryHistory>

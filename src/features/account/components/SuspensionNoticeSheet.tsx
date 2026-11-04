@@ -106,7 +106,7 @@ export default function SuspensionNoticeSheet(props: SuspensionNoticeSheetProps)
       </View>
 
       <Typography style={{ fontSize: 12, lineHeight: 19.8 }} className="px-20 pt-12 text-gray45">
-        {`이의 신청 기한: 통지 후 3영업일 이상${deadline ? `(${deadline}까지)` : ""} · 1:1 문의로 알려주세요. 확인 후 답변드려요.`}
+        {`이의 신청 기한: 통지 후 ${term?.appealBusinessDays ?? 3}영업일 이상${deadline ? `(${deadline}까지)` : ""} · 1:1 문의로 알려주세요. 확인 후 답변드려요.`}
       </Typography>
 
       <View className="flex-row px-20" style={{ paddingTop: 18, gap: 8 }}>

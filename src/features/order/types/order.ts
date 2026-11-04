@@ -358,6 +358,10 @@ export interface TrackingResponse {
   orderedAt: string;
   orderId: number;
   item: {
+    /** 상품 상세로 가는 키 — 모르면 null */
+    productId?: number | null;
+    /** 발송 기한 영업일 — 주문 시점 값(C10-2 FAQ 「영업일 N일 내 발송」). 모르면 null */
+    shipLeadBusinessDays?: number | null;
     brandName: string | null;
     productName: string;
     optionName: string | null;

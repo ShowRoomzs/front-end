@@ -167,7 +167,7 @@ export default function NotificationView() {
         markRead(item.notificationId);
       }
     }
-    const { type, id, sub } = item.target;
+    const { type, id, sub, orderId } = item.target;
 
     switch (type) {
       case "CLAIM":
@@ -183,9 +183,11 @@ export default function NotificationView() {
         return sub === "PRODUCT"
           ? goMypage(MYPAGE_ROUTES.INQUIRY_HISTORY)
           : id && goMypage(MYPAGE_ROUTES.INQUIRY_DETAIL, { inquiryId: id });
-      // 하위주문(배송 그룹) id로는 주문 상세를 열 수 없다 — 주문 내역으로 보낸다
+      // `id`는 하위주문(배송 그룹) id라 주문 상세는 `orderId`로 연다 — 옛 알림처럼 없으면 주문 내역으로
       case "ORDER_GROUP":
-        return goMypage(MYPAGE_ROUTES.ORDER_AND_DELIVERY_SEARCH);
+        return orderId
+          ? navigation.navigate(COMMON_ROUTES.ORDER_DETAIL, { orderId })
+          : goMypage(MYPAGE_ROUTES.ORDER_AND_DELIVERY_SEARCH);
       case "SETTINGS":
         return goMypage(MYPAGE_ROUTES.SETTINGS);
       case "ACCOUNT_STATUS":

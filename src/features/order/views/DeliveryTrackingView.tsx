@@ -35,7 +35,7 @@ import {
 import TrackingStallBlock from "@/features/order/components/TrackingStallBlock/TrackingStallBlock";
 import { ORDER_QUERY_KEY } from "@/features/order/constants/queryKey";
 import { useOrderNavigation } from "@/features/order/hooks/useOrderNavigation";
-import { useGetOrderDetail, useGetTracking } from "@/features/order/hooks/useOrderQueries";
+import { useGetTracking } from "@/features/order/hooks/useOrderQueries";
 import { orderService } from "@/features/order/services/orderService";
 import { StallChoice, StallChoiceResponse } from "@/features/order/types/order";
 import {
@@ -48,7 +48,6 @@ import {
   resolveErrorMessage,
   won,
 } from "@/features/order/utils/orderFormat";
-import { useGetProductDetail } from "@/features/product/hooks/useGetProductDetail";
 
 /**
  * C10-2 배송 조회 — **주문이 아니라 송장 하나**를 추적한다.
@@ -85,10 +84,10 @@ const FAQ = [
 ];
 
 /**
- * 발송 기한은 상품(브랜드)마다 다르다 — 상품 상세의 `shippingLeadDays`를 쓰고, 아직 모르면 숫자 없이 적는다.
- * 배송 조회 응답에 상품 id가 없어 주문 상세에서 찾아 상품 상세를 부른다(둘 다 보통 이미 캐시에 있다).
+ * 발송 기한은 상품(브랜드)마다 다르다 — 배송 조회 항목의 `shipLeadBusinessDays`(주문 시점 값)를 쓰고, 모르면 숫자 없이
+ * 적는다. 주문 뒤 브랜드가 설정을 바꿔도 그 주문의 약속은 그대로라 상품 상세의 현재 값을 쓰지 않는다.
  */
-function buildFaq(shippingLeadDays: number | undefined) {
+function buildFaq(shippingLeadDays: number | null | undefined) {
   return FAQ.map(faq =>
     faq.q === LEAD_DAYS_QUESTION
       ? {
@@ -133,9 +132,6 @@ export default function DeliveryTrackingView() {
   const navigation = useCommonNavigation();
   const { params } = useRoute<RouteProp<CommonStackParamList, typeof COMMON_ROUTES.DELIVERY_TRACKING>>();
   const { data: tracking, isLoading } = useGetTracking(params);
-  const { data: order } = useGetOrderDetail(params.orderId);
-  const productId = order?.items.find(item => item.orderProductId === params.orderProductId)?.productId ?? 0;
-  const { data: product } = useGetProductDetail(productId);
   const { open } = useOrderNavigation();
 
   const [devStall, setDevStall] = useState<DevStallMock>("OFF");
@@ -302,7 +298,7 @@ export default function DeliveryTrackingView() {
             <Band marginTop={22} />
             <SectionTitle title="배송 관련 안내" />
             <View style={{ paddingTop: 8 }}>
-              {buildFaq(product?.delivery?.shippingLeadDays).map(faq => (
+              {buildFaq(tracking?.item.shipLeadBusinessDays).map(faq => (
                 <Accordion key={faq.q} title={faq.q} body={faq.a} withMarker={false} />
               ))}
             </View>

@@ -4,7 +4,8 @@
  * 소비자에게는 시행 중인 버전의 원문만 내려온다. 시행 예정 버전은 시행일 00:00 전까지 노출되지
  * 않고, 과거 버전도 내려오지 않는다 — 화면이 버전을 고르는 UI를 가질 이유가 없다.
  */
-export type TermsType = "TERMS_OF_SERVICE" | "PRIVACY_POLICY" | "MARKETING_CONSENT";
+/** OPERATION_POLICY 운영정책은 열람 전용 — 가입 동의 대상이 아니다(백엔드 58 5-2) */
+export type TermsType = "TERMS_OF_SERVICE" | "PRIVACY_POLICY" | "MARKETING_CONSENT" | "OPERATION_POLICY";
 export type TermsTarget = "USER" | "CREATOR" | "SELLER";
 
 export interface TermsDocument {

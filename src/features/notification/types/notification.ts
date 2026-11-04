@@ -33,7 +33,13 @@ export interface NotificationItem {
   /** 굵게 둘 부분(상품명 · 쇼룸명 · 금액) — `title` 안의 부분 문자열 */
   emphasis: string | null;
   /** 누르면 갈 곳 — 없으면 이동하지 않는다. `sub`는 문의 종류(ONE_TO_ONE · PRODUCT) 등 */
-  target: { type: NotificationTargetType | null; id: number | null; sub: string | null };
+  target: {
+    type: NotificationTargetType | null;
+    id: number | null;
+    sub: string | null;
+    /** ORDER_GROUP일 때만 — 하위주문(`id`)이 속한 주문 id(백엔드 58 4-5) */
+    orderId?: number | null;
+  };
   imageKind: NotificationImageKind | null;
   imageUrl: string | null;
   /** AVATAR — 그 쇼룸에 진행 중인 공구가 있으면 로즈 링 */

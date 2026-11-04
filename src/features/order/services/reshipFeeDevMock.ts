@@ -11,8 +11,8 @@ import { ClaimDetailResponse } from "@/features/order/types/claim";
  * 값은 시안 그대로다 — 재발송 배송비 3,000원 · 결제 기한 14일 · 미결제 보관 3개월.
  *
  * 「착불」 두 가지는 불량 · 오배송(착불)으로 보냈다가 반려된 경우다(1021 기-93) — 브랜드가 낸 착불 운임 3,000원을
- * 전체 반려는 재발송 배송비와 합쳐 결제하고(6,000원), 일부 반려는 환불액에서 함께 뺀다. 서버가 이 금액을 아직
- * 내리지 않아(`ClaimReshipFee.collectFreight`) 목업으로만 확인한다.
+ * 전체 반려는 재발송 배송비와 합쳐 결제하고(6,000원), 일부 반려는 환불액에서 함께 뺀다. 서버와 같은 꼴로
+ * `amount`는 합계, `reshipFee` · `collectFreight`는 그 분해다(백엔드 58 2-4).
  */
 export type DevReshipMock = "OFF" | "PAYABLE" | "OVERDUE" | "PAID" | "PAYABLE_COLLECT" | "DEDUCTED_COLLECT";
 
@@ -82,7 +82,9 @@ export function applyDevReshipMock(
     info: { ...detail.info, reshipInvoice: null },
     reshipFee: {
       state: isPaid ? "PAID" : "PAYABLE",
-      amount: AMOUNT,
+      amount: isCollect ? AMOUNT * 2 : AMOUNT,
+      reshipFee: AMOUNT,
+      collectFreight: isCollect ? AMOUNT : 0,
       dueDate: isPaid ? null : kstDate(isOverdue ? -1 : 14),
       overdue: isOverdue,
       settledAt: isPaid ? serverNow() : null,
@@ -90,10 +92,11 @@ export function applyDevReshipMock(
       storage: isOverdue
         ? { noticeCount: 2, storageDueAt: kstEndOfDay(kstDate(90)), phase: "STORING" }
         : null,
-      ...(isCollect ? { collectFreight: AMOUNT } : {}),
     },
     // 반품 전체 반려는 환불액이 없다 — 착불 운임은 결제로 받는다
-    ...(isCollect && detail.refund ? { refund: { ...detail.refund, amount: 0, reshipDeduction: 0 } } : {}),
+    ...(isCollect && detail.refund
+      ? { refund: { ...detail.refund, amount: 0, reshipDeduction: 0, collectFreightDeduction: 0 } }
+      : {}),
   };
 }
 
@@ -111,7 +114,8 @@ function applyDeductedCollect(detail: ClaimDetailResponse): ClaimDetailResponse 
     ...detail,
     reshipFee: {
       state: "DEDUCTED",
-      amount: AMOUNT,
+      amount: AMOUNT * 2,
+      reshipFee: AMOUNT,
       dueDate: null,
       overdue: false,
       settledAt: null,
@@ -124,6 +128,7 @@ function applyDeductedCollect(detail: ClaimDetailResponse): ClaimDetailResponse 
       returnDeduction: detail.refund?.returnDeduction ?? 0,
       approvedAmount,
       reshipDeduction: AMOUNT,
+      collectFreightDeduction: AMOUNT,
       amount: Math.max(0, approvedAmount - (detail.refund?.returnDeduction ?? 0) - AMOUNT * 2),
       confirmed: false,
       refundMethodLabel: detail.refund?.refundMethodLabel ?? "신한카드 결제 취소",

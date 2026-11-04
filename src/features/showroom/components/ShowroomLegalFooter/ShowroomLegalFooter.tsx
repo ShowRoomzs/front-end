@@ -3,7 +3,6 @@ import Svg, { Circle, Path } from "react-native-svg";
 
 import Typography from "@/common/components/Typography/Typography";
 import { BUSINESS_INFO } from "@/common/constants/business";
-import { toast } from "@/common/providers/ToastProvider";
 import { useCommonNavigation, useMainNavigation, useMypageNavigation } from "@/common/router";
 import { COMMON_ROUTES, HOME_ROUTES, MYPAGE_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 
@@ -47,10 +46,10 @@ export default function ShowroomLegalFooter() {
       onPress: () => commonNavigation.navigate(COMMON_ROUTES.TERMS_DOCUMENT, { termsType: "PRIVACY_POLICY" }),
     },
     {
-      // ⚠️ 운영정책 문서가 아직 없다 — 서버 약관 유형이 이용약관 · 개인정보 처리방침 · 마케팅 동의 3종뿐이다
       key: "policy",
       label: "운영정책",
-      onPress: () => toast.show("운영정책을 준비하고 있어요"),
+      onPress: () =>
+        commonNavigation.navigate(COMMON_ROUTES.TERMS_DOCUMENT, { termsType: "OPERATION_POLICY" }),
     },
     {
       // 게시물 하나를 특정할 수 없는 자리라 신고 화면이 아니라 접수 창구로 보낸다.

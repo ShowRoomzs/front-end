@@ -20,6 +20,8 @@ export interface SuspensionTerm {
   appealDeadlineAt: string | null;
   /** 소명 검토 N영업일 — 미정이면 null */
   appealReviewBusinessDays: number | null;
+  /** 이의 신청 기한 영업일 수 — 「통지 후 N영업일 이상」(백엔드 58 6-1) */
+  appealBusinessDays?: number;
 }
 
 export interface Suspension {

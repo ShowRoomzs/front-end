@@ -438,8 +438,10 @@ export default function ClaimDetailView() {
           교환 사유 번복 청구(OVERTURN_RESHIP)는 서버가 `reshipFee`로도 함께 내린다 — 결제 블록은 위 검수 판정이
           맡으므로 「상품 다시 받기」를 또 그리지 않는다(결제 수단 선택이 두 번 생긴다)
         */}
+        {/* CANCELLED(결제 취소 · 소멸)는 청구가 없어졌다 — 시안에 그릴 문구가 없어 블록을 두지 않는다 */}
         {!!reshipFee &&
           reshipFee.state !== "WAITING" &&
+          reshipFee.state !== "CANCELLED" &&
           detail.inspection?.state !== "OVERTURN_PAYMENT_PENDING" && (
             <ReshipFeeBlock
               reshipFee={reshipFee}
@@ -745,16 +747,24 @@ function RejectionBlock(props: { item: ClaimDetailItem }) {
 }
 
 /**
- * 재발송비를 결제받을 수 있는가 — 서버는 0원 청구(브랜드 부담 · 기본 배송비 0원)도 `PAYABLE`로 내린다
- * (back-end `UserClaimQueryService.reshipFee`가 `WAIVED`를 따로 나누지 않는다). 0원은 결제할 것이 없으므로 막는다.
+ * 재발송비를 결제받을 수 있는가 — 브랜드 부담(0원)은 서버가 `WAIVED`로 내리지만(백엔드 58 3-1), 기본 배송비가
+ * 0원인 `PAYABLE`도 결제할 것이 없으므로 막는다.
  */
 function isReshipPayable(reshipFee: ClaimReshipFee) {
   return reshipFee.state === "PAYABLE" && reshipTotal(reshipFee) > 0;
 }
 
-/** 다시 받는 데 낼 금액 — 재발송 배송비 + (착불로 보냈다가 반려되면) 브랜드가 낸 착불 운임 */
+/**
+ * 다시 받는 데 낼 금액 — 서버 `amount`가 재발송 배송비 + (착불로 보냈다가 반려되면) 착불 운임의 합계다.
+ * 결제 요청의 `expectedAmount`도 이 값이어야 한다(다르면 409).
+ */
 function reshipTotal(reshipFee: ClaimReshipFee | null | undefined) {
-  return (reshipFee?.amount ?? 0) + (reshipFee?.collectFreight ?? 0);
+  return reshipFee?.amount ?? 0;
+}
+
+/** 합계에서 착불 운임을 뺀 재발송 배송비 — 옛 응답(`reshipFee` 없음)이면 합계에서 착불 운임을 뺀다 */
+function reshipOnly(reshipFee: ClaimReshipFee) {
+  return reshipFee.reshipFee ?? Math.max(0, reshipTotal(reshipFee) - (reshipFee.collectFreight ?? 0));
 }
 
 /** 교환 사유 번복으로 결제가 남았는가 */
@@ -790,7 +800,7 @@ function OverdueNotice(props: { dueDate: string | null; expired: boolean }) {
   );
 }
 
-/** 「상품 다시 받기」 — 결제 필요 · 차감 · 충당 · 결제 완료 · 0원 */
+/** 「상품 다시 받기」 — 결제 필요 · 차감 · 충당 · 결제 완료 · 0원(브랜드 부담 포함) */
 function ReshipFeeBlock(props: {
   reshipFee: ClaimReshipFee;
   kw: string;
@@ -799,7 +809,7 @@ function ReshipFeeBlock(props: {
   onChangePayment: (next: Partial<PaymentSelection>) => void;
 }) {
   const { reshipFee, kw, items, payment, onChangePayment } = props;
-  const amount = won(reshipFee.amount ?? 0);
+  const amount = won(reshipOnly(reshipFee));
   const collect = reshipFee.collectFreight ?? 0;
   const storagePhase = reshipFee.storage?.phase;
   // 보관 기한 줄 — 기한 전에는 결제 기한이 곧 보관 기한이고, 기한이 지나면 서버가 정한 보관 기한(보관 중일 때만)
@@ -906,8 +916,7 @@ function ReshipFeeBlock(props: {
           )}
         </>
       )}
-      {reshipFee.state === "PAYABLE" &&
-        !isReshipPayable(reshipFee) &&
+      {(reshipFee.state === "WAIVED" || (reshipFee.state === "PAYABLE" && !isReshipPayable(reshipFee))) &&
         confirmBox(
           `${kw}이 반려된 상품을 다시 보내드려요`,
           "재발송 배송비는 없어요. 추가 결제 없이 보내드려요."
@@ -941,9 +950,10 @@ function RefundSection(props: {
 }) {
   const refund = props.detail.refund!;
   const inspection: ClaimInspection | null = props.detail.inspection ?? null;
+  // 사유 번복은 검수 판정 블록의 착불 운임, 착불 신청 반려는 서버가 나눠 준 차감액(`reshipDeduction`과 따로)
   const collectFreight =
     (inspection?.state === "REASON_OVERTURNED" ? inspection.freight.collectFreight : 0) ||
-    (props.detail.reshipFee?.state === "DEDUCTED" ? (props.detail.reshipFee.collectFreight ?? 0) : 0);
+    (refund.collectFreightDeduction ?? 0);
   const isFaultChanged = inspection?.state === "FAULT_CHANGED";
   const freightRefund = isFaultChanged
     ? inspection.freight.initialFeeRestored + inspection.freight.prepaidFreightRefund

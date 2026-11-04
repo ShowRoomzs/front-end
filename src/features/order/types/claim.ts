@@ -288,7 +288,10 @@ export interface ClaimRefund {
   rejectedAmount: number | null;
   returnDeduction: number;
   approvedAmount: number;
+  /** 반려 상품 재발송 배송비 차감 — 착불 운임은 `collectFreightDeduction`으로 따로 온다 */
   reshipDeduction: number;
+  /** 착불로 보냈다가 반려된 상품의 착불 운임 차감(1021 기-93) — 없으면 0 */
+  collectFreightDeduction?: number;
   amount: number;
   /** false면 「환불 예정 금액」, true면 「환불 금액」 */
   confirmed: boolean;
@@ -302,11 +305,15 @@ export interface ClaimExchangePayment {
   methodLabel: string;
 }
 
-export type ReshipFeeState = "PAYABLE" | "WAITING" | "PAID" | "DEDUCTED" | "COVERED";
+/** WAIVED 브랜드 부담(귀책 변경 · 0원) · CANCELLED 결제 취소 · 소멸 — 둘 다 결제하지 않는다 */
+export type ReshipFeeState = "PAYABLE" | "WAITING" | "PAID" | "DEDUCTED" | "COVERED" | "WAIVED" | "CANCELLED";
 
 export interface ClaimReshipFee {
   state: ReshipFeeState;
+  /** 결제(또는 차감)할 합계 = `reshipFee` + `collectFreight` */
   amount: number | null;
+  /** 재발송 배송비 — 합계에서 착불 운임을 뺀 몫. WAITING이면 null */
+  reshipFee?: number | null;
   /** PAYABLE의 결제 기한 — 기한이 지나도 내려온다(`overdue`를 먼저 본다) */
   dueDate: string | null;
   /** 결제 기한이 지났다(PAYABLE일 때만 참) — 기한이 지나도 결제는 된다 */
@@ -319,11 +326,11 @@ export interface ClaimReshipFee {
     phase: "NOTICE_PENDING" | "STORING" | "EXPIRED";
   } | null;
   /**
-   * ⚠️ 서버 미제공(2026-10-24 main) — 착불(불량 · 오배송)로 신청했다가 검수에서 반려되면 브랜드가 낸 착불 운임을
-   * 소비자가 낸다(1021 기-93). 전체 반려는 재발송 배송비와 합쳐 결제, 일부 반려는 환불액에서 함께 차감한다.
-   * 서버가 금액을 내리기 전까지는 DEV 목업만 채운다 — 백엔드 요청 목록에 있다.
+   * 착불 운임 — 착불(불량 · 오배송)로 신청했다가 검수에서 반려 · 사유 번복되면 브랜드가 낸 착불 운임을 소비자가 낸다
+   * (1021 기-93). 전체 반려는 재발송 배송비와 합쳐 결제, 일부 반려는 환불액에서 함께 차감한다. 없으면 0 · WAITING이면 null.
+   * **`amount`에 이미 들어 있다** — 더하지 않는다.
    */
-  collectFreight?: number;
+  collectFreight?: number | null;
 }
 
 /** 검수 판정 — 검수 통과 · 사유 번복 · 검수 반려 */

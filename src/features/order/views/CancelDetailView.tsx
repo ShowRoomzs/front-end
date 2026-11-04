@@ -9,6 +9,7 @@ import Typography from "@/common/components/Typography/Typography";
 import { queryClient } from "@/common/lib/queryClient";
 import { useModal } from "@/common/providers/ModalProvider/context";
 import { toast } from "@/common/providers/ToastProvider";
+import { useGetPolicyValues } from "@/common/queries/useGetPolicyValues";
 import { useCommonNavigation } from "@/common/router";
 import { COMMON_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
@@ -63,6 +64,8 @@ export default function CancelDetailView() {
   const { show: showModal } = useModal();
   const { open } = useOrderNavigation();
   const { data: order } = useGetOrderDetail(orderId);
+  // 응답 기한은 서버 정책값(취소 요청 + N영업일) — 못 받으면 숫자 없이 적는다
+  const respondDays = useGetPolicyValues().data?.cancelRequestRespondBusinessDays;
 
   const {
     data: detail,
@@ -196,7 +199,7 @@ export default function CancelDetailView() {
           >
             <Typography style={{ fontSize: 12.5, lineHeight: 20 }} className="text-ink76">
               {isPending
-                ? "브랜드가 확인하고 있어요. 보통 1영업일 안에 결과를 알림으로 알려드려요."
+                ? `브랜드가 확인하고 있어요. ${respondDays ? `보통 ${respondDays}영업일 안에 ` : ""}결과를 알림으로 알려드려요.`
                 : "브랜드가 취소 요청을 거부했어요. 주문은 그대로 배송돼요."}
             </Typography>
           </View>

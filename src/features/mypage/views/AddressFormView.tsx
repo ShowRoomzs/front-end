@@ -177,12 +177,12 @@ export default function AddressFormView() {
     try {
       if (isEdit) {
         await updateAddressMutation.mutateAsync({ addressId, address: payload });
-        toast.success("배송지가 수정되었습니다");
+        toast.success("배송지를 저장했어요");
         onSaved?.(addressId ?? null);
       } else {
         const created = await addAddressMutation.mutateAsync(payload);
 
-        toast.success("배송지가 저장되었습니다");
+        toast.success("배송지를 저장했어요");
         onSaved?.(created?.id ?? null);
       }
       navigation.goBack();

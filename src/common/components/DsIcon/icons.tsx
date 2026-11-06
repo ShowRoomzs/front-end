@@ -392,6 +392,46 @@ export function SpeechBubbleIcon(props: DsIconProps) {
   );
 }
 
+/**
+ * 둥근 말풍선 + 점 셋 — C11 알림의 문의 답변(21 · #737373).
+ *
+ * 각진 `SpeechBubbleIcon`은 "답변이 들어갈 자리"(목록 미리보기 · 빈 상태)이고, 이건 "누가 말을 걸어 왔다"는
+ * 알림 쪽 그림이다. 시안이 둘을 다른 글리프로 그린다.
+ */
+export function ChatDotsIcon(props: DsIconProps) {
+  const { size, color, rest } = base({ ...props, size: props.size ?? 21, color: props.color ?? "#737373" });
+
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...rest}>
+      <Path
+        d="M12 4.5c4.4 0 8 2.9 8 6.6s-3.6 6.6-8 6.6c-.9 0-1.8-.1-2.6-.3L5.2 19.5l1-3.4C4.8 14.9 4 13.1 4 11.1c0-3.7 3.6-6.6 8-6.6z"
+        stroke={color}
+        strokeWidth={1.6}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <Path
+        d="M8.6 11.2h.01M12 11.2h.01M15.4 11.2h.01"
+        stroke={color}
+        strokeWidth={1.6}
+        strokeLinecap="round"
+      />
+    </Svg>
+  );
+}
+
+/** 문서 — C11 알림의 약관 · 서비스 고지(20 · #737373) */
+export function DocumentIcon(props: DsIconProps) {
+  const { size, color, rest } = base({ ...props, size: props.size ?? 20, color: props.color ?? "#737373" });
+
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" {...rest}>
+      <Path d="M6 4.5h9l3.5 3.5v11.5h-12.5z" stroke={color} strokeWidth={1.6} strokeLinejoin="miter" />
+      <Path d="M9 12.5h6M9 16h4" stroke={color} strokeWidth={1.6} />
+    </Svg>
+  );
+}
+
 /** 빈 상태 일러스트 — 배송지(50) · 지도 핀 */
 export function EmptyPinIcon(props: DsIconProps) {
   const { size, color, rest } = base({ ...props, size: props.size ?? 50, color: props.color ?? "#D8D8DA" });

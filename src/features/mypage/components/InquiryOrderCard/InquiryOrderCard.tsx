@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
-import { Image, View } from "react-native";
+import { Image, TouchableOpacity, View } from "react-native";
 
+import { ChevronRightIcon } from "@/common/components/DsIcon/icons";
 import Typography from "@/common/components/Typography/Typography";
 import { InquiryOrderSummary } from "@/features/inquiry/types/inquiry";
 
@@ -12,14 +13,18 @@ import { InquiryOrderSummary } from "@/features/inquiry/types/inquiry";
  * 무관해서, 빈 안내 블록이 오히려 잡음이 된다.
  *
  * 썸네일은 문의 맥락에선 보조 정보라 34(목록) · 44(상세)로 낮춘다.
+ *
+ * 상세(md)에서는 카드를 누르면 그 주문 상세로 간다 — 우측 셰브런으로 갈 곳이 있음을 알린다(시안 C12).
+ * 목록(sm)은 행 전체가 문의 상세로 가는 자리라 카드가 따로 눌리지 않는다.
  */
 interface InquiryOrderCardProps {
   order: InquiryOrderSummary;
   size?: "sm" | "md";
+  onPress?: () => void;
 }
 
 export default function InquiryOrderCard(props: InquiryOrderCardProps) {
-  const { order, size = "sm" } = props;
+  const { order, size = "sm", onPress } = props;
   const isSmall = size === "sm";
   const thumbSize = isSmall ? 34 : 44;
 
@@ -27,7 +32,10 @@ export default function InquiryOrderCard(props: InquiryOrderCardProps) {
   const productLabel = order.productCount > 1 ? `${productName} 외 ${order.productCount - 1}건` : productName;
 
   return (
-    <View
+    <TouchableOpacity
+      onPress={onPress}
+      disabled={!onPress}
+      activeOpacity={0.55}
       className={`flex-row items-center rounded-base ${isSmall ? "bg-band" : "border-[1px] border-borderButton"}`}
       style={{ gap: 9, paddingHorizontal: isSmall ? 10 : 12, paddingVertical: isSmall ? 9 : 11 }}
     >
@@ -58,6 +66,8 @@ export default function InquiryOrderCard(props: InquiryOrderCardProps) {
           {productLabel}
         </Typography>
       </View>
-    </View>
+
+      {!!onPress && <ChevronRightIcon size={15} />}
+    </TouchableOpacity>
   );
 }

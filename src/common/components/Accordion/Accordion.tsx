@@ -31,11 +31,11 @@ export default function Accordion(props: AccordionProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <View className="border-b-[0.5px] border-dividerProduct bg-white">
+    <View className="bg-white">
       <TouchableOpacity
         onPress={() => setIsOpen(prev => !prev)}
         activeOpacity={0.55}
-        className="flex-row items-start px-14 py-14"
+        className="flex-row items-start px-14 py-15"
         style={{ gap: 10 }}
       >
         {withMarker && (
@@ -47,7 +47,7 @@ export default function Accordion(props: AccordionProps) {
         <View className="min-w-0 flex-1">
           {!!label && (
             <Typography
-              style={{ fontSize: 11, fontWeight: "600", lineHeight: 16, marginBottom: 3 }}
+              style={{ fontSize: 11, fontWeight: "600", lineHeight: 11, marginBottom: 6 }}
               className="text-gray45"
             >
               {label}
@@ -77,7 +77,7 @@ export default function Accordion(props: AccordionProps) {
         <Animated.View
           entering={EXPAND_ENTERING}
           exiting={EXPAND_EXITING}
-          className="flex-row bg-band px-14 py-14"
+          className="flex-row bg-band px-14 pb-18 pt-14"
           style={{ gap: 10 }}
         >
           {withMarker && (
@@ -93,6 +93,9 @@ export default function Accordion(props: AccordionProps) {
           </Typography>
         </Animated.View>
       )}
+
+      {/* 구분선은 좌우 14 들여 그린다(시안 C16) — 행 사이를 끊되 화면을 가로지르는 선이 되지 않게 */}
+      <View className="mx-14 h-[0.5px] bg-dividerProduct" />
     </View>
   );
 }

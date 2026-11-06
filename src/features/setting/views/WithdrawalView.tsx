@@ -66,7 +66,7 @@ export default function WithdrawalView() {
               style={{ fontSize: 18, fontWeight: "700", lineHeight: 27, letterSpacing: -0.5 }}
               className="text-ink"
             >
-              {"더 나았던 이유를\n알려주실 수 있나요?"}
+              {"떠나시는 이유를\n알려주실 수 있나요?"}
             </Typography>
             <Typography style={{ fontSize: 13, lineHeight: 22.1, marginTop: 9 }} className="text-gray45">
               서비스 개선에만 사용하고 계정 정보와 분리해 보관합니다 · 선택하지 않아도 탈퇴할 수 있어요

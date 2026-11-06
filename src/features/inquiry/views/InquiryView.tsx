@@ -235,7 +235,7 @@ export default function InquiryView() {
         toast.success("문의가 수정되었습니다");
       } else {
         await createInquiry(requestData);
-        toast.success("1:1 문의가 접수되었습니다");
+        toast.success("문의가 등록되었어요");
       }
       if (sanctionAppeal) {
         // 답변 전 소명 id가 생겼다 — 다음 [이의 신청]은 새 작성 대신 이 문의로 간다

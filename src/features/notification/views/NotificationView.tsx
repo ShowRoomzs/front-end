@@ -7,7 +7,7 @@ import Svg, { Path } from "react-native-svg";
 import Avatar from "@/common/components/Avatar/Avatar";
 import ComingSoonView from "@/common/components/ComingSoon/ComingSoonView";
 import DevMockSwitch from "@/common/components/DevMockSwitch/DevMockSwitch";
-import { BellIcon, SpeechBubbleIcon } from "@/common/components/DsIcon/icons";
+import { BellIcon, ChatDotsIcon, DocumentIcon } from "@/common/components/DsIcon/icons";
 import EmptyState from "@/common/components/EmptyState/EmptyState";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import { SkeletonBlock, SkeletonOverlay, SkeletonRepeat } from "@/common/components/Skeleton/Skeleton";
@@ -266,6 +266,7 @@ export default function NotificationView() {
                   <NoticeBar
                     text="팔로우한 쇼룸의 새 공구 알림은 광고성 정보 수신에 동의해야 받을 수 있어요"
                     action="동의하기"
+                    icon="store"
                     onPress={() => goMypage(MYPAGE_ROUTES.SETTINGS)}
                   />
                 )}
@@ -316,20 +317,33 @@ function NotificationRowSkeleton() {
   );
 }
 
-function NoticeBar(props: { text: string; action: string; onPress: () => void }) {
+function NoticeBar(props: { text: string; action: string; onPress: () => void; icon?: "bell" | "store" }) {
   return (
     <View
       className="mx-14 flex-row items-center rounded-base bg-band"
       style={{ marginTop: 12, paddingVertical: 12, paddingHorizontal: 13, gap: 10 }}
     >
-      <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
-        <Path
-          d="M6 16.5V11a6 6 0 1 1 12 0v5.5l1.5 2h-15zM10 20.5h4"
-          stroke="#737373"
-          strokeWidth={1.6}
-          strokeLinecap="round"
-        />
-      </Svg>
+      {/* 광고성 미동의 안내는 상점 — 막힌 것이 「쇼룸의 새 공구」 소식이라서(시안 C11) */}
+      {props.icon === "store" ? (
+        <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+          <Path
+            d="M4 4.5h16l1.4 4.2a3 3 0 0 1-5.8 1 3 3 0 0 1-5.6 0 3 3 0 0 1-5.8-1z"
+            stroke="#737373"
+            strokeWidth={1.5}
+            strokeLinejoin="miter"
+          />
+          <Path d="M5 10.8V20h14v-9.2" stroke="#737373" strokeWidth={1.5} strokeLinejoin="miter" />
+        </Svg>
+      ) : (
+        <Svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+          <Path
+            d="M6 16.5V11a6 6 0 1 1 12 0v5.5l1.5 2h-15zM10 20.5h4"
+            stroke="#737373"
+            strokeWidth={1.6}
+            strokeLinecap="round"
+          />
+        </Svg>
+      )}
       <Typography style={{ fontSize: 12.5, lineHeight: 19.4 }} className="min-w-0 flex-1 text-ink76">
         {props.text}
       </Typography>
@@ -368,7 +382,12 @@ function NotificationRow(props: { item: NotificationItem; isUnread: boolean; onP
       {item.imageKind === "THUMB" && <Thumb uri={item.imageUrl} size={44} />}
       {(item.imageKind === "ICON" || !item.imageKind) && (
         <View className="items-center justify-center rounded-full bg-fill" style={{ width: 44, height: 44 }}>
-          <SpeechBubbleIcon size={21} color="#737373" />
+          {/* 시안 C11: 약관 · 서비스 고지는 문서, 그 밖(문의 답변 · 계정)은 말풍선 */}
+          {item.target.type === "TERMS" || item.target.type === "SETTINGS" ? (
+            <DocumentIcon />
+          ) : (
+            <ChatDotsIcon />
+          )}
         </View>
       )}
 

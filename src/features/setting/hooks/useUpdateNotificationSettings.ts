@@ -40,6 +40,10 @@ export function useUpdateNotificationSettings() {
       try {
         await mutateAsync({ [field]: value });
         if (field === "marketingAgree") {
+          // 처리 일시는 성공 응답을 받은 시각 — 켜진 토글 아래 「YYYY.MM.DD 수신 동의」가 바로 바뀌게 한다
+          queryClient.setQueryData<NotificationSettings>(NOTIFICATION_SETTINGS_KEY, prev =>
+            prev ? { ...prev, marketingAgreeChangedAt: new Date().toISOString() } : prev
+          );
           toast.success(marketingResultMessage(value));
         }
       } catch {

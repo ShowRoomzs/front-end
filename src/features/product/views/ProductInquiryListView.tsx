@@ -93,7 +93,7 @@ export default function ProductInquiryListView() {
       <View className="flex-1">
         {/* 시안 C7-2: 칩 줄은 목록과 함께 흘러가지 않고 머리말 아래에 고정 */}
         {!isLoading && (
-          <View className="border-b-[0.5px] border-divider pb-12 pt-14">
+          <View className="border-b-[0.5px] border-divider pb-7 pt-9">
             <FilterChips items={chips} selectedValue={selectedType} onSelect={setSelectedType} />
           </View>
         )}

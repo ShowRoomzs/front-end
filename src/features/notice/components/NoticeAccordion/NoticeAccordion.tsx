@@ -47,7 +47,7 @@ export default function NoticeAccordion(props: NoticeAccordionProps) {
           </View>
 
           <Typography
-            style={{ fontSize: 14.5, fontWeight: isOpen ? "600" : "400", lineHeight: 21, marginTop: 7 }}
+            style={{ fontSize: 14.5, fontWeight: isOpen ? "600" : "500", lineHeight: 21, marginTop: 7 }}
             className="text-ink"
           >
             {item.title}

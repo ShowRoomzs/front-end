@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import { useCallback } from "react";
 import { Image, ScrollView, TouchableOpacity, View } from "react-native";
 import Svg, { Circle, Path } from "react-native-svg";
@@ -194,6 +195,17 @@ export default function SettingView() {
               <Typography style={{ fontSize: 12.5, lineHeight: 20, marginTop: 4 }} className="text-gray45">
                 {item.description}
               </Typography>
+              {/* 켜진 광고성 수신에는 동의한 날을 남긴다(시안 C15 · 정보통신망법 처리 결과 고지) */}
+              {item.key === "marketingAgree" &&
+                !!notificationSettings?.marketingAgree &&
+                !!notificationSettings.marketingAgreeChangedAt && (
+                  <Typography
+                    style={{ fontSize: 11.5, lineHeight: 17.25, marginTop: 3 }}
+                    className="text-gray45"
+                  >
+                    {`${dayjs(notificationSettings.marketingAgreeChangedAt).format("YYYY.MM.DD")} 수신 동의`}
+                  </Typography>
+                )}
             </View>
             <Toggle
               value={notificationSettings?.[item.key] ?? false}
@@ -201,9 +213,15 @@ export default function SettingView() {
             />
           </View>
         ))}
-        <Typography style={{ fontSize: 12, lineHeight: 20.4 }} className="px-14 pt-13 text-gray45">
-          주문·배송·문의 답변 등 거래 알림은 끌 수 없어요
-        </Typography>
+        <View className="px-14 pt-13" style={{ gap: 5 }}>
+          <Typography style={{ fontSize: 12, lineHeight: 20.4 }} className="text-gray45">
+            위 알림은 광고성 정보예요. 켜면 수신에 동의한 것으로 처리되고, 처리 결과를 알림으로 알려드려요. 밤
+            9시~아침 8시에는 보내지 않아요.
+          </Typography>
+          <Typography style={{ fontSize: 12, lineHeight: 20.4 }} className="text-gray45">
+            주문·배송·문의 답변 등 거래 알림은 끌 수 없어요
+          </Typography>
+        </View>
 
         <View className="mt-18">
           <GroupBand height={5} />

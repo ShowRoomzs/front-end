@@ -22,6 +22,22 @@ interface TermsDocumentBodyProps {
   termsType: TermsType;
 }
 
+/** 조 제목 — 「제1조 (목적)」처럼 시작하는 줄 */
+const ARTICLE_HEADING = /^제\s*\d+\s*조/;
+
+/**
+ * 블록의 첫 줄이 조 제목이면 떼어 낸다(시안 C18 — 조 제목 14.5/600 잉크 + 문단 13/1.85).
+ * 원문은 평문이라 형식이 없다. 조 제목이 아닌 블록(전문 · 부칙 문단)은 문단만 그린다.
+ */
+function splitArticle(block: string): { heading: string | null; body: string } {
+  const [firstLine, ...rest] = block.trim().split("\n");
+
+  if (ARTICLE_HEADING.test(firstLine.trim())) {
+    return { heading: firstLine.trim(), body: rest.join("\n").trim() };
+  }
+  return { heading: null, body: block.trim() };
+}
+
 export default function TermsDocumentBody(props: TermsDocumentBodyProps) {
   const { termsType } = props;
 
@@ -36,7 +52,11 @@ export default function TermsDocumentBody(props: TermsDocumentBodyProps) {
 
   /** 원문은 빈 줄로 조를 나눈 평문이다 — 문단마다 간격을 줘야 조문이 읽힌다 */
   const paragraphs = useMemo(
-    () => (document?.content ?? "").split(/\n{2,}/).filter(block => block.trim().length > 0),
+    () =>
+      (document?.content ?? "")
+        .split(/\n{2,}/)
+        .filter(block => block.trim().length > 0)
+        .map(splitArticle),
     [document?.content]
   );
 
@@ -60,19 +80,31 @@ export default function TermsDocumentBody(props: TermsDocumentBodyProps) {
     <ScrollView showsVerticalScrollIndicator={false}>
       <View className="border-b-[0.5px] border-dividerProduct px-20 pb-14 pt-18">
         <Typography style={{ fontSize: 12, lineHeight: 19.2 }} className="text-gray45">
-          시행일 {document.effectiveDate} · 버전 {document.version}
+          {/* 서버 버전은 「v3.1」 꼴이다 — 앞에 「버전」을 붙이므로 v는 뗀다(시안 「버전 1.2」) */}
+          시행일 {document.effectiveDate} · 버전 {String(document.version).replace(/^v/i, "")}
         </Typography>
       </View>
 
       <View style={{ paddingHorizontal: 20, paddingTop: 20, paddingBottom: 40 }}>
         {paragraphs.map((paragraph, ix) => (
-          <Typography
-            key={`terms-${ix}`}
-            style={{ fontSize: 13, lineHeight: 24.05, marginBottom: 20 }}
-            className="text-ink76"
-          >
-            {paragraph.trim()}
-          </Typography>
+          <View key={`terms-${ix}`} style={{ marginBottom: 20 }}>
+            {!!paragraph.heading && (
+              <Typography
+                style={{ fontSize: 14.5, fontWeight: "600", lineHeight: 21.75 }}
+                className="text-ink"
+              >
+                {paragraph.heading}
+              </Typography>
+            )}
+            {!!paragraph.body && (
+              <Typography
+                style={{ fontSize: 13, lineHeight: 24.05, marginTop: paragraph.heading ? 8 : 0 }}
+                className="text-ink76"
+              >
+                {paragraph.body}
+              </Typography>
+            )}
+          </View>
         ))}
       </View>
     </ScrollView>

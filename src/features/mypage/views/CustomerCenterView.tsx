@@ -84,7 +84,8 @@ export default function CustomerCenterView() {
         </View>
       </View>
 
-      <View className="border-b-[0.5px] border-divider py-6">
+      {/* 칩의 터치 여백 5가 레이아웃에 들어가므로 시안의 위 14 · 아래 4에서 뺀다 */}
+      <View className="pt-9">
         <FilterChips items={chipItems} selectedValue={selectedCategory} onSelect={handleSelectCategory} />
       </View>
 
@@ -100,7 +101,7 @@ export default function CustomerCenterView() {
         {!!faqs && (
           <ScrollView
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: bottom + BOTTOM_CTA_HEIGHT }}
+            contentContainerStyle={{ paddingTop: 14, paddingBottom: bottom + BOTTOM_CTA_HEIGHT }}
           >
             {visibleFaqs.length === 0 ? (
               <View className="items-center px-40 pb-60 pt-56">

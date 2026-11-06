@@ -8,12 +8,13 @@ import LoadGate from "@/common/components/LoadGate/LoadGate";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import Typography from "@/common/components/Typography/Typography";
 import { useMypageNavigation } from "@/common/router";
-import { MYPAGE_ROUTES } from "@/common/router/routes";
+import { COMMON_ROUTES, MYPAGE_ROUTES } from "@/common/router/routes";
 import { MypageStackParamList } from "@/common/router/types";
 import { useGetInquiryDetail } from "@/features/inquiry/hooks/useGetInquiryDetail";
 import InquiryDetailSkeleton from "@/features/mypage/components/InquiryDetailSkeleton/InquiryDetailSkeleton";
 import InquiryItemMetaRow from "@/features/mypage/components/InquiryItemMetaRow/InquiryItemMetaRow";
 import InquiryOrderCard from "@/features/mypage/components/InquiryOrderCard/InquiryOrderCard";
+import { useOrderNavigation } from "@/features/order/hooks/useOrderNavigation";
 
 /**
  * C12 1:1 문의 상세 — 머리(상태·유형·날짜) → 연결된 주문 → 내 문의 → 답변.
@@ -22,8 +23,7 @@ import InquiryOrderCard from "@/features/mypage/components/InquiryOrderCard/Inqu
  * 버블은 짧은 대화에 맞는 형식이라 긴 답변에서는 가독성이 떨어지기 때문이다. 답변만 회색
  * 블록으로 감싸 내 글과 구분한다.
  *
- * 주문 카드는 **눌러도 이동하지 않는다** — 소비자 앱에 주문 상세 화면이 아직 없다.
- * 셰브런을 그리지 않는 것으로 "여기서 끝"임을 알린다.
+ * 주문 카드를 누르면 그 주문 상세(C10-1)로 간다.
  */
 const TIMESTAMP_FORMAT = "YYYY.MM.DD HH:mm";
 const PHOTO_SIZE = 72;
@@ -32,6 +32,7 @@ export default function InquiryDetailView() {
   const navigation = useMypageNavigation();
   const route = useRoute<RouteProp<MypageStackParamList, typeof MYPAGE_ROUTES.INQUIRY_DETAIL>>();
   const { inquiryId } = route.params;
+  const { open } = useOrderNavigation();
 
   const inquiryQuery = useGetInquiryDetail(inquiryId);
   const { data: inquiry } = inquiryQuery;
@@ -60,7 +61,11 @@ export default function InquiryDetailView() {
 
             {!!inquiry.order && (
               <View style={{ marginTop: 12 }}>
-                <InquiryOrderCard order={inquiry.order} size="md" />
+                <InquiryOrderCard
+                  order={inquiry.order}
+                  size="md"
+                  onPress={() => open(COMMON_ROUTES.ORDER_DETAIL, { orderId: inquiry.order!.orderId })}
+                />
               </View>
             )}
           </View>

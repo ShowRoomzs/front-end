@@ -29,7 +29,7 @@ export default function FilterChips<T extends string>(props: FilterChipsProps<T>
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      contentContainerStyle={{ paddingHorizontal: 14, gap: 6 }}
+      contentContainerStyle={{ paddingHorizontal: 14, gap: 7 }}
     >
       {items.map(item => {
         const isActive = item.value === selectedValue;
@@ -42,7 +42,7 @@ export default function FilterChips<T extends string>(props: FilterChipsProps<T>
             style={{ paddingVertical: HIT_SLOP_PADDING }}
           >
             <View
-              className={`h-34 flex-row items-center justify-center rounded-base px-12 ${
+              className={`h-34 flex-row items-center justify-center rounded-base px-13 ${
                 isActive ? "bg-ink" : "border-[1px] border-borderButton bg-white"
               }`}
             >

@@ -60,7 +60,7 @@ const VERIFY_REASONS = [
   {
     key: "order",
     title: "주문과 교환·환불을 위해",
-    description: "주문 조회와 반품 접수 시에 사용됩니다",
+    description: "주문 조회와 반품 접수에 사용됩니다",
     icon: (
       <>
         <Path d="M4.4 7.5h15.2l-1.1 12.3H5.5z" stroke="#0F0F0F" strokeWidth={1.6} strokeLinejoin="miter" />

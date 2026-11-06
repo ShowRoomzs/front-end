@@ -33,10 +33,10 @@ export default function RecentSearchList(props: RecentSearchListProps) {
   if (items.length === 0) {
     return (
       <EmptyState
+        fill
         icon={<SearchIcon size={50} color="#D8D8DA" />}
         title="최근 검색 기록이 없어요"
         description={"쇼룸 이름이나 아이디로 검색하면\n여기에 기록이 남아요"}
-        paddingTop={72}
       />
     );
   }
@@ -65,7 +65,11 @@ export default function RecentSearchList(props: RecentSearchListProps) {
                 <View className="h-44 w-44 items-center justify-center rounded-full bg-fill">
                   <SearchIcon size={19} />
                 </View>
-                <Typography variant="rowName" className="min-w-0 flex-1 text-ink" numberOfLines={1}>
+                <Typography
+                  style={{ fontSize: 14, fontWeight: "600", lineHeight: 18.9, letterSpacing: -0.2 }}
+                  className="min-w-0 flex-1 text-ink"
+                  numberOfLines={1}
+                >
                   {item.term}
                 </Typography>
               </TouchableOpacity>
@@ -77,7 +81,7 @@ export default function RecentSearchList(props: RecentSearchListProps) {
             activeOpacity={0.55}
             style={{ padding: DELETE_HIT_SLOP_PADDING, marginRight: 14 - DELETE_HIT_SLOP_PADDING }}
           >
-            <CloseIcon size={14} color="#C7C7C7" />
+            <CloseIcon size={14} color="#8E8E8E" />
           </TouchableOpacity>
         </View>
       ))}

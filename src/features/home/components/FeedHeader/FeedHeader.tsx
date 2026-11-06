@@ -1,7 +1,7 @@
 import { TouchableOpacity, View } from "react-native";
 
 import { BellIcon, CartIcon, SearchIcon } from "@/common/components/DsIcon/icons";
-import { CountBadge, DotBadge } from "@/common/components/IconBadge/IconBadge";
+import { CountBadge } from "@/common/components/IconBadge/IconBadge";
 import Typography from "@/common/components/Typography/Typography";
 import SuspensionBanner from "@/features/account/components/SuspensionBanner";
 
@@ -9,11 +9,12 @@ import SuspensionBanner from "@/features/account/components/SuspensionBanner";
  * C1 홈 헤더 — 로고를 빼고 한 줄(38px 검색 필드 + 아이콘 2개)로 만들어 피드가 42px 더 보인다.
  * 브랜드 노출은 스플래시·마이 탭·앱 아이콘이 담당한다.
  *
- * 포인트 컬러는 여기서 장바구니 배지와 알림 점에만 쓴다.
+ * 포인트 컬러는 여기서 장바구니 · 알림 배지에만 쓴다. 두 배지는 같은 규격(18 원 · 숫자)이다 —
+ * 알림은 안 읽은 수 1~99, 100 이상 「99+」, 0이면 없음(디자인 시스템 배지).
  */
 interface FeedHeaderProps {
   cartCount?: number;
-  hasUnreadNotification?: boolean;
+  notificationCount?: number;
   onPressSearch: () => void;
   onPressNotification: () => void;
   onPressCart: () => void;
@@ -22,13 +23,7 @@ interface FeedHeaderProps {
 const ICON_HIT_SLOP_PADDING = 9;
 
 export default function FeedHeader(props: FeedHeaderProps) {
-  const {
-    cartCount = 0,
-    hasUnreadNotification = false,
-    onPressSearch,
-    onPressNotification,
-    onPressCart,
-  } = props;
+  const { cartCount = 0, notificationCount = 0, onPressSearch, onPressNotification, onPressCart } = props;
 
   return (
     <>
@@ -55,7 +50,7 @@ export default function FeedHeader(props: FeedHeaderProps) {
             style={{ padding: ICON_HIT_SLOP_PADDING, margin: -ICON_HIT_SLOP_PADDING }}
           >
             <BellIcon size={25} />
-            <DotBadge visible={hasUnreadNotification} />
+            <CountBadge count={notificationCount} />
           </TouchableOpacity>
 
           <TouchableOpacity

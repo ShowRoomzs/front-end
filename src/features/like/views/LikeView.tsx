@@ -113,6 +113,7 @@ export default function LikeView() {
     ({ item }: ListRenderItemInfo<FeedItem>) => (
       <PostCard
         item={item}
+        leadProductOnly
         onPressPost={handlePressPost}
         onPressShowroom={handlePressShowroom}
         onPressFollow={handlePressFollow}
@@ -180,7 +181,7 @@ export default function LikeView() {
               fill
               icon={<HeartIcon size={52} color="#D8D8DA" />}
               title="아직 좋아요한 게시물이 없어요"
-              description={"마음에 드는 게시물의 하트를 누르면\n여기에 모여요"}
+              description={"마음에 드는 게시물의 ♥를 누르면\n여기에 모여요"}
             />
           )
         }

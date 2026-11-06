@@ -71,9 +71,9 @@ export default function ShowroomProfile(props: ShowroomProfileProps) {
       <Typography
         variant="body"
         style={{ lineHeight: 22.95, marginTop: 14 }}
-        className={showroom.introduction ? "text-ink76" : "text-gray55"}
+        className={showroom.introduction ? "text-ink76" : "text-gray45"}
       >
-        {showroom.introduction ?? "소개 미등록"}
+        {showroom.introduction ?? "아직 소개가 등록되지 않았어요."}
       </Typography>
 
       <View className="mt-14 flex-row" style={{ gap: 8 }}>

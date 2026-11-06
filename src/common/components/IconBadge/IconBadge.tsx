@@ -70,7 +70,7 @@ export function CountBadge(props: CountBadgeProps) {
       style={[{ top: inset, right: inset, minWidth: 18, height: 18, paddingHorizontal: 3 }, bumpStyle]}
     >
       <Typography style={{ fontSize: 10, lineHeight: 10 }} className="text-white">
-        {Math.min(count, COUNT_MAX)}
+        {count > COUNT_MAX ? `${COUNT_MAX}+` : count}
       </Typography>
     </Animated.View>
   );

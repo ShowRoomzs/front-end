@@ -78,7 +78,12 @@ export default function PostDetailView() {
                 className="min-w-0 flex-1 flex-row items-center"
                 style={{ gap: 10 }}
               >
-                <Avatar imageUrl={post.showroomImageUrl} size={36} hasOngoingGroupBuy={!!groupBuy} />
+                {/* 로즈 링은 진행 중인 공구만 — 마감된 공구 게시물에는 두지 않는다 */}
+                <Avatar
+                  imageUrl={post.showroomImageUrl}
+                  size={36}
+                  hasOngoingGroupBuy={groupBuy?.status === "OPEN"}
+                />
                 <View className="min-w-0 flex-1 flex-row items-center" style={{ gap: 5 }}>
                   <Typography variant="handle" className="shrink text-ink" numberOfLines={1}>
                     {post.showroomName}
@@ -98,7 +103,7 @@ export default function PostDetailView() {
               </TouchableOpacity>
             </View>
 
-            {!!groupBuy && <PostBadgeRow groupBuy={groupBuy} style={{ paddingTop: 4 }} />}
+            {!!groupBuy && <PostBadgeRow groupBuy={groupBuy} isDetail style={{ paddingTop: 4 }} />}
 
             {!!groupBuy && (
               <Typography

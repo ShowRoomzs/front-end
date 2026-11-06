@@ -24,6 +24,11 @@ interface PostProductListProps {
   isClosed?: boolean;
   /** 상세에서는 접지 않고 전부 편다 */
   expandedByDefault?: boolean;
+  /**
+   * 대표 상품 한 줄만 두고 [상품 N개 더보기]를 그리지 않는다 — 좋아요(C3)는 다시 찾아보는 목록이라
+   * 카드가 길어지지 않게 하고, 나머지 상품은 게시물 상세에서 본다.
+   */
+  leadOnly?: boolean;
   /** 공구 ID를 함께 넘긴다 — 상품 상세가 그 공구의 가격·담기로 열린다 */
   onPressProduct: (productId: number, groupBuyId?: number | null) => void;
 }
@@ -32,7 +37,7 @@ const THUMB_SIZE = 90;
 const COLLAPSED_COUNT = 1;
 
 export default function PostProductList(props: PostProductListProps) {
-  const { products, isClosed = false, expandedByDefault = false, onPressProduct } = props;
+  const { products, isClosed = false, expandedByDefault = false, leadOnly = false, onPressProduct } = props;
   const [isExpanded, setIsExpanded] = useState(expandedByDefault);
 
   if (products.length === 0) {
@@ -129,7 +134,7 @@ export default function PostProductList(props: PostProductListProps) {
         );
       })}
 
-      {hiddenCount > 0 && (
+      {hiddenCount > 0 && !leadOnly && (
         /* 외곽선 버튼은 시각 높이 38로 두고 상하 3 패딩으로 터치 영역만 44로 넓힌다 */
         <TouchableOpacity
           onPress={() => setIsExpanded(prev => !prev)}

@@ -29,7 +29,10 @@ export default function SearchField(props: SearchFieldProps) {
   } = props;
 
   return (
-    <View className="flex-row items-center bg-white pb-12 pt-2" style={{ paddingRight: 16, gap: 6 }}>
+    <View
+      className="flex-row items-center border-b-[0.5px] border-divider bg-white pb-12 pt-2"
+      style={{ paddingLeft: 2, paddingRight: 12, gap: 6 }}
+    >
       <TouchableOpacity onPress={onPressBack} activeOpacity={0.55} className="p-11">
         <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
           <Path
@@ -43,7 +46,7 @@ export default function SearchField(props: SearchFieldProps) {
       </TouchableOpacity>
 
       <View className="h-40 flex-1 flex-row items-center rounded-base bg-fill px-12" style={{ gap: 8 }}>
-        <SearchIcon size={19} />
+        <SearchIcon size={16} color="#8E8E8E" />
         <TextInput
           value={keyword}
           onChangeText={onChangeKeyword}

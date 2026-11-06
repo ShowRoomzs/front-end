@@ -19,18 +19,27 @@ interface PostBadgeRowProps {
   groupBuy: GroupBuyInfo;
   /** 위아래 여백만 부르는 쪽이 정한다 — 좌우 14는 게시물 본문과 같은 축이라 여기서 고정한다 */
   style?: StyleProp<ViewStyle>;
+  /**
+   * 게시물 상세(C5) — 마감을 [공구 마감] · #F1F1F2로 쓴다(품절과 같은 결). 피드 카드(C3)의 [공구 종료]는
+   * 목록에서 지난 공구를 걸러 읽게 하는 표시이고, 상세는 「이 공구가 닫혔다」는 상태 표시라 상품 상세(C7)와 맞춘다.
+   */
+  isDetail?: boolean;
 }
 
 const HORIZONTAL_PADDING = 14;
 
 export default function PostBadgeRow(props: PostBadgeRowProps) {
-  const { groupBuy, style } = props;
+  const { groupBuy, style, isDetail = false } = props;
   const isClosed = groupBuy.status === "CLOSED";
   const isAllSoldOut = groupBuy.products.length > 0 && groupBuy.products.every(product => product.soldOut);
 
   const getStatusBadge = () => {
     if (isClosed) {
-      return <Badge label="공구 종료" variant="neutral" />;
+      return isDetail ? (
+        <Badge label="공구 마감" variant="closed" />
+      ) : (
+        <Badge label="공구 종료" variant="neutral" />
+      );
     }
     if (isAllSoldOut) {
       return <Badge label="품절" variant="closed" />;

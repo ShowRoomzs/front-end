@@ -35,6 +35,8 @@ interface PostCardProps {
   item: FeedItem;
   hideRing?: boolean;
   hideFollowButton?: boolean;
+  /** 공구 상품을 대표 한 줄만 — 좋아요(C3) */
+  leadProductOnly?: boolean;
   onPressPost: (postId: number) => void;
   onPressShowroom: (showroomId: number) => void;
   onPressFollow: (showroomId: number, isFollowing: boolean) => void;
@@ -48,6 +50,7 @@ function PostCard(props: PostCardProps) {
     item,
     hideRing,
     hideFollowButton,
+    leadProductOnly = false,
     onPressPost,
     onPressShowroom,
     onPressFollow,
@@ -139,6 +142,7 @@ function PostCard(props: PostCardProps) {
               <PostProductList
                 products={groupBuy.products}
                 isClosed={groupBuy.status === "CLOSED"}
+                leadOnly={leadProductOnly}
                 onPressProduct={onPressProduct}
               />
             </View>

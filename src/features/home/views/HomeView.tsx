@@ -254,7 +254,7 @@ export default function HomeView() {
     <View className="flex-1 bg-white">
       <FeedHeader
         cartCount={cartItemCount}
-        hasUnreadNotification={notificationBadge > 0}
+        notificationCount={notificationBadge}
         onPressSearch={handlePressSearch}
         onPressNotification={handlePressNotification}
         onPressCart={handlePressCart}

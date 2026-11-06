@@ -4,6 +4,7 @@ import { ListRenderItemInfo, TouchableOpacity, View } from "react-native";
 
 import { SearchIcon } from "@/common/components/DsIcon/icons";
 import EmptyState from "@/common/components/EmptyState/EmptyState";
+import GroupBand from "@/common/components/GroupBand/GroupBand";
 import PagingList from "@/common/components/PagingList/PagingList";
 import SectionLabel from "@/common/components/SectionLabel/SectionLabel";
 import Typography from "@/common/components/Typography/Typography";
@@ -132,7 +133,7 @@ export default function SearchView() {
       return (
         <View className="flex-1">
           {recentSearches.length > 0 && (
-            <View className="flex-row items-center justify-between px-14 pb-4 pt-16">
+            <View className="flex-row items-center justify-between px-14 pb-6 pt-16">
               <Typography variant="sectionLabel" className="text-gray55">
                 최근 검색
               </Typography>
@@ -142,7 +143,7 @@ export default function SearchView() {
                 style={{ paddingVertical: 10, marginVertical: -10 }}
               >
                 <Typography
-                  style={{ fontSize: 12, fontWeight: "600", lineHeight: 12 }}
+                  style={{ fontSize: 12, fontWeight: "500", lineHeight: 12 }}
                   className="text-gray45"
                 >
                   전체 삭제
@@ -175,7 +176,9 @@ export default function SearchView() {
 
           {!!activeShowrooms?.length && (
             <>
-              <SectionLabel label="이런 쇼룸은 어떠세요" className="pb-4 pt-8" />
+              {/* 결과 없음 블록과 추천은 성격이 달라 8px 밴드로 끊는다(시안 C14 1c) */}
+              <GroupBand height={8} />
+              <SectionLabel label="이런 쇼룸은 어떠세요" className="pb-10 pt-18" />
               {activeShowrooms.map(showroom => (
                 <ShowroomRow
                   key={showroom.showroomId}
@@ -211,7 +214,7 @@ export default function SearchView() {
                 ? "검색 결과"
                 : `검색 결과 ${pageInfo?.totalResults ?? content.length}`
             }
-            className="pb-4 pt-16"
+            className="pb-10 pt-16"
           />
         }
       />

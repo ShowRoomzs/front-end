@@ -148,8 +148,12 @@ export default function ShowroomDetailView() {
             <View>
               <ShowroomProfile showroom={showroom} onPressFollow={handlePressFollow} />
 
-              {!showroom.hasOngoingGroupBuy && (
-                <View className="px-14 pb-18">
+              {/*
+                시안 C4 1c — 게시물은 있는데 진행 중인 공구가 없을 때만. 게시물이 하나도 없으면(1b) 아래 빈 상태가
+                같은 말을 하므로 배너를 두지 않는다. 버튼 아래 14(프로필 아래 여백 18에서 4를 당긴다).
+              */}
+              {!showroom.hasOngoingGroupBuy && !isLoading && hasPosts && (
+                <View className="px-14 pb-18" style={{ marginTop: -4 }}>
                   {/* 시안 문구는 팔로우 전 기준 — 이미 팔로우했으면 「팔로우하면」을 빼고 알림만 약속한다 */}
                   <InfoBanner
                     message={

@@ -147,7 +147,16 @@ export default function OrderCancelView() {
         refundMethod={order.payment?.methodLabel ?? ""}
         items={items}
         onClose={navigation.goBack}
-        onPressOrderDetail={() => navigation.replace(COMMON_ROUTES.ORDER_DETAIL, { orderId: order.orderId })}
+        // 시안 C10 1b: [취소 상세] — 취소 상세는 항목 기준이라 첫 항목으로 연다(직접 취소도 같은 화면이 그린다)
+        onPressCancelDetail={() => {
+          const orderProductId = items.find(item => item.orderProductId !== null)?.orderProductId;
+
+          if (orderProductId) {
+            navigation.replace(COMMON_ROUTES.CANCEL_DETAIL, { orderId: order.orderId, orderProductId });
+          } else {
+            navigation.replace(COMMON_ROUTES.ORDER_DETAIL, { orderId: order.orderId });
+          }
+        }}
         // 공용 스택을 닫고 홈 탭으로 — 주문 내역에서 들어왔다면 그 화면이 그대로 남아 있다
         onPressOrderList={() => mainNavigation.navigate(ROOT_ROUTES.HOME)}
       />
@@ -266,6 +275,7 @@ export default function OrderCancelView() {
           </View>
           <View className="px-14 pt-8">
             <AmountRow
+              even
               label="배송비"
               fontSize={12.5}
               valueColor="#3C3C3C"
@@ -373,7 +383,7 @@ function CancelDoneScreen(props: {
     price: { salePrice: number };
   }>;
   onClose: () => void;
-  onPressOrderDetail: () => void;
+  onPressCancelDetail: () => void;
   onPressOrderList: () => void;
 }) {
   const {
@@ -384,7 +394,7 @@ function CancelDoneScreen(props: {
     refundMethod,
     items,
     onClose,
-    onPressOrderDetail,
+    onPressCancelDetail,
     onPressOrderList,
   } = props;
 
@@ -433,7 +443,7 @@ function CancelDoneScreen(props: {
         <Band />
         <SectionTitle title="환불 정보" />
         <View className="px-14 pt-14">
-          <AmountRow label="취소 상품 금액" value={won(itemSum)} labelColor="#3C3C3C" fontSize={13.5} />
+          <AmountRow even label="취소 상품 금액" value={won(itemSum)} labelColor="#3C3C3C" fontSize={13.5} />
         </View>
         <View
           className="mx-14 flex-row items-baseline justify-between border-t-[0.5px] border-dividerProduct"
@@ -451,7 +461,7 @@ function CancelDoneScreen(props: {
         </View>
         {!!refundMethod && (
           <View className="px-14 pt-9">
-            <AmountRow label="환불 수단" value={refundMethod} fontSize={12.5} valueColor="#3C3C3C" />
+            <AmountRow even label="환불 수단" value={refundMethod} fontSize={12.5} valueColor="#3C3C3C" />
           </View>
         )}
 
@@ -470,7 +480,7 @@ function CancelDoneScreen(props: {
         ))}
 
         <View className="flex-row px-14 pt-16" style={{ gap: 8 }}>
-          <OutlineAction label="주문 상세" height={44} fontSize={13.5} onPress={onPressOrderDetail} />
+          <OutlineAction label="취소 상세" height={44} fontSize={13.5} onPress={onPressCancelDetail} />
           <OutlineAction label="주문 내역으로" height={44} fontSize={13.5} onPress={onPressOrderList} />
         </View>
         <BulletNotes

@@ -34,9 +34,13 @@ interface OrderItemCardProps {
 
 const TONE_COLOR = { ACTIVE: "#F2456E", MUTED: "#737373" } as const;
 
+/** 서버 `UserOrderItemAssembler.SHIPMENT_HOLD_SUB` — 일부 취소 요청 중 나머지 상품의 발송 보류 */
+const SHIPMENT_HOLD_SUB = "취소 요청이 처리될 때까지 이 주문의 상품은 발송되지 않아요";
+
 export default function OrderItemCard(props: OrderItemCardProps) {
   const { item, variant, isFirst, onPressAction, onPressClaim, onPressCancelRejection } = props;
   const isList = variant === "list";
+  const isShipmentHold = !isList && item.statusSub === SHIPMENT_HOLD_SUB;
 
   const statusColor = TONE_COLOR[item.statusTone];
   const claimRejectionLabel = item.claimRejection
@@ -136,12 +140,24 @@ export default function OrderItemCard(props: OrderItemCardProps) {
         <Typography style={{ fontSize: 13, fontWeight: "700", lineHeight: 16.9, color: statusColor }}>
           {item.statusLabel}
         </Typography>
-        {!!item.statusSub && (
+        {!!item.statusSub && !isShipmentHold && (
           <Typography style={{ fontSize: 11.5, lineHeight: 15 }} className="text-gray45">
             {item.statusSub}
           </Typography>
         )}
       </View>
+      {/*
+        일부 취소 요청 중 같은 주문의 나머지 상품 — 보류 안내는 상태 줄 오른쪽이 아니라 아래 회색 한 줄(시안 C10-1 1b).
+        서버가 이 문구를 statusSub 자리에 실어 보낸다.
+      */}
+      {isShipmentHold && (
+        <Typography
+          style={{ fontSize: 12, lineHeight: 18, marginTop: 4, marginBottom: -2, paddingVertical: 6 }}
+          className="text-gray45"
+        >
+          {item.statusSub}
+        </Typography>
+      )}
       {lines}
       <View style={{ marginTop: 12 }}>{product}</View>
       {item.actions.length > 0 && (

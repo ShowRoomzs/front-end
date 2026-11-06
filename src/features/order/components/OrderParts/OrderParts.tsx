@@ -28,7 +28,7 @@ export function SectionTitle(props: {
   const { title, count, right, style } = props;
 
   return (
-    <View className="flex-row items-baseline px-14" style={[{ paddingTop: 18, gap: 7 }, style]}>
+    <View className="flex-row items-baseline px-14" style={[{ paddingTop: 18, gap: 6 }, style]}>
       <Typography
         style={{ fontSize: 15, fontWeight: "700", lineHeight: 15, letterSpacing: -0.2 }}
         className="text-ink"
@@ -226,6 +226,11 @@ export function AmountRow(props: {
   labelColor?: string;
   fontSize?: number;
   strike?: boolean;
+  /**
+   * 라벨과 값을 같은 크기 · 줄높이 1.4로 — 취소 · 반품 · 교환의 금액 표(시안 C10 · C10-5).
+   * 주문 상세 · 결제의 결제 정보는 값이 0.5 크고 1.5다(기본).
+   */
+  even?: boolean;
 }) {
   const {
     label,
@@ -235,16 +240,19 @@ export function AmountRow(props: {
     labelColor = "#737373",
     fontSize = 13,
     strike,
+    even = false,
   } = props;
+  const valueSize = even ? fontSize : fontSize + 0.5;
+  const ratio = even ? 1.4 : 1.5;
 
   return (
     <View className="flex-row items-baseline justify-between" style={{ gap: 12 }}>
-      <Typography style={{ fontSize, lineHeight: fontSize * 1.5, color: labelColor }}>{label}</Typography>
+      <Typography style={{ fontSize, lineHeight: fontSize * ratio, color: labelColor }}>{label}</Typography>
       <Typography
         style={{
-          fontSize: fontSize + 0.5,
+          fontSize: valueSize,
           fontWeight: valueWeight,
-          lineHeight: (fontSize + 0.5) * 1.5,
+          lineHeight: valueSize * ratio,
           color: valueColor,
           textAlign: "right",
           flexShrink: 1,

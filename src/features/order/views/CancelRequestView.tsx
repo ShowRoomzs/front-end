@@ -302,7 +302,13 @@ export default function CancelRequestView() {
           <Band />
           <SectionTitle title="환불 정보" />
           <View className="px-14 pt-14">
-            <AmountRow label="취소 상품 금액" value={won(cancelSum)} labelColor="#3C3C3C" fontSize={13.5} />
+            <AmountRow
+              even
+              label="취소 상품 금액"
+              value={won(cancelSum)}
+              labelColor="#3C3C3C"
+              fontSize={13.5}
+            />
           </View>
           <View
             className="mx-14 flex-row items-baseline justify-between border-t-[0.5px] border-dividerProduct"
@@ -321,6 +327,7 @@ export default function CancelRequestView() {
           {!!order.payment && (
             <View className="px-14 pt-9">
               <AmountRow
+                even
                 label="환불 수단"
                 value={order.payment.methodLabel}
                 fontSize={12.5}
@@ -519,7 +526,7 @@ export default function CancelRequestView() {
             </Typography>
           </View>
           <View className="px-14 pt-8">
-            <AmountRow label="배송비" fontSize={12.5} valueColor="#3C3C3C" value={shipping.line} />
+            <AmountRow even label="배송비" fontSize={12.5} valueColor="#3C3C3C" value={shipping.line} />
           </View>
           <BulletNotes
             style={{ paddingHorizontal: 14, paddingTop: 16 }}

@@ -39,7 +39,7 @@ export function StageBar(props: { labels: Array<string>; current: number; labelS
               style={{
                 fontSize: labelSize,
                 fontWeight: isCurrent ? "600" : "400",
-                lineHeight: labelSize * 1.35,
+                lineHeight: labelSize * 1.3,
                 marginTop: 9,
                 color: tone.label,
               }}

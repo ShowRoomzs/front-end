@@ -193,7 +193,7 @@ export default function ClaimDetailView() {
             onPress: async () => {
               try {
                 await claimService.withdraw(target.claimId);
-                toast.success("요청을 철회했어요");
+                toast.success(isExchange ? "교환 요청을 철회했어요" : "반품 요청을 철회했어요");
                 invalidateOrderQueries();
                 navigation.replace(COMMON_ROUTES.ORDER_DETAIL, { orderId: detail.orderId });
               } catch (error) {
@@ -463,7 +463,12 @@ export default function ClaimDetailView() {
               valueColor={completedLine ? "#0F0F0F" : "#9E9E9E"}
             />
             {!!purchaseConfirmLine(detail) && (
-              <InfoRow label="구매확정" value={purchaseConfirmLine(detail) as string} />
+              <InfoRow
+                label="구매확정"
+                value={purchaseConfirmLine(detail) as string}
+                // 반품이 끝나 구매확정이 해당 없으면 회색(시안 C10-5 1b)
+                valueColor={purchaseConfirmLine(detail) === RETURN_DONE_CONFIRM_LINE ? "#9E9E9E" : undefined}
+              />
             )}
             <InfoRow label={`${kw} 사유`} value={detail.info.reasonLabel} />
             <InfoRow label={`${kw} 방법`} value={detail.info.methodLabel} />
@@ -513,6 +518,7 @@ export default function ClaimDetailView() {
               <SectionTitle title="결제 정보" />
               <View className="px-14 pt-14">
                 <AmountRow
+                  even
                   label="재발송 배송비"
                   value={won(detail.exchangePayment.reshipFee)}
                   labelColor="#3C3C3C"
@@ -535,6 +541,7 @@ export default function ClaimDetailView() {
               </View>
               <View className="px-14 pt-9">
                 <AmountRow
+                  even
                   label="결제 수단"
                   value={detail.exchangePayment.methodLabel}
                   fontSize={12.5}
@@ -593,6 +600,8 @@ function maskedLines(address: MaskedAddress) {
  * 교환 완료면 7일이 새로 시작하고, 반품 완료면 해당 없다. 거절된 요청은 보류를 풀므로(서버 2026-10-05)
  * 반려 단계에서는 줄을 그리지 않는다 — 「일시 정지」라고 쓰면 거짓이 된다.
  */
+const RETURN_DONE_CONFIRM_LINE = "반품 완료 · 해당 없음";
+
 function purchaseConfirmLine(detail: ClaimDetailResponse): string | null {
   const focused = detail.items.find(item => item.focused) ?? detail.items[0];
 
@@ -602,7 +611,7 @@ function purchaseConfirmLine(detail: ClaimDetailResponse): string | null {
   const kw = detail.type === "EXCHANGE" ? "교환" : "반품";
 
   if (focused.phase === "DONE") {
-    return detail.type === "EXCHANGE" ? "교환 완료일부터 7일 새로 시작" : "반품 완료 · 해당 없음";
+    return detail.type === "EXCHANGE" ? "교환 완료일부터 7일 새로 시작" : RETURN_DONE_CONFIRM_LINE;
   }
   return `${kw} 처리 중 · 구매확정 일시 정지`;
 }
@@ -923,13 +932,20 @@ function ReshipFeeBlock(props: {
           `${kw}이 반려된 상품을 다시 보내드려요`,
           "재발송 배송비는 없어요. 추가 결제 없이 보내드려요."
         )}
-      {reshipFee.state === "DEDUCTED" &&
-        confirmBox(
-          `함께 반품한 상품의 환불액에서 재발송 배송비 ${amount}을 빼고 보내드려요`,
-          collect > 0
-            ? `${deductedSub}\n불량 · 오배송으로 신청해 착불로 보내셨기 때문에, 브랜드가 낸 착불 운임 ${won(collect)}도 환불액에서 함께 빼요.`
-            : deductedSub
-        )}
+      {reshipFee.state === "DEDUCTED" && (
+        <>
+          {confirmBox(`함께 반품한 상품의 환불액에서 재발송 배송비 ${amount}을 빼고 보내드려요`, deductedSub)}
+          {/* 착불 운임 안내는 박스 밖 한 줄(시안 C10-5 1b · 변경표 「박스 밖으로 이동」) */}
+          {collect > 0 && (
+            <Typography
+              style={{ fontSize: 12.5, lineHeight: 20, paddingHorizontal: 14, paddingTop: 8 }}
+              className="text-ink76"
+            >
+              {`불량 · 오배송으로 신청해 착불로 보내셨기 때문에, 브랜드가 낸 착불 운임 ${won(collect)}도 환불액에서 함께 빼요.`}
+            </Typography>
+          )}
+        </>
+      )}
       {reshipFee.state === "COVERED" &&
         confirmBox(
           "요청 때 결제한 배송비로 다시 보내드려요",
@@ -976,6 +992,7 @@ function RefundSection(props: {
       <View className="px-14 pt-14" style={{ gap: 9 }}>
         {hasRejected && (
           <AmountRow
+            even
             label="반려 상품 금액 (환불 제외)"
             value={won(refund.rejectedAmount as number)}
             labelColor="#3C3C3C"
@@ -985,6 +1002,7 @@ function RefundSection(props: {
           />
         )}
         <AmountRow
+          even
           label={hasRejected ? "승인 상품 금액" : "결제 금액"}
           value={won(refund.approvedAmount)}
           labelColor="#3C3C3C"
@@ -992,6 +1010,7 @@ function RefundSection(props: {
         />
         {refund.returnDeduction > 0 && (
           <AmountRow
+            even
             label="최초 배송비 차감"
             value={`-${won(refund.returnDeduction)}`}
             labelColor="#3C3C3C"
@@ -1001,6 +1020,7 @@ function RefundSection(props: {
         )}
         {refund.reshipDeduction > 0 && (
           <AmountRow
+            even
             label="재발송 배송비 (차감)"
             value={`-${won(refund.reshipDeduction)}`}
             labelColor="#3C3C3C"
@@ -1010,6 +1030,7 @@ function RefundSection(props: {
         )}
         {collectFreight > 0 && (
           <AmountRow
+            even
             label="착불 운임 (소비자 부담)"
             value={`-${won(collectFreight)}`}
             labelColor="#3C3C3C"
@@ -1020,6 +1041,7 @@ function RefundSection(props: {
         {isFaultChanged && freightRefund > 0 && (
           <View>
             <AmountRow
+              even
               label="귀책 변경 · 운임 환급"
               value={`+${won(freightRefund)}`}
               labelColor="#3C3C3C"
@@ -1052,7 +1074,7 @@ function RefundSection(props: {
       </View>
       {!!methodLabel && (
         <View className="px-14 pt-9">
-          <AmountRow label="환불 수단" value={methodLabel} fontSize={12.5} valueColor="#3C3C3C" />
+          <AmountRow even label="환불 수단" value={methodLabel} fontSize={12.5} valueColor="#3C3C3C" />
         </View>
       )}
       {bankTransfer > 0 && (

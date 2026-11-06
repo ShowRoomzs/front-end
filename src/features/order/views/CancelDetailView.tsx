@@ -38,14 +38,14 @@ import {
 } from "@/features/order/utils/orderFormat";
 
 /**
- * C10 1d 취소 상세 — 확인 중 · 취소 완료 · 거부. 항목 기준이라 요청 · 직접 취소 · 직권 취소가 같은 화면이다.
+ * C10 1d 취소 상세 — 확인 중 · 취소 완료 · 반려. 항목 기준이라 요청 · 직접 취소 · 직권 취소가 같은 화면이다.
  *
  * 구성: 신청 일시 + 주문번호 + [주문 상세] → 취소 상품(상품 위 상태 라벨) → 상품 아래 행동 버튼 →
  * 취소 신청 정보(라벨 열 고정) → 환불 정보 → 안내.
  *
  * - 확인 중: 라벨 로즈 · 회색 안내 박스 · 완료 일시는 「브랜드 확인 후 표시돼요」
  * - 취소 완료: 라벨 회색 · 금액 라벨 「환불 금액」 · [재구매]
- * - 거부: 박스 「주문은 그대로 배송돼요」 · 거부 사유 행 + 「○○의 메시지」 · 금액 0원(회색) · [배송 조회]
+ * - 반려: 박스 「주문은 그대로 배송돼요」 · 반려 사유 행 + 「○○의 메시지」 · 금액 0원(회색) · [배송 조회]
  *
  * 상태 라벨 · 안내 문구 · 사유는 서버가 내린다. 응답에 없는 브랜드명 · 상품 id(재구매) · 결제 수단은 주문
  * 상세의 같은 항목에서 읽는다. [취소 요청 철회]는 서버가 `withdrawable`을 줄 때만 그린다(요청 단위 철회).
@@ -136,7 +136,7 @@ export default function CancelDetailView() {
   let decidedLabel = detail.kind === "REQUEST" ? "완료 일시" : "취소 일시";
 
   if (isRejected) {
-    decidedLabel = "거부 일시";
+    decidedLabel = "반려 일시";
   }
 
   return (
@@ -191,7 +191,7 @@ export default function CancelDetailView() {
               <Typography style={{ fontSize: 12.5, lineHeight: 20 }} className="text-ink76">
                 {isPending
                   ? `브랜드가 확인하고 있어요. ${respondDays ? `보통 ${respondDays}영업일 안에 ` : ""}결과를 알림으로 알려드려요.`
-                  : "브랜드가 취소 요청을 거부했어요. 주문은 그대로 배송돼요."}
+                  : "브랜드가 취소 요청을 반려했어요. 주문은 그대로 배송돼요."}
               </Typography>
             </View>
           )}
@@ -255,7 +255,7 @@ export default function CancelDetailView() {
           <Band marginTop={14} />
           <SectionTitle title="환불 정보" />
           <View className="px-14 pt-14">
-            <AmountRow label="결제 금액" value={won(paidAmount)} labelColor="#3C3C3C" fontSize={13.5} />
+            <AmountRow even label="결제 금액" value={won(paidAmount)} labelColor="#3C3C3C" fontSize={13.5} />
           </View>
           <View
             className="mx-14 flex-row items-baseline justify-between border-t-[0.5px] border-dividerProduct"
@@ -271,14 +271,22 @@ export default function CancelDetailView() {
               {won(refundAmount)}
             </Typography>
           </View>
-          {!isRejected && !!refundMethodLabel && (
+          {/* 시안 C10 1d: 환불 수단은 반려여도 남긴다 — 금액 0원과 함께 「어디로 돌아올 돈이었는지」가 읽힌다 */}
+          {!!refundMethodLabel && (
             <View className="px-14 pt-9">
-              <AmountRow label="환불 수단" value={refundMethodLabel} fontSize={12.5} valueColor="#3C3C3C" />
+              <AmountRow
+                even
+                label="환불 수단"
+                value={refundMethodLabel}
+                fontSize={12.5}
+                valueColor="#3C3C3C"
+              />
             </View>
           )}
           {!!detail.refund?.statusLabel && (
             <View className="px-14 pt-9">
               <AmountRow
+                even
                 label="환불 상태"
                 value={detail.refund.statusLabel}
                 fontSize={12.5}
@@ -296,7 +304,7 @@ export default function CancelDetailView() {
   );
 }
 
-/** 거부 사유 — 서버 문구 그대로, 브랜드가 쓴 상세 사유는 출처를 밝혀 따로 단다 */
+/** 반려 사유 — 서버 문구 그대로, 브랜드가 쓴 상세 사유는 출처를 밝혀 따로 단다 */
 function RejectRows(props: { detail: CancelDetail; brandName: string }) {
   const { detail, brandName } = props;
 
@@ -304,7 +312,7 @@ function RejectRows(props: { detail: CancelDetail; brandName: string }) {
     <>
       <View className="flex-row" style={{ gap: 14, paddingVertical: 6 }}>
         <Typography style={{ width: 62, fontSize: 13.5, lineHeight: 20.25 }} className="text-gray45">
-          거부 사유
+          반려 사유
         </Typography>
         <Typography
           style={{ flex: 1, fontSize: 13.5, fontWeight: "600", lineHeight: 20.25 }}

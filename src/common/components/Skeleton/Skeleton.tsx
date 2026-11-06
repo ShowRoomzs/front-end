@@ -108,11 +108,32 @@ export function SkeletonBlock(props: SkeletonBlockProps) {
  * 로딩 분기와 콘텐츠 분기를 갈아 끼우면 스켈레톤이 부모째 사라져 퇴장 애니메이션이 돌지 않는다
  * (목록의 빈 상태 자리도 마찬가지). 그래서 콘텐츠와 **같은 부모 안에 형제로** 두고 `visible`만 내린다.
  * `top`으로 머리말처럼 가리지 않을 높이를 비운다.
+ *
+ * 내려가는 것은 `visible`이 꺼지고 **두 프레임 뒤**다. 본문이 무거우면(상품 상세의 WebView 등)
+ * 처음 그리는 동안 화면이 100ms 넘게 멈추는데, 같은 프레임에 퇴장을 시작하면 200ms 페이드가
+ * 그 멈춤에 먹혀 뚝 바뀐 것처럼 보인다. 본문을 스켈레톤 아래에서 먼저 그려 두고 흐린다.
  */
 export function SkeletonOverlay(props: { visible: boolean; top?: number; children: ReactNode }) {
   const { visible, top = 0, children } = props;
+  const [shown, setShown] = useState(visible);
 
-  if (!visible) {
+  useEffect(() => {
+    if (visible) {
+      setShown(true);
+      return;
+    }
+    let second = 0;
+    const first = requestAnimationFrame(() => {
+      second = requestAnimationFrame(() => setShown(false));
+    });
+
+    return () => {
+      cancelAnimationFrame(first);
+      cancelAnimationFrame(second);
+    };
+  }, [visible]);
+
+  if (!visible && !shown) {
     return null;
   }
 

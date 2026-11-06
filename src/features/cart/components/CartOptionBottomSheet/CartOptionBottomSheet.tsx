@@ -1,24 +1,20 @@
 import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
-import { produce } from "immer";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { View } from "react-native";
+import { useCallback, useMemo, useState } from "react";
+import { TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import Button from "@/common/components/Button/Button";
-import HStack from "@/common/components/HStack/HStack";
 import Typography from "@/common/components/Typography/Typography";
 import { SheetApi } from "@/common/providers/BottomSheetProvider/context";
-import { toast } from "@/common/providers/ToastProvider";
+import { formatPrice } from "@/common/utils/formatPrice";
 import {
-  BOTTOM_SHEET_GAP,
+  OPTION_SHEET_ITEM_GAP,
   PRODUCT_OPTION_BOTTOM_SHEET_PADDING,
 } from "@/features/product/components/ProductOptionBottomSheet/config";
 import ProductOptionDropdown from "@/features/product/components/ProductOptionDropdown/ProductOptionDropdown";
-import VariantCard from "@/features/product/components/VariantCard/VariantCard";
 import { PRODUCT_OPTION_BOTTOM_SHEET_MAX_HEIGHT } from "@/features/product/constants/optionBottomSheet";
 import { useGetProductDetail } from "@/features/product/hooks/useGetProductDetail";
 import { useOptionSelection } from "@/features/product/hooks/useOptionSelection";
-import { LocalVariant } from "@/features/product/types/product";
+import { ProductDetail } from "@/features/product/types/product";
 import { getEnabledVariants } from "@/features/product/utils/option";
 
 interface CartOptionBottomSheetProps {
@@ -32,148 +28,115 @@ interface CartOptionBottomSheetProps {
   onConfirm: (cartId: number, newVariantId: number, newQuantity: number, sheetApi?: SheetApi) => void;
 }
 
+/**
+ * C8 옵션 변경 시트.
+ *
+ * 상품 상세의 옵션 시트(여러 조합을 담는 시트)와 달리 **담긴 한 줄의 조합 하나를 바꾸는** 시트다.
+ * 지금 조합이 처음부터 채워져 있고, 그룹을 다시 열면 그 그룹과 아래 그룹이 비워져
+ * [변경하기]가 잠긴다 — 끝까지 다시 골라야 켜진다. 수량은 그대로 둔다(수량은 장바구니 행의 스테퍼).
+ */
 export default function CartOptionBottomSheet(props: CartOptionBottomSheetProps) {
-  const { cartId, productId, groupBuyId, variantId, quantity, sheetApi, onConfirm } = props;
-  const { bottom } = useSafeAreaInsets();
+  const { productId, groupBuyId } = props;
   const { data: productDetail } = useGetProductDetail(productId, groupBuyId ?? undefined);
-  const [footerHeight, setFooterHeight] = useState(0);
-
-  // productDetail의 variants에서 variantId로 찾아서 초기 옵션 매핑
-  const initialSelectedOptions = useMemo(() => {
-    if (!productDetail) {
-      return {};
-    }
-
-    const targetVariant = productDetail.variants.find(v => v.variantId === variantId);
-
-    if (!targetVariant) {
-      return {};
-    }
-
-    const options: Record<number, number> = {};
-
-    productDetail.optionGroups.forEach(group => {
-      const matchedOption = group.options.find(opt => targetVariant.optionIds.includes(opt.optionId));
-
-      if (matchedOption) {
-        options[group.optionGroupId] = matchedOption.optionId;
-      }
-    });
-
-    return options;
-  }, [productDetail, variantId]);
-
-  const { selectedOptions, openGroupId, handleToggleGroup, handleChangeOption } = useOptionSelection({
-    optionGroups: productDetail?.optionGroups ?? [],
-    initialSelectedOptions,
-  });
-
-  const [selectedVariants, setSelectedVariants] = useState<Array<LocalVariant>>([]);
-
-  useEffect(() => {
-    if (!productDetail || !initialSelectedOptions || Object.keys(initialSelectedOptions).length === 0) {
-      return;
-    }
-
-    const targetVariant = productDetail.variants.find(v => v.variantId === variantId);
-
-    if (!targetVariant) {
-      return;
-    }
-
-    setSelectedVariants([{ ...targetVariant, count: quantity }]);
-  }, [productDetail, variantId, quantity, initialSelectedOptions]);
-
-  const handleChangeOptionInternal = useCallback(
-    (optionGroupId: number, optionId: number) => {
-      if (!productDetail) {
-        return;
-      }
-
-      const newSelectOptions = handleChangeOption(optionGroupId, optionId);
-
-      if (Object.keys(newSelectOptions).length === productDetail.optionGroups.length) {
-        const targetVariant = getEnabledVariants(productDetail.variants, newSelectOptions)[0];
-
-        const newVariants = produce(selectedVariants, draft => {
-          const exist = draft.find(v => v.variantId === targetVariant.variantId);
-
-          if (exist) {
-            exist.count += 1;
-            return;
-          }
-
-          return [...draft, { ...targetVariant, count: 1 }];
-        });
-
-        setSelectedVariants(newVariants);
-      }
-    },
-    [productDetail, selectedVariants, handleChangeOption]
-  );
-
-  const handleChangeVariantCount = useCallback(
-    (variantId: number, count: number) => {
-      const newVariants = selectedVariants.map(variant =>
-        variant.variantId === variantId ? { ...variant, count } : variant
-      );
-
-      setSelectedVariants(newVariants);
-    },
-    [selectedVariants]
-  );
-
-  const handleRemoveVariant = useCallback(
-    (variantId: number) => {
-      const newVariants = selectedVariants.filter(variant => variant.variantId !== variantId);
-
-      setSelectedVariants(newVariants);
-    },
-    [selectedVariants]
-  );
-
-  const totalPrice = useMemo(
-    () => selectedVariants.reduce((sum, variant) => sum + variant.salePrice * variant.count, 0),
-    [selectedVariants]
-  );
-
-  const hasSelectedVariants = useMemo(() => selectedVariants.length > 0, [selectedVariants]);
-
-  const handlePressCancel = useCallback(() => {
-    sheetApi?.close();
-  }, [sheetApi]);
-
-  const handlePressConfirm = useCallback(() => {
-    if (!hasSelectedVariants) {
-      toast.show("옵션을 선택해 주세요.");
-      return;
-    }
-
-    // 여러 variant 중 첫 번째 것만 전달 (장바구니는 개별 아이템 단위 수정)
-    const targetVariant = selectedVariants[0];
-
-    onConfirm(cartId, targetVariant.variantId, targetVariant.count, sheetApi);
-  }, [hasSelectedVariants, selectedVariants, cartId, onConfirm, sheetApi]);
 
   if (!productDetail) {
     return null;
   }
 
+  // 상품을 받은 뒤에 마운트해야 지금 조합이 초기 선택으로 들어간다
+  return <CartOptionSheetBody {...props} productDetail={productDetail} />;
+}
+
+function CartOptionSheetBody(props: CartOptionBottomSheetProps & { productDetail: ProductDetail }) {
+  const { cartId, productId, groupBuyId, variantId, quantity, sheetApi, onConfirm, productDetail } = props;
+  const { bottom } = useSafeAreaInsets();
+  const [footerHeight, setFooterHeight] = useState(0);
+  const { optionGroups, variants } = productDetail;
+
+  const initialSelectedOptions = useMemo(() => {
+    const current = variants.find(variant => variant.variantId === variantId);
+    const options: Record<number, number> = {};
+
+    if (!current) {
+      return options;
+    }
+    optionGroups.forEach(group => {
+      const matched = group.options.find(option => current.optionIds.includes(option.optionId));
+
+      if (matched) {
+        options[group.optionGroupId] = matched.optionId;
+      }
+    });
+
+    return options;
+  }, [optionGroups, variantId, variants]);
+
+  const { selectedOptions, openGroupId, handleToggleGroup, handleChangeOption } = useOptionSelection({
+    optionGroups,
+    initialSelectedOptions,
+    keepFinalPick: true,
+  });
+
+  const isAllPicked = optionGroups.every(group => selectedOptions[group.optionGroupId] !== undefined);
+  const pickedVariant = isAllPicked ? getEnabledVariants(variants, selectedOptions)[0] : undefined;
+  const canSave = !!pickedVariant;
+
+  // 시안: 고른 옵션 이름을 「 · 」로 잇고, 오른쪽에 그 조합의 단가
+  const pickedLabel = optionGroups
+    .map(
+      group => group.options.find(option => option.optionId === selectedOptions[group.optionGroupId])?.name
+    )
+    .filter(Boolean)
+    .join(" · ");
+
+  const handleChangeOptionInternal = useCallback(
+    (optionGroupId: number, optionId: number) => {
+      handleChangeOption(optionGroupId, optionId);
+    },
+    [handleChangeOption]
+  );
+
+  const handlePressCancel = useCallback(() => {
+    sheetApi?.close();
+  }, [sheetApi]);
+
+  const handlePressSave = useCallback(() => {
+    if (!pickedVariant) {
+      return;
+    }
+    // 같은 조합 그대로면 바꿀 것이 없다
+    if (pickedVariant.variantId === variantId) {
+      sheetApi?.close();
+      return;
+    }
+    onConfirm(cartId, pickedVariant.variantId, quantity, sheetApi);
+  }, [cartId, onConfirm, pickedVariant, quantity, sheetApi, variantId]);
+
   return (
     <View style={{ maxHeight: PRODUCT_OPTION_BOTTOM_SHEET_MAX_HEIGHT }}>
-      <BottomSheetScrollView
-        contentContainerStyle={{
-          paddingBottom: BOTTOM_SHEET_GAP + footerHeight,
-        }}
-      >
-        <View style={{ paddingHorizontal: 20, gap: BOTTOM_SHEET_GAP }}>
-          {productDetail.optionGroups.map((optionGroup, ix) => (
+      <BottomSheetScrollView contentContainerStyle={{ paddingBottom: 12 + footerHeight }}>
+        <Typography
+          style={{ fontSize: 15, fontWeight: "600", lineHeight: 21, paddingHorizontal: 20, paddingBottom: 6 }}
+          className="text-center text-ink"
+        >
+          옵션 변경
+        </Typography>
+        <Typography
+          numberOfLines={1}
+          style={{ fontSize: 12.5, lineHeight: 18.75, paddingHorizontal: 20, paddingBottom: 14 }}
+          className="text-center text-gray45"
+        >
+          {productDetail.name}
+        </Typography>
+
+        <View style={{ paddingHorizontal: 20, gap: OPTION_SHEET_ITEM_GAP }}>
+          {optionGroups.map((optionGroup, ix) => (
             <ProductOptionDropdown
               key={optionGroup.optionGroupId}
               optionGroup={optionGroup}
               index={ix}
-              optionGroups={productDetail.optionGroups}
-              variants={productDetail.variants}
+              optionGroups={optionGroups}
+              variants={variants}
               selectedOptions={selectedOptions}
               openGroupId={openGroupId}
               onToggleGroup={handleToggleGroup}
@@ -182,43 +145,57 @@ export default function CartOptionBottomSheet(props: CartOptionBottomSheetProps)
               groupBuyId={groupBuyId}
             />
           ))}
-          {selectedVariants.map(variant => (
-            <VariantCard
-              key={variant.variantId}
-              variant={variant}
-              onRemove={() => handleRemoveVariant(variant.variantId)}
-              onChangeCount={count => handleChangeVariantCount(variant.variantId, count)}
-            />
-          ))}
+
+          {!!pickedVariant && (
+            <View
+              className="flex-row items-center justify-between rounded-base bg-band"
+              style={{ padding: 13, gap: 12 }}
+            >
+              <Typography
+                style={{ fontSize: 13, fontWeight: "500", lineHeight: 18.85 }}
+                className="min-w-0 flex-1 text-ink76"
+              >
+                {pickedLabel || pickedVariant.name}
+              </Typography>
+              <Typography
+                style={{ fontSize: 15, fontWeight: "600", lineHeight: 15, letterSpacing: -0.3 }}
+                className="text-ink"
+              >
+                {`${formatPrice(pickedVariant.salePrice)}원`}
+              </Typography>
+            </View>
+          )}
         </View>
       </BottomSheetScrollView>
+
       <View
         onLayout={e => setFooterHeight(e.nativeEvent.layout.height)}
-        className="absolute bottom-0 left-0 right-0 bg-white"
-        style={{ paddingBottom: bottom + PRODUCT_OPTION_BOTTOM_SHEET_PADDING }}
+        className="absolute bottom-0 left-0 right-0 flex-row border-t-[0.5px] border-divider bg-white px-20 pt-14"
+        style={{ gap: 8, paddingBottom: bottom + PRODUCT_OPTION_BOTTOM_SHEET_PADDING }}
       >
-        {hasSelectedVariants && (
-          <View className="px-10 p-20 border-t-[1px] border-gray2 flex flex-row items-center justify-between">
-            <Typography className="text-14 text-gray10 font-normal">총 결제 금액.</Typography>
-            <Typography className="text-black text-16 font-semibold">
-              ₩ {totalPrice.toLocaleString()}
-            </Typography>
-          </View>
-        )}
-        <HStack gap={6} className="px-10 flex flex-row items-center pt-10">
-          <Button onPress={handlePressCancel} size="xl" variant="secondary" className="py-15 flex-1">
+        <TouchableOpacity
+          onPress={handlePressCancel}
+          activeOpacity={0.55}
+          className="h-52 flex-1 flex-row items-center justify-center rounded-base border border-borderButtonStrong bg-white"
+        >
+          <Typography style={{ fontSize: 15, fontWeight: "600", lineHeight: 15 }} className="text-ink76">
             취소
-          </Button>
-          <Button
-            disabled={!hasSelectedVariants}
-            onPress={handlePressConfirm}
-            size="xl"
-            variant="primary"
-            className="py-15 flex-1"
+          </Typography>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={handlePressSave}
+          disabled={!canSave}
+          activeOpacity={canSave ? 0.75 : 1}
+          className={`h-52 flex-1 flex-row items-center justify-center rounded-base ${canSave ? "bg-rose" : "bg-fill"}`}
+        >
+          <Typography
+            style={{ fontSize: 15, fontWeight: "600", lineHeight: 15 }}
+            className={canSave ? "text-white" : "text-gray8"}
           >
             변경하기
-          </Button>
-        </HStack>
+          </Typography>
+        </TouchableOpacity>
       </View>
     </View>
   );

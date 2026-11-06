@@ -7,10 +7,15 @@ import { getNextOptionGroupIds } from "@/features/product/utils/option";
 interface UseOptionSelectionProps {
   optionGroups: Array<OptionGroup>;
   initialSelectedOptions?: Record<number, number>;
+  /**
+   * 마지막 그룹까지 고른 조합을 드롭다운에 그대로 둔다 — 장바구니 옵션 변경(시안 C8)은
+   * 한 조합만 고르는 시트라 선택 줄로 내려보낼 것이 없다.
+   */
+  keepFinalPick?: boolean;
 }
 
 export function useOptionSelection(props: UseOptionSelectionProps) {
-  const { optionGroups, initialSelectedOptions = {} } = props;
+  const { optionGroups, initialSelectedOptions = {}, keepFinalPick = false } = props;
   const [selectedOptions, setSelectedOptions] = useState<Record<number, number>>(initialSelectedOptions);
   /** 지금 펼쳐진 그룹 — 시안 C7: 한 번에 하나만 열린다 */
   const [openGroupId, setOpenGroupId] = useState<number | null>(null);
@@ -63,7 +68,7 @@ export function useOptionSelection(props: UseOptionSelectionProps) {
          * 고른 값을 위에 남겨 두면 같은 값이 드롭다운과 선택 줄에 두 번 보이고, 다른 조합을
          * 하나 더 담으려면 먼저 그걸 지워야 하는 것처럼 읽힌다(시안 C7 `pick`).
          */
-        setSelectedOptions({});
+        setSelectedOptions(keepFinalPick ? newSelectOptions : {});
         setOpenGroupId(null);
 
         return newSelectOptions;
@@ -75,7 +80,7 @@ export function useOptionSelection(props: UseOptionSelectionProps) {
 
       return newSelectOptions;
     },
-    [optionGroups, selectedOptions]
+    [keepFinalPick, optionGroups, selectedOptions]
   );
 
   const resetOptions = useCallback(() => {

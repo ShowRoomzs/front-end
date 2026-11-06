@@ -8,7 +8,6 @@ import { EmptyBagIcon } from "@/common/components/DsIcon/icons";
 import EmptyState from "@/common/components/EmptyState/EmptyState";
 import GroupBand from "@/common/components/GroupBand/GroupBand";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
-import SectionLabel from "@/common/components/SectionLabel/SectionLabel";
 import { SkeletonOverlay } from "@/common/components/Skeleton/Skeleton";
 import Typography from "@/common/components/Typography/Typography";
 import { useBottomSheet } from "@/common/hooks/useBottomSheet";
@@ -122,7 +121,7 @@ export default function CartView() {
   }, [applySelection, isAllSelected, selectableIds]);
 
   const handleRemove = useCallback(
-    async (cartIds: Array<number>) => {
+    async (cartIds: Array<number>, doneMessage?: string) => {
       try {
         await deleteCartItems({
           cartItemIds: cartIds,
@@ -133,6 +132,9 @@ export default function CartView() {
 
           cartIds.forEach(id => next.delete(id));
           setSelectedIds(next);
+        }
+        if (doneMessage) {
+          toast.show(doneMessage);
         }
       } catch (error) {
         toast.show(resolveErrorMessage(error, "삭제에 실패했습니다."));
@@ -156,7 +158,11 @@ export default function CartView() {
       message: `${selectedCount}개 상품이 장바구니에서 빠집니다`,
       buttons: [
         { label: "취소", variant: "outline" },
-        { label: "삭제하기", onPress: () => handleRemove(Array.from(effectiveSelectedIds)) },
+        {
+          label: "삭제하기",
+          // 시안 C8: 여러 건을 한꺼번에 지웠을 때만 결과를 알린다(행의 X는 그 자리에서 사라지는 것으로 충분하다)
+          onPress: () => handleRemove(Array.from(effectiveSelectedIds), "선택한 상품을 삭제했어요"),
+        },
       ],
     });
   }, [effectiveSelectedIds, handleRemove, selectedCount, showModal]);
@@ -189,7 +195,7 @@ export default function CartView() {
           data: { variantId: newVariantId, quantity: newQuantity },
           selectedCartItemIds: selectedIdList,
         });
-        toast.success("옵션이 변경되었습니다.");
+        toast.success("옵션을 변경했어요");
         sheetApi?.close();
       } catch (error) {
         toast.show(resolveErrorMessage(error, "옵션 변경에 실패했습니다."));
@@ -257,6 +263,7 @@ export default function CartView() {
   }, [effectiveSelectedIds, navigation, selectableIds]);
 
   const isEmpty = allItems.length === 0;
+  const deliveryFeeTotal = cart?.summary.deliveryFeeTotal ?? 0;
 
   return (
     <View className="flex-1 bg-white">
@@ -264,6 +271,40 @@ export default function CartView() {
 
       {/* 받는 동안은 비운 채 위에 스켈레톤을 겹친다 — 받은 뒤 같은 부모 안에서 크로스페이드된다 */}
       <View className="flex-1">
+        {/* 시안 C8: 전체 선택 줄은 목록과 함께 흘러가지 않고 머리말 아래에 머문다 */}
+        {!isLoading && !isEmpty && (
+          <View className="flex-row items-center justify-between border-b-[0.5px] border-divider px-14 py-12">
+            <TouchableOpacity
+              onPress={handleToggleAll}
+              activeOpacity={0.55}
+              className="flex-row items-center"
+              style={{ gap: 9 }}
+            >
+              <Checkbox isChecked={isAllSelected} onChange={handleToggleAll} />
+              <Typography
+                style={{ fontSize: 13.5, fontWeight: "500", lineHeight: 18 }}
+                className="text-ink76"
+              >
+                전체 선택 {selectedCount}/{selectableIds.length}
+              </Typography>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={handlePressRemoveSelected}
+              disabled={selectedCount === 0}
+              activeOpacity={0.55}
+              style={{ paddingVertical: 8, marginVertical: -8 }}
+            >
+              <Typography
+                style={{ fontSize: 12.5, fontWeight: "500", lineHeight: 18 }}
+                className={selectedCount === 0 ? "text-gray8" : "text-ink76"}
+              >
+                선택 삭제
+              </Typography>
+            </TouchableOpacity>
+          </View>
+        )}
+
         {!isLoading && (
           <ScrollView
             showsVerticalScrollIndicator={false}
@@ -280,40 +321,10 @@ export default function CartView() {
               />
             ) : (
               <>
-                <View className="flex-row items-center justify-between border-b-[0.5px] border-divider px-14 py-12">
-                  <TouchableOpacity
-                    onPress={handleToggleAll}
-                    activeOpacity={0.55}
-                    className="flex-row items-center"
-                    style={{ gap: 8 }}
-                  >
-                    <Checkbox isChecked={isAllSelected} onChange={handleToggleAll} />
-                    <Typography
-                      style={{ fontSize: 13, fontWeight: "500", lineHeight: 18 }}
-                      className="text-ink"
-                    >
-                      전체 선택 {selectedCount}/{selectableIds.length}
-                    </Typography>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    onPress={handlePressRemoveSelected}
-                    disabled={selectedCount === 0}
-                    activeOpacity={0.55}
-                    style={{ paddingVertical: 8, marginVertical: -8 }}
-                  >
-                    <Typography
-                      style={{ fontSize: 12.5, fontWeight: "600", lineHeight: 18 }}
-                      className={selectedCount === 0 ? "text-gray62" : "text-gray45"}
-                    >
-                      선택 삭제
-                    </Typography>
-                  </TouchableOpacity>
-                </View>
-
-                {groups.map((group, ix) => (
+                {groups.map(group => (
                   <View key={group.groupBuyId ?? `market-${group.marketId}`}>
-                    {ix > 0 && <GroupBand height={5} />}
+                    {/* 첫 그룹도 밴드로 연다 — 전체 선택 줄과 첫 그룹 머리가 한 덩어리로 붙어 보이지 않게 */}
+                    <GroupBand height={5} />
                     <CartGroupSection
                       group={group}
                       selectedIds={effectiveSelectedIds}
@@ -328,44 +339,72 @@ export default function CartView() {
               </>
             )}
 
-            {!!recommendations?.products.length && (
+            {/* 시안 C8: 담긴 상품이 있을 때만 — 빈 장바구니는 [공동구매 둘러보기] 하나로 길을 낸다 */}
+            {!isEmpty && !!recommendations?.products.length && (
               <>
-                <GroupBand height={8} />
-                <SectionLabel label="팔로우한 쇼룸의 공구" className="pb-4 pt-18" />
+                <GroupBand height={5} />
+                <Typography
+                  style={{
+                    fontSize: 15,
+                    fontWeight: "700",
+                    lineHeight: 15,
+                    letterSpacing: -0.2,
+                    paddingHorizontal: 14,
+                    paddingTop: 18,
+                    paddingBottom: 12,
+                  }}
+                  className="text-ink"
+                >
+                  팔로우한 쇼룸의 공구
+                </Typography>
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={{ paddingHorizontal: 14, paddingVertical: 10, gap: 12 }}
+                  contentContainerStyle={{ paddingHorizontal: 14, paddingBottom: 20, gap: 10 }}
                 >
                   {recommendations.products.map(product => (
                     <TouchableOpacity
                       key={product.productId}
                       onPress={() => handlePressRecommendation(product.productId)}
                       activeOpacity={0.55}
-                      style={{ width: 116 }}
+                      style={{ width: 130 }}
                     >
                       <Image
                         source={{ uri: product.thumbnailUrl }}
-                        style={{ width: 116, height: 116, borderRadius: 4 }}
+                        style={{ width: 130, height: 130, borderRadius: 4 }}
                         resizeMode="cover"
                       />
-                      <Typography variant="caption" className="mt-8 text-gray45" numberOfLines={1}>
+                      <Typography
+                        style={{ fontSize: 11.5, lineHeight: 14.95, marginTop: 8 }}
+                        className="text-gray45"
+                        numberOfLines={1}
+                      >
                         {product.marketName}
                       </Typography>
-                      <Typography variant="productName" className="text-ink80" numberOfLines={2}>
+                      <Typography
+                        style={{
+                          fontSize: 12.5,
+                          lineHeight: 17.5,
+                          marginTop: 3,
+                          minHeight: 35,
+                          paddingRight: 4,
+                        }}
+                        className="text-ink80"
+                        numberOfLines={2}
+                      >
                         {product.productName}
                       </Typography>
-                      <View className="mt-4 flex-row items-baseline" style={{ gap: 6 }}>
+                      <View className="mt-5 flex-row items-baseline" style={{ gap: 5 }}>
                         {product.price.discountRate > 0 && (
                           <Typography
-                            style={{ fontSize: 13, fontWeight: "700", lineHeight: 13 }}
+                            style={{ fontSize: 13.5, fontWeight: "700", lineHeight: 13.5 }}
                             className="text-rose"
                           >
                             {product.price.discountRate}%
                           </Typography>
                         )}
                         <Typography
-                          style={{ fontSize: 13, fontWeight: "700", lineHeight: 13 }}
+                          style={{ fontSize: 13.5, fontWeight: "700", lineHeight: 13.5, letterSpacing: -0.2 }}
                           className="text-ink"
                         >
                           {formatPrice(product.price.salePrice)}원
@@ -391,12 +430,20 @@ export default function CartView() {
           onLayout={event => setCtaHeight(event.nativeEvent.layout.height)}
         >
           <SummaryRow label="상품 금액" value={`${formatPrice(cart?.summary.saleTotal ?? 0)}원`} />
-          <SummaryRow label="배송비" value={`${formatPrice(cart?.summary.deliveryFeeTotal ?? 0)}원`} />
-          <View className="mt-8 flex-row items-center justify-between border-t-[0.5px] border-dividerProduct pt-10">
-            <Typography style={{ fontSize: 13.5, fontWeight: "600", lineHeight: 18 }} className="text-ink">
+          <SummaryRow
+            label="배송비"
+            // 시안 C8: 낼 배송비가 없으면 0원이 아니라 「무료배송」
+            value={deliveryFeeTotal === 0 ? "무료배송" : `${formatPrice(deliveryFeeTotal)}원`}
+            className="mt-5"
+          />
+          <View className="mt-11 flex-row items-baseline justify-between border-t-[0.5px] border-divider pt-11">
+            <Typography style={{ fontSize: 13.5, fontWeight: "600", lineHeight: 13.5 }} className="text-ink">
               총 결제 금액
             </Typography>
-            <Typography style={{ fontSize: 17, fontWeight: "700", lineHeight: 20 }} className="text-ink">
+            <Typography
+              style={{ fontSize: 21, fontWeight: "700", lineHeight: 21, letterSpacing: -0.6 }}
+              className="text-ink"
+            >
               {formatPrice(cart?.summary.finalTotal ?? 0)}원
             </Typography>
           </View>
@@ -405,16 +452,13 @@ export default function CartView() {
             onPress={handlePressOrder}
             disabled={selectedCount === 0}
             activeOpacity={0.75}
-            className={`mt-12 h-52 flex-row items-center justify-center rounded-base ${
+            className={`mt-14 h-52 flex-row items-center justify-center rounded-base ${
               selectedCount === 0 ? "bg-fill" : "bg-rose"
             }`}
           >
-            <Typography
-              variant="buttonPrimary"
-              className={selectedCount === 0 ? "text-gray62" : "text-white"}
-            >
+            <Typography variant="buttonPrimary" className={selectedCount === 0 ? "text-gray8" : "text-white"}>
               {selectedCount === 0
-                ? "주문할 상품을 선택해 주세요"
+                ? "주문하기"
                 : `${formatPrice(cart?.summary.finalTotal ?? 0)}원 주문하기 (${selectedCount})`}
             </Typography>
           </TouchableOpacity>
@@ -424,13 +468,13 @@ export default function CartView() {
   );
 }
 
-function SummaryRow(props: { label: string; value: string }) {
+function SummaryRow(props: { label: string; value: string; className?: string }) {
   return (
-    <View className="flex-row items-center justify-between py-3">
-      <Typography style={{ fontSize: 12.5, lineHeight: 18 }} className="text-gray45">
+    <View className={`flex-row items-baseline justify-between ${props.className ?? ""}`}>
+      <Typography style={{ fontSize: 13, lineHeight: 19.5 }} className="text-gray45">
         {props.label}
       </Typography>
-      <Typography style={{ fontSize: 12.5, fontWeight: "500", lineHeight: 18 }} className="text-ink76">
+      <Typography style={{ fontSize: 13, lineHeight: 19.5 }} className="text-ink76">
         {props.value}
       </Typography>
     </View>

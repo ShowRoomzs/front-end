@@ -80,23 +80,38 @@ export default function CartGroupSection(props: CartGroupSectionProps) {
         />
       ))}
 
-      <View className="mx-14 flex-row items-center justify-between border-t-[0.5px] border-dividerProduct py-12">
-        <Typography style={{ fontSize: 12.5, lineHeight: 18 }} className="text-gray45">
-          배송비
+      {/*
+        시안 C8: 무료배송까지 남은 금액은 「배송비」 라벨 자리를 대신한다 — 한 줄에 라벨과 힌트를
+        나눠 두면 어느 쪽이 금액 설명인지 흐려진다. 무료가 되면 값이 로즈 「무료배송」으로 바뀐다.
+      */}
+      <View className="flex-row items-baseline justify-between border-t-[0.5px] border-dividerProduct px-14 py-9">
+        <Typography style={{ fontSize: 12.5, lineHeight: 17.5 }} className="text-gray45">
+          {renderShippingLabel(group)}
         </Typography>
-        <View className="items-end">
-          <Typography style={{ fontSize: 12.5, fontWeight: "600", lineHeight: 18 }} className="text-ink">
-            {renderShippingValue(group)}
-          </Typography>
-          {!!group.shipping.amountToFreeShipping && (
-            <Typography style={{ fontSize: 11, lineHeight: 16.5 }} className="text-gray45">
-              {formatPrice(group.shipping.amountToFreeShipping)}원 더 담으면 무료
-            </Typography>
-          )}
-        </View>
+        <Typography
+          style={{ fontSize: 12.5, fontWeight: "600", lineHeight: 17.5 }}
+          className={isFreeShippingApplied(group) ? "text-roseText" : "text-ink76"}
+        >
+          {renderShippingValue(group)}
+        </Typography>
       </View>
     </View>
   );
+}
+
+function isFreeShippingApplied(group: CartGroup): boolean {
+  return group.shipping.hasSelectedItems && group.shipping.isFreeShipping;
+}
+
+function renderShippingLabel(group: CartGroup): string {
+  if (
+    !group.shipping.hasSelectedItems ||
+    group.shipping.isFreeShipping ||
+    !group.shipping.amountToFreeShipping
+  ) {
+    return "배송비";
+  }
+  return `${formatPrice(group.shipping.amountToFreeShipping)}원 더 담으면 무료배송`;
 }
 
 function renderShippingValue(group: CartGroup): string {
@@ -104,7 +119,7 @@ function renderShippingValue(group: CartGroup): string {
     return "—";
   }
   if (group.shipping.isFreeShipping) {
-    return "무료";
+    return "무료배송";
   }
   return `${formatPrice(group.shipping.chargedDeliveryFee)}원`;
 }

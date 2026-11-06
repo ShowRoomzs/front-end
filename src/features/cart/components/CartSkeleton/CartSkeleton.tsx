@@ -6,7 +6,7 @@ import { SkeletonBlock } from "@/common/components/Skeleton/Skeleton";
  * C12 장바구니 자리 표시 — 전체 선택 줄 + 공구 묶음 하나(머리 · 상품 두 줄 · 배송비 줄).
  *
  * 틀은 CartView 전체 선택 줄(px-14 · py-12) · CartGroupSection 머리(pt-14 · pb-4 · 아바타 26) ·
- * CartItemRow(px-14 · py-12 · 간격 10 · 썸네일 74)를 그대로 따른다. `Skeleton` 안에 넣어 쓴다.
+ * CartItemRow(px-14 · py-12 · 간격 10 · 썸네일 60)를 그대로 따른다. `Skeleton` 안에 넣어 쓴다.
  */
 export default function CartSkeleton() {
   return (
@@ -42,7 +42,7 @@ function CartItemRowSkeleton() {
       <View className="pt-2">
         <SkeletonBlock width={20} height={20} />
       </View>
-      <SkeletonBlock width={74} height={74} />
+      <SkeletonBlock width={60} height={60} />
       <View className="min-w-0 flex-1" style={{ gap: 7, paddingTop: 2 }}>
         <SkeletonBlock width="78%" height={11} />
         <SkeletonBlock width="46%" height={9} sub />

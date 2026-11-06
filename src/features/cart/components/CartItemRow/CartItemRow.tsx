@@ -26,7 +26,7 @@ interface CartItemRowProps {
   onPressRemove: (cartId: number) => void;
 }
 
-const THUMBNAIL_SIZE = 74;
+const THUMBNAIL_SIZE = 60;
 
 export default function CartItemRow(props: CartItemRowProps) {
   const { item, isSelected, onToggleSelect, onChangeQuantity, onPressChangeOption, onPressRemove } = props;
@@ -35,7 +35,7 @@ export default function CartItemRow(props: CartItemRowProps) {
 
   return (
     <View className="flex-row px-14 py-12" style={{ gap: 10 }}>
-      <View className="pt-2">
+      <View className="pt-2" style={{ marginRight: 1 }}>
         {/* 살 수 없는 항목은 체크를 지우지 않고 회색으로 낮춘다 — 자리가 사라지면 왜 못 고르는지 모른다 */}
         <Checkbox
           isChecked={isSelected && !isUnavailable}
@@ -44,7 +44,14 @@ export default function CartItemRow(props: CartItemRowProps) {
         />
       </View>
 
-      <View className="relative" style={{ width: THUMBNAIL_SIZE, height: THUMBNAIL_SIZE }}>
+      <View
+        className="relative"
+        style={[
+          { width: THUMBNAIL_SIZE, height: THUMBNAIL_SIZE },
+          // §05 판매 종료 상태 — 흑백 + 흰 베일(흑백 필터는 안드로이드만 그린다)
+          isUnavailable ? { filter: [{ grayscale: 1 }] } : null,
+        ]}
+      >
         <Image
           source={{ uri: item.thumbnailUrl }}
           style={{ width: THUMBNAIL_SIZE, height: THUMBNAIL_SIZE, borderRadius: 4 }}
@@ -67,8 +74,8 @@ export default function CartItemRow(props: CartItemRowProps) {
                 pointerEvents="none"
               >
                 <Typography
-                  style={{ fontSize: 12, fontWeight: "600", lineHeight: 12 }}
-                  className="text-gray62"
+                  style={{ fontSize: 11, fontWeight: "600", lineHeight: 11 }}
+                  className="text-ink76"
                 >
                   {availability.label}
                 </Typography>
@@ -81,7 +88,7 @@ export default function CartItemRow(props: CartItemRowProps) {
       <View className="min-w-0 flex-1">
         <View className="flex-row items-start" style={{ gap: 8 }}>
           <Typography
-            variant="productName"
+            style={{ fontSize: 12, lineHeight: 16.8, marginTop: 5 }}
             className={`min-w-0 flex-1 ${isUnavailable ? "text-gray62" : "text-ink80"}`}
             numberOfLines={1}
           >
@@ -92,7 +99,7 @@ export default function CartItemRow(props: CartItemRowProps) {
             activeOpacity={0.55}
             style={{ padding: 6, margin: -6 }}
           >
-            <CloseIcon size={14} />
+            <CloseIcon size={13} color="#8E8E8E" />
           </TouchableOpacity>
         </View>
 
@@ -128,29 +135,33 @@ export default function CartItemRow(props: CartItemRowProps) {
 
         {isUnavailable ? (
           <Typography
-            style={{ fontSize: 12, fontWeight: "600", lineHeight: 18, marginTop: 8 }}
+            style={{ fontSize: 12, fontWeight: "500", lineHeight: 18, marginTop: 6 }}
             className="text-gray62"
           >
             {availability.message}
           </Typography>
         ) : (
-          <View className="mt-8 flex-row items-end justify-between">
+          <View className="mt-11 flex-row items-end justify-between" style={{ gap: 10 }}>
             <Stepper
               value={item.quantity}
               min={1}
               max={item.stock.stock || undefined}
               onChange={quantity => onChangeQuantity(item.cartId, quantity)}
             />
-            <View className="items-end">
+            {/* 시안 C8: 정가는 가격 왼쪽에 나란히 — 위로 쌓으면 행 높이만 늘고 비교가 한눈에 안 된다 */}
+            <View className="min-w-0 flex-row items-end" style={{ gap: 7 }}>
               {item.price.regularPrice > item.price.salePrice && (
                 <Typography
-                  style={{ fontSize: 12, lineHeight: 12, textDecorationLine: "line-through" }}
+                  style={{ fontSize: 11.5, lineHeight: 11.5, textDecorationLine: "line-through" }}
                   className="text-gray71"
                 >
-                  {formatPrice(item.price.regularPrice * item.quantity)}
+                  {formatPrice(item.price.regularPrice * item.quantity)}원
                 </Typography>
               )}
-              <Typography variant="price" className="mt-4 text-ink">
+              <Typography
+                style={{ fontSize: 14, fontWeight: "700", lineHeight: 14, letterSpacing: -0.2 }}
+                className="text-ink"
+              >
                 {formatPrice(item.price.salePrice * item.quantity)}원
               </Typography>
             </View>

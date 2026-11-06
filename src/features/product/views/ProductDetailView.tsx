@@ -191,6 +191,18 @@ export default function ProductDetailView() {
       return;
     }
 
+    // 상품은 판매 중이어도 고른 조합만 방금 다 팔렸을 수 있다(시안 C7 — 옵션 단위 품절)
+    const soldOutPick = variants.find(
+      variant => latest?.variants.find(item => item.variantId === variant.variantId)?.isOutOfStock
+    );
+
+    if (soldOutPick) {
+      setBlockedOptionLabel(soldOutPick.name);
+      warningHaptic();
+      setBlockedBy("SOLD_OUT");
+      return;
+    }
+
     const groupBuyId = latest?.groupBuyId ?? productDetail?.groupBuyId;
 
     if (!groupBuyId) {

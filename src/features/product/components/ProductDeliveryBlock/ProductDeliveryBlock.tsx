@@ -21,6 +21,14 @@ export default function ProductDeliveryBlock(props: ProductDeliveryBlockProps) {
     return null;
   }
 
+  // 시안 C7: 「제주 +3,000원 · 도서산간 +5,000원」 한 줄 — 서버가 두 권역을 따로 준다
+  const surchargeLine = [
+    delivery.jejuSurcharge ? `제주 +${formatPrice(delivery.jejuSurcharge)}원` : null,
+    delivery.remoteAreaSurcharge > 0 ? `도서산간 +${formatPrice(delivery.remoteAreaSurcharge)}원` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   return (
     <View className="px-14 py-16">
       <View className="flex-row" style={{ gap: 12 }}>
@@ -54,9 +62,9 @@ export default function ProductDeliveryBlock(props: ProductDeliveryBlockProps) {
               {formatPrice(delivery.freeShippingThreshold)}원 이상 구매시 무료배송
             </Typography>
           )}
-          {delivery.remoteAreaSurcharge > 0 && (
+          {!!surchargeLine && (
             <Typography style={{ fontSize: 11, lineHeight: 16.5 }} className="text-gray45">
-              도서산간 +{formatPrice(delivery.remoteAreaSurcharge)}원
+              {surchargeLine}
             </Typography>
           )}
         </View>

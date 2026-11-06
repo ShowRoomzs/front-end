@@ -162,7 +162,7 @@ export default function ProductInquiryView() {
         toast.success("문의가 수정되었습니다");
       } else {
         await createInquiry({ productId, data: requestData });
-        toast.success("문의가 접수되었습니다");
+        toast.success("문의가 등록되었어요");
       }
       navigation.goBack();
     } catch (error) {
@@ -184,7 +184,7 @@ export default function ProductInquiryView() {
           <ProductInquiryProductCard product={product} />
 
           <View className="px-14 pb-4 pt-20">
-            <FieldLabel label="문의 유형" />
+            <FieldLabel label="문의 유형 (필수)" />
             <TouchableOpacity
               onPress={openTypeSheet}
               activeOpacity={0.55}
@@ -202,7 +202,7 @@ export default function ProductInquiryView() {
           </View>
 
           <View className="px-14 pb-4 pt-16">
-            <FieldLabel label="문의 내용" right={`${form.content.length}/${CONTENT_MAX_LENGTH}`} />
+            <FieldLabel label="문의 내용 (필수)" right={`${form.content.length}/${CONTENT_MAX_LENGTH}`} />
             <View
               className="rounded-base border-[1px] border-borderButton p-13"
               style={{ marginTop: 9, minHeight: 140 }}

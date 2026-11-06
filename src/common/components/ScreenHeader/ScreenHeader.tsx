@@ -13,12 +13,14 @@ import SuspensionBanner from "@/features/account/components/SuspensionBanner";
  */
 interface ScreenHeaderProps {
   title?: string;
+  /** 제목 옆 회색 건수 — 「상품 문의 12」(시안 C7-2). 받기 전에는 비운다 */
+  count?: number;
   onPressBack: () => void;
   renderRight?: ReactNode;
 }
 
 export default function ScreenHeader(props: ScreenHeaderProps) {
-  const { title, onPressBack, renderRight } = props;
+  const { title, count, onPressBack, renderRight } = props;
 
   return (
     <>
@@ -42,6 +44,7 @@ export default function ScreenHeader(props: ScreenHeaderProps) {
             numberOfLines={1}
           >
             {title ?? ""}
+            {count !== undefined && <Typography className="text-gray45">{` ${count}`}</Typography>}
           </Typography>
 
           {renderRight}

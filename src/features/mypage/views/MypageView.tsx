@@ -103,11 +103,12 @@ export default function MypageView() {
 
   const inquiryItems = useMemo(
     (): Array<MenuItem> => [
-      { key: "inquiryHistory", label: "문의 내역", onPress: handlePressInquiryHistory },
+      // 문의 내역은 계정에 딸린 목록이라 로그인 전에는 빼 둔다(시안 C 마이 1b)
+      ...(user ? [{ key: "inquiryHistory", label: "문의 내역", onPress: handlePressInquiryHistory }] : []),
       { key: "customerCenter", label: "고객센터", onPress: () => goMypage(MYPAGE_ROUTES.CUSTOMER_CENTER) },
       { key: "notice", label: "공지사항", onPress: () => goMypage(MYPAGE_ROUTES.NOTICE) },
     ],
-    [goMypage, handlePressInquiryHistory]
+    [goMypage, handlePressInquiryHistory, user]
   );
 
   const helpItems = useMemo(
@@ -207,7 +208,11 @@ export default function MypageView() {
         <MenuGroup title="문의" items={inquiryItems} />
         <GroupBand marginTop={10} />
         <MenuGroup title="도움말" items={helpItems} />
-        <BusinessFooter marginTop={10} links={footerLinks} expandSignal={showBusinessInfoAt} />
+        {user ? (
+          <BusinessFooter marginTop={10} links={footerLinks} expandSignal={showBusinessInfoAt} />
+        ) : (
+          <BusinessFooter marginTop={10} alwaysExpanded />
+        )}
       </ScrollView>
     </View>
   );

@@ -57,6 +57,9 @@ export interface DeliveryInfo {
   deliveryFee: number;
   /** null이면 무료배송 기준이 없다 */
   freeShippingThreshold: number | null;
+  /** 제주 추가 배송비 — 도서산간과 따로 받는다 */
+  jejuSurcharge?: number | null;
+  /** 도서산간 추가 배송비(제주 제외) */
   remoteAreaSurcharge: number;
   returnFee: number;
   exchangeFee: number;

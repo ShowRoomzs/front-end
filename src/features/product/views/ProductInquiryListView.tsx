@@ -18,6 +18,7 @@ import { SUSPENSION_BLOCKED } from "@/features/account/constants/suspension";
 import { useSuspension } from "@/features/account/hooks/useAccountStatus";
 import ProductInquiryItem from "@/features/product/components/ProductInquiryItem/ProductInquiryItem";
 import ProductInquiryItemSkeleton from "@/features/product/components/ProductInquiryItemSkeleton/ProductInquiryItemSkeleton";
+import { useGetProductInquiryCategory } from "@/features/product/hooks/useGetProductInquiryCategory";
 import { useGetPublicProductInquiries } from "@/features/product/hooks/useGetPublicProductInquiries";
 
 /**
@@ -29,8 +30,8 @@ import { useGetPublicProductInquiries } from "@/features/product/hooks/useGetPub
  * 항목은 상세와 **같은 컴포넌트**를 쓴다 — 같은 글이 두 화면에서 다르게 읽히면 어느 쪽이
  * 맞는 표기인지 알 수 없다. 질의도 같은 키를 공유해 넘어오는 순간 다시 부르지 않는다.
  *
- * 필터는 **서버가 아니라 화면이** 건다. 유형은 5종뿐이라 받아 둔 목록에서 거르면 된다 — 칩도 받은
- * 목록에서 세우므로 같은 목록을 써야 칩과 결과가 어긋나지 않는다. 문의가 많아지면 서버 `type` 필터로 올린다.
+ * 필터는 **서버가 아니라 화면이** 건다. 유형은 5종뿐이라 받아 둔 목록에서 거르면 된다.
+ * 문의가 많아지면 서버 `type` 필터로 올린다.
  */
 const ALL = "ALL";
 
@@ -44,6 +45,7 @@ export default function ProductInquiryListView() {
   const navigation = useCommonNavigation();
 
   const { data, isLoading } = useGetPublicProductInquiries(productId);
+  const { data: categories } = useGetProductInquiryCategory();
   const suspension = useSuspension();
   const [selectedType, setSelectedType] = useState<string>(ALL);
   const [expandedIds, setExpandedIds] = useState<Array<number>>([]);
@@ -51,16 +53,19 @@ export default function ProductInquiryListView() {
   const items = useMemo(() => data?.items ?? [], [data]);
 
   /**
-   * 칩은 **실제로 문의가 있는 유형만** 세운다.
+   * 칩은 **문의 유형 전부**(전체 + 5종)를 늘 세운다(시안 C7-2).
    *
-   * 5종을 다 세우면 눌러도 빈 목록만 나오는 칩이 섞이고, 그 자리에서 사용자는 자기가 필터를
-   * 잘못 골랐는지 원래 문의가 없는지 구분할 수 없다. 순서는 서버가 준 목록 순서를 따른다.
+   * 칩 줄이 받은 목록에 따라 달라지면 상품마다 자리가 바뀌어 손이 기억하지 못한다. 문의가 없는 유형을
+   * 고르면 빈 상태가 「첫 번째로 궁금한 점을 물어보세요」로 첫 문의를 이끈다.
+   * 유형 목록을 못 받았으면 받은 문의에 있는 유형으로 대신 세운다.
    */
   const chips = useMemo((): Array<FilterChipItem<string>> => {
-    const typeNames = [...new Set(items.map(item => item.typeName))];
+    const typeNames = categories?.length
+      ? categories.map(category => category.description)
+      : [...new Set(items.map(item => item.typeName))];
 
     return [{ value: ALL, label: "전체" }, ...typeNames.map(name => ({ value: name, label: name }))];
-  }, [items]);
+  }, [categories, items]);
 
   const visibleItems = useMemo(
     () => (selectedType === ALL ? items : items.filter(item => item.typeName === selectedType)),
@@ -79,18 +84,24 @@ export default function ProductInquiryListView() {
 
   return (
     <View className="flex-1 bg-white">
-      <ScreenHeader title="상품 문의" onPressBack={navigation.goBack} />
+      <ScreenHeader
+        title="상품 문의"
+        count={isLoading ? undefined : (data?.totalCount ?? items.length)}
+        onPressBack={navigation.goBack}
+      />
 
       <View className="flex-1">
+        {/* 시안 C7-2: 칩 줄은 목록과 함께 흘러가지 않고 머리말 아래에 고정 */}
+        {!isLoading && (
+          <View className="border-b-[0.5px] border-divider pb-12 pt-14">
+            <FilterChips items={chips} selectedValue={selectedType} onSelect={setSelectedType} />
+          </View>
+        )}
         {!isLoading && (
           <ScrollView
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ flexGrow: 1, paddingBottom: bottom + BOTTOM_CTA_HEIGHT }}
           >
-            <View className="pb-14 pt-12">
-              <FilterChips items={chips} selectedValue={selectedType} onSelect={setSelectedType} />
-            </View>
-
             {visibleItems.length === 0 && (
               <EmptyState
                 fill
@@ -99,7 +110,7 @@ export default function ProductInquiryListView() {
                 description={
                   selectedType === ALL
                     ? "궁금한 점을 남기시면\n판매자가 확인하고 답변해 드려요"
-                    : "다른 유형을 보시거나\n직접 문의를 남겨 보세요"
+                    : "첫 번째로 궁금한 점을 물어보세요"
                 }
               />
             )}
@@ -115,9 +126,9 @@ export default function ProductInquiryListView() {
           </ScrollView>
         )}
 
-        {/* 칩 줄은 받은 목록에서 세우므로 칩 자리까지 함께 가린다 — 칩 위아래 터치 여백 5를 더한다 */}
+        {/* 받는 동안은 칩 줄 자리까지 함께 가린다 */}
         <SkeletonOverlay visible={isLoading}>
-          <View className="flex-row px-14" style={{ gap: 6, paddingTop: 12 + 5, paddingBottom: 14 + 5 }}>
+          <View className="flex-row px-14" style={{ gap: 6, paddingTop: 14, paddingBottom: 12 }}>
             <SkeletonBlock width={52} height={34} radius={8} />
             <SkeletonBlock width={64} height={34} radius={8} />
             <SkeletonBlock width={64} height={34} radius={8} />

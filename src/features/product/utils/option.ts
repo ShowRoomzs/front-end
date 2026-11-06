@@ -48,8 +48,15 @@ export function parseOption(
     const targetVariant = enabledVariants.find(variant => variant.optionIds.includes(option.optionId));
     const targetStock = stocks.find(stock => stock.variantId === targetVariant?.variantId);
 
-    // 품절 옵션(마지막 옵션 그룹인 경우 품절 옵션 적용)
-    const disabledWithStock = isLast ? targetStock?.isOutOfStock || targetStock?.isOutOfStockForced : false;
+    /*
+      품절 — 마지막 그룹은 조합 하나의 실시간 재고로, 앞 그룹은 그 옵션이 들어간 조합이
+      **모두** 품절일 때 품절로 그린다(시안 C7: 앞 그룹에서도 품절 옵션을 남겨 표시한다).
+    */
+    const disabledWithStock = isLast
+      ? targetStock?.isOutOfStock || targetStock?.isOutOfStockForced
+      : enabledVariants
+          .filter(variant => variant.optionIds.includes(option.optionId))
+          .every(variant => variant.isOutOfStock);
 
     return {
       optionId: option.optionId,

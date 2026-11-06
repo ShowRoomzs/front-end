@@ -27,6 +27,7 @@ export default function ProductDeliveryPolicy(props: ProductDeliveryPolicyProps)
   const shippingLine = [
     `택배 · 배송비 ${formatPrice(delivery.deliveryFee)}원`,
     delivery.freeShippingThreshold ? `${formatPrice(delivery.freeShippingThreshold)}원 이상 무료` : null,
+    delivery.jejuSurcharge ? `제주 +${formatPrice(delivery.jejuSurcharge)}원` : null,
     delivery.remoteAreaSurcharge ? `도서산간 +${formatPrice(delivery.remoteAreaSurcharge)}원` : null,
   ]
     .filter(Boolean)

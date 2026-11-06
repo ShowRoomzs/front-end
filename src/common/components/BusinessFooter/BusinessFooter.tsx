@@ -29,10 +29,15 @@ interface BusinessFooterProps {
   marginTop?: number;
   /** 값이 바뀔 때마다 펼친다 — 다른 화면의 [사업자 정보 확인]으로 들어왔을 때 */
   expandSignal?: number;
+  /**
+   * 접기 없이 늘 펼친다 — 로그인 전 마이(시안 C 마이 1b). 아래 메뉴가 짧아 푸터가 화면 안에
+   * 들어오고, 처음 들어온 사람에게는 이 앱을 누가 운영하는지가 먼저 읽혀야 한다.
+   */
+  alwaysExpanded?: boolean;
 }
 
 export default function BusinessFooter(props: BusinessFooterProps) {
-  const { defaultExpanded = false, links, marginTop, expandSignal } = props;
+  const { defaultExpanded = false, links, marginTop, expandSignal, alwaysExpanded = false } = props;
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
   useEffect(() => {
@@ -43,20 +48,31 @@ export default function BusinessFooter(props: BusinessFooterProps) {
 
   return (
     <View className="bg-band px-14" style={{ paddingTop: 20, paddingBottom: 26, marginTop }}>
-      <TouchableOpacity
-        onPress={() => setIsExpanded(prev => !prev)}
-        activeOpacity={0.55}
-        className="flex-row items-center"
-        style={{ gap: 5, paddingVertical: 6, marginVertical: -6 }}
-      >
-        <Typography style={{ fontSize: 11.5, fontWeight: "600", lineHeight: 17 }} className="text-gray45">
+      {alwaysExpanded ? (
+        <Typography style={{ fontSize: 11.5, fontWeight: "600", lineHeight: 11.5 }} className="text-gray55">
           쇼룸즈 사업자 정보
         </Typography>
-        <ExpandChevron expanded={isExpanded} size={11} color="#C7C7C7" />
-      </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          onPress={() => setIsExpanded(prev => !prev)}
+          activeOpacity={0.55}
+          className="flex-row items-center"
+          style={{ gap: 4, paddingVertical: 6, marginVertical: -6 }}
+        >
+          <Typography style={{ fontSize: 11.5, fontWeight: "600", lineHeight: 17 }} className="text-gray55">
+            쇼룸즈 사업자 정보
+          </Typography>
+          <ExpandChevron expanded={isExpanded} size={11} color="#C7C7C7" />
+        </TouchableOpacity>
+      )}
 
-      {isExpanded && (
-        <Animated.View entering={EXPAND_ENTERING} exiting={EXPAND_EXITING} className="mt-10">
+      {(isExpanded || alwaysExpanded) && (
+        <Animated.View
+          entering={EXPAND_ENTERING}
+          exiting={EXPAND_EXITING}
+          className="mt-12"
+          style={{ gap: 5 }}
+        >
           {[
             BUSINESS_INFO.companyLine,
             BUSINESS_INFO.address,
@@ -73,31 +89,33 @@ export default function BusinessFooter(props: BusinessFooterProps) {
               </Typography>
             ))}
 
-          <Typography variant="legal" className="mt-14 text-gray45">
+          {/* 고지 문단은 줄 간격 5에 9를 더해 시안의 14로 띄운다 */}
+          <Typography variant="legal" className="mt-9 text-gray45">
             {BUSINESS_INFO.intermediaryNotice}
           </Typography>
         </Animated.View>
       )}
 
       {!!links?.length && (
-        <>
-          <View className="mt-16 flex-row" style={{ gap: 14 }}>
-            {links.map(link => (
-              <Typography
-                key={link.label}
-                onPress={link.onPress}
-                style={{ fontSize: 11, fontWeight: "500", lineHeight: 11 }}
-                className="text-gray55"
-              >
-                {link.label}
-              </Typography>
-            ))}
-          </View>
+        <View className="mt-16 flex-row" style={{ gap: 14 }}>
+          {links.map(link => (
+            <Typography
+              key={link.label}
+              onPress={link.onPress}
+              style={{ fontSize: 11, fontWeight: "500", lineHeight: 11 }}
+              className="text-gray55"
+            >
+              {link.label}
+            </Typography>
+          ))}
+        </View>
+      )}
 
-          <Typography style={{ fontSize: 11, lineHeight: 11, marginTop: 14 }} className="text-gray55">
-            {BUSINESS_INFO.copyright}
-          </Typography>
-        </>
+      {/* 저작권 줄은 마이에만 — 상품 상세의 푸터는 고지까지만 둔다 */}
+      {(!!links?.length || alwaysExpanded) && (
+        <Typography style={{ fontSize: 11, lineHeight: 11, marginTop: 14 }} className="text-gray55">
+          {BUSINESS_INFO.copyright}
+        </Typography>
       )}
     </View>
   );

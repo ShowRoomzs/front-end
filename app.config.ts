@@ -48,6 +48,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       icon: "./assets/appicon-ios.png",
       supportsTablet: true,
       bundleIdentifier: "com.showroomz.app",
+      // Sign in with Apple 권한(com.apple.developer.applesignin) — 카카오 · 네이버를 두는 iOS 앱은
+      // 애플 로그인도 함께 둬야 한다(심사 지침 4.8). 애플 개발자 계정의 App ID에도 같은 기능이 켜져 있어야 한다
+      usesAppleSignIn: true,
       infoPlist: {
         /*
           업로드할 때마다 App Store Connect가 "암호화를 쓰나요"를 묻고, 답하기 전까지 빌드가
@@ -108,6 +111,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     },
     owner: "showroomz",
     plugins: [
+      "expo-apple-authentication",
       /*
         런치 스크린 (시안 C19) — 흰 배경 + 로즈 워드마크, iOS·Android 동일한 인상.
 

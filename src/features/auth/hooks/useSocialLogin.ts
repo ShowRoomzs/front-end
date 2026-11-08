@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 
 import { SocialType } from "@/features/auth/components/SocialButton/SocialButton";
+import { useAppleLogin } from "@/features/auth/hooks/useAppleLogin";
 import { useGoogleLogin } from "@/features/auth/hooks/useGoogleLogin";
 import { useKakaoLogin } from "@/features/auth/hooks/useKakaoLogin";
 import { useNaverLogin } from "@/features/auth/hooks/useNaverLogin";
@@ -17,6 +18,8 @@ import { useNaverLogin } from "@/features/auth/hooks/useNaverLogin";
 export type SocialLoginResponse = {
   token: string;
   providerType: SocialType;
+  /** 애플 첫 로그인에서만 — 서버가 신규 가입 때 실명으로 저장한다 */
+  name?: string;
 };
 
 interface UseSocialLoginResult {
@@ -27,10 +30,12 @@ export function useSocialLogin(socialType: SocialType): UseSocialLoginResult {
   const { login: loginWithNaver } = useNaverLogin();
   const { login: loginWithKakao } = useKakaoLogin();
   const { login: loginWithGoogle } = useGoogleLogin();
+  const { login: loginWithApple } = useAppleLogin();
 
   const login = useCallback(async (): Promise<SocialLoginResponse> => {
     try {
       let token: string;
+      let name: string | undefined;
 
       switch (socialType) {
         case "NAVER": {
@@ -51,8 +56,13 @@ export function useSocialLogin(socialType: SocialType): UseSocialLoginResult {
           token = res.accessToken;
           break;
         }
-        case "APPLE":
-          throw new Error("Apple login is not implemented yet");
+        case "APPLE": {
+          const res = await loginWithApple();
+
+          token = res.identityToken;
+          name = res.name;
+          break;
+        }
 
         default:
           throw new Error(`Unsupported social type: ${socialType}`);
@@ -62,13 +72,13 @@ export function useSocialLogin(socialType: SocialType): UseSocialLoginResult {
         throw new Error(`${socialType} login failed: token is missing`);
       }
 
-      return { token, providerType: socialType };
+      return { token, providerType: socialType, name };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
 
       throw new Error(`${socialType} login failed: ${errorMessage}`);
     }
-  }, [loginWithGoogle, loginWithKakao, loginWithNaver, socialType]);
+  }, [loginWithApple, loginWithGoogle, loginWithKakao, loginWithNaver, socialType]);
 
   return { login };
 }

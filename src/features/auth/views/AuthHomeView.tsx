@@ -14,6 +14,7 @@ import { AuthStackParamList, useAuthNavigation } from "@/common/router";
 import { AUTH_ROUTES } from "@/common/router/routes";
 import { COMMON_ASSETS } from "@/common/utils/assets";
 import SocialButton, { SocialType } from "@/features/auth/components/SocialButton/SocialButton";
+import { useIsAppleLoginAvailable } from "@/features/auth/hooks/useAppleLogin";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useLogin } from "@/features/auth/hooks/useLogin";
 import { SocialLoginResponse } from "@/features/auth/hooks/useSocialLogin";
@@ -25,10 +26,13 @@ export default function AuthHomeView() {
   const { login } = useLogin();
   const { mutateAsync: socialLoginAsync } = socialLoginMutation;
   const { params } = useRoute<RouteProp<AuthStackParamList, typeof AUTH_ROUTES.AUTH_HOME>>();
+  const isAppleLoginAvailable = useIsAppleLoginAvailable();
   const socialButtons = useMemo((): Array<SocialType> => {
     const buttons: Array<SocialType> = ["KAKAO", "NAVER"];
 
-    if (Platform.OS === "ios") {
+    // 다른 소셜 로그인을 두는 iOS 앱은 Sign in with Apple도 함께 둔다(App Store 심사 지침 4.8).
+    // 이 기기에서 쓸 수 있을 때만 그린다
+    if (Platform.OS === "ios" && isAppleLoginAvailable) {
       buttons.push("APPLE");
     }
 
@@ -37,7 +41,7 @@ export default function AuthHomeView() {
     }
 
     return buttons;
-  }, []);
+  }, [isAppleLoginAvailable]);
 
   /**
    * 소셜 SDK 인증이 끝난 뒤 서버에 토큰을 넘기는 단계다.
@@ -47,13 +51,15 @@ export default function AuthHomeView() {
    */
   const handlePressSocialButton = useCallback(
     async (response: SocialLoginResponse) => {
-      const { providerType, token } = response;
+      const { providerType, token, name } = response;
 
       try {
         const res = await socialLoginAsync({
           token,
           providerType,
-          // TODO : fcmToken, name(apple) 추가
+          // 애플은 첫 로그인에서만 이름을 준다 — 받았을 때만 싣는다
+          ...(name ? { name } : {}),
+          // TODO : fcmToken 추가
         });
 
         const { isNewMember } = res;

@@ -122,17 +122,6 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         스피너·진행바·버전 표기는 넣지 않는다 — 느리게 느껴지고, 실제로 기다리게 만들면
         애플 심사에서 지적된다. iOS 런치 스크린은 스토리보드라 애니메이션도 넣을 수 없다.
       */
-      /*
-        스플래시 테마에 **하단 브랜딩 워드마크**를 더한다.
-
-        Android 12+ 는 가운데 아이콘을 원형으로 잘라서 가로로 긴 워드마크를 넣을 수 없다.
-        자르지 않는 자리는 하단 브랜딩뿐이라, 가운데에는 앱 아이콘을 두고 글자는 아래로 내린다.
-
-        ⚠️ **expo-splash-screen 보다 앞에 둔다.** config plugin 의 mod 는 등록 순서의 **역순**으로
-        실행되고, expo-splash-screen 은 `Theme.App.SplashScreen` 을 통째로 지우고 다시 만든다.
-        뒤에 두면 여기서 더한 항목이 그때 날아간다.
-      */
-      "./plugins/withSplashBranding",
       [
         "expo-splash-screen",
         {
@@ -144,20 +133,15 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           resizeMode: "contain",
           android: {
             /*
-              Android 12+ 는 시스템이 스플래시를 그리고 가운데 이미지를 **원형으로 마스킹**한다.
-              가로로 긴 워드마크를 그대로 주면 양끝이 잘려 나가므로 앱 아이콘을 쓴다.
-              아이콘 전경에 이미 로즈 배경이 들어 있어 원형으로 잘려도 여백이 생기지 않는다.
+              안드로이드 네이티브 스플래시는 **흰 화면만** 띄운다(투명 이미지) — 워드마크는 JS 오버레이
+              (SplashProvider)가 시안 크기로 그리고, 네이티브 스플래시가 0.2초에 걸쳐 걷히면서 글자가 페이드인된다.
 
-              워드마크는 원래 하단 브랜딩 자리(windowSplashScreenBrandingImage)에 놓여야 하지만
-              이 플러그인이 그 속성을 노출하지 않는다. 배경과 로즈 마크는 같으므로 인상은 유지된다.
+              Android 12+ 는 시스템이 스플래시를 그리고 가운데 이미지를 지름 192dp **원으로 잘라낸다**.
+              폭 262 워드마크는 양끝이 잘리고, 원 안에 맞추면 시안의 70% 크기가 된다. 앱 아이콘 + 하단
+              워드마크로 두었더니 오버레이의 가운데 워드마크로 넘어갈 때 로고가 바뀌고 글자가 튀어 보였다.
+              「가운데 글자만 · 시안 크기」로 정했다(11-09 사용자 결정) — 대가는 앱 로딩 동안의 흰 화면이다.
             */
-            image: "./assets/appicon-android.png",
-            /*
-              Expo 는 아이콘을 288dp 캔버스 가운데에 얹고, Android 12+ 는 그중 **2/3(192dp)만
-              원형으로** 남긴다. 288 로 꽉 채워야 그 마스크가 아이콘 설계와 맞는다 —
-              이 아이콘은 심볼이 캔버스의 34%라 2/3 안에 넉넉히 들어가고 모서리까지 로즈다.
-              이보다 작게 주면 원 가장자리에 흰 틈이 생긴다.
-            */
+            image: "./assets/splash-blank-android.png",
             imageWidth: 288,
             backgroundColor: "#FFFFFF",
             resizeMode: "contain",

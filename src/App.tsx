@@ -2,22 +2,22 @@ import { NavigationContainer, DefaultTheme } from "@react-navigation/native";
 import { QueryClientProvider } from "@tanstack/react-query";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { useInit } from "@/common/hooks/useInit";
 import { queryClient } from "@/common/lib/queryClient";
 import PortalProvider from "@/common/providers/PortalProvider/PortalProvider";
-import SplashProvider from "@/common/providers/SplashProvider/SplashProvider";
+import SplashProvider, { NATIVE_FADE_MS } from "@/common/providers/SplashProvider/SplashProvider";
 import { linking } from "@/common/router/linking";
 import { navigationRef } from "@/common/router/navigationRef";
 import AccountStatusHost from "@/features/account/components/AccountStatusHost";
 import MainNavigator from "@/navigators/MainNavigator";
 
+// 네이티브 스플래시는 SplashProvider가 워드마크 오버레이를 띄운 뒤에 닫는다
 SplashScreen.preventAutoHideAsync();
-// 안드로이드 네이티브 스플래시가 닫힐 때의 페이드 — iOS 오버레이(SplashProvider)의 FadeOut 200과 맞춘다
-SplashScreen.setOptions({ duration: 200, fade: true });
+// 안드로이드 네이티브 스플래시(흰 화면)가 걷히는 길이 — 그 아래 워드마크가 이 시간 동안 페이드인된다(시안 C19, 0.2초)
+SplashScreen.setOptions({ duration: NATIVE_FADE_MS, fade: true });
 
 const THEME = {
   ...DefaultTheme,
@@ -29,13 +29,6 @@ const THEME = {
 
 export default function App() {
   const isReady = useInit();
-
-  useEffect(() => {
-    // native 스플래시 닫기
-    if (isReady) {
-      SplashScreen.hideAsync();
-    }
-  }, [isReady]);
 
   return (
     <QueryClientProvider client={queryClient}>

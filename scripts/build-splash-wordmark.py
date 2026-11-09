@@ -31,12 +31,6 @@ from PIL import Image
 
 SRC = "assets/wordmark-1600.png"
 OUT = "assets/splash-wordmark.png"
-#: 안드로이드 하단 브랜딩용 — 밀도별로 굽는다(plugins/withSplashBranding.js 가 집어 간다)
-OUT_BRANDING_DIR = "assets/splash-branding"
-
-#: Android 가 하단 브랜딩에 허용하는 크기(200dp x 80dp) 안에서 폭을 꽉 채운다
-BRANDING_WIDTH_DP = 200
-DENSITIES = {"mdpi": 1, "hdpi": 1.5, "xhdpi": 2, "xxhdpi": 3, "xxxhdpi": 4}
 
 ROSE = (242, 69, 110)  # #F2456E — tailwind.config.js 의 rose 와 같은 값
 
@@ -77,19 +71,6 @@ def main():
 
     print(f"{OUT}  {canvas.size[0]}x{canvas.size[1]}  {os.path.getsize(OUT) // 1024}KB")
     print(f"아래 여백 {pad}px → 390x844 화면에서 워드마크 중심 y={center_y:.1f} (시안 410)")
-
-    # ── 안드로이드 하단 브랜딩 ────────────────────────────────────────
-    #
-    # Android 12+ 는 가운데 아이콘을 **원형으로 잘라내서** 가로로 긴 워드마크를 넣을 수 없다.
-    # 자르지 않는 자리는 하단 브랜딩 슬롯뿐이라 글자 전체를 보이려면 여기를 쓴다.
-    # 여백은 넣지 않는다 — 시스템이 알아서 화면 아래에 배치한다.
-    os.makedirs(OUT_BRANDING_DIR, exist_ok=True)
-    for name, scale in DENSITIES.items():
-        bw = round(BRANDING_WIDTH_DP * scale)
-        bh = max(1, round(bw * h / w))
-        path = os.path.join(OUT_BRANDING_DIR, f"{name}.png")
-        tinted.resize((bw, bh), Image.LANCZOS).save(path)
-    print(f"{OUT_BRANDING_DIR}/  {len(DENSITIES)}개  (mdpi {BRANDING_WIDTH_DP}px ~ xxxhdpi {BRANDING_WIDTH_DP * 4}px)")
 
 
 if __name__ == "__main__":

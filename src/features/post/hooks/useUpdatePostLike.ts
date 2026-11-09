@@ -49,6 +49,18 @@ function patchFeedCaches(postId: number, isLiked: boolean) {
     });
   });
 
+  // C4 「진행 중인 공구」는 페이징 없는 배열 캐시다
+  queryClient.setQueriesData<Array<FeedItem>>({ queryKey: [POST_QUERY_KEY.SHOWROOM_GROUP_BUY_POSTS] }, list =>
+    list?.map(item =>
+      item.post.postId === postId
+        ? {
+            ...item,
+            post: { ...item.post, isLiked, likeCount: Math.max(0, item.post.likeCount + (isLiked ? 1 : -1)) },
+          }
+        : item
+    )
+  );
+
   queryClient.setQueryData<PostDetail>([POST_QUERY_KEY.POST_DETAIL, postId], detail =>
     detail ? { ...detail, isLiked, likeCount: Math.max(0, detail.likeCount + (isLiked ? 1 : -1)) } : detail
   );

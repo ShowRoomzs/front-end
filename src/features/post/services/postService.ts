@@ -46,14 +46,15 @@ function toGroupBuyInfo(raw: RawGroupBuyBlock): GroupBuyInfo {
   };
 }
 
-function toFeedPage(page: PageResponse<RawFeedItem>): PageResponse<FeedItem> {
+function toFeedItem(item: RawFeedItem): FeedItem {
   return {
-    ...page,
-    content: page.content.map(item => ({
-      ...item,
-      post: { ...item.post, groupBuy: item.post.groupBuy ? toGroupBuyInfo(item.post.groupBuy) : null },
-    })),
+    ...item,
+    post: { ...item.post, groupBuy: item.post.groupBuy ? toGroupBuyInfo(item.post.groupBuy) : null },
   };
+}
+
+function toFeedPage(page: PageResponse<RawFeedItem>): PageResponse<FeedItem> {
+  return { ...page, content: page.content.map(toFeedItem) };
 }
 
 export const postService = {
@@ -78,13 +79,28 @@ export const postService = {
     return toFeedPage(data);
   },
 
-  /** 특정 쇼룸의 게시물 (C4) */
+  /**
+   * 특정 쇼룸의 게시물 (C4) — 일반 게시물 + 마감된 공구(종료 후 3일).
+   * **진행 중인 공구는 여기 오지 않는다** — 아래 `getShowroomOngoingGroupBuyPosts`가 따로 내린다.
+   */
   getShowroomPosts: async (showroomId: number, params: PageParams) => {
     const { data } = await apiInstance.get<PageResponse<RawFeedItem>>(`/user/showrooms/${showroomId}/posts`, {
       params,
     });
 
     return toFeedPage(data);
+  },
+
+  /**
+   * C4 상단 「진행 중인 공구」 고정 섹션 — 이 쇼룸의 진행 중 공구 게시물 전부(페이징 없음, 오픈 최신순).
+   * 각 항목의 공구 상품이 전부 실려 온다. 빈 배열이면 섹션을 감춘다.
+   */
+  getShowroomOngoingGroupBuyPosts: async (showroomId: number) => {
+    const { data } = await apiInstance.get<Array<RawFeedItem>>(
+      `/user/showrooms/${showroomId}/group-buy-posts`
+    );
+
+    return data.map(toFeedItem);
   },
 
   getPostDetail: async (postId: number): Promise<PostDetail> => {

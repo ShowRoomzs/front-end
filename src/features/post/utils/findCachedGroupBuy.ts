@@ -44,6 +44,22 @@ export function findCachedGroupBuy(groupBuyId: number): CachedGroupBuy | undefin
     }
   }
 
+  // C4 「진행 중인 공구」 — 상품이 전부 실려 있어 피드 목록보다 먼저 본다
+  for (const [, list] of queryClient.getQueriesData<Array<FeedItem>>({
+    queryKey: [POST_QUERY_KEY.SHOWROOM_GROUP_BUY_POSTS],
+  })) {
+    const found = list?.find(item => item.post.groupBuy?.groupBuyId === groupBuyId);
+
+    if (found?.post.groupBuy) {
+      return {
+        showroomId: found.post.showroomId,
+        showroomName: found.post.showroomName,
+        showroomImageUrl: found.post.showroomImageUrl,
+        groupBuy: found.post.groupBuy,
+      };
+    }
+  }
+
   for (const key of FEED_QUERY_KEYS) {
     for (const [, cache] of queryClient.getQueriesData<FeedCache>({ queryKey: [key] })) {
       for (const page of cache?.pages ?? []) {

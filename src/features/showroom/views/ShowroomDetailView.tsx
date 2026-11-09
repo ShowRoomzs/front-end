@@ -16,6 +16,7 @@ import { CommonStackParamList } from "@/common/router/types";
 import PostCard from "@/features/post/components/PostCard/PostCard";
 import PostCardSkeleton from "@/features/post/components/PostCardSkeleton/PostCardSkeleton";
 import { useFeedActions } from "@/features/post/hooks/useFeedActions";
+import { useGetShowroomGroupBuyPosts } from "@/features/post/hooks/useGetShowroomGroupBuyPosts";
 import { useGetShowroomPosts } from "@/features/post/hooks/useGetShowroomPosts";
 import { usePostImpressions } from "@/features/post/hooks/usePostImpressions";
 import { FeedItem } from "@/features/post/types/post";
@@ -48,7 +49,15 @@ export default function ShowroomDetailView() {
   const commonNavigation = useCommonNavigation();
 
   const { data: showroom } = useGetShowroomDetail(showroomId);
-  const { content, pageInfo, isLoading, isFetchingNextPage, fetchNextPage } = useGetShowroomPosts(showroomId);
+  const {
+    content,
+    pageInfo,
+    isLoading: isPostsLoading,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useGetShowroomPosts(showroomId);
+  const { data: ongoingGroupBuyPosts, isLoading: isGroupBuysLoading } =
+    useGetShowroomGroupBuyPosts(showroomId);
   const { toggle: toggleFollow } = useUpdateShowroomFollow();
   const { handlePressPost, handlePressShowroom, handlePressProduct, handlePressLike, handlePressMore } =
     useFeedActions();
@@ -64,18 +73,21 @@ export default function ShowroomDetailView() {
   });
 
   /**
-   * 진행 중인 공구는 위로 고정하고 목록에서는 뺀다 — 같은 게시물이 두 번 보이면
-   * 고정 영역이 강조가 아니라 중복이 된다.
+   * 진행 중인 공구는 서버가 따로 내린다(`/group-buy-posts`) — 아래 피드(`/posts`)는 일반 게시물과
+   * 마감된 공구만 싣는다. 두 요청 사이에 공구가 막 끝나면 같은 게시물이 양쪽에 올 수 있어,
+   * 고정 영역에 있는 것은 아래 목록에서 한 번 더 걸러 중복을 막는다.
    */
   const { ongoingGroupBuys, generalPosts } = useMemo(() => {
-    const ongoing = content.filter(item => item.post.groupBuy?.status === "OPEN");
+    const ongoing = ongoingGroupBuyPosts ?? [];
     const ongoingIds = new Set(ongoing.map(item => item.post.postId));
 
     return {
       ongoingGroupBuys: ongoing,
       generalPosts: content.filter(item => !ongoingIds.has(item.post.postId)),
     };
-  }, [content]);
+  }, [content, ongoingGroupBuyPosts]);
+
+  const isLoading = isPostsLoading || isGroupBuysLoading;
 
   const renderPostCard = useCallback(
     (item: FeedItem) => (
@@ -106,7 +118,7 @@ export default function ShowroomDetailView() {
     [renderPostCard]
   );
 
-  const hasPosts = content.length > 0;
+  const hasPosts = content.length > 0 || ongoingGroupBuys.length > 0;
 
   return (
     <View className="flex-1 bg-white">

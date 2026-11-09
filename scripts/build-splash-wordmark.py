@@ -1,8 +1,15 @@
 """런치 스크린용 로즈 워드마크를 굽는다 (시안 C19).
 
-`assets/logo.png`는 **흰 워드마크 + 투명 배경**이라 어두운 배경용이다. 시안이 배경을 흰색으로
-확정했으므로 같은 글자를 로즈로 다시 칠한다 — 알파는 그대로 두고 RGB만 바꾸기 때문에
-글자 모양과 안티에일리어싱이 원본 그대로 보존된다. 새로 그리면 자간이 미세하게 달라진다.
+원본은 `assets/wordmark.svg` — 시안 폴더의 `showroomz-wordmark-color.svg`이자 C19가 그리는 바로 그 워드마크다.
+예전 원본(`assets/logo.png`)은 글자꼴이 시안과 달라(획이 두껍고 W 모양이 다르다) 스플래시가 시안과 어긋났다.
+
+PIL은 SVG를 읽지 못해, SVG를 폭 1600px · 투명 배경으로 래스터화한 `assets/wordmark-1600.png`를 읽는다.
+워드마크가 바뀌면 SVG를 교체하고 PNG를 다시 굽는다 — 크롬 헤드리스로 구웠다:
+
+    chrome --headless=new --default-background-color=00000000 --window-size=1600,172 \
+      --screenshot=assets/wordmark-1600.png <img src="wordmark.svg" width=1600 을 담은 html>
+
+색은 로즈로 다시 칠한다 — 알파는 그대로 두고 RGB만 바꾸므로 글자 모양과 안티에일리어싱이 원본 그대로다.
 
 **아래쪽 투명 여백**을 함께 넣는다. expo-splash-screen은 이미지를 화면 정중앙에 놓을 뿐
 위치를 지정할 수 없는데, 시안은 워드마크를 시각 중심(기하학적 중심보다 살짝 위)에 두라고 한다.
@@ -13,7 +20,7 @@
       → 워드마크 중심 y = 410  (화면 중심 422보다 12 위)
 
     262pt 폭으로 놓을 때 12pt를 올리려면 아래 여백이 24pt,
-    원본 좌표로는 24 x 1500/262 ≈ 137px.
+    원본 좌표로는 24 x 원본폭/262 (지금 원본 1600px 이면 ≈ 147px).
 
     python scripts/build-splash-wordmark.py
 """
@@ -22,7 +29,7 @@ import os
 
 from PIL import Image
 
-SRC = "assets/logo.png"
+SRC = "assets/wordmark-1600.png"
 OUT = "assets/splash-wordmark.png"
 #: 안드로이드 하단 브랜딩용 — 밀도별로 굽는다(plugins/withSplashBranding.js 가 집어 간다)
 OUT_BRANDING_DIR = "assets/splash-branding"
@@ -50,9 +57,9 @@ def main():
 
     # ── 좌우 투명 여백을 잘라낸다 ──────────────────────────────────
     #
-    # 원본은 1500x100 인데 글자는 968px 뿐이고 좌우에 532px 이 비어 있다. 그대로 쓰면
-    # `imageWidth` 를 아무리 키워도 그 65% 만 글자라 시안보다 한참 작게 보인다.
-    # 잘라내고 나면 `imageWidth` 가 곧 글자 폭이 된다.
+    # 원본에 좌우 여백이 있으면 `imageWidth` 를 아무리 키워도 그 일부만 글자라 시안보다 작게 보인다
+    # (예전 원본은 1500px 중 968px 만 글자였다). 잘라내고 나면 `imageWidth` 가 곧 글자 폭이 된다.
+    # 지금 원본(SVG 래스터)은 여백이 없어 그대로지만, 원본이 바뀌어도 같은 결과가 나오게 남겨 둔다.
     bbox = tinted.getchannel("A").getbbox()
     tinted = tinted.crop((bbox[0], 0, bbox[2], h))
     w = tinted.width

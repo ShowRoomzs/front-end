@@ -16,6 +16,8 @@ import AccountStatusHost from "@/features/account/components/AccountStatusHost";
 import MainNavigator from "@/navigators/MainNavigator";
 
 SplashScreen.preventAutoHideAsync();
+// 안드로이드 네이티브 스플래시가 닫힐 때의 페이드 — iOS 오버레이(SplashProvider)의 FadeOut 200과 맞춘다
+SplashScreen.setOptions({ duration: 200, fade: true });
 
 const THEME = {
   ...DefaultTheme,

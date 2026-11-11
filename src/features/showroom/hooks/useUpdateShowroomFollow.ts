@@ -85,6 +85,12 @@ export function useUpdateShowroomFollow(keepFollowingList = false) {
         void queryClient.invalidateQueries({ queryKey: [SHOWROOM_QUERY_KEY.FOLLOWING_SHOWROOMS] });
       }
       void queryClient.invalidateQueries({ queryKey: [POST_QUERY_KEY.FOLLOWING_FEED] });
+      // 추천은 지금 다시 받지 않고 낡았다고만 표시한다 — 방금 누른 카드가 손가락 아래에서 바뀌면 안 된다.
+      // 그 사이 팔로잉으로 옮겨 간 게시물은 홈이 추천에서 빼 준다(HomeView). 다음 새로고침 때 서버 기준으로 맞춰진다
+      void queryClient.invalidateQueries({
+        queryKey: [POST_QUERY_KEY.RECOMMENDED_FEED],
+        refetchType: "none",
+      });
       // 홈 빈 상태는 팔로우 수로 가른다 — 첫 팔로우 · 마지막 언팔로우 때 안내가 바뀐다
       void queryClient.invalidateQueries({ queryKey: [HOME_SUMMARY_QUERY_KEY] });
     },

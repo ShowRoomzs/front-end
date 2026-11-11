@@ -55,8 +55,8 @@ export default function HomeView() {
   const navigation = useMainNavigation();
   const { user } = useUserStore();
 
-  const followingFeed = useGetFollowingFeed(!!user);
-  const recommendedFeed = useGetRecommendedFeed();
+  const followingFeed = useGetFollowingFeed(user?.id);
+  const recommendedFeed = useGetRecommendedFeed(user?.id);
   const cartItemCount = useCartItemCount();
   const notificationBadge = useNotificationBadge();
   const followingCountQuery = useHomeSummary(selectFollowingCount);
@@ -100,12 +100,20 @@ export default function HomeView() {
       return followingRows;
     }
 
-    const recommendedRows: Array<FeedRow> = recommendedFeed.content.map(item => ({
-      key: `recommended-${item.post.postId}`,
-      type: "post",
-      item,
-      isRecommended: true,
-    }));
+    /*
+      팔로잉에 이미 있는 게시물은 추천에서 뺀다. 서버는 요청한 순간의 팔로우로 둘을 겹치지 않게 내리지만,
+      두 목록은 받은 시각이 다르다 — 추천을 받은 뒤 팔로우하면(다른 기기 포함) 팔로잉 피드만 다시
+      받아 같은 게시물이 위아래에 두 번 나온다. 「모두 확인했어요」 아래에 본 글이 또 나오면 그 선이 거짓이 된다.
+    */
+    const followingPostIds = new Set(followingFeed.content.map(item => item.post.postId));
+    const recommendedRows: Array<FeedRow> = recommendedFeed.content
+      .filter(item => !followingPostIds.has(item.post.postId))
+      .map(item => ({
+        key: `recommended-${item.post.postId}`,
+        type: "post",
+        item,
+        isRecommended: true,
+      }));
 
     if (recommendedRows.length === 0) {
       return followingRows;

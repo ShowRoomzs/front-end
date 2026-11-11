@@ -88,7 +88,25 @@ export default function HomeView() {
   const hasFollowedShowroom = hasFollowingPosts || (followingCountQuery.data ?? 0) > 0;
 
   const rows = useMemo((): Array<FeedRow> => {
-    const followingRows: Array<FeedRow> = followingFeed.content.map(item => ({
+    /*
+      **홈 한 화면에 같은 게시물은 한 번만** — 이미 그린 게시물은 다시 그리지 않는다(위에 나온 것이 남는다).
+
+      서버는 매 요청을 겹치지 않게 내리지만 앱이 이어 붙이는 목록은 받은 시각이 다 다르다.
+      - 팔로잉 ↔ 추천: 추천을 받은 뒤 팔로우하면(다른 기기 포함) 팔로잉만 다시 받아 같은 글이 위아래에 나온다.
+        「모두 확인했어요」 아래에 본 글이 또 나오면 그 선이 거짓이 된다
+      - 한 목록 안: 페이지 번호로 받으므로 다음 페이지를 받기 전에 새 글이 올라오면 앞 페이지의 마지막 글이
+        밀려 내려와 다음 페이지에 또 온다
+    */
+    const seenPostIds = new Set<number>();
+    const isFirstSeen = (item: FeedItem) => {
+      if (seenPostIds.has(item.post.postId)) {
+        return false;
+      }
+      seenPostIds.add(item.post.postId);
+      return true;
+    };
+
+    const followingRows: Array<FeedRow> = followingFeed.content.filter(isFirstSeen).map(item => ({
       key: `following-${item.post.postId}`,
       type: "post",
       item,
@@ -100,20 +118,12 @@ export default function HomeView() {
       return followingRows;
     }
 
-    /*
-      팔로잉에 이미 있는 게시물은 추천에서 뺀다. 서버는 요청한 순간의 팔로우로 둘을 겹치지 않게 내리지만,
-      두 목록은 받은 시각이 다르다 — 추천을 받은 뒤 팔로우하면(다른 기기 포함) 팔로잉 피드만 다시
-      받아 같은 게시물이 위아래에 두 번 나온다. 「모두 확인했어요」 아래에 본 글이 또 나오면 그 선이 거짓이 된다.
-    */
-    const followingPostIds = new Set(followingFeed.content.map(item => item.post.postId));
-    const recommendedRows: Array<FeedRow> = recommendedFeed.content
-      .filter(item => !followingPostIds.has(item.post.postId))
-      .map(item => ({
-        key: `recommended-${item.post.postId}`,
-        type: "post",
-        item,
-        isRecommended: true,
-      }));
+    const recommendedRows: Array<FeedRow> = recommendedFeed.content.filter(isFirstSeen).map(item => ({
+      key: `recommended-${item.post.postId}`,
+      type: "post",
+      item,
+      isRecommended: true,
+    }));
 
     if (recommendedRows.length === 0) {
       return followingRows;

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+    <!-- viewport-fit=cover: 아이폰 홈 인디케이터 · 노치 안전 영역을 앱(SafeArea)이 직접 계산한다 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>SHOWROOMZ</title>
+    <meta name="description" content="좋아하는 인플루언서의 공동구매를 가장 먼저 — 쇼룸즈" />
+    <meta name="theme-color" content="#FFFFFF" />
+    <!-- 홈 화면에 추가(PWA) -->
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="쇼룸즈" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
+    <!-- 글꼴: Pretendard 동적 서브셋(필요한 글자 묶음만 받는다) — scripts/build-web-fonts.py -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="stylesheet" href="/fonts/pretendard.css" />
+    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->
+    <style id="expo-reset">
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        overflow: hidden;
+        background-color: #ffffff;
+      }
+      #root {
+        display: flex;
+        height: 100%;
+        flex: 1;
+      }
+    </style>
+  </head>
+
+  <body>
+    <noscript>쇼룸즈를 쓰려면 브라우저에서 JavaScript를 켜 주세요.</noscript>
+    <div id="root"></div>
+  </body>
+</html>

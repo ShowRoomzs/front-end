@@ -41,7 +41,13 @@ export default function App() {
           */}
           <StatusBar style="dark" />
           <SplashProvider isReady={isReady}>
-            <NavigationContainer ref={navigationRef} theme={THEME} linking={linking}>
+            <NavigationContainer
+              ref={navigationRef}
+              theme={THEME}
+              linking={linking}
+              // 웹 탭 제목 — 기본값은 화면 이름(home · productDetail)이라 그대로 보인다. 앱에서는 쓰이지 않는다
+              documentTitle={{ formatter: () => "SHOWROOMZ" }}
+            >
               <PortalProvider>
                 <MainNavigator />
                 <AccountStatusHost />

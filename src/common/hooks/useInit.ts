@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useFonts } from "expo-font";
 import { useCallback, useEffect, useState } from "react";
+import { Platform } from "react-native";
 
 import PretendardBold from "@/common/assets/fonts/Pretendard-Bold.ttf";
 import PretendardMedium from "@/common/assets/fonts/Pretendard-Medium.ttf";
@@ -19,12 +20,20 @@ export function useInit(): boolean {
     여기 적은 **키가 곧 `fontFamily` 값**이 된다(expo-font 가 양 플랫폼에서 이 이름으로 맞춰 준다).
     `Typography` 가 굵기를 보고 이 중 하나를 고른다.
   */
-  const [fontLoaded] = useFonts({
-    "Pretendard-Regular": PretendardRegular,
-    "Pretendard-Medium": PretendardMedium,
-    "Pretendard-SemiBold": PretendardSemiBold,
-    "Pretendard-Bold": PretendardBold,
-  });
+  /*
+    웹은 ttf 네 벌(합계 약 11MB)을 받지 않는다 — 같은 이름의 woff2 동적 서브셋(필요한 글자 묶음만 받는다)을
+    public/fonts/pretendard.css가 선언한다(scripts/build-web-fonts.py). 그래서 웹은 기다릴 글꼴이 없다
+  */
+  const [fontLoaded] = useFonts(
+    Platform.OS === "web"
+      ? {}
+      : {
+          "Pretendard-Regular": PretendardRegular,
+          "Pretendard-Medium": PretendardMedium,
+          "Pretendard-SemiBold": PretendardSemiBold,
+          "Pretendard-Bold": PretendardBold,
+        }
+  );
   const [isReady, setIsReady] = useState(false);
 
   const initializeApp = useCallback(async () => {

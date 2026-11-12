@@ -6,6 +6,7 @@ import { NativeWindStyleSheet } from "nativewind";
 import { Platform } from "react-native";
 
 import App from "./src/App";
+import { mountDesktopShell } from "./src/common/lib/desktopShell";
 import { applyWebGlobalStyles } from "./src/common/lib/webGlobalStyles";
 import { handleOAuthCallback } from "./src/features/auth/web/oauthCallback";
 
@@ -21,7 +22,8 @@ if (Platform.OS === "web") {
   applyWebGlobalStyles();
 }
 
-// 웹 소셜 로그인 팝업이 돌아온 페이지면 결과만 원래 창에 넘기고 닫는다 — 앱을 띄우지 않는다(앱에서는 항상 false)
-if (!handleOAuthCallback()) {
+// 웹 소셜 로그인 팝업이 돌아온 페이지면 결과만 원래 창에 넘기고 닫는다 — 앱을 띄우지 않는다(앱에서는 항상 false).
+// 넓은 PC 화면이면 가운데 폰 폭 틀(iframe)만 그리고, 앱은 그 틀 안에서 뜬다
+if (!handleOAuthCallback() && !mountDesktopShell()) {
   registerRootComponent(App);
 }

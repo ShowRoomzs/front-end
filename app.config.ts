@@ -102,7 +102,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       package: "com.showroomz.app",
     },
     web: {
-      favicon: "./assets/favicon.png",
+      // 브라우저 탭 아이콘 — 앱 아이콘과 같은 로즈 S. 홈 화면 아이콘 · 매니페스트는 public/ 에 있다(웹 전용)
+      favicon: "./assets/appicon-ios.png",
     },
     extra: {
       eas: {

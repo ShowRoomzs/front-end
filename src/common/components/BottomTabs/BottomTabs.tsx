@@ -37,7 +37,8 @@ type TabIconComponent = ComponentType<DsIconProps & { active?: boolean }>;
 const TAB_ICON_MAP: Record<HomeRouteName, TabIconComponent> = {
   home: HomeIcon,
   following: FollowingIcon,
-  like: props => <HeartIcon {...props} filled={props.active} />,
+  // active는 하트에 없는 속성이다 — 그대로 넘기면 웹에서 SVG 요소에 active="false" 속성이 붙어 경고가 난다
+  like: ({ active, ...props }) => <HeartIcon {...props} filled={active} />,
   mypage: ProfileIcon,
 };
 

@@ -199,8 +199,14 @@ export default function ShowroomDetailView() {
           ) : null
         }
         ListEmptyComponent={
-          // 게시물이 전부 고정 영역으로 올라가 아래만 빈 경우와, 정말 글이 없는 쇼룸을 구분한다
-          isLoading || hasPosts ? undefined : (
+          /*
+            게시물이 전부 고정 영역(진행 중인 공구)으로 올라가 아래만 빈 경우와, 정말 글이 없는 쇼룸을 구분한다.
+            앞의 경우엔 빈 칸을 넘긴다 — undefined를 넘기면 PagingList가 기본 「결과가 없습니다」를 그려
+            공구 바로 아래에 엉뚱한 빈 화면이 붙었다
+          */
+          isLoading ? undefined : hasPosts ? (
+            <View />
+          ) : (
             <EmptyState
               fill
               icon={<EmptyBoxIcon size={50} />}

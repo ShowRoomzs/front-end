@@ -94,8 +94,12 @@ export default function Accordion(props: AccordionProps) {
         </Animated.View>
       )}
 
-      {/* 구분선은 좌우 14 들여 그린다(시안 C16) — 행 사이를 끊되 화면을 가로지르는 선이 되지 않게 */}
-      <View className="mx-14 h-[0.5px] bg-dividerProduct" />
+      {/*
+        구분선은 좌우 14 들여 그린다(시안 C16) — 행 사이를 끊되 화면을 가로지르는 선이 되지 않게.
+        높이 0.5 + 배경색이 아니라 **위 테두리 0.5**로 그린다 — 웹은 0.5px 높이가 놓인 위치에 따라 0픽셀로
+        반올림돼 선이 통째로 사라지는데, 테두리는 최소 1 기기 픽셀로 그려진다(앱은 둘이 같아 보인다)
+      */}
+      <View className="mx-14 border-t-[0.5px] border-dividerProduct" />
     </View>
   );
 }

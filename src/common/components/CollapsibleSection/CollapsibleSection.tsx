@@ -59,7 +59,8 @@ export default function CollapsibleSection(props: CollapsibleSectionProps) {
         </Animated.View>
       )}
 
-      <View style={{ height: 0.5, backgroundColor: "#F0F0F0" }} />
+      {/* 높이 대신 테두리 — 웹에서 0.5px 높이는 위치에 따라 사라진다(Accordion 참고) */}
+      <View style={{ borderTopWidth: 0.5, borderTopColor: "#F0F0F0" }} />
     </View>
   );
 }

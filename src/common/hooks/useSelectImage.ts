@@ -10,7 +10,14 @@ interface UseSelectImageProps {
 export function useSelectImage(props: UseSelectImageProps) {
   const { allowsMultipleSelection } = props;
   const selectImage = useCallback(async (): Promise<string[]> => {
-    const permission = await ImagePicker.getMediaLibraryPermissionsAsync();
+    /*
+      웹은 권한 확인이 없다(브라우저 파일 창이 곧 동의다). 그리고 먼저 await를 지나면 브라우저가 사용자 동작으로
+      보지 않아 파일 창을 막는다(특히 모바일 사파리) — 누른 그 호출에서 바로 연다
+    */
+    const permission =
+      Platform.OS === "web"
+        ? ({ granted: true, canAskAgain: true } as const)
+        : await ImagePicker.getMediaLibraryPermissionsAsync();
 
     if (!permission.granted) {
       if (!permission.canAskAgain) {

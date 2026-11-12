@@ -1,7 +1,8 @@
 import { LinearGradient } from "expo-linear-gradient";
-import { ReactNode, useCallback, useMemo, useState } from "react";
+import { ReactNode, useMemo, useState } from "react";
 import { Image, TouchableOpacity, useWindowDimensions, View } from "react-native";
-import { WebView, WebViewMessageEvent } from "react-native-webview";
+
+import DescriptionFrame from "./DescriptionFrame";
 
 import ExpandChevron from "@/common/components/ExpandChevron/ExpandChevron";
 import Typography from "@/common/components/Typography/Typography";
@@ -72,20 +73,6 @@ export default function ProductDetailInfo(props: ProductDetailInfoProps) {
     [description]
   );
 
-  const injectedJS = `
-    setTimeout(() => {
-      const height = document.body.scrollHeight;
-      window.ReactNativeWebView.postMessage(height);
-    }, 100);
-    true;
-  `;
-
-  const handleMessage = useCallback((e: WebViewMessageEvent) => {
-    const height = Number(e.nativeEvent.data);
-
-    setHeight(height);
-  }, []);
-
   const shouldDisplayExpandButton = useMemo(() => contentHeight > COLLAPSED_HEIGHT, [contentHeight]);
 
   return (
@@ -94,14 +81,11 @@ export default function ProductDetailInfo(props: ProductDetailInfoProps) {
         {detailImageUrls?.map(url => (
           <Image key={url} source={{ uri: url }} style={{ width, height: imageHeight }} resizeMode="cover" />
         ))}
-        <WebView
-          source={{ html: htmlContent }}
-          injectedJavaScript={injectedJS}
-          onMessage={handleMessage}
-          style={{ height: height || COLLAPSED_HEIGHT }}
-          scrollEnabled={false}
-          pointerEvents="none"
-          originWhitelist={["*"]}
+        <DescriptionFrame
+          html={htmlContent}
+          fallbackHeight={COLLAPSED_HEIGHT}
+          height={height}
+          onHeight={setHeight}
         />
         {shouldDisplayExpandButton && !isExpand && (
           <LinearGradient

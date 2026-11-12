@@ -12,6 +12,7 @@ import SplashProvider, { NATIVE_FADE_MS } from "@/common/providers/SplashProvide
 import { linking } from "@/common/router/linking";
 import { navigationRef } from "@/common/router/navigationRef";
 import AccountStatusHost from "@/features/account/components/AccountStatusHost";
+import PaymentRedirectHost from "@/features/order/components/PaymentRedirectHost/PaymentRedirectHost";
 import MainNavigator from "@/navigators/MainNavigator";
 
 // 네이티브 스플래시는 SplashProvider가 워드마크 오버레이를 띄운 뒤에 닫는다
@@ -44,6 +45,8 @@ export default function App() {
               <PortalProvider>
                 <MainNavigator />
                 <AccountStatusHost />
+                {/* 웹 모바일 결제가 결제사 페이지에서 돌아오면 결과를 확정한다(앱은 아무것도 하지 않는다) */}
+                <PaymentRedirectHost />
               </PortalProvider>
             </NavigationContainer>
           </SplashProvider>

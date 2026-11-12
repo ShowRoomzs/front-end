@@ -1,6 +1,6 @@
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { BackHandler } from "react-native";
+import { BackHandler, Platform } from "react-native";
 
 import type { BottomSheetModalMethods } from "@gorhom/bottom-sheet/src/types";
 
@@ -72,6 +72,21 @@ export function BottomSheetProvider(props: BottomSheetProviderProps) {
   const onSheetChange = useCallback((index: number) => {
     isSheetVisibleRef.current = index >= 0;
   }, []);
+
+  // 웹(PC) — Esc로 시트를 닫는다. 브라우저 대화상자의 관례라 없으면 배경을 눌러야만 닫혀 갇힌 느낌이 든다
+  useEffect(() => {
+    if (Platform.OS !== "web") {
+      return;
+    }
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && isSheetVisibleRef.current) {
+        close();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [close]);
 
   // 안드로이드 뒤로가기 — 시트가 보이면 화면 대신 시트를 닫는다
   useEffect(() => {

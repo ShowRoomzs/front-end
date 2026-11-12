@@ -1,5 +1,5 @@
 import { RouteProp, useRoute } from "@react-navigation/native";
-import { useCallback, useEffect, useMemo } from "react";
+import { ReactElement, useCallback, useEffect, useMemo } from "react";
 import { ListRenderItemInfo, TouchableOpacity, View } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
@@ -120,6 +120,30 @@ export default function ShowroomDetailView() {
 
   const hasPosts = content.length > 0 || ongoingGroupBuys.length > 0;
 
+  /*
+    게시물이 전부 고정 영역(진행 중인 공구)으로 올라가 아래만 빈 경우와, 정말 글이 없는 쇼룸을 구분한다.
+    앞의 경우엔 빈 칸을 넘긴다 — undefined를 넘기면 PagingList가 기본 「결과가 없습니다」를 그려
+    공구 바로 아래에 엉뚱한 빈 화면이 붙었다. 받는 중에는 undefined(목록이 자리 표시를 그린다)
+  */
+  let listEmpty: ReactElement | undefined;
+
+  if (!isLoading) {
+    listEmpty = hasPosts ? (
+      <View />
+    ) : (
+      <EmptyState
+        fill
+        icon={<EmptyBoxIcon size={50} />}
+        title="아직 올라온 게시물이 없어요"
+        description={
+          showroom?.isFollowing
+            ? "첫 공구가 열리면\n가장 먼저 알려드려요"
+            : "팔로우해 두면 첫 공구가 열릴 때\n가장 먼저 알려드려요"
+        }
+      />
+    );
+  }
+
   return (
     <View className="flex-1 bg-white">
       <View className="border-b-[0.5px] border-divider bg-white">
@@ -198,27 +222,7 @@ export default function ShowroomDetailView() {
             </View>
           ) : null
         }
-        ListEmptyComponent={
-          /*
-            게시물이 전부 고정 영역(진행 중인 공구)으로 올라가 아래만 빈 경우와, 정말 글이 없는 쇼룸을 구분한다.
-            앞의 경우엔 빈 칸을 넘긴다 — undefined를 넘기면 PagingList가 기본 「결과가 없습니다」를 그려
-            공구 바로 아래에 엉뚱한 빈 화면이 붙었다
-          */
-          isLoading ? undefined : hasPosts ? (
-            <View />
-          ) : (
-            <EmptyState
-              fill
-              icon={<EmptyBoxIcon size={50} />}
-              title="아직 올라온 게시물이 없어요"
-              description={
-                showroom?.isFollowing
-                  ? "첫 공구가 열리면\n가장 먼저 알려드려요"
-                  : "팔로우해 두면 첫 공구가 열릴 때\n가장 먼저 알려드려요"
-              }
-            />
-          )
-        }
+        ListEmptyComponent={listEmpty}
         ListFooterComponent={showroom ? <ShowroomLegalFooter /> : null}
       />
     </View>

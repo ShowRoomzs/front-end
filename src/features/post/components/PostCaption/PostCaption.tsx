@@ -1,6 +1,8 @@
 import { useCallback, useState } from "react";
 import {
+  LayoutChangeEvent,
   NativeSyntheticEvent,
+  Platform,
   StyleProp,
   TextLayoutEventData,
   TouchableOpacity,
@@ -45,6 +47,19 @@ export default function PostCaption(props: PostCaptionProps) {
     setLineCount(prev => (prev === null ? lines : prev));
   }, []);
 
+  /**
+   * 웹은 `onTextLayout`이 오지 않아(react-native-web 미지원) 「더 보기」가 영영 안 뜬다.
+   * 사본의 높이를 줄 높이로 나눠 줄 수를 잰다 — 줄 높이를 숫자로 고정해 두어 나눗셈이 정확하다.
+   */
+  const handleMeasureLayout = useCallback(
+    (e: LayoutChangeEvent) => {
+      const lines = Math.round(e.nativeEvent.layout.height / lineHeight);
+
+      setLineCount(prev => (prev === null ? lines : prev));
+    },
+    [lineHeight]
+  );
+
   const isTruncated = lineCount !== null && lineCount > CLAMP_LINES && !isExpanded;
 
   const body = (
@@ -60,8 +75,13 @@ export default function PostCaption(props: PostCaptionProps) {
       {lineCount === null && (
         <Typography
           variant="body"
-          style={{ lineHeight, position: "absolute", opacity: 0 }}
-          onTextLayout={handleMeasure}
+          // 웹은 절대 위치 사본이 내용 폭으로 줄어들어 줄바꿈이 달라지므로 좌우를 붙여 본문과 같은 폭으로 잰다
+          style={[
+            { lineHeight, position: "absolute", opacity: 0 },
+            Platform.OS === "web" && { left: 0, right: 0 },
+          ]}
+          onTextLayout={Platform.OS === "web" ? undefined : handleMeasure}
+          onLayout={Platform.OS === "web" ? handleMeasureLayout : undefined}
           pointerEvents="none"
         >
           {body}

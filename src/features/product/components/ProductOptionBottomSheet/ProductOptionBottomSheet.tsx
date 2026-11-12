@@ -1,7 +1,7 @@
 import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 import { produce } from "immer";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { TouchableOpacity, View } from "react-native";
+import { Platform, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Typography from "@/common/components/Typography/Typography";
@@ -141,7 +141,7 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
     <View style={{ maxHeight: PRODUCT_OPTION_BOTTOM_SHEET_MAX_HEIGHT }}>
       <BottomSheetScrollView
         contentContainerStyle={{
-          paddingBottom: BOTTOM_SHEET_GAP + footerHeight,
+          paddingBottom: Platform.OS === "web" ? 0 : BOTTOM_SHEET_GAP + footerHeight,
         }}
       >
         {/*
@@ -174,6 +174,12 @@ export default function ProductOptionBottomSheet(props: ProductOptionBottomSheet
             />
           ))}
         </View>
+        {/*
+          웹은 여백(padding) 변화를 시트의 동적 높이가 알아채지 못한다 — 옵션을 고르면 아래에 총액 줄이 생겨
+          하단 영역이 커지는데 시트는 처음 높이에 머물러 [장바구니] · [바로 구매]가 화면 밖으로 잘렸다.
+          같은 높이를 빈 칸으로 넣으면 내용 높이 변화로 잡혀 시트가 따라 커진다
+        */}
+        {Platform.OS === "web" && <View style={{ height: BOTTOM_SHEET_GAP + footerHeight }} />}
       </BottomSheetScrollView>
       <View
         onLayout={e => setFooterHeight(e.nativeEvent.layout.height)}

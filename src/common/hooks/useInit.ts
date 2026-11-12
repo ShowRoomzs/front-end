@@ -1,6 +1,5 @@
 import axios from "axios";
 import { useFonts } from "expo-font";
-import * as SecureStore from "expo-secure-store";
 import { useCallback, useEffect, useState } from "react";
 
 import PretendardBold from "@/common/assets/fonts/Pretendard-Bold.ttf";
@@ -8,6 +7,7 @@ import PretendardMedium from "@/common/assets/fonts/Pretendard-Medium.ttf";
 import PretendardRegular from "@/common/assets/fonts/Pretendard-Regular.ttf";
 import PretendardSemiBold from "@/common/assets/fonts/Pretendard-SemiBold.ttf";
 import { SECURE_STORE } from "@/common/constants/secureStore";
+import * as SecureStore from "@/common/lib/secureStorage";
 import { loadUser } from "@/common/utils/loadUser";
 
 export function useInit(): boolean {

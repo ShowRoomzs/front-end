@@ -2,6 +2,8 @@ import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import "dayjs/locale/ko";
 import { registerRootComponent } from "expo";
+import { NativeWindStyleSheet } from "nativewind";
+import { Platform } from "react-native";
 
 import App from "./src/App";
 
@@ -10,4 +12,10 @@ import App from "./src/App";
 // the environment is set up appropriately
 dayjs.extend(customParseFormat);
 dayjs.locale("ko");
+// 웹에서도 className을 네이티브와 같은 스타일 객체로 바꾼다. NativeWind v2는 react-native-web을 보면
+// CSS 클래스 출력으로 바꾸는데, 그 CSS를 만들 PostCSS 파이프라인이 없어 모든 className이 빈 값이 된다
+if (Platform.OS === "web") {
+  NativeWindStyleSheet.setOutput({ default: "native" });
+}
+
 registerRootComponent(App);

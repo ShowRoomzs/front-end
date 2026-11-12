@@ -1,8 +1,8 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import * as SecureStore from "expo-secure-store";
 
 import { SECURE_STORE } from "@/common/constants/secureStore";
 import { queryClient } from "@/common/lib/queryClient";
+import * as SecureStore from "@/common/lib/secureStorage";
 import { useUserStore } from "@/common/stores/useUserStore";
 import { ACCOUNT_STATUS_QUERY_KEY } from "@/features/account/constants/suspension";
 import { authService } from "@/features/auth/services/authService";

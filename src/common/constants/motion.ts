@@ -1,3 +1,4 @@
+import { Platform } from "react-native";
 import { Easing, Keyframe, ReduceMotion } from "react-native-reanimated";
 
 /**
@@ -47,17 +48,27 @@ export const SHEET_EXIT_TIMING = {
  * 아코디언 · 드롭다운 · 접히는 섹션의 내용 — 위에서 4px 내려오며 페이드 200ms(§08).
  * 레이아웃 애니메이션이라 `entering`으로 쓴다. 키프레임은 팩토리가 아닌 함수 곡선(bezierFn)을 받는다.
  */
-export const EXPAND_ENTERING = new Keyframe({
+const expandEntering = new Keyframe({
   0: { opacity: 0, transform: [{ translateY: -4 }] },
   100: { opacity: 1, transform: [{ translateY: 0 }], easing: Easing.bezierFn(0.2, 0, 0, 1) },
 })
   .duration(MOTION_DURATION.base)
   .reduceMotion(MOTION_REDUCE);
 
+/**
+ * ⚠️ **웹에서는 쓰지 않는다(undefined).** reanimated 3.19 웹은 키프레임 진입이 끝난 뒤에도 그 뷰를
+ * `position: absolute`로 남겨 둬, 뒤따르는 줄이 그 자리로 올라와 글자가 겹친다(마이 사업자 정보 푸터에서 발견).
+ * 웹은 애니메이션 없이 바로 펼친다.
+ */
+export const EXPAND_ENTERING = Platform.OS === "web" ? undefined : expandEntering;
+
 /** 접을 때는 제자리에서 150ms로 바로 사라진다 */
-export const EXPAND_EXITING = new Keyframe({
+const expandExiting = new Keyframe({
   0: { opacity: 1 },
   100: { opacity: 0, easing: Easing.bezierFn(0.4, 0, 1, 1) },
 })
   .duration(MOTION_DURATION.collapse)
   .reduceMotion(MOTION_REDUCE);
+
+/** 웹은 EXPAND_ENTERING과 같은 이유로 쓰지 않는다 */
+export const EXPAND_EXITING = Platform.OS === "web" ? undefined : expandExiting;

@@ -55,7 +55,8 @@ export default function DaumPostcode(props: DaumPostcodeProps) {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
-      <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+      <!-- t1.daumcdn.net은 2026-11-30에 종료된다(우편번호 서비스 공지) — 같은 스크립트의 새 주소 -->
+      <script src="https://t1.kakaocdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
       <style>
         body, html { width: 100%; height: 100%; margin: 0; padding: 0; }
         #container { width: 100%; height: 100%; }

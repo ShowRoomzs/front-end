@@ -21,7 +21,6 @@ import FollowingActiveIcon from "@/common/assets/common/following-active.svg";
 import FollowingDefaultIcon from "@/common/assets/common/following-default.svg";
 import FollowingGrayIcon from "@/common/assets/common/following-gray.svg";
 import FollowingIcon from "@/common/assets/common/following.svg";
-import GiftIcon from "@/common/assets/common/gift.svg";
 import GoogleIcon from "@/common/assets/common/google-icon.svg";
 import HomeActiveIcon from "@/common/assets/common/home-active.svg";
 import HomeBlackIcon from "@/common/assets/common/home-black.svg";
@@ -36,8 +35,6 @@ import LikeBigIcon from "@/common/assets/common/like-big-icon.svg";
 import LikeBigOutlineIcon from "@/common/assets/common/like-big-outline-icon.svg";
 import LikeDefaultIcon from "@/common/assets/common/like-default.svg";
 import LikeIcon from "@/common/assets/common/like-icon.svg";
-import LogoBlackIcon from "@/common/assets/common/logo-black.svg";
-import LogoIcon from "@/common/assets/common/logo.svg";
 import MinusIcon from "@/common/assets/common/minus-icon.svg";
 import MypageActiveIcon from "@/common/assets/common/mypage-active.svg";
 import MypageDefaultIcon from "@/common/assets/common/mypage-default.svg";
@@ -92,12 +89,6 @@ export const COMMON_ASSETS: Assets = {
 
   tooltipArrow: {
     default: TooltipArrowIcon,
-  },
-  logo: {
-    default: LogoIcon,
-  },
-  logoBlack: {
-    default: LogoBlackIcon,
   },
   /**
    * 디자인 확정 워드마크. color는 로즈(#F2456E), dark는 잉크(#1A1B1F)이며 글자 형태는 같다.
@@ -215,9 +206,6 @@ export const COMMON_ASSETS: Assets = {
   },
   externalArrow: {
     default: ExternalArrowIcon,
-  },
-  gift: {
-    default: GiftIcon,
   },
   question: {
     default: QuestionIcon,

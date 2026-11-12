@@ -32,11 +32,12 @@ export default function AuthHomeView() {
 
     // 다른 소셜 로그인을 두는 iOS 앱은 Sign in with Apple도 함께 둔다(App Store 심사 지침 4.8).
     // 이 기기에서 쓸 수 있을 때만 그린다
-    if (Platform.OS === "ios" && isAppleLoginAvailable) {
+    // 웹은 브라우저와 관계없이 애플 계정으로 로그인할 수 있어 Services ID가 있으면 둔다(useAppleLogin.web)
+    if ((Platform.OS === "ios" || Platform.OS === "web") && isAppleLoginAvailable) {
       buttons.push("APPLE");
     }
 
-    if (Platform.OS === "android") {
+    if (Platform.OS === "android" || Platform.OS === "web") {
       buttons.push("GOOGLE");
     }
 
@@ -51,7 +52,7 @@ export default function AuthHomeView() {
    */
   const handlePressSocialButton = useCallback(
     async (response: SocialLoginResponse) => {
-      const { providerType, token, name } = response;
+      const { providerType, token, name, authorizationCode, redirectUri } = response;
 
       try {
         const res = await socialLoginAsync({
@@ -59,6 +60,9 @@ export default function AuthHomeView() {
           providerType,
           // 애플은 첫 로그인에서만 이름을 준다 — 받았을 때만 싣는다
           ...(name ? { name } : {}),
+          // 카카오 웹은 토큰 대신 인가 코드를 준다 — 서버가 같은 redirectUri로 교환한다
+          ...(authorizationCode ? { authorizationCode, redirectUri } : {}),
+          ...(Platform.OS === "web" ? { platform: "WEB" as const } : {}),
           // TODO : fcmToken 추가
         });
 

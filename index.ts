@@ -6,6 +6,7 @@ import { NativeWindStyleSheet } from "nativewind";
 import { Platform } from "react-native";
 
 import App from "./src/App";
+import { handleOAuthCallback } from "./src/features/auth/web/oauthCallback";
 
 // registerRootComponent calls AppRegistry.registerComponent('main', () => App);
 // It also ensures that whether you load the app in Expo Go or in a native build,
@@ -18,4 +19,7 @@ if (Platform.OS === "web") {
   NativeWindStyleSheet.setOutput({ default: "native" });
 }
 
-registerRootComponent(App);
+// 웹 소셜 로그인 팝업이 돌아온 페이지면 결과만 원래 창에 넘기고 닫는다 — 앱을 띄우지 않는다(앱에서는 항상 false)
+if (!handleOAuthCallback()) {
+  registerRootComponent(App);
+}

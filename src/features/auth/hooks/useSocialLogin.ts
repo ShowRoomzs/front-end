@@ -20,7 +20,16 @@ export type SocialLoginResponse = {
   providerType: SocialType;
   /** 애플 첫 로그인에서만 — 서버가 신규 가입 때 실명으로 저장한다 */
   name?: string;
+  /**
+   * 카카오 **웹**만 — 카카오는 웹에서 토큰 대신 인가 코드를 준다(`useKakaoLogin.web.ts`).
+   * 서버가 이 코드를 같은 redirectUri로 토큰과 바꾼다. 이때 `token`은 빈 문자열이다
+   */
+  authorizationCode?: string;
+  redirectUri?: string;
 };
+
+/** 카카오 훅의 결과 — 앱은 accessToken, 웹은 인가 코드 */
+type KakaoLoginResult = { accessToken?: string; authorizationCode?: string; redirectUri?: string };
 
 interface UseSocialLoginResult {
   login: () => Promise<SocialLoginResponse>;
@@ -34,8 +43,10 @@ export function useSocialLogin(socialType: SocialType): UseSocialLoginResult {
 
   const login = useCallback(async (): Promise<SocialLoginResponse> => {
     try {
-      let token: string;
+      let token = "";
       let name: string | undefined;
+      let authorizationCode: string | undefined;
+      let redirectUri: string | undefined;
 
       switch (socialType) {
         case "NAVER": {
@@ -45,9 +56,11 @@ export function useSocialLogin(socialType: SocialType): UseSocialLoginResult {
           break;
         }
         case "KAKAO": {
-          const res = await loginWithKakao();
+          const res: KakaoLoginResult = await loginWithKakao();
 
-          token = res.accessToken;
+          token = res.accessToken ?? "";
+          authorizationCode = res.authorizationCode;
+          redirectUri = res.redirectUri;
           break;
         }
         case "GOOGLE": {
@@ -68,11 +81,11 @@ export function useSocialLogin(socialType: SocialType): UseSocialLoginResult {
           throw new Error(`Unsupported social type: ${socialType}`);
       }
 
-      if (!token) {
+      if (!token && !authorizationCode) {
         throw new Error(`${socialType} login failed: token is missing`);
       }
 
-      return { token, providerType: socialType, name };
+      return { token, providerType: socialType, name, authorizationCode, redirectUri };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
 

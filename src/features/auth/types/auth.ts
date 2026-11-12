@@ -3,6 +3,14 @@ export interface SocialLoginRequest {
   token: string;
   name?: string;
   fcmToken?: string;
+  /** ANDROID · IOS · WEB — 지금은 웹만 보낸다(서버는 없으면 UNKNOWN으로 저장) */
+  platform?: "WEB";
+  /**
+   * 카카오 웹 인가 코드 · 그 코드를 받은 redirect URI.
+   * ⚠️ 서버 미구현(백엔드 요청) — 필드 이름은 요청서 제안값이라 서버가 정하면 맞춘다
+   */
+  authorizationCode?: string;
+  redirectUri?: string;
 }
 export interface SocialLoginResponse extends RegisterResponse {
   isNewMember: boolean;

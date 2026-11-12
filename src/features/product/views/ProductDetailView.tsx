@@ -42,6 +42,7 @@ import ProductPriceBlock from "@/features/product/components/ProductPriceBlock/P
 import ProductSellerInfo from "@/features/product/components/ProductSellerInfo/ProductSellerInfo";
 import PurchaseBlockedModal from "@/features/product/components/PurchaseBlockedModal/PurchaseBlockedModal";
 import { PRODUCT_OPTION_BOTTOM_SHEET_PROPS } from "@/features/product/constants/optionBottomSheet";
+import { toNoticeRows } from "@/features/product/constants/productNotice";
 import { useGetProductDetail } from "@/features/product/hooks/useGetProductDetail";
 import { useProductVariantSelection } from "@/features/product/stores/useProductVariantSelection";
 import { BundleProduct, ProductDetail } from "@/features/product/types/product";
@@ -342,9 +343,8 @@ export default function ProductDetailView() {
     if (!notice) {
       return [];
     }
-    return Object.entries(notice)
-      .filter(([, value]) => !!value)
-      .map(([key, value]) => ({ key, value: String(value) }));
+    // 서버는 영문 키(origin · mainSpecs …)로 준다 — 그대로 그리면 표에 영어 필드명이 나온다
+    return toNoticeRows(notice);
   }, [productDetail?.productNotice]);
 
   /**

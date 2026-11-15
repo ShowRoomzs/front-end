@@ -9,8 +9,8 @@ import { createState, getRedirectUri, openOAuthPopup } from "@/features/auth/web
  * (+ 클라이언트 시크릿)로 토큰과 바꾼다 — 그래야 시크릿이 브라우저에 나오지 않는다.
  * 콘솔: REST API 키 → 로그인 리다이렉트 URI에 `/auth/kakao/callback` 등록됨(11-12).
  *
- * ⚠️ 서버가 아직 인가 코드를 받지 않는다(백엔드 요청 — SocialLoginRequest에 authorizationCode · redirectUri).
- * 그전까지는 서버가 거절해 「로그인 처리에 실패했어요」가 뜬다.
+ * 서버는 `authorizationCode` + `redirectUri`를 받아 교환한다(11-15). redirectUri는 서버 허용 목록
+ * (KAKAO_ALLOWED_REDIRECT_URIS — showroomz.co.kr · localhost:8081)에 있어야 한다. 없으면 400 INVALID_REDIRECT_URI.
  */
 export function useKakaoLogin() {
   const login = useCallback(async () => {

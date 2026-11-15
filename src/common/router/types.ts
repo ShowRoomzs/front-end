@@ -180,6 +180,7 @@ export type SettingsStackParamList = {
   [SETTINGS_ROUTES.MEMBER_INFO_CHANGE]: undefined;
   [SETTINGS_ROUTES.REFUND_ACCOUNT]: undefined;
   [SETTINGS_ROUTES.WITHDRAWAL]: undefined;
+  [SETTINGS_ROUTES.BLOCKED_SHOWROOMS]: undefined;
   [SETTINGS_ROUTES.WITHDRAWAL_CONFIRM]: {
     /** C15-3에서 고른 이유. 선택 사항이라 null일 수 있다 */
     reason: WithdrawalReasonCode | null;

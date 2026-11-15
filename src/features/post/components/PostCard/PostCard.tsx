@@ -42,7 +42,7 @@ interface PostCardProps {
   onPressFollow: (showroomId: number, isFollowing: boolean) => void;
   onPressLike: (postId: number, isLiked: boolean) => void;
   onPressProduct: (productId: number, groupBuyId?: number | null) => void;
-  onPressMore: (postId: number) => void;
+  onPressMore: (postId: number, showroomId: number) => void;
 }
 
 function PostCard(props: PostCardProps) {
@@ -105,7 +105,7 @@ function PostCard(props: PostCardProps) {
           hideFollowButton={hideFollowButton}
           onPressShowroom={onPressShowroom}
           onPressFollow={onPressFollow}
-          onPressMore={() => onPressMore(post.postId)}
+          onPressMore={() => onPressMore(post.postId, post.showroomId)}
         />
       </View>
 

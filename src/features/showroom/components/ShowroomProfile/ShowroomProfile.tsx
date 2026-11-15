@@ -13,14 +13,19 @@ import { ShowroomDetail } from "@/features/showroom/types/showroom";
  * 소개 한 줄 · 팔로우 + 인스타그램.
  *
  * 쇼룸이 소비자에게 공개하는 채널은 인스타그램 하나다. URL이 없으면 버튼을 그리지 않는다.
+ *
+ * **차단한 쇼룸**(`isBlocked`)은 팔로우 자리에 [차단 해제]를 둔다 — 차단해도 프로필은 열리고(서버 규칙),
+ * 되돌리는 길이 여기 있어야 한다. 차단 중엔 팔로우할 수 없으니 두 버튼을 같이 두지 않는다.
+ * 되돌릴 액션이라 팔로잉과 같은 중립 외곽선이다.
  */
 interface ShowroomProfileProps {
   showroom: ShowroomDetail;
   onPressFollow: (showroomId: number, isFollowing: boolean) => void;
+  onPressUnblock: (showroomId: number) => void;
 }
 
 export default function ShowroomProfile(props: ShowroomProfileProps) {
-  const { showroom, onPressFollow } = props;
+  const { showroom, onPressFollow, onPressUnblock } = props;
 
   const handlePressInstagram = async () => {
     if (!showroom.instagramUrl) {
@@ -77,17 +82,29 @@ export default function ShowroomProfile(props: ShowroomProfileProps) {
       </Typography>
 
       <View className="mt-14 flex-row" style={{ gap: 8 }}>
-        <TouchableOpacity
-          onPress={() => onPressFollow(showroom.showroomId, showroom.isFollowing)}
-          activeOpacity={0.75}
-          className={`h-44 flex-1 flex-row items-center justify-center rounded-base ${
-            showroom.isFollowing ? "border-[1px] border-borderButton bg-white" : "bg-rose"
-          }`}
-        >
-          <Typography variant="buttonInline" className={showroom.isFollowing ? "text-ink76" : "text-white"}>
-            {showroom.isFollowing ? "팔로잉" : "팔로우"}
-          </Typography>
-        </TouchableOpacity>
+        {showroom.isBlocked ? (
+          <TouchableOpacity
+            onPress={() => onPressUnblock(showroom.showroomId)}
+            activeOpacity={0.75}
+            className="h-44 flex-1 flex-row items-center justify-center rounded-base border-[1px] border-borderButton bg-white"
+          >
+            <Typography variant="buttonInline" className="text-ink76">
+              차단 해제
+            </Typography>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            onPress={() => onPressFollow(showroom.showroomId, showroom.isFollowing)}
+            activeOpacity={0.75}
+            className={`h-44 flex-1 flex-row items-center justify-center rounded-base ${
+              showroom.isFollowing ? "border-[1px] border-borderButton bg-white" : "bg-rose"
+            }`}
+          >
+            <Typography variant="buttonInline" className={showroom.isFollowing ? "text-ink76" : "text-white"}>
+              {showroom.isFollowing ? "팔로잉" : "팔로우"}
+            </Typography>
+          </TouchableOpacity>
+        )}
 
         {!!showroom.instagramUrl && (
           <TouchableOpacity

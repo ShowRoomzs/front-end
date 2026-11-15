@@ -23,6 +23,7 @@ import { FeedItem } from "@/features/post/types/post";
 import ShowroomLegalFooter from "@/features/showroom/components/ShowroomLegalFooter/ShowroomLegalFooter";
 import ShowroomProfile from "@/features/showroom/components/ShowroomProfile/ShowroomProfile";
 import { useGetShowroomDetail } from "@/features/showroom/hooks/useGetShowroomDetail";
+import { useShowroomBlock } from "@/features/showroom/hooks/useShowroomBlock";
 import { useUpdateShowroomFollow } from "@/features/showroom/hooks/useUpdateShowroomFollow";
 import { showroomService } from "@/features/showroom/services/showroomService";
 
@@ -59,6 +60,7 @@ export default function ShowroomDetailView() {
   const { data: ongoingGroupBuyPosts, isLoading: isGroupBuysLoading } =
     useGetShowroomGroupBuyPosts(showroomId);
   const { toggle: toggleFollow } = useUpdateShowroomFollow();
+  const { unblockShowroom } = useShowroomBlock();
   const { handlePressPost, handlePressShowroom, handlePressProduct, handlePressLike, handlePressMore } =
     useFeedActions();
   const { handleViewableItemsChanged, viewabilityConfig } = usePostImpressions();
@@ -182,7 +184,11 @@ export default function ShowroomDetailView() {
         ListHeaderComponent={
           showroom ? (
             <View>
-              <ShowroomProfile showroom={showroom} onPressFollow={handlePressFollow} />
+              <ShowroomProfile
+                showroom={showroom}
+                onPressFollow={handlePressFollow}
+                onPressUnblock={unblockShowroom}
+              />
 
               {/*
                 시안 C4 1c — 게시물은 있는데 진행 중인 공구가 없을 때만. 게시물이 하나도 없으면(1b) 아래 빈 상태가

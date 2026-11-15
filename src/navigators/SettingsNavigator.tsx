@@ -2,6 +2,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import { SETTINGS_ROUTES } from "@/common/router/routes";
 import { SettingsStackParamList } from "@/common/router/types";
+import BlockedShowroomsView from "@/features/setting/views/BlockedShowroomsView";
 import MemberInfoChangeView from "@/features/setting/views/MemberInfoChangeView";
 import NicknameChangeView from "@/features/setting/views/NicknameChangeView";
 import RefundAccountView from "@/features/setting/views/RefundAccountView";
@@ -20,6 +21,7 @@ export default function SettingsNavigator() {
       <Stack.Screen name={SETTINGS_ROUTES.REFUND_ACCOUNT} component={RefundAccountView} />
       <Stack.Screen name={SETTINGS_ROUTES.WITHDRAWAL} component={WithdrawalView} />
       <Stack.Screen name={SETTINGS_ROUTES.WITHDRAWAL_CONFIRM} component={WithdrawalConfirmView} />
+      <Stack.Screen name={SETTINGS_ROUTES.BLOCKED_SHOWROOMS} component={BlockedShowroomsView} />
     </Stack.Navigator>
   );
 }

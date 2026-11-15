@@ -34,6 +34,20 @@ export interface ShowroomDetail {
   /** false면 아바타 로즈 링과 진행 중 공구 섹션을 모두 감춘다 */
   hasOngoingGroupBuy: boolean;
   isFollowing: boolean;
+  /**
+   * 내가 이 쇼룸을 차단했는가 — 프로필은 차단해도 열린다. true면 팔로우 대신 [차단 해제]를 그린다.
+   * 비로그인은 항상 false. 구버전 서버라 값이 없으면 차단하지 않은 것으로 본다
+   */
+  isBlocked?: boolean;
+}
+
+/** 설정 > 차단한 쇼룸 한 행 (`BlockedShowroomResponse`) */
+export interface BlockedShowroom {
+  showroomId: number;
+  showroomName: string;
+  showroomImageUrl: string | null;
+  /** UTC */
+  blockedAt: string;
 }
 
 export interface FollowingShowroom {

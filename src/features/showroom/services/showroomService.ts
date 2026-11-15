@@ -1,6 +1,7 @@
 import { apiInstance } from "@/common/lib/apiInstance";
 import { PageParams, PageResponse } from "@/common/types/page";
 import {
+  BlockedShowroom,
   FollowingShowroom,
   FollowingShowroomSort,
   ShowroomDetail,
@@ -36,6 +37,28 @@ export const showroomService = {
 
   unfollow: async (showroomId: number) => {
     await apiInstance.delete<void>(`/user/showrooms/${showroomId}/follow`);
+  },
+
+  /**
+   * 차단(App Store 심사 1.2) — 그 쇼룸의 게시물이 피드에서 빠지고 쇼룸 목록 · 검색에서도 빠진다.
+   * 팔로우 중이었으면 서버가 끊는다(해제해도 되살리지 않는다). 이미 차단했으면 아무 일도 없다(204).
+   * 내 쇼룸이면 400(INVALID_INPUT_VALUE)
+   */
+  block: async (showroomId: number) => {
+    await apiInstance.post<void>(`/user/showrooms/${showroomId}/block`);
+  },
+
+  unblock: async (showroomId: number) => {
+    await apiInstance.delete<void>(`/user/showrooms/${showroomId}/block`);
+  },
+
+  /** 설정 > 차단한 쇼룸 — 최근 차단순 */
+  getBlocked: async (params: PageParams) => {
+    const { data } = await apiInstance.get<PageResponse<BlockedShowroom>>("/user/showrooms/blocked", {
+      params,
+    });
+
+    return data;
   },
 
   /** 쇼룸 방문 기록 — 노출 적재와 같은 30분 세션 규칙을 쓴다 */

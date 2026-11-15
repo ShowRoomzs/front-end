@@ -95,7 +95,7 @@ export default function PostDetailView() {
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={() => handlePressMore(post.postId)}
+                onPress={() => handlePressMore(post.postId, post.showroomId)}
                 activeOpacity={0.55}
                 style={{ padding: 11, margin: -11 }}
               >

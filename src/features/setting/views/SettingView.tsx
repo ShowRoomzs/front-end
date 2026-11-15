@@ -180,6 +180,11 @@ export default function SettingView() {
           label="회원정보"
           onPress={() => settingsNavigation.navigate(SETTINGS_ROUTES.MEMBER_INFO_CHANGE)}
         />
+        {/* 시안에 없는 줄 — 차단(App Store 심사 1.2)을 되돌리는 길. 서버 문서가 설정 「차단 관리」를 둔다 */}
+        <SettingRow
+          label="차단한 쇼룸"
+          onPress={() => settingsNavigation.navigate(SETTINGS_ROUTES.BLOCKED_SHOWROOMS)}
+        />
 
         <View className="mt-10">
           <GroupBand height={5} />

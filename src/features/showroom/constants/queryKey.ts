@@ -4,4 +4,5 @@ export const SHOWROOM_QUERY_KEY = {
   FOLLOWING_SHOWROOMS: "followingShowrooms",
   SHOWROOM_SEARCH: "showroomSearch",
   ACTIVE_SHOWROOMS: "activeShowrooms",
+  BLOCKED_SHOWROOMS: "blockedShowrooms",
 } as const;

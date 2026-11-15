@@ -25,6 +25,7 @@ import ProductDetailView from "@/features/product/views/ProductDetailView";
 import ProductInquiryListView from "@/features/product/views/ProductInquiryListView";
 import ProductInquiryView from "@/features/product/views/ProductInquiryView";
 import SearchView from "@/features/search/views/SearchView";
+import ShowroomByAddressView from "@/features/showroom/views/ShowroomByAddressView";
 import ShowroomDetailView from "@/features/showroom/views/ShowroomDetailView";
 import CommonTermsDocumentView from "@/features/terms/views/CommonTermsDocumentView";
 import WishlistView from "@/features/wishlist/views/WishlistView";
@@ -57,6 +58,7 @@ export default function CommonNavigator() {
         <Stack.Screen name={COMMON_ROUTES.PRODUCT_INQUIRY} component={ProductInquiryView} />
         <Stack.Screen name={COMMON_ROUTES.PRODUCT_INQUIRY_LIST} component={ProductInquiryListView} />
         <Stack.Screen name={COMMON_ROUTES.SHOWROOM_DETAIL} component={ShowroomDetailView} />
+        <Stack.Screen name={COMMON_ROUTES.SHOWROOM_BY_ADDRESS} component={ShowroomByAddressView} />
         <Stack.Screen name={COMMON_ROUTES.POST_DETAIL} component={PostDetailView} />
         <Stack.Screen name={COMMON_ROUTES.CATEGORY} component={CategoryNavigator} />
         <Stack.Screen name={COMMON_ROUTES.WISHLIST} component={WishlistView} />

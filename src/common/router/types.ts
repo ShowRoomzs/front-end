@@ -66,6 +66,10 @@ export type CommonStackParamList = {
   [COMMON_ROUTES.SHOWROOM_DETAIL]: {
     showroomId: number;
   };
+  /** 쇼룸 핸들 링크(`/@handle`) — 찾아서 SHOWROOM_DETAIL로 바꿔치운다 */
+  [COMMON_ROUTES.SHOWROOM_BY_ADDRESS]: {
+    showroomAddress: string;
+  };
   [COMMON_ROUTES.POST_DETAIL]: {
     postId: number;
   };

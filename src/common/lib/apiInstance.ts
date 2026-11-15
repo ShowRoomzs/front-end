@@ -1,4 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
+import { Platform } from "react-native";
 
 import { SECURE_STORE } from "@/common/constants/secureStore";
 import { queryClient } from "@/common/lib/queryClient";
@@ -50,7 +51,10 @@ function refreshTokens(refreshToken: string) {
     .refresh(refreshToken)
     .then(async ({ accessToken, refreshToken: nextRefreshToken }) => {
       await SecureStore.setItemAsync(SECURE_STORE.ACCESS_TOKEN, accessToken);
-      await SecureStore.setItemAsync(SECURE_STORE.REFRESH_TOKEN, nextRefreshToken);
+      // 웹은 새 리프레시 토큰도 쿠키로 온다(바디에 없다)
+      if (nextRefreshToken) {
+        await SecureStore.setItemAsync(SECURE_STORE.REFRESH_TOKEN, nextRefreshToken);
+      }
     })
     .finally(() => {
       refreshPromise = null;
@@ -86,14 +90,15 @@ apiInstance.interceptors.response.use(
 
     const refreshToken = await SecureStore.getItemAsync(SECURE_STORE.REFRESH_TOKEN);
 
-    if (!refreshToken) {
+    // 웹은 리프레시 토큰을 갖지 않는다 — 빈 값으로 리프레시하면 서버가 httpOnly 쿠키를 읽는다
+    if (!refreshToken && Platform.OS !== "web") {
       await clearSession();
 
       return Promise.reject(error);
     }
 
     try {
-      await refreshTokens(refreshToken);
+      await refreshTokens(refreshToken ?? "");
     } catch (refreshError) {
       // 서버가 리프레시 토큰을 거절했을 때(401)만 세션을 버린다. 네트워크 오류는 토큰이 멀쩡하므로
       // 남겨 두고, 연결이 돌아온 뒤의 요청이 다시 리프레시하게 한다. 원래 오류를 그대로 돌려준다

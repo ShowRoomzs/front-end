@@ -96,6 +96,32 @@ export function useAppleLogin() {
   return { login };
 }
 
+/**
+ * 탈퇴 직전 애플 재인증(웹) — 앱의 `requestAppleAuthorizationCode`와 같은 약속. 애플 JS 팝업의
+ * `authorization.code`를 돌려준다(서버가 탈퇴 뒤 애플 토큰을 철회 · 심사 5.1.1(v)).
+ * 창을 닫으면 `CANCELLED`. 웹 Services ID로 받은 코드라 서버의 애플 client-ids에 Services ID가 있어야 철회된다
+ */
+export async function requestAppleAuthorizationCode(): Promise<string | null> {
+  const auth = window.AppleID?.auth ?? (await loadAppleSdk());
+
+  auth.init({
+    clientId: APPLE_WEB_SERVICE_ID,
+    scope: "",
+    redirectURI: `${window.location.origin}/auth/apple/callback`,
+    usePopup: true,
+  });
+  try {
+    const { authorization } = await auth.signIn();
+
+    return authorization?.code ?? null;
+  } catch (error) {
+    if ((error as { error?: string })?.error === "popup_closed_by_user") {
+      throw new Error("CANCELLED");
+    }
+    throw error instanceof Error ? error : new Error(JSON.stringify(error));
+  }
+}
+
 /** 웹은 Services ID가 있으면 버튼을 보인다(브라우저와 관계없이 애플 계정으로 로그인할 수 있다) */
 export function useIsAppleLoginAvailable() {
   return APPLE_WEB_SERVICE_ID.length > 0;

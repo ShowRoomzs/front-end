@@ -41,6 +41,7 @@ export const COMMON_ROUTES = {
   PRODUCT_INQUIRY: "productInquiry",
   PRODUCT_INQUIRY_LIST: "productInquiryList",
   SHOWROOM_DETAIL: "showroomDetail",
+  SHOWROOM_BY_ADDRESS: "showroomByAddress",
   POST_DETAIL: "postDetail",
   CATEGORY: "commonCategory",
   WISHLIST: "commonWishlist",

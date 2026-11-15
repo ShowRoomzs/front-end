@@ -23,6 +23,18 @@ export const showroomService = {
     return data;
   },
 
+  /**
+   * 핸들(@showroomAddress)로 쇼룸 찾기 — 크리에이터 SNS 링크(`/@handle`)용. 없으면 404.
+   * 응답은 쇼룸 번호로 받는 상세와 같다
+   */
+  getDetailByAddress: async (showroomAddress: string) => {
+    const { data } = await apiInstance.get<ShowroomDetail>(
+      `/user/showrooms/by-address/${encodeURIComponent(showroomAddress)}`
+    );
+
+    return data;
+  },
+
   getFollowing: async (params: PageParams & { sort?: FollowingShowroomSort }) => {
     const { data } = await apiInstance.get<PageResponse<FollowingShowroom>>("/user/showrooms/following", {
       params,

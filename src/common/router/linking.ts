@@ -39,6 +39,8 @@ export const linking: LinkingOptions<RootStackParamList> = {
           // 주소에서 읽은 값은 문자열이다 — 숫자로 바꿔 두지 않으면 앱 안에서 넘긴 번호(숫자)와
           // 쿼리 키 · 비교(`!==`)가 어긋나 같은 상품 · 게시물이 다른 것으로 취급된다
           [COMMON_ROUTES.SHOWROOM_DETAIL]: { path: "showroom/:showroomId", parse: { showroomId: Number } },
+          // 크리에이터 SNS 링크 `/@handle` — 웹은 시작할 때 `/u/handle`로 바꿔 여기 닿는다(webPaths.web.ts)
+          [COMMON_ROUTES.SHOWROOM_BY_ADDRESS]: "u/:showroomAddress",
           [COMMON_ROUTES.POST_DETAIL]: { path: "post/:postId", parse: { postId: Number } },
           [COMMON_ROUTES.PRODUCT_DETAIL]: {
             path: "product/:productId",

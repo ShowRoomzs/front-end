@@ -47,6 +47,27 @@ export function useAppleLogin() {
 }
 
 /**
+ * 탈퇴 직전 애플 재인증 — 받은 `authorizationCode`(5분 · 1회용)를 탈퇴 요청에 실으면 서버가 애플 토큰을
+ * 철회한다(App Store 심사 5.1.1(v)). 사용자가 애플 창을 닫으면 `CANCELLED`를 던진다.
+ * 애플 로그인을 쓸 수 없는 기기(안드로이드)는 null — 서버는 코드 없이도 탈퇴를 진행한다.
+ */
+export async function requestAppleAuthorizationCode(): Promise<string | null> {
+  if (Platform.OS !== "ios" || !(await AppleAuthentication.isAvailableAsync())) {
+    return null;
+  }
+  try {
+    const credential = await AppleAuthentication.signInAsync({ requestedScopes: [] });
+
+    return credential.authorizationCode ?? null;
+  } catch (error) {
+    if ((error as { code?: string })?.code === "ERR_REQUEST_CANCELED") {
+      throw new Error("CANCELLED");
+    }
+    throw error;
+  }
+}
+
+/**
  * 이 기기에서 Sign in with Apple을 쓸 수 있는지 — iOS 13 이상 · 애플 계정 로그인 기능이 켜진 빌드.
  * 확인 전(null)에는 버튼을 그리지 않는다. 쓸 수 없는 기기에 눌러도 안 되는 버튼을 두지 않는다.
  */

@@ -81,6 +81,7 @@ export const SETTINGS_ROUTES = {
   REFUND_ACCOUNT: "refundAccount",
   WITHDRAWAL: "withdrawal",
   WITHDRAWAL_CONFIRM: "withdrawalConfirm",
+  BLOCKED_SHOWROOMS: "blockedShowrooms",
 } as const;
 
 // 마이페이지 스택 네비게이션

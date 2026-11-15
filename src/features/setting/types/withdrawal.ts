@@ -49,4 +49,9 @@ export interface WithdrawalRequest {
   reason?: WithdrawalReasonCode | null;
   /** 이유가 ETC일 때 자유 입력 (선택) */
   customReason?: string | null;
+  /**
+   * 애플 로그인 회원만 — 탈퇴 직전 Sign in with Apple을 다시 띄워 받은 인가 코드(5분 · 1회용).
+   * 서버가 탈퇴 뒤 애플 토큰을 철회한다(심사 5.1.1(v)). 없거나 철회에 실패해도 탈퇴는 진행된다
+   */
+  appleAuthorizationCode?: string | null;
 }

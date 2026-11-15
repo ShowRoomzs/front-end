@@ -15,6 +15,8 @@ import { toast } from "@/common/providers/ToastProvider";
 import { HOME_ROUTES, SETTINGS_ROUTES, useMypageNavigation, useSettingsNavigation } from "@/common/router";
 import { MYPAGE_ROUTES } from "@/common/router/routes";
 import { SettingsStackParamList } from "@/common/router/types";
+import { useUserStore } from "@/common/stores/useUserStore";
+import { requestAppleAuthorizationCode } from "@/features/auth/hooks/useAppleLogin";
 import { useLogin } from "@/features/auth/hooks/useLogin";
 import { WithdrawalSkeleton } from "@/features/setting/components/SettingSkeletons/SettingSkeletons";
 import { useGetWithdrawalInfo } from "@/features/setting/hooks/useWithdrawal";
@@ -118,8 +120,25 @@ export default function WithdrawalConfirmView() {
   }, [logout, navigate, navigation]);
 
   const handleWithdraw = useCallback(async () => {
+    /*
+      애플 회원은 탈퇴 직전 애플 창을 한 번 더 띄워 인가 코드를 받는다 — 서버가 그 코드로 애플 토큰을
+      철회한다(심사 5.1.1(v)). 사용자가 애플 창을 닫으면 탈퇴를 멈춘다(마지막 확인을 거둔 것으로 본다).
+      그 밖의 실패는 코드 없이 진행한다 — 서버는 코드가 없어도 탈퇴를 끝내고, 탈퇴를 막을 이유는 아니다
+    */
+    let appleAuthorizationCode: string | null = null;
+
+    if (useUserStore.getState().user?.providerType === "APPLE") {
+      try {
+        appleAuthorizationCode = await requestAppleAuthorizationCode();
+      } catch (error) {
+        if (error instanceof Error && error.message === "CANCELLED") {
+          return;
+        }
+      }
+    }
+
     try {
-      await withdraw({ agreeConsent: true, reason, customReason });
+      await withdraw({ agreeConsent: true, reason, customReason, appleAuthorizationCode });
       showModal({
         iconBackgroundColor: "#F4F4F5",
         icon: (

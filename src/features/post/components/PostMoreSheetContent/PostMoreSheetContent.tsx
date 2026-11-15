@@ -9,7 +9,7 @@ import { useSuspension } from "@/features/account/hooks/useAccountStatus";
 import ReportSheetContent from "@/features/post/components/ReportSheetContent/ReportSheetContent";
 
 /**
- * 게시물 ⋯ 메뉴 — 카드와 상세의 점 세 개에서 열린다.
+ * 게시물 ⋯ 메뉴 — 카드와 상세의 점 세 개에서 열린다. 순서는 시안 C5: 신고 · 그만 보기 · 링크 복사.
  *
  * **신고를 바로 띄우지 않고 메뉴를 한 겹 둔다.** ⋯를 누르는 이유가 신고만은 아닌데 사유 목록이
  * 곧장 뜨면, 링크를 얻으려던 사람이 신고 화면을 마주하게 된다. 사유를 고르는 일은 그 다음이다.
@@ -17,17 +17,19 @@ import ReportSheetContent from "@/features/post/components/ReportSheetContent/Re
  * 시트를 갈아 끼우지 않고 **한 시트 안에서 단계만 바꾸는** 이유는, 닫았다 여는 사이에 배경이
  * 번쩍이고 높이가 튀기 때문이다.
  *
- * [이 쇼룸의 게시물 그만 보기]는 넣지 않았다 — 서버에 차단이 없어 눌러도 아무 일이 일어나지
- * 않는다. 동작하지 않는 메뉴는 없는 것보다 나쁘다.
+ * [이 쇼룸의 게시물 그만 보기]는 쇼룸 **차단**이다(App Store 심사 1.2) — 그 쇼룸의 게시물이 피드 · 검색에서
+ * 빠진다. 되돌리기는 쇼룸 프로필 [차단 해제] · 설정 > 차단한 쇼룸. 로그인 확인 · 요청은 부르는 쪽이 한다
+ * (`onPressBlock` — 시트는 화면 밖에 그려져 내비게이션을 직접 쓰지 않는다).
  */
 interface PostMoreSheetContentProps {
   postId: number;
   onClose: () => void;
+  onPressBlock: () => void;
 }
 
 type MoreStep = "menu" | "report";
 
-type MoreAction = "report" | "copyLink";
+type MoreAction = "report" | "block" | "copyLink";
 
 /** 앱 스킴 딥링크 — 게시물을 공유하면 앱이 설치된 기기에서 그 게시물로 바로 열린다 */
 function buildPostLink(postId: number) {
@@ -35,7 +37,7 @@ function buildPostLink(postId: number) {
 }
 
 export default function PostMoreSheetContent(props: PostMoreSheetContentProps) {
-  const { postId, onClose } = props;
+  const { postId, onClose, onPressBlock } = props;
   const [step, setStep] = useState<MoreStep>("menu");
   const suspension = useSuspension();
 
@@ -52,11 +54,16 @@ export default function PostMoreSheetContent(props: PostMoreSheetContentProps) {
         setStep("report");
         return;
       }
+      if (action === "block") {
+        onClose();
+        onPressBlock();
+        return;
+      }
       Clipboard.setString(buildPostLink(postId));
       onClose();
       toast.success("링크를 복사했어요");
     },
-    [onClose, postId, suspension]
+    [onClose, onPressBlock, postId, suspension]
   );
 
   if (step === "report") {
@@ -65,6 +72,7 @@ export default function PostMoreSheetContent(props: PostMoreSheetContentProps) {
 
   const items: Array<SheetListItem<MoreAction>> = [
     { value: "report", label: "게시물 신고" },
+    { value: "block", label: "이 쇼룸의 게시물 그만 보기" },
     { value: "copyLink", label: "링크 복사" },
   ];
 

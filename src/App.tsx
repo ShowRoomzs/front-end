@@ -12,6 +12,7 @@ import SplashProvider, { NATIVE_FADE_MS } from "@/common/providers/SplashProvide
 import { linking } from "@/common/router/linking";
 import { navigationRef } from "@/common/router/navigationRef";
 import AccountStatusHost from "@/features/account/components/AccountStatusHost";
+import PushHost from "@/features/push/components/PushHost";
 import MainNavigator from "@/navigators/MainNavigator";
 
 // 네이티브 스플래시는 SplashProvider가 워드마크 오버레이를 띄운 뒤에 닫는다
@@ -44,6 +45,7 @@ export default function App() {
               <PortalProvider>
                 <MainNavigator />
                 <AccountStatusHost />
+                <PushHost />
               </PortalProvider>
             </NavigationContainer>
           </SplashProvider>

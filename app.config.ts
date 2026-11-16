@@ -9,7 +9,7 @@ import { ExpoConfig, ConfigContext } from "expo/config";
 const NAVER_URL_SCHEME = "showroomznaver";
 
 export default ({ config }: ConfigContext): ExpoConfig => {
-  const { EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY } = process.env;
+  const { EXPO_PUBLIC_KAKAO_NATIVE_APP_KEY, GOOGLE_SERVICES_JSON, GOOGLE_SERVICE_INFO_PLIST } = process.env;
 
   /*
     키가 없으면 카카오 플러그인이 예외를 던지는데, EAS 빌드에서는 그게 "Read app config 단계에서
@@ -44,10 +44,27 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     icon: "./assets/appicon-ios.png",
     userInterfaceStyle: "light",
     newArchEnabled: true,
+    /*
+      안드로이드 상태바 알림 아이콘 — 안드로이드는 알파만 써서 흰 실루엣으로 칠한다. 앱 아이콘(로즈 사각형)을
+      쓰면 흰 네모만 보여 투명 바탕 심볼을 따로 둔다(scripts/build-notification-icon.py).
+      프리빌드가 drawable `notification_icon`으로 굽고, FCM 메시징 플러그인이 기본 알림 아이콘 · 색으로 건다.
+    */
+    notification: {
+      icon: "./assets/notification-icon.png",
+      color: "#F2456E",
+    },
     ios: {
       icon: "./assets/appicon-ios.png",
       supportsTablet: true,
       bundleIdentifier: "com.showroomz.app",
+      // 푸시(FCM) — 서버 Firebase 프로젝트에 등록한 iOS 앱 설정. 공개 저장소라 커밋하지 않는다(.gitignore) —
+      // EAS 빌드는 파일 환경 변수 GOOGLE_SERVICE_INFO_PLIST가 준 경로를, 로컬은 프로젝트 루트 파일을 쓴다
+      googleServicesFile: GOOGLE_SERVICE_INFO_PLIST ?? "./GoogleService-Info.plist",
+      // 푸시 권한(APNs). 이 권한이 있어야 EAS가 App ID에 Push Notifications를 켠다.
+      // Firebase 콘솔에는 APNs 인증키(.p8)가 올라가 있다(11-16)
+      entitlements: {
+        "aps-environment": "production",
+      },
       // Sign in with Apple 권한(com.apple.developer.applesignin) — 카카오 · 네이버를 두는 iOS 앱은
       // 애플 로그인도 함께 둬야 한다(심사 지침 4.8). 애플 개발자 계정의 App ID에도 같은 기능이 켜져 있어야 한다
       usesAppleSignIn: true,
@@ -60,6 +77,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
           자체 암호화 알고리즘을 넣거나 통신을 직접 암호화하게 되면 이 값을 다시 판단해야 한다.
         */
         ITSAppUsesNonExemptEncryption: false,
+        // 앱이 백그라운드일 때도 푸시 데이터를 받는다(FCM)
+        UIBackgroundModes: ["remote-notification"],
         NSPhotoLibraryUsageDescription: "이미지 업로드를 위해 사진 보관함 접근 권한이 필요합니다.",
         NSCameraUsageDescription: "사진 촬영을 위해 카메라 접근이 필요합니다.",
         LSApplicationQueriesSchemes: [
@@ -100,6 +119,10 @@ export default ({ config }: ConfigContext): ExpoConfig => {
       edgeToEdgeEnabled: true,
       predictiveBackGestureEnabled: false,
       package: "com.showroomz.app",
+      // 푸시(FCM) — 서버 Firebase 프로젝트에 등록한 안드로이드 앱 설정. EAS는 파일 환경 변수 GOOGLE_SERVICES_JSON
+      googleServicesFile: GOOGLE_SERVICES_JSON ?? "./google-services.json",
+      // 안드로이드 13+ 알림 권한 — FCM 라이브러리 매니페스트에 없어 직접 넣는다(없으면 권한 창이 뜨지 않는다)
+      permissions: ["android.permission.POST_NOTIFICATIONS"],
     },
     web: {
       favicon: "./assets/favicon.png",
@@ -112,6 +135,10 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     owner: "showroomz",
     plugins: [
       "expo-apple-authentication",
+      // 푸시(FCM) — app은 설정 파일을 네이티브에 넣고 AppDelegate에 FirebaseApp.configure()를 심는다.
+      // messaging은 위 `notification` 아이콘 · 색을 FCM 기본 알림 아이콘으로 건다
+      "@react-native-firebase/app",
+      "@react-native-firebase/messaging",
       /*
         런치 스크린 (시안 C19) — 흰 배경 + 로즈 워드마크, iOS·Android 동일한 인상.
 
@@ -178,6 +205,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
             // 소스 빌드로 돌리면 해당 프레임워크가 앱에 포함되지 않아 문제가 사라진다.
             // 대가는 iOS 빌드 시간 증가다.
             buildReactNativeFromSource: true,
+            // Firebase iOS SDK는 프레임워크로만 붙는다 — @react-native-firebase 23.x의 Expo 설정 그대로.
+            // RN을 소스로 빌드하므로(위) 프리빌트 RN용 forceStaticLinking은 필요 없다
+            useFrameworks: "static",
           },
         },
       ],

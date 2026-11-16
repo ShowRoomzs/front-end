@@ -10,6 +10,7 @@ import { mountDesktopShell } from "./src/common/lib/desktopShell";
 import { applyWebGlobalStyles } from "./src/common/lib/webGlobalStyles";
 import { normalizeWebPath } from "./src/common/lib/webPaths";
 import { handleOAuthCallback } from "./src/features/auth/web/oauthCallback";
+import { registerBackgroundPushHandler } from "./src/features/push/lib/pushMessaging";
 
 // registerRootComponent calls AppRegistry.registerComponent('main', () => App);
 // It also ensures that whether you load the app in Expo Go or in a native build,
@@ -24,6 +25,9 @@ if (Platform.OS === "web") {
   // 쇼룸 핸들 링크(/@handle) → 앱 경로(/u/handle). PC 틀이 이 주소로 iframe을 열므로 틀보다 먼저 한다
   normalizeWebPath();
 }
+
+// FCM 백그라운드 수신 처리기 — 컴포넌트 등록보다 먼저 걸어야 한다(없으면 FCM이 경고를 남긴다). 웹은 할 일 없음
+registerBackgroundPushHandler();
 
 // 웹 소셜 로그인 팝업이 돌아온 페이지면 결과만 원래 창에 넘기고 닫는다 — 앱을 띄우지 않는다(앱에서는 항상 false).
 // 넓은 PC 화면이면 가운데 폰 폭 틀(iframe)만 그리고, 앱은 그 틀 안에서 뜬다

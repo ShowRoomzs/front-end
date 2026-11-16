@@ -15,14 +15,17 @@ import Typography from "@/common/components/Typography/Typography";
 import { queryClient } from "@/common/lib/queryClient";
 import { useBottomSheetContext } from "@/common/providers/BottomSheetProvider";
 import { useCommonNavigation, useMainNavigation } from "@/common/router";
-import { COMMON_ROUTES, HOME_ROUTES, MYPAGE_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
+import { HOME_ROUTES, MYPAGE_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { SUSPENSION_SHEET_ID } from "@/features/account/constants/suspension";
 import { HOME_SUMMARY_QUERY_KEY } from "@/features/home/hooks/useHomeSummary";
 import { HomeSummary } from "@/features/home/types/home";
+import { NOTIFICATION_QUERY_KEY } from "@/features/notification/constants/queryKey";
 import { notificationService } from "@/features/notification/services/notificationService";
 import { NotificationItem, NotificationListResponse } from "@/features/notification/types/notification";
+import { openNotificationTarget } from "@/features/notification/utils/openNotificationTarget";
 import { Thumb } from "@/features/order/components/OrderParts/OrderParts";
 import { formatMonthDay } from "@/features/order/utils/orderFormat";
+import { usePushPermission } from "@/features/push/hooks/usePushPermission";
 import { useGetNotificationSettings } from "@/features/setting/hooks/useGetNotificationSettings";
 
 /**
@@ -35,10 +38,8 @@ import { useGetNotificationSettings } from "@/features/setting/hooks/useGetNotif
  * - 탭하면 읽음 처리하고 대상 화면으로 간다. 목록에 들어오면 종 배지만 초기화한다.
  *
  * ⚠️ 알림 API는 back-end main(2026-10-24)에 있지만 개발 서버에 없다 — 404면 「준비 중」을 그린다.
- * 기기 알림 꺼짐 안내는 푸시 연동(기기 권한 확인) 전이라 DEV 목업에서만 보인다.
+ * 기기 알림 꺼짐 안내는 실제 알림 권한(usePushPermission)을 읽는다 — OS 설정에서 돌아오면 다시 읽는다.
  */
-const NOTIFICATION_QUERY_KEY = "notifications";
-
 type DevNotificationMock = "OFF" | "LIST" | "EMPTY" | "OS_OFF" | "AD_OFF";
 
 const DEV_NOTIFICATION_OPTIONS: Array<{ value: DevNotificationMock; label: string }> = [
@@ -131,7 +132,8 @@ export default function NotificationView() {
 
   const isUnavailable = !!data && data.pages[0] === null;
   const isAdAgreed = devMock === "AD_OFF" ? false : (settings?.marketingAgree ?? true);
-  const isOsOff = __DEV__ && devMock === "OS_OFF";
+  const isPushGranted = usePushPermission();
+  const isOsOff = devMock === "OS_OFF" || (devMock === "OFF" && !isPushGranted);
 
   const rows = useMemo(() => {
     const items = (data?.pages ?? [])
@@ -167,34 +169,12 @@ export default function NotificationView() {
         markRead(item.notificationId);
       }
     }
-    const { type, id, sub, orderId } = item.target;
-
-    switch (type) {
-      case "CLAIM":
-        return id && navigation.navigate(COMMON_ROUTES.CLAIM_DETAIL, { claimId: id });
-      case "POST":
-        return id && navigation.navigate(COMMON_ROUTES.POST_DETAIL, { postId: id });
-      // 쇼룸 대상 id는 크리에이터 id다 — 쇼룸 상세 경로가 같은 id를 쓴다
-      case "SHOWROOM":
-        return id && navigation.navigate(COMMON_ROUTES.SHOWROOM_DETAIL, { showroomId: id });
-      case "PRODUCT":
-        return id && navigation.navigate(COMMON_ROUTES.PRODUCT_DETAIL, { productId: id });
-      case "INQUIRY":
-        return sub === "PRODUCT"
-          ? goMypage(MYPAGE_ROUTES.INQUIRY_HISTORY)
-          : id && goMypage(MYPAGE_ROUTES.INQUIRY_DETAIL, { inquiryId: id });
-      // `id`는 하위주문(배송 그룹) id라 주문 상세는 `orderId`로 연다 — 옛 알림처럼 없으면 주문 내역으로
-      case "ORDER_GROUP":
-        return orderId
-          ? navigation.navigate(COMMON_ROUTES.ORDER_DETAIL, { orderId })
-          : goMypage(MYPAGE_ROUTES.ORDER_AND_DELIVERY_SEARCH);
-      case "SETTINGS":
-        return goMypage(MYPAGE_ROUTES.SETTINGS);
-      case "ACCOUNT_STATUS":
-        return openSheet(SUSPENSION_SHEET_ID);
-      default:
-        return undefined;
+    // 계정 상태는 화면이 아니라 시트다 — 나머지는 푸시를 눌렀을 때와 같은 규칙(openNotificationTarget)
+    if (item.target.type === "ACCOUNT_STATUS") {
+      openSheet(SUSPENSION_SHEET_ID);
+      return;
     }
+    openNotificationTarget(item.target);
   };
 
   if (isUnavailable && devMock === "OFF") {

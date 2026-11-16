@@ -19,6 +19,8 @@
     "@portone/browser-sdk": "^0.1.13",
     "@portone/react-native-sdk": "^0.7.0",
     "@react-native-async-storage/async-storage": "^2.2.0",
+    "@react-native-firebase/app": "23.4.1",
+    "@react-native-firebase/messaging": "23.4.1",
     "@react-native-kakao/core": "^2.4.2",
     "@react-native-kakao/user": "^2.4.2",
     "@react-native-menu/menu": "^2.0.0",

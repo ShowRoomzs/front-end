@@ -49,3 +49,7 @@ yarn-error.*
 #cursor
 .cursor/
 .idea/
+
+# Firebase 앱 설정 파일 - 공개 저장소라 올리지 않는다. EAS 빌드는 파일 환경 변수(GOOGLE_SERVICES_JSON / GOOGLE_SERVICE_INFO_PLIST)로 받는다
+google-services.json
+GoogleService-Info.plist

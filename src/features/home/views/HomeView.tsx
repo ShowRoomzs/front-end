@@ -7,6 +7,7 @@ import ErrorState from "@/common/components/ErrorState/ErrorState";
 import GroupBand from "@/common/components/GroupBand/GroupBand";
 import PagingList from "@/common/components/PagingList/PagingList";
 import SectionLabel from "@/common/components/SectionLabel/SectionLabel";
+import { usePermissionPress } from "@/common/hooks/usePermissionPress";
 import { useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { useUserStore } from "@/common/stores/useUserStore";
@@ -165,9 +166,10 @@ export default function HomeView() {
     });
   }, [navigation]);
 
-  const handlePressNotification = useCallback(() => {
+  // C11 비로그인 — 종을 누르면 로그인부터 묻고, 로그인하면 알림으로 이어 간다(로그아웃 알림 화면은 없다)
+  const handlePressNotification = usePermissionPress(() => {
     navigation.navigate(ROOT_ROUTES.COMMON, { screen: COMMON_ROUTES.NOTIFICATION });
-  }, [navigation]);
+  });
 
   const handlePressCart = useCallback(() => {
     navigation.navigate(ROOT_ROUTES.COMMON, { screen: COMMON_ROUTES.CART });

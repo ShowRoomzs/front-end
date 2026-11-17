@@ -11,10 +11,22 @@ import { DeliveryInfo } from "@/features/product/types/product";
  * 읽기 어렵고, "3,000원(30,000원 이상 무료) · 제주 +3,000원"처럼 한 문장으로 읽히는 편이 낫다.
  *
  * 청약철회 제한 문구는 흰 블록으로 따로 뗐다 — 위의 네 줄은 이 상품의 조건이고, 이건 법으로
- * 정해진 공통 고지라 출처가 다르다.
+ * 정해진 고지라 출처가 다르다. 문구는 서버가 내린다(브랜드 문구 → 없으면 서버 기본 문구). 제한하지 않는
+ * 상품이면 서버가 null을 내려 블록을 그리지 않는다 — 제한 없는 상품에 제한 고지를 달면 소비자가 반품을 포기한다.
  */
 interface ProductDeliveryPolicyProps {
   delivery: DeliveryInfo | undefined;
+}
+
+/** 구버전 서버(제한 필드 없음)에서만 쓴다 */
+const LEGACY_WITHDRAWAL_NOTICE =
+  "화장품은 개봉·사용 후 청약철회가 제한될 수 있습니다. 자세한 조건은 판매자에게 문의해 주세요.";
+
+function withdrawalNoticeOf(delivery: DeliveryInfo) {
+  if (delivery.withdrawalRestrictionNotice) {
+    return delivery.withdrawalRestrictionNotice;
+  }
+  return delivery.openedWithdrawalRestricted === undefined ? LEGACY_WITHDRAWAL_NOTICE : null;
 }
 
 export default function ProductDeliveryPolicy(props: ProductDeliveryPolicyProps) {
@@ -64,6 +76,7 @@ export default function ProductDeliveryPolicy(props: ProductDeliveryPolicyProps)
     },
     { key: "적용 기준", value: "결제 시점의 배송·반품 조건이 적용됩니다" },
   ];
+  const withdrawalNotice = withdrawalNoticeOf(delivery);
 
   return (
     <View style={{ gap: 14 }}>
@@ -78,11 +91,13 @@ export default function ProductDeliveryPolicy(props: ProductDeliveryPolicyProps)
         </View>
       ))}
 
-      <View className="rounded-base bg-white p-12">
-        <Typography style={{ fontSize: 11.5, lineHeight: 19.55 }} className="text-gray45">
-          화장품은 개봉·사용 후 청약철회가 제한될 수 있습니다. 자세한 조건은 판매자에게 문의해 주세요.
-        </Typography>
-      </View>
+      {!!withdrawalNotice && (
+        <View className="rounded-base bg-white p-12">
+          <Typography style={{ fontSize: 11.5, lineHeight: 19.55 }} className="text-gray45">
+            {withdrawalNotice}
+          </Typography>
+        </View>
+      )}
     </View>
   );
 }

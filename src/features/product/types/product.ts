@@ -63,6 +63,10 @@ export interface DeliveryInfo {
   remoteAreaSurcharge: number;
   returnFee: number;
   exchangeFee: number;
+  /** 개봉 · 사용 시 청약철회 제한 상품인가(전자상거래법 제17조②) — 구버전 서버는 없다 */
+  openedWithdrawalRestricted?: boolean;
+  /** 청약철회 제한 안내 — 제한 상품이면 브랜드 문구(없으면 서버 기본 문구) · 아니면 null */
+  withdrawalRestrictionNotice?: string | null;
 }
 
 /** 판매자 정보 (전자상거래법 표시 항목) */

@@ -1,4 +1,4 @@
-import { getStateFromPath, LinkingOptions } from "@react-navigation/native";
+import { getPathFromState, getStateFromPath, LinkingOptions } from "@react-navigation/native";
 import * as Linking from "expo-linking";
 
 import {
@@ -28,6 +28,27 @@ const SIGNUP_STEP_PATH = /^\/?login\/(verify|verify-failed|signup)(\/|\?|$)/;
 const REDIRECT_RETURN_PATH = /^\/?(payment|identity)\/redirect(\/|\?|$)/;
 
 /**
+ * 주소를 정하지 않은 화면(결제 · 배송지 선택 등)은 넘겨받은 객체가 쿼리에 문자열로 실려 주소창에
+ * `?direct=[object Object]`가 보인다. 그런 값만 뺀다 — 어차피 주소로는 되살릴 수 없고, 새로고침하면 홈으로 간다
+ */
+function dropObjectParams(path: string) {
+  const [pathname, query] = path.split("?");
+
+  if (!query) {
+    return path;
+  }
+  const params = new URLSearchParams(query);
+
+  [...params.entries()]
+    .filter(([, value]) => value.startsWith("[object "))
+    .forEach(([key]) => params.delete(key));
+
+  const rest = params.toString();
+
+  return rest ? `${pathname}?${rest}` : pathname;
+}
+
+/**
  * 딥링크 — 앱 바깥에서 쇼룸·게시물·상품으로 바로 착지시킨다. 웹에서는 주소창 주소이기도 하다.
  *
  * **C4 쇼룸은 SNS 프로필 링크로 들어오는 것이 기본 동선이다.** 이 설정이 없으면 링크를 눌러도
@@ -51,6 +72,9 @@ export const linking: LinkingOptions<RootStackParamList> = {
       return getStateFromPath("/", options);
     }
     return getStateFromPath(SIGNUP_STEP_PATH.test(path) ? "/login" : path, options);
+  },
+  getPathFromState(state, options) {
+    return dropObjectParams(getPathFromState(state, options));
   },
   config: {
     initialRouteName: ROOT_ROUTES.HOME,

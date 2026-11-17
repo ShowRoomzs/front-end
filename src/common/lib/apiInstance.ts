@@ -2,6 +2,7 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import { Platform } from "react-native";
 
 import { SECURE_STORE } from "@/common/constants/secureStore";
+import { API_ORIGIN } from "@/common/lib/apiOrigin";
 import { queryClient } from "@/common/lib/queryClient";
 import * as SecureStore from "@/common/lib/secureStorage";
 import { useUserStore } from "@/common/stores/useUserStore";
@@ -9,7 +10,7 @@ import { ACCOUNT_STATUS_QUERY_KEY } from "@/features/account/constants/suspensio
 import { authService } from "@/features/auth/services/authService";
 
 export const apiInstance = axios.create({
-  baseURL: `${process.env.EXPO_PUBLIC_PROTOCOL}://${process.env.EXPO_PUBLIC_API_HOST}/v1`,
+  baseURL: `${API_ORIGIN}/v1`,
 });
 
 apiInstance.interceptors.request.use(async config => {

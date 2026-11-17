@@ -1,6 +1,7 @@
 import axios, { isAxiosError } from "axios";
 
 import { apiInstance } from "@/common/lib/apiInstance";
+import { API_ORIGIN } from "@/common/lib/apiOrigin";
 
 /**
  * 본인인증(PASS · KCP 휴대폰 본인확인) — C0-2 회원가입 · C15-2 재인증이 같이 쓴다(BE 57 설계서 3절).
@@ -43,7 +44,7 @@ const FAKE_CHANNEL_KEY = "channel-key-fake-identity";
  * 401이면 리프레시를 시도하므로, 가입용 요청은 따로 보낸다.
  */
 const signupInstance = axios.create({
-  baseURL: `${process.env.EXPO_PUBLIC_PROTOCOL}://${process.env.EXPO_PUBLIC_API_HOST}/v1`,
+  baseURL: `${API_ORIGIN}/v1`,
 });
 
 const PATH = "/user/identity-verifications";

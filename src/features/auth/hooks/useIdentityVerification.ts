@@ -1,4 +1,5 @@
 import { useCallback, useRef, useState } from "react";
+import { Platform } from "react-native";
 
 import {
   completeIdentityVerification,
@@ -10,6 +11,7 @@ import {
   startIdentityVerification,
   toVerificationResult,
 } from "@/features/auth/services/identityVerificationService";
+import { saveIdentityRedirectContext } from "@/features/auth/web/identityRedirect";
 
 /**
  * 본인인증 한 번(시작 → 인증창 → 완료)을 `await run()` 하나로 묶는다.
@@ -26,6 +28,15 @@ export function useIdentityVerification(purpose: IdentityVerificationPurpose, re
     setIsRunning(true);
     try {
       const window = await startIdentityVerification(purpose, registerToken);
+
+      // 웹 모바일은 통신사 페이지로 떠났다 돌아올 수 있다 — 돌아와서 이어 가도록 목적 · 가입 토큰을 적어 둔다
+      if (Platform.OS === "web" && needsPassWindow(window)) {
+        saveIdentityRedirectContext({
+          identityVerificationId: window.identityVerificationId,
+          purpose,
+          registerToken,
+        });
+      }
       const sdkResult = needsPassWindow(window)
         ? await new Promise<IdentityVerificationSdkResult | null>(resolve => {
             pending.current = resolve;

@@ -22,6 +22,12 @@ const omitFromUrl = (() => undefined) as unknown as (value: unknown) => string;
 const SIGNUP_STEP_PATH = /^\/?login\/(verify|verify-failed|signup)(\/|\?|$)/;
 
 /**
+ * 결제 · 본인인증 리디렉션 복귀 주소 — 화면이 아니라 `PaymentRedirectHost` · `IdentityRedirectHost`가 쿼리를 읽고
+ * 다음 화면으로 보낸다. 내비게이션은 홈에서 시작한다(모르는 주소를 화면 이름으로 읽지 않게)
+ */
+const REDIRECT_RETURN_PATH = /^\/?(payment|identity)\/redirect(\/|\?|$)/;
+
+/**
  * 딥링크 — 앱 바깥에서 쇼룸·게시물·상품으로 바로 착지시킨다. 웹에서는 주소창 주소이기도 하다.
  *
  * **C4 쇼룸은 SNS 프로필 링크로 들어오는 것이 기본 동선이다.** 이 설정이 없으면 링크를 눌러도
@@ -41,6 +47,9 @@ const SIGNUP_STEP_PATH = /^\/?login\/(verify|verify-failed|signup)(\/|\?|$)/;
 export const linking: LinkingOptions<RootStackParamList> = {
   prefixes: [Linking.createURL(""), "showroomz://"],
   getStateFromPath(path, options) {
+    if (REDIRECT_RETURN_PATH.test(path)) {
+      return getStateFromPath("/", options);
+    }
     return getStateFromPath(SIGNUP_STEP_PATH.test(path) ? "/login" : path, options);
   },
   config: {

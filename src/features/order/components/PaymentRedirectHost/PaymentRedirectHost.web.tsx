@@ -13,6 +13,12 @@ import { isClaimPaymentId, PAYMENT_REDIRECT_PATH } from "@/features/order/web/pa
 const READY_POLL_COUNT = 3;
 const READY_POLL_INTERVAL_MS = 1500;
 
+/**
+ * 처음 들어온 주소 — 모듈을 읽는 시점(앱이 그려지기 전)에 잡는다. 내비게이션이 첫 화면을 그리면서 주소를 `/`로
+ * 바꾸므로(linking.ts가 복귀 주소를 홈으로 읽는다) effect에서 `window.location`을 읽으면 이미 늦다
+ */
+const ENTRY_LOCATION = { pathname: window.location.pathname, search: window.location.search };
+
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 /** 내비게이션이 준비될 때까지 기다렸다가 이동한다 — 복귀 직후엔 아직 화면 트리가 서지 않았다 */
@@ -95,10 +101,10 @@ async function resolveClaimPayment(paymentId: string) {
  */
 export default function PaymentRedirectHost() {
   useEffect(() => {
-    if (window.location.pathname !== PAYMENT_REDIRECT_PATH) {
+    if (ENTRY_LOCATION.pathname !== PAYMENT_REDIRECT_PATH) {
       return;
     }
-    const params = new URLSearchParams(window.location.search);
+    const params = new URLSearchParams(ENTRY_LOCATION.search);
     const paymentId = params.get("paymentId");
     const clientResult: PortOneClientResult = {
       code: params.get("code"),
@@ -106,7 +112,9 @@ export default function PaymentRedirectHost() {
       txId: params.get("txId"),
     };
 
-    window.history.replaceState(null, "", "/");
+    if (window.location.pathname === PAYMENT_REDIRECT_PATH) {
+      window.history.replaceState(null, "", "/");
+    }
     if (!paymentId) {
       return;
     }

@@ -13,6 +13,7 @@ import SplashProvider, { NATIVE_FADE_MS } from "@/common/providers/SplashProvide
 import { linking } from "@/common/router/linking";
 import { navigationRef } from "@/common/router/navigationRef";
 import AccountStatusHost from "@/features/account/components/AccountStatusHost";
+import IdentityRedirectHost from "@/features/auth/components/IdentityRedirectHost/IdentityRedirectHost";
 import PaymentRedirectHost from "@/features/order/components/PaymentRedirectHost/PaymentRedirectHost";
 import PushHost from "@/features/push/components/PushHost";
 import MainNavigator from "@/navigators/MainNavigator";
@@ -55,6 +56,8 @@ export default function App() {
                 <AccountStatusHost />
                 {/* 웹 모바일 결제가 결제사 페이지에서 돌아오면 결과를 확정한다(앱은 아무것도 하지 않는다) */}
                 <PaymentRedirectHost />
+                {/* 웹 모바일 본인인증이 통신사 페이지에서 돌아오면 가입 · 재인증을 이어 간다(앱은 아무것도 하지 않는다) */}
+                <IdentityRedirectHost />
                 <PushHost />
                 {/* 로그아웃 상태로 로그인 전용 화면 주소에 들어오면 로그인부터 묻는다 */}
                 <LoginRequiredHost isReady={isReady} />

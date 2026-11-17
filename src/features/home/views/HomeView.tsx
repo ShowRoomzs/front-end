@@ -37,6 +37,9 @@ import { FeedItem } from "@/features/post/types/post";
  * 팔로우를 결정할 근거가 없지만, 게시물을 보면 무엇을 파는 쇼룸인지 바로 판단할 수 있다 —
  * 빈 상태가 곧 발견(discovery) 피드가 된다.
  *
+ * **비로그인도 팔로잉 0과 같게** 추천을 이어 붙인다(2026-11-17 결정 · 서버는 비로그인 추천 조회 허용).
+ * 막아 두면 로그아웃 상태에서는 검색 말고 쇼룸에 들어갈 길이 없다.
+ *
  * 빈 상태는 "팔로잉 피드가 비었다"가 아니라 "팔로우한 쇼룸이 없다"(홈 요약 `followingCount`)로
  * 가른다. 팔로우는 했는데 그 쇼룸들이 아직 글을 안 올렸으면 [팔로우한 쇼룸이 없어요]는 거짓이라
  * "모두 확인했어요" 블록을 둔다. 구버전 서버라 값이 없으면 피드가 비었는지로 판정한다.
@@ -113,8 +116,9 @@ export default function HomeView() {
       isRecommended: false,
     }));
 
-    // 팔로잉을 아직 더 받아올 게 남아 있으면 추천을 붙이지 않는다 — 아래로 계속 팔로잉이 이어진다
-    if (!user || (hasFollowingPosts && !isFollowingExhausted)) {
+    // 팔로잉을 아직 더 받아올 게 남아 있으면 추천을 붙이지 않는다 — 아래로 계속 팔로잉이 이어진다.
+    // 비로그인은 팔로잉을 받지 않아(빈 목록 · 다음 없음) 곧바로 추천으로 넘어간다
+    if (hasFollowingPosts && !isFollowingExhausted) {
       return followingRows;
     }
 
@@ -152,7 +156,6 @@ export default function HomeView() {
     hasFollowingPosts,
     isFollowingExhausted,
     recommendedFeed.content,
-    user,
   ]);
 
   const handlePressSearch = useCallback(() => {

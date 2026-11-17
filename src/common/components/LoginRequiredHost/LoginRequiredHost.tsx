@@ -14,9 +14,11 @@ import { useUserStore } from "@/common/stores/useUserStore";
 /**
  * 로그인해야 쓰는 화면 — 앱 안에서는 버튼이 먼저 로그인을 묻기 때문에(usePermissionPress) 로그아웃 상태로
  * 이 화면에 닿는 길이 없다. 주소(웹 주소창 · 링크 · 새로고침 · 앱 딥링크)로는 바로 닿을 수 있어, 그때 빈 화면이 된다.
- * 장바구니 · 알림은 앱에서도 로그아웃 상태로 열리는 화면이라 넣지 않는다(앱과 같게).
+ * 장바구니는 앱에서도 로그아웃 상태로 열리는 화면이라 넣지 않는다(앱과 같게). 알림은 C11 「비로그인 — 로그인 후 이 화면으로
+ * 돌아온다(화면 없음)」이라 넣는다.
  */
 const LOGIN_ONLY_ROUTES = new Set<string>([
+  COMMON_ROUTES.NOTIFICATION,
   COMMON_ROUTES.WISHLIST,
   COMMON_ROUTES.ORDER_DETAIL,
   COMMON_ROUTES.CLAIM_DETAIL,

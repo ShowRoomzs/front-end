@@ -5,6 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
+import LoginRequiredHost from "@/common/components/LoginRequiredHost/LoginRequiredHost";
 import { useInit } from "@/common/hooks/useInit";
 import { queryClient } from "@/common/lib/queryClient";
 import PortalProvider from "@/common/providers/PortalProvider/PortalProvider";
@@ -55,6 +56,8 @@ export default function App() {
                 {/* 웹 모바일 결제가 결제사 페이지에서 돌아오면 결과를 확정한다(앱은 아무것도 하지 않는다) */}
                 <PaymentRedirectHost />
                 <PushHost />
+                {/* 로그아웃 상태로 로그인 전용 화면 주소에 들어오면 로그인부터 묻는다 */}
+                <LoginRequiredHost isReady={isReady} />
               </PortalProvider>
             </NavigationContainer>
           </SplashProvider>

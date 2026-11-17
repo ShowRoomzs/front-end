@@ -95,9 +95,15 @@ export default function PostCaption(props: PostCaptionProps) {
         <View>
           <Typography
             variant="body"
-            style={{ lineHeight }}
+            // 웹의 줄 수 제한(line-clamp)은 둘째 줄이 빈 줄 · 짧은 줄이면 그 줄 왼쪽에 「…」를 찍어, 오른쪽의
+            // 「... 더 보기」와 말줄임이 두 번 보인다. 웹은 높이만 두 줄로 자르고 말줄임은 「더 보기」에 맡긴다
+            style={[
+              { lineHeight },
+              Platform.OS === "web" &&
+                !isExpanded && { maxHeight: lineHeight * CLAMP_LINES, overflow: "hidden" },
+            ]}
             className={color}
-            numberOfLines={isExpanded ? undefined : CLAMP_LINES}
+            numberOfLines={isExpanded || Platform.OS === "web" ? undefined : CLAMP_LINES}
           >
             {body}
           </Typography>

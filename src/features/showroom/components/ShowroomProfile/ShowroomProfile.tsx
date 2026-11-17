@@ -1,4 +1,4 @@
-import { Linking, TouchableOpacity, View } from "react-native";
+import { Linking, Platform, TouchableOpacity, View } from "react-native";
 import Svg, { Path } from "react-native-svg";
 
 import Avatar from "@/common/components/Avatar/Avatar";
@@ -32,6 +32,13 @@ export default function ShowroomProfile(props: ShowroomProfileProps) {
       return;
     }
     const { appUrl, webUrl } = parseInstagramLink(showroom.instagramUrl);
+
+    // 웹은 늘 웹 주소로(새 탭) — react-native-web의 canOpenURL은 무엇이든 true라 PC에서 instagram:// 를 열려다
+    // 아무 일도 안 일어난다. 휴대폰 브라우저에서는 instagram.com 주소를 OS가 앱으로 넘긴다
+    if (Platform.OS === "web") {
+      void Linking.openURL(webUrl);
+      return;
+    }
 
     // 앱이 있으면 앱으로 — 브라우저를 거치면 로그인 상태가 끊겨 프로필이 반쪽만 보인다
     const canOpenApp = await Linking.canOpenURL(appUrl).catch(() => false);

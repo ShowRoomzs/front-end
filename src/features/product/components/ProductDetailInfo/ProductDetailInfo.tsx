@@ -61,6 +61,16 @@ export default function ProductDetailInfo(props: ProductDetailInfoProps) {
           * { margin: 0; padding: 0; box-sizing: border-box; }
           /* 글꼴을 안 주면 iOS WKWebView는 영문 · 숫자를 Times(명조)로 그린다 — 앱과 같은 Pretendard, 없으면 시스템 고딕 */
           body { margin: 0; padding: 16px; overflow: hidden; font-family: Pretendard, -apple-system, "Apple SD Gothic Neo", sans-serif; -webkit-text-size-adjust: 100%; }
+          /*
+            판매자 HTML은 글자 크기 · 줄 간격을 안 주는 경우가 많다 — 그대로 두면 브라우저 기본값(16px · 줄 간격 1.2)이라
+            앱 글씨보다 크고 빽빽하다. 디자인 시스템 본문(13.5 / 1.6 · #3C3C3C)을 기본으로 깔고, 판매자가 직접 준 스타일은 그대로 둔다.
+            위의 여백 초기화로 제목 · 문단이 붙으므로 블록 사이에만 숨 쉴 틈을 준다. 한글은 단어 중간에서 끊지 않는다
+          */
+          body { font-size: 13.5px; line-height: 1.6; color: #3C3C3C; word-break: keep-all; overflow-wrap: anywhere; }
+          h1, h2, h3, h4, h5, h6, strong, b { color: #0F0F0F; }
+          h1, h2, h3, h4, h5, h6 { line-height: 1.4; }
+          h1, h2, h3, h4, h5, h6, p, ul, ol, blockquote, table { margin-bottom: 8px; }
+          ul, ol { padding-left: 18px; }
           img { max-width: 100%; height: auto; }
         </style>
       </head>

@@ -158,7 +158,10 @@ export default function MypageView() {
         className="flex-row items-center border-b-[0.5px] border-divider bg-white pb-9 pt-5"
         style={{ paddingHorizontal: 16 }}
       >
-        <Typography style={{ fontSize: 18, fontWeight: "700", lineHeight: 18, letterSpacing: -0.5 }}>
+        <Typography
+          style={{ fontSize: 18, fontWeight: "700", lineHeight: 18, letterSpacing: -0.5 }}
+          className="text-ink"
+        >
           마이
         </Typography>
         <View className="flex-1" />

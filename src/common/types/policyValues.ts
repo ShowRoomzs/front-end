@@ -3,8 +3,10 @@
  * 화면에 숫자를 박지 않고 서버 설정을 그대로 쓴다. 설정이 없는 값은 null이다.
  */
 export interface PolicyValues {
-  /** 택배 도착 후 N영업일 동안 입고 확인이 없으면 자동 입고 */
-  claimAutoReceiveBusinessDays: number;
+  /** 반품을 돌려받은 날(회수 배송완료) + N영업일 안에 검수 — 넘기면 반품은 자동 승인(2026-11-10 · 자동 입고 폐지) */
+  claimInspectDueBusinessDays: number;
+  /** 검수 승인 후 N영업일 안에 PG 환불 */
+  claimRefundDueBusinessDays: number;
   /** 마지막 추적 이벤트 + N일이면 추적 정지 */
   trackingStallAlertDays: number;
   /** 추적 정지 + N일이면 소비자가 재발송 · 환불을 고를 수 있다 */
@@ -16,7 +18,7 @@ export interface PolicyValues {
   /** 정지 통지 + N영업일 이의 신청 기한 */
   sanctionAppealBusinessDays: number;
   sanctionAppealReviewBusinessDays: number | null;
-  /** 취소 요청 + N영업일 안에 브랜드가 응답한다 */
+  /** 취소 요청 + N영업일 안에 브랜드가 응답한다 — 자동 승인 없음, 넘기면 운영팀이 브랜드 확인 후 취소 */
   cancelRequestRespondBusinessDays: number;
   creatorAccountReviewBusinessDays: number | null;
   groupBuySuspensionAppealBusinessDays: number;

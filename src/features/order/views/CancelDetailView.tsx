@@ -344,6 +344,8 @@ function notesFor(detail: CancelDetail) {
 
   if (detail.autoApproved) {
     notes.unshift("브랜드가 기한 안에 확인하지 않아 자동으로 취소됐어요.");
+  } else if (detail.operatorApproved) {
+    notes.unshift("브랜드가 기한 안에 확인하지 않아 운영팀이 브랜드에 확인한 뒤 취소했어요.");
   }
   if (detail.phase === "CANCELLED") {
     notes.push("카드사 처리에 2~3영업일이 더 걸릴 수 있어요.");

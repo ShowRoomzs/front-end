@@ -63,8 +63,10 @@ export interface CancelDetail {
   phase: CancelPhase;
   /** 「확인 중」 · 「취소 요청 거부」 · 「취소 완료」 */
   phaseLabel: string;
-  /** 브랜드가 응답 기한 안에 확인하지 않아 자동으로 취소됐다 */
+  /** 브랜드가 응답 기한 안에 확인하지 않아 자동으로 취소됐다 — 2026-11-10 자동 승인 폐지 전 건만 */
   autoApproved: boolean;
+  /** 브랜드가 응답 기한 안에 확인하지 않아 운영팀이 브랜드에 확인한 뒤 취소했다(11-10 이후) — 구버전 서버는 없다 */
+  operatorApproved?: boolean;
   /** [취소 요청 철회] 노출 — 브랜드 확인 중인 취소 요청만 */
   withdrawable: boolean;
   /** 안내 문구 — 없으면 빈 목록 */

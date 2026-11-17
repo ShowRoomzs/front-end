@@ -8,6 +8,7 @@ import { Platform } from "react-native";
 import App from "./src/App";
 import { mountDesktopShell } from "./src/common/lib/desktopShell";
 import { applyWebGlobalStyles } from "./src/common/lib/webGlobalStyles";
+import { enableWebHorizontalScroll } from "./src/common/lib/webHorizontalScroll";
 import { normalizeWebPath } from "./src/common/lib/webPaths";
 import { handleOAuthCallback } from "./src/features/auth/web/oauthCallback";
 import { registerBackgroundPushHandler } from "./src/features/push/lib/pushMessaging";
@@ -22,6 +23,8 @@ dayjs.locale("ko");
 if (Platform.OS === "web") {
   NativeWindStyleSheet.setOutput({ default: "native" });
   applyWebGlobalStyles();
+  // PC 마우스로 가로 줄(칩 · 카드 · 사진 넘김)을 끌거나 휠로 움직이게 — 앱 가로 스크롤은 손가락 전제다
+  enableWebHorizontalScroll();
   // 쇼룸 핸들 링크(/@handle) → 앱 경로(/u/handle). PC 틀이 이 주소로 iframe을 열므로 틀보다 먼저 한다
   normalizeWebPath();
 }

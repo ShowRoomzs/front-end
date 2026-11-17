@@ -120,6 +120,10 @@ export default function MediaCarousel(props: MediaCarouselProps) {
             showsHorizontalScrollIndicator={false}
             keyExtractor={(uri, ix) => `${uri}-${ix}`}
             onMomentumScrollEnd={handleMomentumScrollEnd}
+            // 웹(react-native-web)은 관성 스크롤 종료 이벤트를 보내지 않아 점이 첫 장에 멈춘다 — 스크롤마다 다시 잰다.
+            // 반올림이라 절반을 넘겨야 바뀌고, 같은 값이면 상태를 건드리지 않는다
+            onScroll={Platform.OS === "web" ? handleMomentumScrollEnd : undefined}
+            scrollEventThrottle={Platform.OS === "web" ? 32 : undefined}
             getItemLayout={(_, index) => ({ length: width, offset: width * index, index })}
             renderItem={({ item }) => (
               <Image source={{ uri: item }} style={{ width, height }} resizeMode="cover" />

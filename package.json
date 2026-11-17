@@ -102,5 +102,8 @@
     ],
     "**/*": "prettier --write --ignore-unknown"
   },
-  "private": true
+  "private": true,
+  "overrides": {
+    "@react-native-async-storage/async-storage": "$@react-native-async-storage/async-storage"
+  }
 }

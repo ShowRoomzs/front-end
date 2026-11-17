@@ -21,7 +21,10 @@ export default function ScreenHeaderBar(props: ScreenHeaderBarProps) {
     <>
       <View className="border-b-[0.5px] border-divider bg-white">
         <View className="flex-row items-center pb-12 pt-2" style={{ paddingHorizontal: 16 }}>
-          <Typography style={{ fontSize: 18, fontWeight: "700", lineHeight: 18, letterSpacing: -0.5 }}>
+          <Typography
+            style={{ fontSize: 18, fontWeight: "700", lineHeight: 18, letterSpacing: -0.5 }}
+            className="text-ink"
+          >
             {title}
           </Typography>
           <View className="flex-1" />

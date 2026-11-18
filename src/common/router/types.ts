@@ -74,6 +74,8 @@ export type CommonStackParamList = {
   /** 쇼룸 핸들 링크(`/@handle`) — 찾아서 SHOWROOM_DETAIL로 바꿔치운다 */
   [COMMON_ROUTES.SHOWROOM_BY_ADDRESS]: {
     showroomAddress: string;
+    /** 쇼룸 링크의 `?from=`(예: `/@handle?from=ig`) — 쇼룸 화면으로 그대로 넘겨 방문 기록의 유입 경로가 된다 */
+    from?: string;
   };
   [COMMON_ROUTES.POST_DETAIL]: {
     postId: number;

@@ -26,7 +26,7 @@ export default function ShowroomByAddressView() {
   const route = useRoute<RouteProp<CommonStackParamList, typeof COMMON_ROUTES.SHOWROOM_BY_ADDRESS>>();
   const navigation = useCommonNavigation();
   const mainNavigation = useMainNavigation();
-  const { showroomAddress } = route.params;
+  const { showroomAddress, from } = route.params;
 
   const { data, isError } = useQuery({
     queryKey: [SHOWROOM_QUERY_KEY.SHOWROOM_BY_ADDRESS, showroomAddress],
@@ -40,8 +40,8 @@ export default function ShowroomByAddressView() {
       return;
     }
     queryClient.setQueryData([SHOWROOM_QUERY_KEY.SHOWROOM_DETAIL, data.showroomId], data);
-    navigation.replace(COMMON_ROUTES.SHOWROOM_DETAIL, { showroomId: data.showroomId });
-  }, [data, navigation]);
+    navigation.replace(COMMON_ROUTES.SHOWROOM_DETAIL, { showroomId: data.showroomId, from });
+  }, [data, from, navigation]);
 
   if (isError) {
     return (

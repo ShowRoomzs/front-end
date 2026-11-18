@@ -5,4 +5,6 @@ export const ASYNC_STORAGE = {
    * 이어 주려고 둔다(서버 결제 연동 규칙 7). 완료·취소·만료가 확인되면 지운다.
    */
   PENDING_ORDER: "pendingOrder",
+  /** 비로그인 방문자 식별값(`getVisitorId`) — 한 번 만들면 계속 쓴다 */
+  VISITOR_ID: "visitorId",
 };

@@ -28,7 +28,8 @@ const defaultExtractPostId: PostIdExtractor = row => {
   return candidate?.post?.postId ?? candidate?.item?.post?.postId;
 };
 
-export function usePostImpressions(visitorId?: string, extractPostId = defaultExtractPostId) {
+/** 비로그인 식별값(visitorId)은 서비스가 싣는다 — 화면은 신경 쓰지 않는다 */
+export function usePostImpressions(extractPostId = defaultExtractPostId) {
   const pendingRef = useRef<Set<number>>(new Set());
   const sentRef = useRef<Set<number>>(new Set());
 
@@ -42,10 +43,10 @@ export function usePostImpressions(visitorId?: string, extractPostId = defaultEx
     postIds.forEach(id => sentRef.current.add(id));
 
     // 지표 적재는 화면을 막지 않는다 — 실패해도 조용히 버린다
-    void postService.recordImpressions(postIds, visitorId).catch(() => {
+    void postService.recordImpressions(postIds).catch(() => {
       postIds.forEach(id => sentRef.current.delete(id));
     });
-  }, [visitorId]);
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(flush, FLUSH_INTERVAL_MS);

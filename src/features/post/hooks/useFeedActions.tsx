@@ -67,7 +67,8 @@ export function useFeedActions() {
     (showroomId: number) => {
       navigation.navigate(ROOT_ROUTES.COMMON, {
         screen: COMMON_ROUTES.SHOWROOM_DETAIL,
-        params: { showroomId },
+        // 피드 · 게시물 카드에서 쇼룸으로 — 방문 기록의 유입 경로
+        params: { showroomId, from: "post" },
       });
     },
     [navigation]
@@ -78,7 +79,7 @@ export function useFeedActions() {
     (productId: number, groupBuyId?: number | null) => {
       navigation.navigate(ROOT_ROUTES.COMMON, {
         screen: COMMON_ROUTES.PRODUCT_DETAIL,
-        params: { productId, groupBuyId: groupBuyId ?? undefined },
+        params: { productId, groupBuyId: groupBuyId ?? undefined, from: "POST" },
       });
     },
     [navigation]

@@ -1,5 +1,6 @@
 import { apiInstance } from "@/common/lib/apiInstance";
 import { PageParams, PageResponse } from "@/common/types/page";
+import { getVisitorId } from "@/common/utils/visitorId";
 import {
   FeedItem,
   GroupBuyInfo,
@@ -131,10 +132,11 @@ export const postService = {
    * 노출 적재 — 카드 한 장이 뷰포트에 들어올 때마다 보내면 요청이 폭발하므로 모아서 보낸다.
    * 같은 사람이 같은 게시물을 다시 봐도 30분 안이면 서버가 적재하지 않는다.
    */
-  recordImpressions: async (postIds: Array<number>, visitorId?: string) => {
+  recordImpressions: async (postIds: Array<number>) => {
     if (postIds.length === 0) {
       return;
     }
+    const visitorId = await getVisitorId();
 
     await apiInstance.post<void>("/user/posts/impressions", { postIds, visitorId });
   },

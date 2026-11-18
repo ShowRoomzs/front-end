@@ -1,5 +1,6 @@
 import { apiInstance } from "@/common/lib/apiInstance";
 import { PageParams, PageResponse } from "@/common/types/page";
+import { getVisitorId } from "@/common/utils/visitorId";
 import {
   BlockedShowroom,
   FollowingShowroom,
@@ -73,9 +74,14 @@ export const showroomService = {
     return data;
   },
 
-  /** 쇼룸 방문 기록 — 노출 적재와 같은 30분 세션 규칙을 쓴다 */
-  recordVisit: async (showroomId: number, visitorId?: string) => {
-    await apiInstance.post<void>(`/user/showrooms/${showroomId}/visits`, { visitorId });
+  /**
+   * 쇼룸 방문 기록 — 노출 적재와 같은 30분 세션 규칙을 쓴다.
+   * `source`는 쇼룸 링크의 `?from=` 값(ig · search · post · direct) — 없으면 서버가 직접 유입으로 센다.
+   */
+  recordVisit: async (showroomId: number, source?: string) => {
+    const visitorId = await getVisitorId();
+
+    await apiInstance.post<void>(`/user/showrooms/${showroomId}/visits`, { source, visitorId });
   },
 
   /** C14 — 검색 대상은 쇼룸 이름과 아이디(@handle)뿐이다 */

@@ -1,5 +1,6 @@
 import { apiInstance } from "@/common/lib/apiInstance";
 import { PageParams } from "@/common/types/page";
+import { getVisitorId } from "@/common/utils/visitorId";
 import { isDevMockProduct } from "@/features/product/mocks/devMockIds";
 import { ProductListParams } from "@/features/product/types/params";
 import { ProductDetailResponse, ProductListResponse, StockResponse } from "@/features/product/types/product";
@@ -27,6 +28,19 @@ export const productService = {
     });
 
     return response;
+  },
+  /**
+   * 상품 상세 조회 기록 — 상세가 열릴 때 한 번. 스튜디오 · 파트너센터 성과 관리의 「상세 조회」가 이 기록이다.
+   * `groupBuyId`는 상세 조회에 넘긴 값 그대로 보낸다(서버가 상세와 같은 판정으로 공구를 정한다).
+   * 30분 안에 다시 열면 서버가 세지 않는다.
+   */
+  recordView: async (productId: number, params: { source?: string; groupBuyId?: number }) => {
+    if (isDevMockProduct(productId)) {
+      return;
+    }
+    const visitorId = await getVisitorId();
+
+    await apiInstance.post<void>(`/user/products/${productId}/views`, { ...params, visitorId });
   },
   getStock: async (productId: number, variantIds: Array<number>, groupBuyId?: number | null) => {
     if (isDevMockProduct(productId)) {

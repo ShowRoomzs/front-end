@@ -44,6 +44,7 @@ import PurchaseBlockedModal from "@/features/product/components/PurchaseBlockedM
 import { PRODUCT_OPTION_BOTTOM_SHEET_PROPS } from "@/features/product/constants/optionBottomSheet";
 import { toNoticeRows } from "@/features/product/constants/productNotice";
 import { useGetProductDetail } from "@/features/product/hooks/useGetProductDetail";
+import { productService } from "@/features/product/services/productService";
 import { useProductVariantSelection } from "@/features/product/stores/useProductVariantSelection";
 import { BundleProduct, ProductDetail } from "@/features/product/types/product";
 import { ProductSaleState, resolveSaleState, saleStateMessage } from "@/features/product/utils/saleState";
@@ -82,7 +83,7 @@ const TABS: Array<{ id: ProductTabId; label: string }> = [
 
 export default function ProductDetailView() {
   const { params } = useRoute<RouteProp<CommonStackParamList, typeof COMMON_ROUTES.PRODUCT_DETAIL>>();
-  const { productId, groupBuyId: requestedGroupBuyId } = params;
+  const { productId, groupBuyId: requestedGroupBuyId, from } = params;
   const { bottom } = useSafeAreaInsets();
   const suspension = useSuspension();
 
@@ -92,6 +93,18 @@ export default function ProductDetailView() {
     error: productDetailError,
     refetch: refetchProductDetail,
   } = useGetProductDetail(productId, requestedGroupBuyId);
+
+  // 상세 조회 기록 — 성과 관리의 「상세 조회」 원천. 상세가 실제로 열렸을 때만 남긴다(없는 상품은 세지 않는다)
+  const hasProductDetail = !!serverProductDetail;
+
+  useEffect(() => {
+    if (!hasProductDetail) {
+      return;
+    }
+    void productService
+      .recordView(productId, { source: from, groupBuyId: requestedGroupBuyId })
+      .catch(() => undefined);
+  }, [from, hasProductDetail, productId, requestedGroupBuyId]);
 
   /** 진입한 공구의 게시물 데이터 — 상세 응답에 없는 D-day · 쇼룸 · 같은 공구 상품을 여기서 읽는다 */
   const resolvedGroupBuyId = serverProductDetail?.groupBuyId ?? requestedGroupBuyId;
@@ -281,7 +294,7 @@ export default function ProductDetailView() {
     (showroomId: number) => {
       mainNavigation.navigate(ROOT_ROUTES.COMMON, {
         screen: COMMON_ROUTES.SHOWROOM_DETAIL,
-        params: { showroomId },
+        params: { showroomId, from: "product" },
       });
     },
     [mainNavigation]

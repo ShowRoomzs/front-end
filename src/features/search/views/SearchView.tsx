@@ -106,7 +106,7 @@ export default function SearchView() {
       void createShowroom(showroomId);
       mainNavigation.navigate(ROOT_ROUTES.COMMON, {
         screen: COMMON_ROUTES.SHOWROOM_DETAIL,
-        params: { showroomId },
+        params: { showroomId, from: "search" },
       });
     },
     [createShowroom, mainNavigation]

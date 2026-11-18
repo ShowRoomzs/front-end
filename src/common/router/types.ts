@@ -65,6 +65,11 @@ export type CommonStackParamList = {
   [COMMON_ROUTES.NOTIFICATION]: undefined;
   [COMMON_ROUTES.SHOWROOM_DETAIL]: {
     showroomId: number;
+    /**
+     * 유입 경로 — 쇼룸 방문 기록의 source(`ig` · `search` · `post` · `product`). 없으면 서버가 직접 유입으로 센다.
+     * 웹 쇼룸 링크의 `?from=` 값도 이 자리로 들어온다(크리에이터가 붙인 값이라 정해진 목록 밖일 수 있다).
+     */
+    from?: string;
   };
   [COMMON_ROUTES.POST_DETAIL]: {
     postId: number;
@@ -75,6 +80,8 @@ export type CommonStackParamList = {
     productId: number;
     /** 진입한 공구 — 알면 넘긴다. 없으면 서버가 이 상품을 담은 판매 중 공구가 하나일 때만 정해 준다 */
     groupBuyId?: number;
+    /** 진입 화면 — 상품 상세 조회 기록의 source. `POST` = 게시물의 상품 행. 없으면 서버가 OTHER로 센다 */
+    from?: "SHOWROOM" | "POST" | "DIRECT_LINK" | "OTHER";
   };
   [COMMON_ROUTES.PRODUCT_INQUIRY]: {
     productId: number;

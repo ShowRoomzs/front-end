@@ -45,7 +45,7 @@ import { showroomService } from "@/features/showroom/services/showroomService";
  */
 export default function ShowroomDetailView() {
   const route = useRoute<RouteProp<CommonStackParamList, typeof COMMON_ROUTES.SHOWROOM_DETAIL>>();
-  const { showroomId } = route.params;
+  const { showroomId, from } = route.params;
 
   const commonNavigation = useCommonNavigation();
 
@@ -67,8 +67,8 @@ export default function ShowroomDetailView() {
 
   // 쇼룸 방문은 크리에이터에게 나가는 지표다 — 같은 사람이 30분 안에 다시 와도 서버가 접는다
   useEffect(() => {
-    void showroomService.recordVisit(showroomId).catch(() => undefined);
-  }, [showroomId]);
+    void showroomService.recordVisit(showroomId, from).catch(() => undefined);
+  }, [from, showroomId]);
 
   const handlePressFollow = usePermissionPress((id: number, isFollowing: boolean) => {
     toggleFollow(id, isFollowing);

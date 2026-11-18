@@ -10,7 +10,7 @@ import { createState, getRedirectUri, openOAuthPopup } from "@/features/auth/web
  * 콘솔: REST API 키 → 로그인 리다이렉트 URI에 `/auth/kakao/callback` 등록됨(11-12).
  *
  * 서버는 `authorizationCode` + `redirectUri`를 받아 교환한다(11-15). redirectUri는 서버 허용 목록
- * (KAKAO_ALLOWED_REDIRECT_URIS — showroomz.co.kr · localhost:8081)에 있어야 한다. 없으면 400 INVALID_REDIRECT_URI.
+ * (KAKAO_ALLOWED_REDIRECT_URIS — m.showroomz.co.kr · vercel.app · localhost:8081)에 있어야 한다. 없으면 400 INVALID_REDIRECT_URI.
  */
 export function useKakaoLogin() {
   const login = useCallback(async () => {

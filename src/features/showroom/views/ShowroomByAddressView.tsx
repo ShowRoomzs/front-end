@@ -13,7 +13,7 @@ import { SHOWROOM_QUERY_KEY } from "@/features/showroom/constants/queryKey";
 import { showroomService } from "@/features/showroom/services/showroomService";
 
 /**
- * 쇼룸 핸들 주소(`showroomz.co.kr/@handle`)로 들어온 사람을 쇼룸으로 보낸다.
+ * 쇼룸 핸들 주소(`m.showroomz.co.kr/@handle`)로 들어온 사람을 쇼룸으로 보낸다.
  *
  * 크리에이터가 SNS 프로필에 거는 링크가 이 모양이다(서버 showroomUrl = `${app.base-url}/@{showroomAddress}`).
  * 핸들로 쇼룸을 찾고(`GET /user/showrooms/by-address/{address}` · 11-15) 받은 상세를 캐시에 넣은 뒤

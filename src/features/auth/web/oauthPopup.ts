@@ -10,7 +10,7 @@
  * 구글처럼 Cross-Origin-Opener-Policy를 거는 화면을 지나면 opener 연결이 끊긴다.
  *
  * **주소:** 콜백 주소는 지금 열린 출처(`window.location.origin`)로 만든다. 도메인을 코드에 적지 않는다 —
- * 콘솔에는 `https://showroomz.co.kr/auth/{공급자}/callback`과 개발용 `http://localhost:8081/…`이 등록돼 있다.
+ * 콘솔에는 `https://m.showroomz.co.kr/auth/{공급자}/callback`(11-18 웹 주소) · vercel.app 주소 · 개발용 `http://localhost:8081/…`이 등록돼 있다.
  */
 
 export type OAuthProvider = "kakao" | "naver" | "google";

@@ -53,19 +53,19 @@ async function resolveOrderPayment(paymentId: string, clientResult: PortOneClien
     }
     if (result.orderStatus === "EXPIRED") {
       void clearPendingOrder();
-      toast.show(result.failReason ?? "주문 시간이 만료됐어요. 다시 주문해 주세요.");
+      toast.show(result.failReason ?? "주문 시간이 만료됐어요. 다시 주문해 주세요");
       openCommon({ screen: COMMON_ROUTES.CART });
       return;
     }
     if (result.paymentStatus === "CANCEL_REQUESTED" || result.paymentStatus === "CANCELLED_MISMATCH") {
       void clearPendingOrder();
-      toast.show(`${result.failReason ?? "결제가 자동으로 취소되었어요."} 결제 금액은 자동으로 환불돼요.`);
+      toast.show(`${result.failReason ?? "결제가 자동으로 취소되었어요."} 결제 금액은 자동으로 환불돼요`);
       openCommon({ screen: COMMON_ROUTES.CART });
       return;
     }
     // 실패 · 취소(결제사 화면에서 닫음) — 주문 화면 상태가 사라졌으니 장바구니에서 다시 시작한다
     if (result.paymentStatus === "FAILED" || (result.paymentStatus === "READY" && clientResult.code)) {
-      toast.show(result.failReason ?? "결제가 완료되지 않았어요. 다시 시도해 주세요.");
+      toast.show(result.failReason ?? "결제가 완료되지 않았어요. 다시 시도해 주세요");
       openCommon({ screen: COMMON_ROUTES.CART });
       return;
     }
@@ -84,7 +84,7 @@ async function resolveClaimPayment(paymentId: string) {
   const claimId = result.claimIds[0];
 
   if (result.paymentStatus !== "PAID") {
-    toast.show("배송비 결제가 완료되지 않았어요. 다시 시도해 주세요.");
+    toast.show("배송비 결제가 완료되지 않았어요. 다시 시도해 주세요");
   }
   invalidateOrderQueries();
   if (claimId) {
@@ -124,7 +124,7 @@ export default function PaymentRedirectHost() {
       : resolveOrderPayment(paymentId, clientResult);
 
     resolve.catch(() => {
-      toast.show("결제 결과를 확인하지 못했어요. 주문 내역에서 확인해 주세요.");
+      toast.show("결제 결과를 확인하지 못했어요. 주문 내역에서 확인해 주세요");
     });
   }, []);
 

@@ -20,7 +20,7 @@ import Typography from "@/common/components/Typography/Typography";
  * 이름을 한 번 더 쓸 이유가 없다.
  *
  * RN에는 CSS의 line-clamp + 말줄임 뒤 텍스트 삽입이 없어, 보이지 않는 사본으로 줄 수를 먼저 재고
- * 넘칠 때만 "더 보기"를 오른쪽 아래에 겹쳐 놓는다.
+ * 넘칠 때만 "더 보기"를 오른쪽 아래에 겹쳐 놓는다. 펼친 글은 본문을 다시 누르면 2줄로 접힌다.
  */
 interface PostCaptionProps {
   /** 넘기면 본문 앞에 굵게 붙는다 — 일반 게시물 전용 */
@@ -60,7 +60,9 @@ export default function PostCaption(props: PostCaptionProps) {
     [lineHeight]
   );
 
-  const isTruncated = lineCount !== null && lineCount > CLAMP_LINES && !isExpanded;
+  /** 2줄을 넘는 글 — 이때만 눌러서 펼치고, 펼친 뒤 다시 누르면 접는다 */
+  const isOverflowing = lineCount !== null && lineCount > CLAMP_LINES;
+  const isTruncated = isOverflowing && !isExpanded;
 
   const body = (
     <>
@@ -89,8 +91,8 @@ export default function PostCaption(props: PostCaptionProps) {
       )}
 
       <TouchableOpacity
-        activeOpacity={isTruncated ? 0.55 : 1}
-        onPress={() => isTruncated && setIsExpanded(true)}
+        activeOpacity={isOverflowing ? 0.55 : 1}
+        onPress={() => isOverflowing && setIsExpanded(prev => !prev)}
       >
         <View>
           <Typography

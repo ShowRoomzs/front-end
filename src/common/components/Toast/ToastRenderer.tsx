@@ -19,11 +19,8 @@ const ROSE_ON_INK = "#FF9DB5";
 /** 시안 C7 · C8 · C13 토스트 — 좌우 14 · 그림자 0 6 20 rgba(0,0,0,.18) */
 const TOAST_SURFACE_STYLE = {
   gap: 10,
-  shadowColor: "#000000",
-  shadowOffset: { width: 0, height: 6 },
-  shadowOpacity: 0.18,
-  shadowRadius: 10,
-  elevation: 8,
+  // 시안 값 그대로 — RN 새 구조(0.76+)와 웹이 같은 CSS 그림자를 그린다
+  boxShadow: "0px 6px 20px rgba(0, 0, 0, 0.18)",
 } as const;
 
 /**

@@ -10,6 +10,7 @@ import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import { SkeletonRepeat } from "@/common/components/Skeleton/Skeleton";
 import Typography from "@/common/components/Typography/Typography";
 import { usePermissionPress } from "@/common/hooks/usePermissionPress";
+import { useToastAnchor } from "@/common/providers/ToastProvider";
 import { useMypageNavigation } from "@/common/router";
 import { MYPAGE_ROUTES } from "@/common/router/routes";
 import { useGetFaqCategories, useGetFaqList } from "@/features/faq/hooks/useGetFaq";
@@ -29,6 +30,7 @@ const BOTTOM_CTA_HEIGHT = 76;
 export default function CustomerCenterView() {
   const navigation = useMypageNavigation();
   const { bottom } = useSafeAreaInsets();
+  const toastAnchor = useToastAnchor();
   const [selectedCategory, setSelectedCategory] = useState<string>(ALL_CATEGORY);
   const [keyword, setKeyword] = useState("");
 
@@ -133,6 +135,7 @@ export default function CustomerCenterView() {
       <View
         className="absolute bottom-0 left-0 right-0 border-t-[0.5px] border-divider bg-white px-14 pt-12"
         style={{ paddingBottom: bottom + 12 }}
+        onLayout={toastAnchor}
       >
         <TouchableOpacity
           onPress={handlePressInquiry}

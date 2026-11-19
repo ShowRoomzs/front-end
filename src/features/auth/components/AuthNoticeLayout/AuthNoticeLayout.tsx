@@ -3,6 +3,7 @@ import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Typography from "@/common/components/Typography/Typography";
+import { useToastAnchor } from "@/common/providers/ToastProvider";
 
 /**
  * 인증 결과 안내 화면의 공통 뼈대 — 만 14세 차단(C0 1d)과 인증 실패(C0 1e)가 함께 쓴다.
@@ -25,6 +26,7 @@ interface AuthNoticeLayoutProps {
 export default function AuthNoticeLayout(props: AuthNoticeLayoutProps) {
   const { icon, iconBackgroundColor, title, description, notice, footer } = props;
   const { bottom } = useSafeAreaInsets();
+  const toastAnchor = useToastAnchor();
 
   return (
     <>
@@ -61,7 +63,11 @@ export default function AuthNoticeLayout(props: AuthNoticeLayoutProps) {
         )}
       </View>
 
-      <View className="bg-white px-14 pt-12" style={{ gap: 9, paddingBottom: bottom + 26 }}>
+      <View
+        className="bg-white px-14 pt-12"
+        style={{ gap: 9, paddingBottom: bottom + 26 }}
+        onLayout={toastAnchor}
+      >
         {footer}
       </View>
     </>

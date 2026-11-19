@@ -27,13 +27,13 @@ export default function CouponRegisterView() {
   const handlePressRegister = useCallback(async () => {
     try {
       await createCoupon({ code });
-      toast.success("쿠폰이 등록되었습니다.");
+      toast.success("쿠폰을 등록했어요");
       setCode("");
       navigation.goBack();
     } catch (error) {
       const err = error as AxiosError<CustomErrorResponse<string, { message?: string }>>;
 
-      toast.error(err.response?.data.message || "쿠폰 등록에 실패했습니다.");
+      toast.error(err.response?.data.message || "쿠폰을 등록하지 못했어요");
     }
   }, [code, createCoupon, navigation]);
 

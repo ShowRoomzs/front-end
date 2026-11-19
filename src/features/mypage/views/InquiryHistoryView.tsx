@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import Typography from "@/common/components/Typography/Typography";
-import { toast } from "@/common/providers/ToastProvider";
+import { toast, useToastAnchor } from "@/common/providers/ToastProvider";
 import { useMainNavigation, useMypageNavigation } from "@/common/router";
 import { COMMON_ROUTES, MYPAGE_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { useGetInquirySummary } from "@/features/inquiry/hooks/useGetInquirySummary";
@@ -28,6 +28,7 @@ export default function InquiryHistoryView() {
   const navigation = useMypageNavigation();
   const mainNavigation = useMainNavigation();
   const { bottom } = useSafeAreaInsets();
+  const toastAnchor = useToastAnchor();
   const [kind, setKind] = useState<InquiryKind>("oneToOne");
   const { data: summary } = useGetInquirySummary();
 
@@ -60,6 +61,7 @@ export default function InquiryHistoryView() {
       <View
         className="border-t-[0.5px] border-divider bg-white px-14 pt-12"
         style={{ paddingBottom: bottom + 26 }}
+        onLayout={toastAnchor}
       >
         <TouchableOpacity
           onPress={handlePressCta}

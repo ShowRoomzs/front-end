@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import Typography from "@/common/components/Typography/Typography";
-import { toast } from "@/common/providers/ToastProvider";
+import { toast, useToastAnchor } from "@/common/providers/ToastProvider";
 import { useSettingsNavigation } from "@/common/router";
 import { useUserStore } from "@/common/stores/useUserStore";
 import NicknameField from "@/features/user/components/NicknameField/NicknameField";
@@ -21,6 +21,7 @@ import { useUpdateUserMutation } from "@/features/user/hooks/useUpdateUserMutati
 export default function NicknameChangeView() {
   const navigation = useSettingsNavigation();
   const { top, bottom } = useSafeAreaInsets();
+  const toastAnchor = useToastAnchor();
   const { user } = useUserStore();
   const { mutateAsync: updateUser, isPending } = useUpdateUserMutation();
 
@@ -76,6 +77,7 @@ export default function NicknameChangeView() {
         <View
           className="border-t-[0.5px] border-divider bg-white px-14 pt-12"
           style={{ paddingBottom: bottom + 26 }}
+          onLayout={toastAnchor}
         >
           <TouchableOpacity
             onPress={handleSave}

@@ -14,7 +14,7 @@ import Typography from "@/common/components/Typography/Typography";
 import { useBottomSheet } from "@/common/hooks/useBottomSheet";
 import { useImagePicker } from "@/common/hooks/useImagePicker";
 import { useBottomSheetContext } from "@/common/providers/BottomSheetProvider";
-import { toast } from "@/common/providers/ToastProvider";
+import { toast, useToastAnchor } from "@/common/providers/ToastProvider";
 import { useUploadImagesMutation } from "@/common/queries/useUploadImagesMutation";
 import { useMypageNavigation } from "@/common/router";
 import { MYPAGE_ROUTES } from "@/common/router/routes";
@@ -62,6 +62,7 @@ const REFUND_ACCOUNT_TYPE = "CANCEL_EXCHANGE_RETURN";
 export default function InquiryView() {
   const navigation = useMypageNavigation();
   const { top, bottom } = useSafeAreaInsets();
+  const toastAnchor = useToastAnchor();
   // 시트 등록보다 먼저 닫기가 필요하므로 컨텍스트에서 직접 받는다
   const { close: closeTypeSheet } = useBottomSheetContext();
   const { params } = useRoute<RouteProp<MypageStackParamList, typeof MYPAGE_ROUTES.INQUIRY_REGISTER>>();
@@ -232,7 +233,7 @@ export default function InquiryView() {
 
       if (isEdit) {
         await updateInquiry(requestData);
-        toast.success("문의가 수정되었습니다");
+        toast.success("문의가 수정되었어요");
       } else {
         await createInquiry(requestData);
         toast.success("문의가 등록되었어요");
@@ -345,6 +346,7 @@ export default function InquiryView() {
         <View
           className="border-t-[0.5px] border-divider bg-white px-14 pt-12"
           style={{ paddingBottom: bottom + 26 }}
+          onLayout={toastAnchor}
         >
           <TouchableOpacity
             onPress={handlePressSubmit}

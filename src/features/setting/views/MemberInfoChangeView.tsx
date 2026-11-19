@@ -8,7 +8,7 @@ import LoadGate from "@/common/components/LoadGate/LoadGate";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import SectionLabel from "@/common/components/SectionLabel/SectionLabel";
 import Typography from "@/common/components/Typography/Typography";
-import { toast } from "@/common/providers/ToastProvider";
+import { toast, useToastAnchor } from "@/common/providers/ToastProvider";
 import { useSettingsNavigation } from "@/common/router";
 import PortOneIdentityModal from "@/features/auth/components/PortOneIdentityModal/PortOneIdentityModal";
 import { useIdentityVerification } from "@/features/auth/hooks/useIdentityVerification";
@@ -33,6 +33,7 @@ import { useGetAccountInfo, useReverifyIdentityMutation } from "@/features/setti
 export default function MemberInfoChangeView() {
   const navigation = useSettingsNavigation();
   const { bottom } = useSafeAreaInsets();
+  const toastAnchor = useToastAnchor();
   const [agreeConsent, setAgreeConsent] = useState(false);
 
   const accountQuery = useGetAccountInfo();
@@ -118,6 +119,7 @@ export default function MemberInfoChangeView() {
       <View
         className="border-t-[0.5px] border-divider bg-white px-14 pt-14"
         style={{ paddingBottom: bottom + 26 }}
+        onLayout={toastAnchor}
       >
         <TouchableOpacity
           onPress={() => setAgreeConsent(prev => !prev)}

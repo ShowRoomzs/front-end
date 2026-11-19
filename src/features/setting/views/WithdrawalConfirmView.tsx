@@ -11,7 +11,7 @@ import SectionLabel from "@/common/components/SectionLabel/SectionLabel";
 import Typography from "@/common/components/Typography/Typography";
 import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { useModal } from "@/common/providers/ModalProvider";
-import { toast } from "@/common/providers/ToastProvider";
+import { toast, useToastAnchor } from "@/common/providers/ToastProvider";
 import { HOME_ROUTES, SETTINGS_ROUTES, useMypageNavigation, useSettingsNavigation } from "@/common/router";
 import { MYPAGE_ROUTES } from "@/common/router/routes";
 import { SettingsStackParamList } from "@/common/router/types";
@@ -84,6 +84,7 @@ export default function WithdrawalConfirmView() {
   const route = useRoute<RouteProp<SettingsStackParamList, typeof SETTINGS_ROUTES.WITHDRAWAL_CONFIRM>>();
   const navigation = useSettingsNavigation();
   const { bottom } = useSafeAreaInsets();
+  const toastAnchor = useToastAnchor();
   const { navigate } = useBottomTab();
   const { show: showModal } = useModal();
   const { logout } = useLogin();
@@ -274,6 +275,7 @@ export default function WithdrawalConfirmView() {
       <View
         className="border-t-[0.5px] border-divider bg-white px-14 pt-14"
         style={{ paddingBottom: bottom + 26 }}
+        onLayout={toastAnchor}
       >
         <TouchableOpacity
           onPress={() => !isBlocked && setAgreeConsent(prev => !prev)}

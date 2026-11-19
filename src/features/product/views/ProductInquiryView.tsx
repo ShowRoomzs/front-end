@@ -16,7 +16,7 @@ import { useBottomSheet } from "@/common/hooks/useBottomSheet";
 import { useImagePicker } from "@/common/hooks/useImagePicker";
 import { usePermissionPress } from "@/common/hooks/usePermissionPress";
 import { useBottomSheetContext } from "@/common/providers/BottomSheetProvider";
-import { toast } from "@/common/providers/ToastProvider";
+import { toast, useToastAnchor } from "@/common/providers/ToastProvider";
 import { useUploadImagesMutation } from "@/common/queries/useUploadImagesMutation";
 import { useCommonNavigation } from "@/common/router";
 import { COMMON_ROUTES } from "@/common/router/routes";
@@ -59,6 +59,7 @@ const INITIAL_FORM: ProductInquiryRequest = { type: "", content: "", secret: fal
 export default function ProductInquiryView() {
   const navigation = useCommonNavigation();
   const { top, bottom } = useSafeAreaInsets();
+  const toastAnchor = useToastAnchor();
   // 시트 등록보다 먼저 닫기가 필요하므로 컨텍스트에서 직접 받는다
   const { close: closeTypeSheet } = useBottomSheetContext();
 
@@ -159,7 +160,7 @@ export default function ProductInquiryView() {
 
       if (isEdit) {
         await updateInquiry(requestData);
-        toast.success("문의가 수정되었습니다");
+        toast.success("문의가 수정되었어요");
       } else {
         await createInquiry({ productId, data: requestData });
         toast.success("문의가 등록되었어요");
@@ -291,6 +292,7 @@ export default function ProductInquiryView() {
         <View
           className="border-t-[0.5px] border-divider bg-white px-14 pt-12"
           style={{ paddingBottom: bottom + 26 }}
+          onLayout={toastAnchor}
         >
           <TouchableOpacity
             onPress={handlePressSubmit}

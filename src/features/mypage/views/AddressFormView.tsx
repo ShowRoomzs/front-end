@@ -12,7 +12,7 @@ import Typography from "@/common/components/Typography/Typography";
 import { useBottomSheet } from "@/common/hooks/useBottomSheet";
 import { useAddressSearch } from "@/common/providers/AddressSearchProvider";
 import { useBottomSheetContext } from "@/common/providers/BottomSheetProvider";
-import { toast } from "@/common/providers/ToastProvider";
+import { toast, useToastAnchor } from "@/common/providers/ToastProvider";
 import { COMMON_ROUTES, MYPAGE_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList, MypageStackParamList } from "@/common/router/types";
 import { formatPhoneNumber, formatPhoneNumberInput } from "@/features/auth/utils/formatPhoneNumber";
@@ -78,6 +78,7 @@ export default function AddressFormView() {
   const route = useRoute<AddressFormRoute>();
   const onSaved = route.params && "onSaved" in route.params ? route.params.onSaved : undefined;
   const { top, bottom } = useSafeAreaInsets();
+  const toastAnchor = useToastAnchor();
   const { openAddressSearch } = useAddressSearch();
   const { close: closeMemoSheet } = useBottomSheetContext();
 
@@ -355,6 +356,7 @@ export default function AddressFormView() {
         <View
           className="border-t-[0.5px] border-divider bg-white px-14 pt-12"
           style={{ paddingBottom: bottom + 26 }}
+          onLayout={toastAnchor}
         >
           <TouchableOpacity
             onPress={handlePressSave}

@@ -252,7 +252,7 @@ export default function CancelRequestView() {
       });
     } catch (error) {
       setIsConfirmOpen(false);
-      toast.show(resolveErrorMessage(error, (error as Error)?.message || "취소를 요청하지 못했어요."));
+      toast.show(resolveErrorMessage(error, (error as Error)?.message || "취소를 요청하지 못했어요"));
     } finally {
       setIsSubmitting(false);
     }

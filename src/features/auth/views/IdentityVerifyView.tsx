@@ -9,6 +9,7 @@ import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import SectionLabel from "@/common/components/SectionLabel/SectionLabel";
 import Typography from "@/common/components/Typography/Typography";
 import { useModal } from "@/common/providers/ModalProvider";
+import { useToastAnchor } from "@/common/providers/ToastProvider";
 import { useAuthNavigation } from "@/common/router";
 import { AUTH_ROUTES } from "@/common/router/routes";
 import { AuthStackParamList } from "@/common/router/types";
@@ -79,6 +80,7 @@ export default function IdentityVerifyView() {
   const route = useRoute<RouteProp<AuthStackParamList, typeof AUTH_ROUTES.IDENTITY_VERIFY>>();
   const navigation = useAuthNavigation();
   const { bottom } = useSafeAreaInsets();
+  const toastAnchor = useToastAnchor();
   const { show: showModal } = useModal();
 
   const { registerToken, onSuccessLogin } = route.params;
@@ -197,6 +199,7 @@ export default function IdentityVerifyView() {
       <View
         className="border-t-[0.5px] border-divider bg-white px-14 pt-12"
         style={{ gap: 9, paddingBottom: bottom + 26 }}
+        onLayout={toastAnchor}
       >
         <TouchableOpacity
           onPress={handlePressVerify}

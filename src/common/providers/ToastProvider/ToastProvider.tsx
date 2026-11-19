@@ -27,6 +27,24 @@ export function ToastProvider(props: ToastProviderProps) {
   const opacity = useSharedValue(0);
   const translateY = useSharedValue(0);
 
+  // 하단 고정 바 — 나중에 걸린 것이 위에 있다(스택 위 화면). 떼면 그 아래 것으로 돌아간다
+  const anchorsRef = useRef<Array<{ id: number; height: number }>>([]);
+  const anchorIdRef = useRef(0);
+  const [anchorHeight, setAnchorHeight] = useState<number | null>(null);
+
+  const attachAnchor = useCallback((height: number) => {
+    anchorIdRef.current += 1;
+    const id = anchorIdRef.current;
+
+    anchorsRef.current = [...anchorsRef.current, { id, height }];
+    setAnchorHeight(height);
+
+    return () => {
+      anchorsRef.current = anchorsRef.current.filter(anchor => anchor.id !== id);
+      setAnchorHeight(anchorsRef.current.at(-1)?.height ?? null);
+    };
+  }, []);
+
   const clearTimer = useCallback(() => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
@@ -109,8 +127,8 @@ export function ToastProvider(props: ToastProviderProps) {
   }, [show, hide, clearTimer]);
 
   return (
-    <ToastContext.Provider value={{ show, hide, pauseTimer, resumeTimer }}>
-      <ToastStateContext.Provider value={{ currentToast, opacity, translateY }}>
+    <ToastContext.Provider value={{ show, hide, pauseTimer, resumeTimer, attachAnchor }}>
+      <ToastStateContext.Provider value={{ currentToast, opacity, translateY, anchorHeight }}>
         {children}
       </ToastStateContext.Provider>
     </ToastContext.Provider>

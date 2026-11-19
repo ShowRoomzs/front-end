@@ -20,11 +20,6 @@ export interface ToastConfig {
   position?: ToastPosition;
   duration?: number;
   action?: ToastAction;
-  /**
-   * 하단 기준 간격을 직접 정한다 — 화면 하단에 고정 CTA 바가 있어 탭바 위 16으로는 버튼을 덮을 때만 쓴다.
-   * 안전 영역 아래쪽 여백 위로 잰다.
-   */
-  bottomOffset?: number;
 }
 
 export interface ToastContextValue {
@@ -32,12 +27,16 @@ export interface ToastContextValue {
   hide: () => void;
   pauseTimer: () => void;
   resumeTimer: () => void;
+  /** 화면 하단 고정 바의 높이를 걸어 둔다 — 돌려받은 함수로 뗀다(`useToastAnchor`) */
+  attachAnchor: (height: number) => () => void;
 }
 
 export interface ToastStateContextValue {
   currentToast: ToastConfig | null;
   opacity: SharedValue<number>;
   translateY: SharedValue<number>;
+  /** 지금 화면의 하단 고정 바 높이(안전 영역 포함) — 없으면 null이고 탭바 · 안전 영역 위에 띄운다 */
+  anchorHeight: number | null;
 }
 
 export const ToastContext = createContext<ToastContextValue | null>(null);

@@ -59,12 +59,34 @@ export default function PostCaption(props: PostCaptionProps) {
   /**
    * 웹은 `onTextLayout`이 오지 않아(react-native-web 미지원) 「더 보기」가 영영 안 뜬다.
    * 사본의 높이를 줄 높이로 나눠 줄 수를 잰다 — 줄 높이를 숫자로 고정해 두어 나눗셈이 정확하다.
+   * 2번째 줄 폭은 사본의 글자 상자(Range.getClientRects)를 줄별로 모아 그 줄의 오른쪽 끝으로 잰다.
    */
   const handleMeasureLayout = useCallback(
     (e: LayoutChangeEvent) => {
       const lines = Math.round(e.nativeEvent.layout.height / lineHeight);
 
       setLineCount(prev => (prev === null ? lines : prev));
+
+      const node = (e.nativeEvent as unknown as { target?: Node }).target;
+
+      if (!(node instanceof HTMLElement)) {
+        return;
+      }
+      const box = node.getBoundingClientRect();
+      const range = document.createRange();
+
+      range.selectNodeContents(node);
+      let width = 0;
+
+      for (const rect of Array.from(range.getClientRects())) {
+        const lineIndex = Math.floor((rect.top + rect.height / 2 - box.top) / lineHeight);
+
+        if (lineIndex === CLAMP_LINES - 1 && rect.width > 0) {
+          width = Math.max(width, rect.right - box.left);
+        }
+      }
+      range.detach();
+      setClampLineWidth(prev => (prev === null ? width : prev));
     },
     [lineHeight]
   );

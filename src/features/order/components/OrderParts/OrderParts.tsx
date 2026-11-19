@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path, Rect } from "react-native-svg";
 
 import Typography from "@/common/components/Typography/Typography";
+import { useToastAnchor } from "@/common/providers/ToastProvider";
 
 /**
  * 주문 화면(C9 · C10 · C10-1~5) 공용 부품.
@@ -404,11 +405,13 @@ export function BottomCta(props: {
 }) {
   const { label, enabled, onPress, top, loading } = props;
   const { bottom } = useSafeAreaInsets();
+  const toastAnchor = useToastAnchor();
 
   return (
     <View
       className="border-t-[0.5px] border-divider bg-white px-14 pt-12"
       style={{ paddingBottom: bottom + 26 }}
+      onLayout={toastAnchor}
     >
       {top}
       <TouchableOpacity

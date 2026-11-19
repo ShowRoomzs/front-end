@@ -609,7 +609,7 @@ export default function CheckoutView() {
           onClose={paymentId => void payment.confirm(paymentId, undefined, true)}
           onError={() => {
             payment.openPaymentWindow(null);
-            toast.show("결제창을 열지 못했어요. 다시 시도해 주세요.");
+            toast.show("결제창을 열지 못했어요. 다시 시도해 주세요");
           }}
         />
       </View>

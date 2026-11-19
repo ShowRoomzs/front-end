@@ -89,7 +89,7 @@ export default function ClaimInvoiceView() {
       toast.success("회수 송장이 등록되었어요");
       navigation.goBack();
     } catch (error) {
-      toast.show(resolveErrorMessage(error, "송장을 등록하지 못했어요. 입력한 내용을 확인해 주세요."));
+      toast.show(resolveErrorMessage(error, "송장을 등록하지 못했어요. 입력한 내용을 확인해 주세요"));
     } finally {
       setIsSubmitting(false);
     }

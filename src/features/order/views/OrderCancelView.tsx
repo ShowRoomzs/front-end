@@ -121,7 +121,7 @@ export default function OrderCancelView() {
       setDone({ isPending: result.isPending, recarted });
     } catch (error) {
       setIsConfirmOpen(false);
-      toast.show(resolveErrorMessage(error, "주문을 취소하지 못했어요. 고객센터로 문의해 주세요."));
+      toast.show(resolveErrorMessage(error, "주문을 취소하지 못했어요. 고객센터로 문의해 주세요"));
       invalidateOrderQueries();
     } finally {
       setIsSubmitting(false);

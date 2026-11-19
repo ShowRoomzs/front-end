@@ -8,7 +8,7 @@ import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import { SkeletonOverlay, SkeletonRepeat } from "@/common/components/Skeleton/Skeleton";
 import Typography from "@/common/components/Typography/Typography";
 import { useModal } from "@/common/providers/ModalProvider";
-import { toast } from "@/common/providers/ToastProvider";
+import { toast, useToastAnchor } from "@/common/providers/ToastProvider";
 import { useMypageNavigation } from "@/common/router";
 import { MYPAGE_ROUTES } from "@/common/router/routes";
 import AddressRow from "@/features/mypage/components/AddressRow/AddressRow";
@@ -31,6 +31,7 @@ import { formatAddressLine } from "@/features/mypage/utils/formatAddressLine";
 export default function AddressManagementView() {
   const navigation = useMypageNavigation();
   const { bottom } = useSafeAreaInsets();
+  const toastAnchor = useToastAnchor();
   const { show: showModal } = useModal();
   const { data: addressList, isLoading } = useGetAddressList();
   const { defaultAddressMutation, deleteAddressMutation } = useAddressMutation();
@@ -131,6 +132,7 @@ export default function AddressManagementView() {
       <View
         className="border-t-[0.5px] border-divider bg-white px-14 pt-12"
         style={{ paddingBottom: bottom + 26 }}
+        onLayout={toastAnchor}
       >
         <TouchableOpacity
           onPress={handlePressAdd}

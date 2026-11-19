@@ -8,7 +8,7 @@ import GroupBand from "@/common/components/GroupBand/GroupBand";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import Typography from "@/common/components/Typography/Typography";
 import { useModal } from "@/common/providers/ModalProvider";
-import { toast } from "@/common/providers/ToastProvider";
+import { toast, useToastAnchor } from "@/common/providers/ToastProvider";
 import { useAuthNavigation, useMainNavigation } from "@/common/router";
 import { AUTH_ROUTES } from "@/common/router/routes";
 import { AuthStackParamList } from "@/common/router/types";
@@ -44,6 +44,7 @@ export default function SignUpView() {
   const authNavigation = useAuthNavigation();
   const navigation = useMainNavigation();
   const { top, bottom } = useSafeAreaInsets();
+  const toastAnchor = useToastAnchor();
   const { show: showModal } = useModal();
 
   const { onSuccessLogin, registerToken } = route.params || {};
@@ -154,6 +155,7 @@ export default function SignUpView() {
         <View
           className="border-t-[0.5px] border-divider bg-white px-14 pt-12"
           style={{ paddingBottom: bottom + 26 }}
+          onLayout={toastAnchor}
         >
           <TouchableOpacity
             onPress={handleSubmit}

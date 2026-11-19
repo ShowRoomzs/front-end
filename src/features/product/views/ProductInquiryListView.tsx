@@ -10,6 +10,7 @@ import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import { SkeletonBlock, SkeletonOverlay, SkeletonRepeat } from "@/common/components/Skeleton/Skeleton";
 import Typography from "@/common/components/Typography/Typography";
 import { usePermissionPress } from "@/common/hooks/usePermissionPress";
+import { useToastAnchor } from "@/common/providers/ToastProvider";
 import { useCommonNavigation } from "@/common/router";
 import { COMMON_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
@@ -42,6 +43,7 @@ export default function ProductInquiryListView() {
   const { params } = useRoute<RouteProp<CommonStackParamList, typeof COMMON_ROUTES.PRODUCT_INQUIRY_LIST>>();
   const { productId, sellerName } = params;
   const { bottom } = useSafeAreaInsets();
+  const toastAnchor = useToastAnchor();
   const navigation = useCommonNavigation();
 
   const { data, isLoading } = useGetPublicProductInquiries(productId);
@@ -142,6 +144,7 @@ export default function ProductInquiryListView() {
       <View
         className="absolute bottom-0 left-0 right-0 border-t-[0.5px] border-divider bg-white px-14 pt-12"
         style={{ paddingBottom: bottom + 26 }}
+        onLayout={toastAnchor}
       >
         {suspension ? (
           // C20 1b — 목록은 그대로 보이고 작성만 막는다

@@ -165,7 +165,7 @@ export default function ClaimDetailView() {
         void refetch();
         return;
       }
-      toast.show("결제가 완료되지 않았어요. 다시 시도해 주세요.");
+      toast.show("결제가 완료되지 않았어요. 다시 시도해 주세요");
     },
     [refetch, showModal]
   );
@@ -305,7 +305,7 @@ export default function ClaimDetailView() {
 
       claimPayment.openPaymentWindow(paymentWindow);
     } catch (error) {
-      toast.show(resolveErrorMessage(error, "결제를 시작하지 못했어요. 잠시 후 다시 시도해 주세요."));
+      toast.show(resolveErrorMessage(error, "결제를 시작하지 못했어요. 잠시 후 다시 시도해 주세요"));
       void refetch();
     } finally {
       setIsPaying(false);
@@ -581,7 +581,7 @@ export default function ClaimDetailView() {
         onClose={paymentId => void claimPayment.confirm(paymentId)}
         onError={() => {
           claimPayment.openPaymentWindow(null);
-          toast.show("결제창을 열지 못했어요. 다시 시도해 주세요.");
+          toast.show("결제창을 열지 못했어요. 다시 시도해 주세요");
         }}
       />
     </View>

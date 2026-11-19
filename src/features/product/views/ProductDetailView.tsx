@@ -12,7 +12,7 @@ import { SkeletonOverlay } from "@/common/components/Skeleton/Skeleton";
 import Typography from "@/common/components/Typography/Typography";
 import { useBottomSheet } from "@/common/hooks/useBottomSheet";
 import { usePermissionPress } from "@/common/hooks/usePermissionPress";
-import { toast } from "@/common/providers/ToastProvider";
+import { toast, useToastAnchor } from "@/common/providers/ToastProvider";
 import { useCommonNavigation, useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { CommonStackParamList } from "@/common/router/types";
@@ -63,7 +63,7 @@ import { ProductSaleState, resolveSaleState, saleStateMessage } from "@/features
  */
 /** 서버가 이 상품의 판매 중 공구를 하나로 정하지 못했다 — 가격이 계약 가격이 아니라 살 수 없다 */
 const NO_GROUP_BUY_MESSAGE =
-  "지금 구매할 수 있는 공동구매를 찾지 못했어요. 공구 게시물에서 다시 들어와 주세요.";
+  "지금 구매할 수 있는 공동구매를 찾지 못했어요. 공구 게시물에서 다시 들어와 주세요";
 
 /** 상단 여백 12 + 버튼 52 + 하단 여백 26 — 본문이 이 아래로 숨지 않게 같은 값을 비운다 */
 const BOTTOM_CTA_HEIGHT = 90;
@@ -85,6 +85,7 @@ export default function ProductDetailView() {
   const { params } = useRoute<RouteProp<CommonStackParamList, typeof COMMON_ROUTES.PRODUCT_DETAIL>>();
   const { productId, groupBuyId: requestedGroupBuyId, from } = params;
   const { bottom } = useSafeAreaInsets();
+  const toastAnchor = useToastAnchor();
   const suspension = useSuspension();
 
   const {
@@ -168,16 +169,13 @@ export default function ProductDetailView() {
         }))
       );
 
-      // 하단 구매 바를 덮지 않도록 그 위로 띄운다
-      toast.success("장바구니에 담았어요", {
-        bottomOffset: 70,
-        action: { label: "보기", onPress: handlePressToast },
-      });
+      // 하단 구매 바 위에 뜬다(useToastAnchor)
+      toast.success("장바구니에 담았어요", { action: { label: "보기", onPress: handlePressToast } });
       clearSelectedVariants(productId);
     } catch (error) {
       const axiosError = error as AxiosError<CustomErrorResponse<string, { message?: string }>>;
 
-      toast.show(axiosError.response?.data?.message || "장바구니에 추가에 실패했습니다.");
+      toast.show(axiosError.response?.data?.message || "장바구니에 담지 못했어요");
     }
   });
 
@@ -259,7 +257,7 @@ export default function ProductDetailView() {
     } catch (error) {
       const axiosError = error as AxiosError<CustomErrorResponse<string, { message?: string }>>;
 
-      toast.show(axiosError.response?.data?.message || "주문서를 열지 못했어요. 잠시 후 다시 시도해 주세요.");
+      toast.show(axiosError.response?.data?.message || "주문서를 열지 못했어요. 잠시 후 다시 시도해 주세요");
     }
   });
 
@@ -530,6 +528,7 @@ export default function ProductDetailView() {
         <View
           className="absolute bottom-0 left-0 right-0 border-t-[0.5px] border-divider bg-white px-14 pt-12"
           style={{ paddingBottom: bottom + 26 }}
+          onLayout={toastAnchor}
         >
           {isUnavailable ? (
             /*

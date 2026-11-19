@@ -337,7 +337,7 @@ export default function ClaimRequestView() {
         void refetch();
         return;
       }
-      toast.show("결제가 완료되지 않았어요. 입력한 내용은 그대로예요.");
+      toast.show("결제가 완료되지 않았어요. 입력한 내용은 그대로예요");
     },
     [refetch, showModal]
   );
@@ -394,7 +394,7 @@ export default function ClaimRequestView() {
       if (code) {
         idempotency.current = null;
       }
-      toast.show(resolveErrorMessage(submitError, `${kw}을 요청하지 못했어요. 잠시 후 다시 시도해 주세요.`));
+      toast.show(resolveErrorMessage(submitError, `${kw}을 요청하지 못했어요. 잠시 후 다시 시도해 주세요`));
     } finally {
       setIsSubmitting(false);
     }
@@ -902,7 +902,7 @@ export default function ClaimRequestView() {
           onClose={paymentId => void claimPayment.confirm(paymentId)}
           onError={() => {
             claimPayment.openPaymentWindow(null);
-            toast.show("결제창을 열지 못했어요. 다시 시도해 주세요.");
+            toast.show("결제창을 열지 못했어요. 다시 시도해 주세요");
           }}
         />
 

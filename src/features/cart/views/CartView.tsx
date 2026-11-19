@@ -14,7 +14,7 @@ import { useBottomSheet } from "@/common/hooks/useBottomSheet";
 import { useBottomTab } from "@/common/hooks/useBottomTab";
 import { SheetApi } from "@/common/providers/BottomSheetProvider/context";
 import { useModal } from "@/common/providers/ModalProvider/context";
-import { toast } from "@/common/providers/ToastProvider";
+import { toast, useToastAnchor } from "@/common/providers/ToastProvider";
 import { HOME_ROUTES, useCommonNavigation, useMainNavigation } from "@/common/router";
 import { COMMON_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { useUserStore } from "@/common/stores/useUserStore";
@@ -53,6 +53,7 @@ const BOTTOM_CTA_GAP = 16;
 
 export default function CartView() {
   const { bottom } = useSafeAreaInsets();
+  const toastAnchor = useToastAnchor();
   const [ctaHeight, setCtaHeight] = useState(BOTTOM_CTA_ESTIMATE);
   const navigation = useCommonNavigation();
   const mainNavigation = useMainNavigation();
@@ -134,10 +135,10 @@ export default function CartView() {
           setSelectedIds(next);
         }
         if (doneMessage) {
-          toast.show(doneMessage);
+          toast.success(doneMessage);
         }
       } catch (error) {
-        toast.show(resolveErrorMessage(error, "삭제에 실패했습니다."));
+        toast.show(resolveErrorMessage(error, "삭제하지 못했어요"));
       }
     },
     [deleteCartItems, selectedIdList, selectedIds]
@@ -181,7 +182,7 @@ export default function CartView() {
           selectedCartItemIds: selectedIdList,
         });
       } catch (error) {
-        toast.show(resolveErrorMessage(error, "수량 변경에 실패했습니다."));
+        toast.show(resolveErrorMessage(error, "수량을 변경하지 못했어요"));
       }
     },
     [allItems, selectedIdList, updateCart]
@@ -198,7 +199,7 @@ export default function CartView() {
         toast.success("옵션을 변경했어요");
         sheetApi?.close();
       } catch (error) {
-        toast.show(resolveErrorMessage(error, "옵션 변경에 실패했습니다."));
+        toast.show(resolveErrorMessage(error, "옵션을 변경하지 못했어요"));
       }
     },
     [selectedIdList, updateCart]
@@ -427,7 +428,10 @@ export default function CartView() {
         <View
           className="absolute bottom-0 left-0 right-0 border-t-[0.5px] border-divider bg-white px-14 pt-12"
           style={{ paddingBottom: bottom + 26 }}
-          onLayout={event => setCtaHeight(event.nativeEvent.layout.height)}
+          onLayout={event => {
+            setCtaHeight(event.nativeEvent.layout.height);
+            toastAnchor(event);
+          }}
         >
           <SummaryRow label="상품 금액" value={`${formatPrice(cart?.summary.saleTotal ?? 0)}원`} />
           <SummaryRow

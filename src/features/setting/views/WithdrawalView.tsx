@@ -6,6 +6,7 @@ import Svg, { Path } from "react-native-svg";
 import LoadGate from "@/common/components/LoadGate/LoadGate";
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import Typography from "@/common/components/Typography/Typography";
+import { useToastAnchor } from "@/common/providers/ToastProvider";
 import { SETTINGS_ROUTES, useSettingsNavigation } from "@/common/router";
 import { WithdrawalSkeleton } from "@/features/setting/components/SettingSkeletons/SettingSkeletons";
 import { useGetWithdrawalInfo } from "@/features/setting/hooks/useWithdrawal";
@@ -26,6 +27,7 @@ const CUSTOM_REASON_MAX_LENGTH = 200;
 export default function WithdrawalView() {
   const navigation = useSettingsNavigation();
   const { top, bottom } = useSafeAreaInsets();
+  const toastAnchor = useToastAnchor();
   const infoQuery = useGetWithdrawalInfo();
   const { data: info } = infoQuery;
 
@@ -150,6 +152,7 @@ export default function WithdrawalView() {
         <View
           className="flex-row border-t-[0.5px] border-divider bg-white px-14 pt-12"
           style={{ gap: 8, paddingBottom: bottom + 26 }}
+          onLayout={toastAnchor}
         >
           <TouchableOpacity
             onPress={handleNext}

@@ -79,7 +79,7 @@ export default function ReportSheetContent(props: ReportSheetContentProps) {
         <TouchableOpacity
           onPress={() => submit(detailReason, detail.trim())}
           disabled={!canSubmit}
-          activeOpacity={0.55}
+          activeOpacity={0.75}
           className="mt-16"
         >
           <View
@@ -87,8 +87,8 @@ export default function ReportSheetContent(props: ReportSheetContentProps) {
               canSubmit ? "bg-rose" : "bg-fill"
             }`}
           >
-            <Typography variant="buttonPrimary" className={canSubmit ? "text-white" : "text-gray62"}>
-              신고하기
+            <Typography variant="buttonPrimary" className={canSubmit ? "text-white" : "text-gray71"}>
+              신고 접수
             </Typography>
           </View>
         </TouchableOpacity>

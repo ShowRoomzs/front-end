@@ -162,7 +162,9 @@ export default function FilterBottomSheetView(props: FilterBottomSheetViewProps)
           <Button onPress={onPressReset} size="xl" variant="ghost">
             <HStack className="items-center" gap={8}>
               <Icon icon={COMMON_ASSETS.reset} />
-              <Typography className="text-black text-16 font-medium">재설정</Typography>
+              <Typography style={{ fontSize: 15, fontWeight: "600", lineHeight: 15 }} className="text-ink76">
+                재설정
+              </Typography>
             </HStack>
           </Button>
           <Button onPress={handlePressApply} className="flex-1" size="xl" variant="primary">

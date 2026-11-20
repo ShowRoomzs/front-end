@@ -5,8 +5,10 @@ import { extractTextClassName } from "@/common/components/Button/config";
 import Typography from "@/common/components/Typography/Typography";
 import { cn } from "@/common/utils/cn";
 /**
- * height 기준 size 정의
- * size : xs(26), sm(30), md(36), lg(46, 47), xl(49), xxl(59)
+ * 공용 버튼 — 디자인 시스템(1021) 값: 모서리 R8 · 라벨 600 · 주 액션 로즈 #F2456E ·
+ * 비활성 #F4F4F5 위 #B5B5B5 · 중립 외곽선 1px #E3E3E5 위 #3C3C3C · 누름 로즈 .75 / 그 밖 .55.
+ *
+ * size(높이) : xs(26), sm(30), md(36), lg(45 — 콘텐츠 안 유도 CTA 14), xl(52 — 하단 고정 CTA 15.5), xxl(59)
  */
 
 type ButtonSize = "xs" | "sm" | "md" | "lg" | "xl" | "xxl";
@@ -49,39 +51,39 @@ export default function Button(props: ButtonProps) {
   const getClassNameBySize = useCallback(() => {
     switch (size) {
       case "xxl":
-        return "h-59 rounded-[6px] font-semibold";
+        return "h-59 rounded-base font-semibold";
       case "xl":
-        return "h-49 rounded-[6px] font-semibold";
+        return "h-52 rounded-base font-semibold";
       case "lg":
-        return "h-46 rounded-[6px] font-semibold";
+        return "h-45 rounded-base font-semibold";
       case "md":
-        return "h-36 rounded-[6px] font-semibold";
+        return "h-36 rounded-base font-semibold";
       case "sm":
-        return "h-30 rounded-[6px] font-semibold";
+        return "h-30 rounded-base font-semibold";
       case "xs":
-        return "h-26 rounded-[4px] font-normal";
+        return "h-26 rounded-[4px] font-semibold";
     }
   }, [size]);
 
   const getClassNameByVariant = useCallback(() => {
     if (disabled) {
-      return "bg-gray4 text-gray9";
+      return "bg-fill text-gray71";
     }
     switch (variant) {
       case "primary":
-        return "bg-black text-white";
+        return "bg-rose text-white";
       case "secondary":
-        return "bg-transparent border-[1px] border-gray5 text-gray10";
+        return "bg-white border-[1px] border-borderButton text-ink76";
       case "secondary-black":
-        return "bg-transparent border-[1px] border-gray5 text-black";
+        return "bg-white border-[1px] border-borderButton text-ink";
       case "outline":
-        return "bg-transparent border-[1px] border-black text-black";
+        return "bg-white border-[1px] border-ink text-ink";
       case "ghost":
-        return "bg-transparent text-gray9";
+        return "bg-transparent text-ink76";
       case "primary-point":
-        return "bg-pointColor text-white";
+        return "bg-rose text-white";
       case "outline-point":
-        return "bg-transparent border-[1px] border-pointColor text-pointColor";
+        return "bg-white border-[1px] border-rose text-roseText";
     }
   }, [disabled, variant]);
 
@@ -90,7 +92,7 @@ export default function Button(props: ButtonProps) {
       case "xxl":
         return 16;
       case "xl":
-        return 16;
+        return 15.5;
       case "lg":
         return 14;
       case "md":
@@ -107,7 +109,7 @@ export default function Button(props: ButtonProps) {
       return (
         <Typography
           className={extractTextClassName(`${getClassNameByVariant()} ${getClassNameBySize()}`)}
-          style={{ fontSize: getTextSize() }}
+          style={{ fontSize: getTextSize(), lineHeight: getTextSize() }}
         >
           {children}
         </Typography>
@@ -129,7 +131,7 @@ export default function Button(props: ButtonProps) {
       className={cn(getDefaultClassName(), getClassNameBySize(), getClassNameByVariant(), className)}
       style={style}
       // §08 누름 — 로즈 CTA .75 · 그 밖 .55
-      activeOpacity={activeOpacity ?? (variant === "primary-point" ? 0.75 : 0.55)}
+      activeOpacity={activeOpacity ?? (variant === "primary" || variant === "primary-point" ? 0.75 : 0.55)}
     >
       {content}
     </TouchableOpacity>

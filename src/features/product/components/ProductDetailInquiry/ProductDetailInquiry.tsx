@@ -141,7 +141,7 @@ export default function ProductDetailInquiry(props: ProductDetailInquiryProps) {
           <View className="px-14" style={{ paddingTop: 16, paddingBottom: 26 }}>
             <TouchableOpacity
               onPress={handlePressSeeAll}
-              activeOpacity={0.75}
+              activeOpacity={0.55}
               className="h-44 flex-row items-center justify-center rounded-base border border-gray3"
               style={{ gap: 5 }}
             >

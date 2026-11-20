@@ -9,6 +9,10 @@ interface TextAreaProps extends Omit<TextInputProps, "className" | "multiline"> 
   inputClassName?: string;
 }
 
+/**
+ * 여러 줄 입력 — 시안 C18 신고 상세 사유 필드: 최소 높이 88 · 1px #E3E3E5 · R8 · 안쪽 12 · 13.5/1.65 ·
+ * 플레이스홀더 #B5B5B5(입력 폼 공통 — 검색 필드만 #8E8E8E) · 글자 수 11.5 #737373.
+ */
 export default function TextArea(props: TextAreaProps) {
   const { wrapperClassName, inputClassName, value, onChangeText, maxLength, ...inputProps } = props;
 
@@ -25,21 +29,25 @@ export default function TextArea(props: TextAreaProps) {
 
   return (
     <View>
-      <View className={cn("border border-gray3 rounded-[5px] p-15", wrapperClassName)}>
+      <View
+        className={cn("rounded-base border border-gray3 p-12", wrapperClassName)}
+        style={{ minHeight: 88 }}
+      >
         <TextInput
           multiline
           value={value}
           maxLength={maxLength}
           onChangeText={handleChangeText}
-          placeholderTextColor="#8E8E8E"
-          className={cn("text-14 text-black font-normal p-0 m-0", inputClassName)}
+          placeholderTextColor="#B5B5B5"
+          textAlignVertical="top"
+          className={cn("m-0 p-0 text-ink", inputClassName)}
           {...inputProps}
-          style={[{ fontFamily: "Pretendard-Regular" }, inputProps.style]}
+          style={[{ fontFamily: "Pretendard-Regular", fontSize: 13.5, lineHeight: 22.3 }, inputProps.style]}
         />
       </View>
       {maxLength !== undefined && (
-        <View className="mt-10 items-end">
-          <Typography className="text-12 text-gray8">
+        <View className="mt-8 items-end">
+          <Typography style={{ fontSize: 11.5, lineHeight: 11.5 }} className="text-gray45">
             {currentLength}/{maxLength}
           </Typography>
         </View>

@@ -6,7 +6,7 @@ import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import Typography from "@/common/components/Typography/Typography";
 import { toast, useToastAnchor } from "@/common/providers/ToastProvider";
 import { useMainNavigation, useMypageNavigation } from "@/common/router";
-import { COMMON_ROUTES, MYPAGE_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
+import { HOME_ROUTES, MYPAGE_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 import { useGetInquirySummary } from "@/features/inquiry/hooks/useGetInquirySummary";
 import InquiryHistoryTabs, {
   InquiryKind,
@@ -21,8 +21,8 @@ import ProductInquiryHistoryTab from "@/features/mypage/components/ProductInquir
  * 사람이 엉뚱한 곳에 글을 남기게 된다.
  *
  * 다만 상품 문의는 **상품이 정해져야 등록할 수 있다**(서버가 `productId`를 요구한다). 그래서
- * [상품 문의하기]는 작성 화면으로 바로 가지 않고 상품을 고르러 카테고리로 보낸다 — 상품 상세의
- * 문의 탭이 실제 작성 입구다.
+ * [상품 문의하기]는 작성 화면으로 바로 가지 않고 상품을 고르는 홈 피드로 보낸다 — 상품 상세의
+ * 문의 탭이 실제 작성 입구다(시안 C12 빈 상태 「상품 상세에서 궁금한 점을 물어보세요」).
  */
 export default function InquiryHistoryView() {
   const navigation = useMypageNavigation();
@@ -36,8 +36,9 @@ export default function InquiryHistoryView() {
 
   const handlePressCta = useCallback(() => {
     if (isProductTab) {
-      toast.show("문의할 상품을 골라 주세요");
-      mainNavigation.navigate(ROOT_ROUTES.COMMON, { screen: COMMON_ROUTES.CATEGORY });
+      // 상품 문의는 상품 상세에서만 쓴다(시안 C12 빈 상태 「상품 상세에서 궁금한 점을 물어보세요」) — 상품을 고르는 홈 피드로
+      mainNavigation.navigate(ROOT_ROUTES.HOME, { screen: HOME_ROUTES.HOME });
+      toast.show("상품 상세에서 문의할 수 있어요");
       return;
     }
     navigation.navigate(MYPAGE_ROUTES.INQUIRY_REGISTER, {});

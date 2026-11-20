@@ -53,7 +53,7 @@ export interface GroupBuyInfo {
   dday: number;
   status: GroupBuyStatus;
   isPaidAd: boolean;
-  /** 판매 브랜드 — 게시물 최하단 통신판매중개자 고지(1021 기-34 【잠정】). 개발 서버 미배포면 null */
+  /** 판매 브랜드 — 게시물 최하단 판매 · 추천 · 민원 책임 고지(1021 기-34 【잠정】). 개발 서버 미배포면 null */
   brandName: string | null;
   products: Array<PostProduct>;
 }

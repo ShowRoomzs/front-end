@@ -7,7 +7,7 @@ import { useCommonNavigation, useMainNavigation, useMypageNavigation } from "@/c
 import { COMMON_ROUTES, HOME_ROUTES, MYPAGE_ROUTES, ROOT_ROUTES } from "@/common/router/routes";
 
 /**
- * C4 쇼룸 하단 고지 — 대가관계 안내 · 통신판매중개자 고지 · 법적 링크.
+ * C4 쇼룸 하단 고지 — 대가관계 안내 · 민원 책임 고지 · 법적 링크.
  *
  * **쇼룸은 SNS 링크로 외부에서 바로 착지하는 화면이다.** 앱의 다른 곳을 거치지 않고 여기서
  * 보고 이탈할 수 있으므로, 마이 탭 푸터나 상품 상세의 고지가 이 자리를 대신해 주지 못한다.
@@ -101,7 +101,7 @@ export default function ShowroomLegalFooter() {
       </View>
 
       <Typography style={{ fontSize: 11, lineHeight: 18.7, marginTop: 14 }} className="text-gray45">
-        {BUSINESS_INFO.intermediaryNotice}
+        {BUSINESS_INFO.responsibilityNotice}
       </Typography>
 
       <View className="flex-row flex-wrap" style={{ gap: 14, marginTop: 16 }}>

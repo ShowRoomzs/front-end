@@ -1,7 +1,7 @@
 /**
  * 하단 탭 — 디자인 확정안의 4탭이다(홈 · 팔로잉 · 좋아요 · 마이).
  *
- * 카테고리 탐색은 C14 쇼룸 검색 안으로, 상품 위시리스트는 마이 > 쇼핑 정보로 옮겼다.
+ * 카테고리 탐색 화면은 없앴다(1021 시안에 없음) — 검색은 C14 쇼룸 검색, 상품 위시리스트는 마이 > 쇼핑 정보.
  * 좋아요(LIKE)는 상품이 아니라 게시물을 모아 보는 화면이다 — 서버 경로가 wishlist인 것은
  * 앱이 쓰던 옛 계약을 그대로 둔 것뿐이다.
  */
@@ -10,12 +10,6 @@ export const HOME_ROUTES = {
   FOLLOWING: "following",
   LIKE: "like",
   MYPAGE: "mypage",
-} as const;
-
-// 카테고리 스택 네비게이션 (카테고리 탭 내부에서만 사용)
-export const CATEGORY_ROUTES = {
-  HOME: "categoryHome",
-  DETAIL: "categoryDetail",
 } as const;
 
 // 인증 스택 네비게이션
@@ -43,7 +37,6 @@ export const COMMON_ROUTES = {
   SHOWROOM_DETAIL: "showroomDetail",
   SHOWROOM_BY_ADDRESS: "showroomByAddress",
   POST_DETAIL: "postDetail",
-  CATEGORY: "commonCategory",
   WISHLIST: "commonWishlist",
   TERMS_DOCUMENT: "commonTermsDocument",
   /** C9 결제 — 장바구니 [주문하기] · 상품 상세 [바로 구매] */
@@ -117,13 +110,11 @@ export const ROOT_ROUTES = {
 
 export const ROUTES = {
   ...HOME_ROUTES,
-  ...CATEGORY_ROUTES,
   ...AUTH_ROUTES,
   ...ROOT_ROUTES,
 } as const;
 
 export type HomeRouteName = (typeof HOME_ROUTES)[keyof typeof HOME_ROUTES];
-export type CategoryRouteName = (typeof CATEGORY_ROUTES)[keyof typeof CATEGORY_ROUTES];
 export type AuthRouteName = (typeof AUTH_ROUTES)[keyof typeof AUTH_ROUTES];
 export type SettingsRouteName = (typeof SETTINGS_ROUTES)[keyof typeof SETTINGS_ROUTES];
 export type MyPageRouteName = (typeof MYPAGE_ROUTES)[keyof typeof MYPAGE_ROUTES];

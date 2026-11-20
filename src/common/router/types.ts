@@ -2,7 +2,6 @@ import { NavigatorScreenParams } from "@react-navigation/native";
 
 import {
   AUTH_ROUTES,
-  CATEGORY_ROUTES,
   COMMON_ROUTES,
   COUPON_ROUTES,
   HOME_ROUTES,
@@ -23,14 +22,6 @@ export type HomeTabParamList = {
   [HOME_ROUTES.FOLLOWING]: undefined;
   [HOME_ROUTES.LIKE]: undefined;
   [HOME_ROUTES.MYPAGE]: NavigatorScreenParams<MypageStackParamList> | undefined;
-};
-
-// 카테고리(탭 내부) 스택 파라미터
-export type CategoryStackParamList = {
-  [CATEGORY_ROUTES.HOME]: undefined;
-  [CATEGORY_ROUTES.DETAIL]: {
-    categoryId: number;
-  };
 };
 
 // 인증 스택 파라미터
@@ -80,7 +71,6 @@ export type CommonStackParamList = {
   [COMMON_ROUTES.POST_DETAIL]: {
     postId: number;
   };
-  [COMMON_ROUTES.CATEGORY]: NavigatorScreenParams<CategoryStackParamList> | undefined;
   [COMMON_ROUTES.WISHLIST]: undefined;
   [COMMON_ROUTES.PRODUCT_DETAIL]: {
     productId: number;

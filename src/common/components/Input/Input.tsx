@@ -88,7 +88,7 @@ const Input = forwardRef<TextInput, InputProps>((props, ref) => {
   });
 
   const getDefaultClassName = () => {
-    return "flex flex-row items-center w-full border-[1px] border-gray3 rounded-[5px]";
+    return "flex flex-row items-center w-full border-[1px] border-gray3 rounded-base";
   };
 
   const getClassNameBySize = () => {
@@ -96,7 +96,7 @@ const Input = forwardRef<TextInput, InputProps>((props, ref) => {
       case "small":
         return "h-37 px-10 text-12";
       case "medium":
-        return "h-47 px-15 text-14";
+        return "h-48 px-14 text-15";
     }
   };
 
@@ -135,7 +135,7 @@ const Input = forwardRef<TextInput, InputProps>((props, ref) => {
         <TextInput
           ref={ref}
           className={cn("flex-1", inputClassName)}
-          placeholderTextColor="#8E8E8E"
+          placeholderTextColor="#B5B5B5"
           {...inputProps}
           style={[{ fontFamily: "Pretendard-Regular" }, inputProps.style]}
           onChangeText={handleChangeText}

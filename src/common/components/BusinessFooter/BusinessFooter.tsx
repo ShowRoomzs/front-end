@@ -12,7 +12,7 @@ import { EXPAND_ENTERING, EXPAND_EXITING } from "@/common/constants/motion";
  *
  * 사업자등록번호 · 통신판매업신고번호 · 고객센터는 법정 고지이자 실제로 읽어야 하는 정보라
  * 명도차(4.6:1)를 확보하고, 위계는 색이 아니라 크기와 굵기로만 낮춘다.
- * 통신판매중개자 고지는 전자상거래법상 필수 표기라 별도 문단으로 분리한다.
+ * 민원 책임 고지(거래 책임 · 배송 · 교환 · 환불 · 민원은 쇼룸즈가 처리)는 별도 문단으로 분리한다.
  */
 interface BusinessFooterProps {
   /** 마이 탭은 접힌 채로 시작하고, 상품 상세의 상세정보 탭은 펼친 채로 둔다 */
@@ -91,7 +91,7 @@ export default function BusinessFooter(props: BusinessFooterProps) {
 
           {/* 고지 문단은 줄 간격 5에 9를 더해 시안의 14로 띄운다 */}
           <Typography variant="legal" className="mt-9 text-gray45">
-            {BUSINESS_INFO.intermediaryNotice}
+            {BUSINESS_INFO.responsibilityNotice}
           </Typography>
         </Animated.View>
       )}

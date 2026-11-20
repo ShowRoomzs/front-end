@@ -9,6 +9,7 @@ import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import SheetList from "@/common/components/SheetList/SheetList";
 import Skeleton from "@/common/components/Skeleton/Skeleton";
 import Typography from "@/common/components/Typography/Typography";
+import { BUSINESS_INFO } from "@/common/constants/business";
 import { useBottomSheet } from "@/common/hooks/useBottomSheet";
 import { useBottomSheetContext } from "@/common/providers/BottomSheetProvider";
 import { useModal } from "@/common/providers/ModalProvider/context";
@@ -570,7 +571,7 @@ export default function CheckoutView() {
           <TotalRow label="총 결제 금액" value={won(summary.totalAmount)} />
 
           <Typography style={{ fontSize: 11.5, lineHeight: 19.55 }} className="px-14 pb-26 pt-20 text-gray45">
-            쇼룸즈는 통신판매중개자로서 거래 당사자가 아니며, 상품·배송·환불 책임은 판매자에게 있습니다.
+            {BUSINESS_INFO.responsibilityNotice}
           </Typography>
         </ScrollView>
 

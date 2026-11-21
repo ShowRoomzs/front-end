@@ -62,7 +62,12 @@ const AddressFormField = forwardRef<TextInput, AddressFormFieldProps>((props, re
           keyboardType={keyboardType}
           maxLength={maxLength}
           className="m-0 p-0 text-ink"
-          style={{ fontSize: 15, lineHeight: 21, fontFamily: "Pretendard-Regular" }}
+          /*
+            lineHeight는 주지 않는다 — 안드로이드는 앱이 값을 바꿀 때만 lineHeight를 적용한다. 연락처는
+            네 번째 숫자에서 하이픈이 끼워져 값이 바뀌므로 그때 글자가 몇 px 내려간다. 한 줄 칸이라
+            세로 위치는 h-48 상자의 가운데 정렬이 잡는다.
+          */
+          style={{ fontSize: 15, fontFamily: "Pretendard-Regular" }}
         />
       </View>
     </View>

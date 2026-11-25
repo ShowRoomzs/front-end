@@ -28,7 +28,9 @@ export default ({ config }: ConfigContext): ExpoConfig => {
 
   return {
     ...config,
-    name: "showroomz",
+    // 홈 화면 · 앱 목록에 보이는 이름(iOS CFBundleDisplayName · 안드로이드 app_name) — 11-25 대표 확정
+    name: "쇼룸즈",
+    // slug · owner는 EAS 프로젝트 식별자라 바꾸지 않는다(바꾸면 다른 프로젝트로 잡힌다)
     slug: "showroomz",
     /*
       두 번째 스킴은 구글 로그인 전용이다.

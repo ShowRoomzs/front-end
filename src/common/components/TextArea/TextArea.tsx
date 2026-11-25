@@ -7,6 +7,8 @@ import { cn } from "@/common/utils/cn";
 interface TextAreaProps extends Omit<TextInputProps, "className" | "multiline"> {
   wrapperClassName?: string;
   inputClassName?: string;
+  /** 아래 글자 수 표시 — 시안이 글자 수를 라벨 옆에 두는 곳에서는 끄고 부르는 쪽이 그린다 */
+  showCounter?: boolean;
 }
 
 /**
@@ -14,7 +16,15 @@ interface TextAreaProps extends Omit<TextInputProps, "className" | "multiline"> 
  * 플레이스홀더 #B5B5B5(입력 폼 공통 — 검색 필드만 #8E8E8E) · 글자 수 11.5 #737373.
  */
 export default function TextArea(props: TextAreaProps) {
-  const { wrapperClassName, inputClassName, value, onChangeText, maxLength, ...inputProps } = props;
+  const {
+    wrapperClassName,
+    inputClassName,
+    showCounter = true,
+    value,
+    onChangeText,
+    maxLength,
+    ...inputProps
+  } = props;
 
   const [uncontrolledLength, setUncontrolledLength] = useState(0);
 
@@ -45,7 +55,7 @@ export default function TextArea(props: TextAreaProps) {
           style={[{ fontFamily: "Pretendard-Regular", fontSize: 13.5, lineHeight: 22.3 }, inputProps.style]}
         />
       </View>
-      {maxLength !== undefined && (
+      {showCounter && maxLength !== undefined && (
         <View className="mt-8 items-end">
           <Typography style={{ fontSize: 11.5, lineHeight: 11.5 }} className="text-gray45">
             {currentLength}/{maxLength}

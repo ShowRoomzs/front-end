@@ -135,6 +135,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     owner: "showroomz",
     plugins: [
       "expo-apple-authentication",
+      // 구글 로그인 · 외부 링크 브라우저 — SDK 54의 `expo install`이 설정 플러그인 등록을 요구한다
+      "expo-web-browser",
       // 푸시(FCM) — app은 설정 파일을 네이티브에 넣고 AppDelegate에 FirebaseApp.configure()를 심는다.
       // messaging은 위 `notification` 아이콘 · 색을 FCM 기본 알림 아이콘으로 건다
       "@react-native-firebase/app",

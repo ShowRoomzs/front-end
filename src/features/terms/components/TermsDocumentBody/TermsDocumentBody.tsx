@@ -5,7 +5,7 @@ import InfoBanner from "@/common/components/InfoBanner/InfoBanner";
 import Skeleton from "@/common/components/Skeleton/Skeleton";
 import Typography from "@/common/components/Typography/Typography";
 import TermsBodySkeleton from "@/features/terms/components/TermsBodySkeleton/TermsBodySkeleton";
-import { useGetTermsDetail, useGetTermsList } from "@/features/terms/hooks/useGetTerms";
+import { pickConsumerDocument, useGetTermsDetail, useGetTermsList } from "@/features/terms/hooks/useGetTerms";
 import { TermsType } from "@/features/terms/types/terms";
 
 /**
@@ -41,11 +41,15 @@ function splitArticle(block: string): { heading: string | null; body: string } {
 export default function TermsDocumentBody(props: TermsDocumentBodyProps) {
   const { termsType } = props;
 
-  const { data: documents, isLoading: isListLoading } = useGetTermsList({
+  const {
+    data: documents,
+    isLoading: isListLoading,
+    isError: isListError,
+  } = useGetTermsList({
     type: termsType,
     target: "USER",
   });
-  const documentId = documents?.[0]?.documentId;
+  const documentId = pickConsumerDocument(documents)?.documentId;
   const { data: document, isLoading: isDetailLoading } = useGetTermsDetail(documentId);
 
   const isLoading = isListLoading || isDetailLoading;
@@ -69,9 +73,19 @@ export default function TermsDocumentBody(props: TermsDocumentBodyProps) {
   }
 
   if (!document) {
+    // 목록은 받았는데 비어 있으면 오류가 아니다 — 등록된 문서가 시행일(00:00 전환) 전이라 아직 내려오지 않는다
+    const isNotEffectiveYet = !isListError && documents?.length === 0;
+
     return (
       <View className="px-20 pt-20">
-        <InfoBanner variant="note" message="문서를 불러오지 못했어요. 잠시 후 다시 시도해 주세요." />
+        <InfoBanner
+          variant="note"
+          message={
+            isNotEffectiveYet
+              ? "아직 시행 중인 문서가 없어요. 시행일부터 이곳에서 볼 수 있어요."
+              : "문서를 불러오지 못했어요. 잠시 후 다시 시도해 주세요."
+          }
+        />
       </View>
     );
   }

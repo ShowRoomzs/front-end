@@ -6,7 +6,8 @@
  */
 /** OPERATION_POLICY 운영정책은 열람 전용 — 가입 동의 대상이 아니다(백엔드 58 5-2) */
 export type TermsType = "TERMS_OF_SERVICE" | "PRIVACY_POLICY" | "MARKETING_CONSENT" | "OPERATION_POLICY";
-export type TermsTarget = "USER" | "CREATOR" | "SELLER";
+/** back-end `TermsTarget` — `target=USER`로 물으면 서버가 소비자 문서와 전체(ALL) 문서를 함께 준다 */
+export type TermsTarget = "ALL" | "USER" | "BRAND" | "INFLUENCER";
 
 export interface TermsDocument {
   documentId: number;

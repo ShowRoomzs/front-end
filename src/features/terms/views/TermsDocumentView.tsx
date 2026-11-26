@@ -3,7 +3,7 @@ import { View } from "react-native";
 
 import ScreenHeader from "@/common/components/ScreenHeader/ScreenHeader";
 import TermsDocumentBody from "@/features/terms/components/TermsDocumentBody/TermsDocumentBody";
-import { useGetTermsList } from "@/features/terms/hooks/useGetTerms";
+import { pickConsumerDocument, useGetTermsList } from "@/features/terms/hooks/useGetTerms";
 import { TermsType } from "@/features/terms/types/terms";
 
 /**
@@ -30,7 +30,7 @@ export default function TermsDocumentView(props: TermsDocumentViewProps) {
 
   return (
     <View className="flex-1 bg-white">
-      <ScreenHeader title={documents?.[0]?.name} onPressBack={navigation.goBack} />
+      <ScreenHeader title={pickConsumerDocument(documents)?.name} onPressBack={navigation.goBack} />
       <TermsDocumentBody termsType={termsType} />
     </View>
   );

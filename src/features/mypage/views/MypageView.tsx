@@ -1,4 +1,4 @@
-import { RouteProp, useRoute } from "@react-navigation/native";
+import { RouteProp, useFocusEffect, useRoute } from "@react-navigation/native";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { Linking, ScrollView, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -19,12 +19,14 @@ import { COMMON_ROUTES, MYPAGE_ROUTES, MyPageRouteName, ROOT_ROUTES } from "@/co
 import { MypageStackParamList } from "@/common/router/types";
 import { useUserStore } from "@/common/stores/useUserStore";
 import { COMMON_ASSETS } from "@/common/utils/assets";
+import { loadUser } from "@/common/utils/loadUser";
 import SuspensionBanner from "@/features/account/components/SuspensionBanner";
 import { useCartItemCount } from "@/features/cart/hooks/useGetCart";
 import MypageProfileCard from "@/features/mypage/components/MypageProfileCard/MypageProfileCard";
 import OrderStatusCard, {
   OrderStatusItem,
 } from "@/features/mypage/components/OrderStatusCard/OrderStatusCard";
+import { UserOrderStats } from "@/features/user/types/user";
 
 /**
  * C 마이 — 활동 내역 허브.
@@ -32,11 +34,11 @@ import OrderStatusCard, {
  * 프로필 · 주문 현황 4단계 · 쇼핑 정보 · 문의 · 도움말을 8px 회색 밴드로 끊는다.
  * 헤더 아이콘은 설정 · 장바구니 순이다.
  *
- * 주문 현황 4단계는 서버에 주문 API가 없어 지금은 모두 0(비활성)이다.
+ * 주문 현황 4단계는 `/user/me`의 orderStats(단계별 주문 수)다. 0인 칸은 회색 · 비활성이다.
  */
 const APP_VERSION = "1.0.0";
 
-const ORDER_STATUS_LABELS: Array<Pick<OrderStatusItem, "key" | "label">> = [
+const ORDER_STATUS_LABELS: Array<{ key: keyof UserOrderStats; label: string }> = [
   { key: "paid", label: "결제완료" },
   { key: "preparing", label: "상품준비중" },
   { key: "shipping", label: "배송중" },
@@ -80,10 +82,26 @@ export default function MypageView() {
     mainNavigation.navigate(ROOT_ROUTES.COMMON, { screen: COMMON_ROUTES.CART });
   }, [mainNavigation]);
 
-  // 주문 API가 없어 네 단계 모두 0이다 — 붙는 즉시 이 자리만 실제 값으로 바뀐다
+  /*
+    주문 현황 숫자는 `/user/me`의 orderStats다. 사용자 정보는 로그인 · 앱 시작 때만 받아 두므로, 주문 · 취소 뒤에
+    숫자가 낡지 않게 마이 탭에 들어올 때마다 다시 받는다. 실패하면 갖고 있던 값을 그대로 둔다.
+  */
+  const isLoggedIn = !!user;
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!isLoggedIn) {
+        return;
+      }
+      void loadUser().catch(() => undefined);
+    }, [isLoggedIn])
+  );
+
+  const orderStats = user?.orderStats;
   const orderStatusItems = useMemo(
-    (): Array<OrderStatusItem> => ORDER_STATUS_LABELS.map(item => ({ ...item, count: 0 })),
-    []
+    (): Array<OrderStatusItem> =>
+      ORDER_STATUS_LABELS.map(item => ({ ...item, count: orderStats?.[item.key] ?? 0 })),
+    [orderStats]
   );
 
   /**

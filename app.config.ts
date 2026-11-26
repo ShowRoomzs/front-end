@@ -58,6 +58,14 @@ export default ({ config }: ConfigContext): ExpoConfig => {
     ios: {
       icon: "./assets/appicon-ios.png",
       supportsTablet: true,
+      /*
+        아이패드도 세로 전체 화면으로 고정한다(11-26). 이 값이 false면 Expo가 아이패드 멀티태스킹용으로
+        네 방향을 모두 열어(UISupportedInterfaceOrientations~ipad) 위 `orientation: "portrait"`가 아이패드에는
+        걸리지 않는다 — 가로로 돌리면 상품 사진이 화면 폭(1376)만큼 커져 첫 화면이 사진으로 덮이고,
+        Split View 좁은 창은 점검하지 않았다. 앱은 폰 세로 화면 하나로 설계됐다.
+        대가는 Split View · Slide Over를 쓸 수 없다는 것(심사 지침상 허용).
+      */
+      requireFullScreen: true,
       bundleIdentifier: "com.showroomz.app",
       // 푸시(FCM) — 서버 Firebase 프로젝트에 등록한 iOS 앱 설정. 공개 저장소라 커밋하지 않는다(.gitignore) —
       // EAS 빌드는 파일 환경 변수 GOOGLE_SERVICE_INFO_PLIST가 준 경로를, 로컬은 프로젝트 루트 파일을 쓴다

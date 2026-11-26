@@ -32,7 +32,8 @@ import { useGetNotificationSettings } from "@/features/setting/hooks/useGetNotif
  * C11 알림 — C1 홈 상단 종에서만 들어온다. 단일 목록 + 날짜 구분(오늘 · 최근 7일 · 이전), 90일 보관, 필터 없음.
  *
  * - 앞 이미지 3종: 주문 · 배송 · 반품은 상품 썸네일(R4), 쇼룸 소식은 아바타(진행 중 공구면 로즈 링),
- *   문의 답변 · 약관 같은 계정 · 서비스는 회색 아이콘. 문장에서 대상(`emphasis`)만 굵게 둔다.
+ *   문의 · 약관 · 계정 같은 서비스 알림은 회색 아이콘(문의만 말풍선, 나머지는 문서). 문장에서 대상(`emphasis`)만
+ *   굵게 둔다 — `emphasis`가 `title` 안에 없으면 굵게 두지 않고 문장만 그린다.
  * - 할 일(회수 송장 · 재발송비)은 주문 내역과 같은 로즈 한 줄 + 기한.
  * - 광고성은 시간 앞에 「광고」. 광고 수신에 동의하지 않았으면 광고성 행을 빼고 동의 안내를 위에 둔다.
  * - 탭하면 읽음 처리하고 대상 화면으로 간다. 목록에 들어오면 종 배지만 초기화한다.
@@ -362,12 +363,11 @@ function NotificationRow(props: { item: NotificationItem; isUnread: boolean; onP
       {item.imageKind === "THUMB" && <Thumb uri={item.imageUrl} size={44} />}
       {(item.imageKind === "ICON" || !item.imageKind) && (
         <View className="items-center justify-center rounded-full bg-fill" style={{ width: 44, height: 44 }}>
-          {/* 시안 C11: 약관 · 서비스 고지는 문서, 그 밖(문의 답변 · 계정)은 말풍선 */}
-          {item.target.type === "TERMS" || item.target.type === "SETTINGS" ? (
-            <DocumentIcon />
-          ) : (
-            <ChatDotsIcon />
-          )}
+          {/*
+            시안 C11(11-26): 문의(답변 · 처리 중)만 말풍선, 그 밖(약관 · 설정 · 계정 정지/해제)은 문서.
+            계정 알림의 문서 아이콘은 시안도 임시라고 적어 둔 값이다
+          */}
+          {item.category === "문의" || item.target.type === "INQUIRY" ? <ChatDotsIcon /> : <DocumentIcon />}
         </View>
       )}
 

@@ -230,9 +230,8 @@ export interface OrderItemRow {
   cancelRejection: OrderItemCancelRejection | null;
   cancelRequestId: number | null;
   /**
-   * 하위주문(배송 그룹) id — 취소 요청 생성이 받는다. 서버 문서(`UserCancelDto.CreateRequest`)는
-   * 「주문 상세 items[].deliveryGroupId」라고 적었지만 2026-10-18 현재 응답에 없다 — 내려오기 전까지
-   * 취소 요청은 실제로 보낼 수 없다(`cancelRequestService.create`).
+   * 하위주문(배송 그룹) id — 취소 요청 생성(`cancelRequestService.create`)이 받는다.
+   * back-end `UserOrderDto.ItemRow.deliveryGroupId`(origin/main e316f423 기준 내려옴). 없으면 취소 요청을 보내지 않는다.
    */
   deliveryGroupId?: number | null;
   claim: OrderItemClaim | null;
